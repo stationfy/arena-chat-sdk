@@ -1,0 +1,8 @@
+{
+  "extends": [
+    "tslint:all",
+    "tslint-config-prettier",
+    "tslint-consistent-codestyle"
+  ],
+  "rules": {}
+}
