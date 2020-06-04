@@ -4,3 +4,6 @@ node_modules/
 # build and test
 dist/
 build/
+
+# os
+.DS_Store

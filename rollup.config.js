@@ -2,6 +2,7 @@ import { terser } from 'rollup-plugin-terser'
 import typescript from 'rollup-plugin-typescript2'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
+import replace from '@rollup/plugin-replace'
 
 const terserInstance = terser({
   mangle: {
@@ -12,6 +13,9 @@ const terserInstance = terser({
 })
 
 const plugins = [
+  replace({
+    'firebase.initializeApp': 'firebase.default.initializeApp'
+  }),
   typescript({
     tsconfig: 'tsconfig.build.json',
     tsconfigOverride: {
