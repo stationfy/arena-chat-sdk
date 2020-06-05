@@ -23,5 +23,6 @@ export function init(apiKey: string): void {
 
   realTimeBaseApi.listenToMessage((data: ChatMessage[]) => {
     console.log(data);
-  });
+    console.log('hey!');
+  }, 15);
 }

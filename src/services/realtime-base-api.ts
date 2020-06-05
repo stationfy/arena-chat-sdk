@@ -5,16 +5,17 @@ import { ChatMessage } from '../types/chat-message';
 /** Base realtime class implementation */
 export class RealtimeBaseAPI implements RealtimeBase {
   /** Unsubscribe functions */
-  private unsbscriteFunctions: Function[] = [];
+  private unsbscriteFunctions: (() => void)[] = [];
 
   public constructor(private channel: string) {}
 
   /**
    * @inheritDoc
    */
-  public listenToMessage(callback: (messages: ChatMessage[]) => void) {
+  public listenToMessage(callback: (messages: ChatMessage[]) => void, limit?: number) {
     const unsubscribe = listenToChange({
       path: `chat-rooms/${this.channel}/messages`,
+      limit,
       callback: (data) => {
         const messages = data.map((messageData) => ({
           createdAt: messageData.createdAt,

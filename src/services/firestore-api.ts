@@ -1,5 +1,6 @@
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
+import { OrderBy, ListenChangeConfig } from '../types/firestore';
 
 const config = {
   apiKey: 'AIzaSyB403ShuFdFs733kTm7HJyVTkswCQlUmTA',
@@ -12,31 +13,11 @@ const app = firebase.initializeApp(config);
 
 const firestore = app.firestore();
 
-interface OrderBy {
-  field: string;
-  desc?: boolean;
-}
-
-interface Where {
-  fieldPath: string;
-  opStr: firebase.firestore.WhereFilterOp;
-  value: any;
-}
-
-interface ListenChangeConfig {
-  path: string;
-  callback: (messages: firebase.firestore.DocumentData[]) => void;
-  limit?: number;
-  orderBy?: OrderBy[];
-  startAt?: any[];
-  where?: Where[];
-}
-
 /**
  *
  * @param listnConfig
  */
-export function listenToChange({ path, callback, limit, orderBy, where }: ListenChangeConfig): Function {
+export function listenToChange({ path, callback, limit, orderBy, where }: ListenChangeConfig): () => void {
   let queryRef = getQueryRefByPath(path);
 
   if (queryRef === null) {

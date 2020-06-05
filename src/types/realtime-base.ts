@@ -7,7 +7,7 @@ export interface RealtimeBase {
    *
    * @param callback Callback function
    */
-  listenToMessage(callback: (messages: ChatMessage[]) => void): void;
+  listenToMessage(callback: (messages: ChatMessage[]) => void, limit?: number): void;
 
   /**
    * Listen to chat config changes
