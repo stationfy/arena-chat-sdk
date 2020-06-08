@@ -7,11 +7,11 @@ export interface User {
 }
 
 export interface BanUser {
-  anonymousId: string;
+  anonymousId?: string;
   image: string;
   name: string;
   siteId: string;
-  userId: string;
+  userId?: string;
 }
 
 interface UserThumbnail {

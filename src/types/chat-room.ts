@@ -12,7 +12,7 @@ export interface ChatRoom {
   language: string;
   name: string;
   presenceId: string;
-  profanityFilterType: string;
+  profanityFilterType?: string;
   reactionsEnabled: boolean;
   showOnlineUsersNumber: boolean;
   signUpRequired: boolean;

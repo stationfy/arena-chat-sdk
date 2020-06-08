@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": ".",
+    "types": ["node", "jest"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "exclude": ["dist", "build"],
+  "include": ["src/**/*.ts"]
 }
