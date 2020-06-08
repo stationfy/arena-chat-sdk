@@ -40,8 +40,8 @@ describe('RestAPI', () => {
     };
 
     site = {
-      id: '1234',
-      name: 'hey1',
+      _id: '1234',
+      displayName: 'hey1',
     };
 
     XHRTransport.mockClear();
@@ -70,9 +70,9 @@ describe('RestAPI', () => {
         };
       });
 
-      const restAPI = new RestAPI(chatRoom, site);
+      const restAPI = new RestAPI();
 
-      const response = await restAPI.sendMessage(message);
+      const response = await restAPI.sendMessage(chatRoom, message);
 
       expect(response).toEqual(message);
     });
@@ -143,9 +143,9 @@ describe('RestAPI', () => {
         };
       });
 
-      const restAPI = new RestAPI(chatRoom, site);
+      const restAPI = new RestAPI();
 
-      const response = await restAPI.reportMessage(report);
+      const response = await restAPI.reportMessage(chatRoom, report);
 
       expect(response).toEqual(report);
     });
@@ -158,10 +158,10 @@ describe('RestAPI', () => {
         };
       });
 
-      const restAPI = new RestAPI(chatRoom, site);
+      const restAPI = new RestAPI();
 
       try {
-        await restAPI.reportMessage(report);
+        await restAPI.reportMessage(chatRoom, report);
       } catch (e) {
         expect(e).toEqual('failed');
       }
@@ -179,9 +179,9 @@ describe('RestAPI', () => {
         };
       });
 
-      const restAPI = new RestAPI(chatRoom, site);
+      const restAPI = new RestAPI();
 
-      await restAPI.requestModeration();
+      await restAPI.requestModeration(site, chatRoom);
 
       expect(mockPost).toHaveBeenCalledWith('/data/moderation/request-mod-status', {
         chatRoomId: '1234',
@@ -239,13 +239,13 @@ describe('RestAPI', () => {
 
       const request: DeleteChatMessageRequest = {
         data: {
-          siteId: site.id,
+          siteId: site._id,
         },
       };
 
-      const restAPI = new RestAPI(chatRoom, site);
+      const restAPI = new RestAPI();
 
-      await restAPI.deleteMessage(message);
+      await restAPI.deleteMessage(site, chatRoom, message);
 
       expect(mockPost).toBeCalledWith('/data/chat-room/1234/messages/1235', request);
     });
