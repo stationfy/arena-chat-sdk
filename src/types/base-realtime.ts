@@ -1,7 +1,7 @@
 import { ChatMessage } from './chat-message';
 
 /** Realtime used to listen to realtime events */
-export interface RealtimeBase {
+export interface BaseRealtime {
   /**
    * Listen to the chat messages
    *

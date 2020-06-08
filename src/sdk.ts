@@ -1,4 +1,4 @@
-import { RealtimeBaseAPI } from './services/realtime-base-api';
+import { RealtimeAPI } from './services/realtime-api';
 import { ChatMessage } from './types/chat-message';
 
 /**
@@ -19,9 +19,9 @@ import { ChatMessage } from './types/chat-message';
 export function init(apiKey: string): void {
   console.log(apiKey);
 
-  const realTimeBaseApi = new RealtimeBaseAPI('5ecfbf0a9d9da700083cef61');
+  const realTimeApi = new RealtimeAPI('5ecfbf0a9d9da700083cef61');
 
-  realTimeBaseApi.listenToMessage((data: ChatMessage[]) => {
+  realTimeApi.listenToMessage((data: ChatMessage[]) => {
     console.log(data);
     console.log('hey!');
   }, 15);

@@ -8,9 +8,9 @@ const fallbackGlobalObject = {};
 export function getGlobalObject<T>(): T {
   return (isNodeEnv()
     ? global
-    : typeof window !== "undefined"
+    : typeof window !== 'undefined'
     ? window
-    : typeof self !== "undefined"
+    : typeof self !== 'undefined'
     ? self
     : fallbackGlobalObject) as T;
 }
@@ -22,9 +22,15 @@ export function getGlobalObject<T>(): T {
  */
 export function isNodeEnv(): boolean {
   // tslint:disable:strict-type-predicates
-  return (
-    Object.prototype.toString.call(
-      typeof process !== "undefined" ? process : 0
-    ) === "[object process]"
-  );
+  return Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]';
+}
+
+/**
+ * Get the request URL
+ *
+ * @param baseURL Arena service base url
+ * @param path service route
+ */
+export function getRequestURL(baseURL: string, path: string): string {
+  return `${baseURL}${path.startsWith('/') ? '' : '/'}${path}`;
 }

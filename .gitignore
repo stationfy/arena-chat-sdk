@@ -4,6 +4,7 @@ node_modules/
 # build and test
 dist/
 build/
+coverage/
 
 # os
 .DS_Store

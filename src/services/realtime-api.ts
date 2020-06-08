@@ -1,9 +1,9 @@
-import { RealtimeBase } from '../types/realtime-base';
+import { BaseRealtime } from '../types/base-realtime';
 import { listenToChange } from './firestore-api';
 import { ChatMessage } from '../types/chat-message';
 
 /** Base realtime class implementation */
-export class RealtimeBaseAPI implements RealtimeBase {
+export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe functions */
   private unsbscriteFunctions: (() => void)[] = [];
 
