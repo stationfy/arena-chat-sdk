@@ -1,4 +1,4 @@
-import { BaseRest } from '../types/base-rest';
+import { BaseRest, BaseRestOptions } from '../types/base-rest';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '../types/chat-message';
 import { BanUser } from '../types/user';
 import { supportsFetch } from '../utils/supports';
@@ -10,31 +10,38 @@ import { XHRTransport } from './xhr-transport';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {
+  private baseURL = 'https://api-dev.arena.im/v2';
   private transport: BaseTransport;
 
-  public constructor(private chatRoom: ChatRoom, private site: Site) {
-    const authToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
+  public constructor(options?: BaseRestOptions) {
+    const { url, authToken } = options || {};
+    // const authToken =
+    //   'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
+
+    if (url) {
+      this.baseURL = url;
+    }
+
     if (supportsFetch()) {
-      this.transport = new FetchTransport(authToken);
+      this.transport = new FetchTransport(this.baseURL, authToken);
     } else {
-      this.transport = new XHRTransport(authToken);
+      this.transport = new XHRTransport(this.baseURL, authToken);
     }
   }
 
   /**
    * @inheritdoc
    */
-  public sendMessage(message: ChatMessage): PromiseLike<ChatMessage> {
-    return this.transport.post<ChatMessage, ChatMessage>(`/data/chat-room/${this.chatRoom.id}`, message);
+  public sendMessage(chatRoom: ChatRoom, message: ChatMessage): PromiseLike<ChatMessage> {
+    return this.transport.post<ChatMessage, ChatMessage>(`/data/chat-room/${chatRoom.id}`, message);
   }
 
   /**
    * @inheritdoc
    */
-  public reportMessage(report: ChatMessageReport): PromiseLike<ChatMessageReport> {
+  public reportMessage(chatRoom: ChatRoom, report: ChatMessageReport): PromiseLike<ChatMessageReport> {
     return this.transport.post<ChatMessageReport, ChatMessageReport>(
-      `/data/chat-room/${this.chatRoom.id}/report/${report.message.key}`,
+      `/data/chat-room/${chatRoom.id}/report/${report.message.key}`,
       report,
     );
   }
@@ -42,10 +49,10 @@ export class RestAPI implements BaseRest {
   /**
    * @inheritdoc
    */
-  public requestModeration(): PromiseLike<void> {
+  public requestModeration(site: Site, chatRoom: ChatRoom): PromiseLike<void> {
     const request: ChatModerationRequest = {
-      siteId: this.site.id,
-      chatRoomId: this.chatRoom.id,
+      siteId: site._id,
+      chatRoomId: chatRoom.id,
     };
 
     return this.transport.post<void, ChatModerationRequest>('/data/moderation/request-mod-status', request);
@@ -61,15 +68,29 @@ export class RestAPI implements BaseRest {
   /**
    * @inheritdoc
    */
-  public deleteMessage(message: ChatMessage): PromiseLike<void> {
+  public deleteMessage(site: Site, chatRoom: ChatRoom, message: ChatMessage): PromiseLike<void> {
     const request: DeleteChatMessageRequest = {
       data: {
-        siteId: this.site.id,
+        siteId: site._id,
       },
     };
     return this.transport.post<void, DeleteChatMessageRequest>(
-      `/data/chat-room/${this.chatRoom.id}/messages/${message.key}`,
+      `/data/chat-room/${chatRoom.id}/messages/${message.key}`,
       request,
     );
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public loadChatRoom(siteSlug: string, channel: string): PromiseLike<{ chatRoom: ChatRoom; site: Site }> {
+    return this.transport
+      .get<{ chatInfo: ChatRoom; publisher: Site }>(`/chatroom/${siteSlug}/${channel}`)
+      .then((cached) => {
+        return {
+          chatRoom: cached.chatInfo,
+          site: cached.publisher,
+        };
+      });
   }
 }

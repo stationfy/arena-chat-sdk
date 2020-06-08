@@ -5,14 +5,14 @@ import { Status } from '../types/status';
 
 /** Base transport class implementation */
 export class FetchTransport implements BaseTransport {
-  private baseURL = 'https://api-dev.arena.im/v2';
-
   private headers = new Headers();
 
   private global = getGlobalObject<Window>();
 
-  public constructor(authToken: string) {
-    this.headers.append('Authorization', `Bearer ${authToken}`);
+  public constructor(private baseURL: string, authToken?: string) {
+    if (authToken) {
+      this.headers.append('Authorization', `Bearer ${authToken}`);
+    }
   }
 
   /**

@@ -1,1 +1,3 @@
-export * from './exports';
+import { ArenaChat } from './sdk';
+
+export default ArenaChat;

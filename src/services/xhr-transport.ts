@@ -5,12 +5,12 @@ import { getRequestURL } from '../utils/misc';
 
 /** Base transport class implementation */
 export class XHRTransport implements BaseTransport {
-  private baseURL = 'https://api-dev.arena.im/v2';
-
   private headers: XHRHeaders = {};
 
-  public constructor(authToken: string) {
-    this.headers.Authorization = `Bearer ${authToken}`;
+  public constructor(private baseURL: string, authToken?: string) {
+    if (authToken) {
+      this.headers.Authorization = `Bearer ${authToken}`;
+    }
   }
 
   /**
