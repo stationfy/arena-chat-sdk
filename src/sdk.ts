@@ -1,5 +1,7 @@
-import { RealtimeAPI } from './services/realtime-api';
 import { ChatMessage } from './types/chat-message';
+import { RestAPI } from './services/rest-api';
+import { ChatRoom } from './types/chat-room';
+import { Site } from './types/site';
 
 /**
  * Chat SDK Client
@@ -16,13 +18,59 @@ import { ChatMessage } from './types/chat-message';
  * init('API_KEY')
  *```
  */
-export function init(apiKey: string): void {
+export async function init(apiKey: string): Promise<void> {
   console.log(apiKey);
 
-  const realTimeApi = new RealtimeAPI('5ecfbf0a9d9da700083cef61');
+  const chatRoom: ChatRoom = {
+    allowSendGifs: true,
+    allowShareUrls: true,
+    chatAutoOpen: false,
+    chatClosedIsEnabled: false,
+    chatPreModerationIsEnabled: true,
+    chatPreviewEnabled: true,
+    chatRequestModeratorIsEnabled: true,
+    createdAt: 1590673162238,
+    id: '5ecfbf0a9d9da700083cef61',
+    lang: 'pt-br',
+    language: 'pt-br',
+    name: 'Sign up 2',
+    presenceId: '-M8QVYunmG9FFwW955sj',
+    reactionsEnabled: true,
+    showOnlineUsersNumber: true,
+    signUpRequired: false,
+    signUpSettings: {
+      suggest: true,
+      type: 'SIGN_UP_NOT_REQUIRED',
+    },
+    siteId: '5e308d3468fd630008d02305',
+    slug: 'twf1',
+    standalone: true,
+  };
 
-  realTimeApi.listenToMessage((data: ChatMessage[]) => {
-    console.log(data);
-    console.log('hey!');
-  }, 15);
+  const site: Site = {
+    id: '5e308d3468fd630008d02305',
+    name: 'globoesporte',
+  };
+
+  const message: ChatMessage = {
+    message: {
+      text: 'hey!',
+    },
+    publisherId: '5e308d3468fd630008d02305',
+    sender: {
+      anonymousId: '111234',
+      displayName: 'Kristin Mckinney',
+      photoURL: 'https://randomuser.me/api/portraits/women/12.jpg',
+    },
+  };
+
+  const restApi = new RestAPI(chatRoom, site);
+
+  try {
+    const response = await restApi.sendMessage(message);
+
+    console.log({ response });
+  } catch (e) {
+    console.log('error: ', e);
+  }
 }

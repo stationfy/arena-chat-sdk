@@ -1,8 +1,8 @@
 export interface ChatMessage {
-  createdAt: number;
-  key: string;
+  createdAt?: number;
+  key?: string;
   message: ChatMessageContent;
-  siteId: string;
+  publisherId: string;
   referer?: string;
   replyMessage?: ChatMessage;
   sender: ChatMessageSender;
@@ -14,7 +14,7 @@ export interface ChatMessageSender {
   uid?: string;
   displayName: string;
   photoURL: string;
-  isPublisher: boolean;
+  isPublisher?: boolean;
 }
 
 export interface ChatMessageContent {

@@ -21,7 +21,7 @@ export class RealtimeAPI implements BaseRealtime {
           createdAt: messageData.createdAt,
           key: messageData.key,
           message: messageData.message,
-          siteId: messageData.publisherId,
+          publisherId: messageData.publisherId,
           referer: messageData.referer,
           replyMessage: messageData.replyMessage,
           sender: messageData.sender,
