@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/stationfy/arena-chat-sdk#readme",
   "engines": {
-    "node": "12.17.0"
+    "node": ">=6"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

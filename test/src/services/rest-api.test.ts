@@ -44,6 +44,7 @@ describe('RestAPI', () => {
       displayName: 'hey1',
     };
 
+    // @ts-ignore
     XHRTransport.mockClear();
   });
   describe('sendMessage()', () => {
@@ -54,7 +55,7 @@ describe('RestAPI', () => {
         message: {
           text: 'hey!',
         },
-        siteId: '1234',
+        publisherId: '1234',
         sender: {
           displayName: 'Cesar',
           photoURL: 'http://www.google.com',
@@ -83,7 +84,7 @@ describe('RestAPI', () => {
         message: {
           text: 'hey!',
         },
-        siteId: '1234',
+        publisherId: '1234',
         sender: {
           displayName: 'Cesar',
           photoURL: 'http://www.google.com',
@@ -99,10 +100,10 @@ describe('RestAPI', () => {
         };
       });
 
-      const restAPI = new RestAPI(chatRoom, site);
+      const restAPI = new RestAPI();
 
       try {
-        await restAPI.sendMessage(message);
+        await restAPI.sendMessage(chatRoom, message);
       } catch (e) {
         expect(e).toEqual('failed');
       }
@@ -116,7 +117,7 @@ describe('RestAPI', () => {
       message: {
         text: 'hey!',
       },
-      siteId: '1234',
+      publisherId: '1234',
       sender: {
         displayName: 'Cesar',
         photoURL: 'http://www.google.com',
@@ -205,7 +206,7 @@ describe('RestAPI', () => {
         };
       });
 
-      const restAPI = new RestAPI(chatRoom, site);
+      const restAPI = new RestAPI();
 
       const response = await restAPI.banUser(banUser);
 
@@ -220,7 +221,7 @@ describe('RestAPI', () => {
       message: {
         text: 'hey!',
       },
-      siteId: '1234',
+      publisherId: '1234',
       sender: {
         displayName: 'Cesar',
         photoURL: 'http://www.google.com',

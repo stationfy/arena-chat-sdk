@@ -15,8 +15,6 @@ export class RestAPI implements BaseRest {
 
   public constructor(options?: BaseRestOptions) {
     const { url, authToken } = options || {};
-    // const authToken =
-    //   'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
 
     if (url) {
       this.baseURL = url;
