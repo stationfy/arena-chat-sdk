@@ -50,6 +50,7 @@
     "build:watch": "run-p build:es5:watch build:bundle:watch",
     "clean": "rimraf dist coverage build",
     "lint": "eslint . --ext .js,.ts",
+    "pre-commit": "yarn lint-staged",
     "size:check": "run-p size:check:es5",
     "size:check:es5": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"ES5: \",$1,\"kB\";}'",
     "test": "jest",
