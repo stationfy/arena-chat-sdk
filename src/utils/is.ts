@@ -36,7 +36,5 @@ export function isPlainObject(wat: any): boolean {
  * @param wat A value to be checked.
  */
 export function isThenable(wat: any): boolean {
-  // tslint:disable:no-unsafe-any
   return Boolean(wat && wat.then && typeof wat.then === 'function');
-  // tslint:enable:no-unsafe-any
 }

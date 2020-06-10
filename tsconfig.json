@@ -21,17 +21,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "es5",
-    "strictBindCallApply": false,
-    "plugins": [
-      {
-        "name": "typescript-tslint-plugin",
-        "alwaysShowRuleFailuresAsWarnings": false,
-        "ignoreDefinitionFiles": true,
-        "configFile": "./tslint.json",
-        "suppressWhileTypeErrorsPresent": false,
-        "mockTypeScriptVersion": false
-      }
-    ]
+    "strictBindCallApply": false
   },
   "include": ["src/**/*", "test/**/*"]
 }

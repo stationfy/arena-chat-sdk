@@ -12,7 +12,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritDoc
    */
-  public listenToMessage(callback: (messages: ChatMessage[]) => void, limit?: number) {
+  public listenToMessage(callback: (messages: ChatMessage[]) => void, limit?: number): void {
     const unsubscribe = listenToChange({
       path: `chat-rooms/${this.channel}/messages`,
       limit,
@@ -37,7 +37,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToBannedUsers(callback: Function) {
+  public listenToBannedUsers(callback: Function): void {
     console.log(callback);
     // const unsubscribe = listenToChange({
     //   path: 'banned-users',
@@ -56,7 +56,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatConfigChanges(callback: Function) {
+  public listenToChatConfigChanges(callback: Function): void {
     console.log(callback);
     // const unsubscribe = listenToChange({
     //   path: `chat-rooms/${this.channel}`,
@@ -66,7 +66,7 @@ export class RealtimeAPI implements BaseRealtime {
   }
 
   /** Unsubscribe from all listeners */
-  public unsubscribeAll() {
+  public unsubscribeAll(): void {
     this.unsbscriteFunctions.forEach((fn) => fn());
   }
 }

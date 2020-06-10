@@ -12,11 +12,8 @@ export function supportsFetch(): boolean {
   }
 
   try {
-    // tslint:disable-next-line:no-unused-expression
     new Headers();
-    // tslint:disable-next-line:no-unused-expression
     new Request('');
-    // tslint:disable-next-line:no-unused-expression
     new Response();
     return true;
   } catch (e) {

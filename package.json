@@ -22,9 +22,15 @@
     "@types/jest": "^25.2.3",
     "@types/node": "^14.0.9",
     "@types/sinon": "^9.0.4",
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
+    "eslint": "^7.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "husky": "^4.2.5",
     "jest": "^26.0.1",
+    "lint-staged": "^10.2.9",
     "npm-run-all": "4.1.5",
-    "prettier": "2.0.5",
+    "prettier": "^2.0.5",
     "prettier-check": "2.0.0",
     "rimraf": "3.0.2",
     "rollup": "2.10.5",
@@ -33,9 +39,6 @@
     "rollup-plugin-terser": "5.3.0",
     "rollup-plugin-typescript2": "0.27.1",
     "ts-jest": "^26.1.0",
-    "tslint": "6.1.2",
-    "tslint-config-prettier": "1.18.0",
-    "tslint-consistent-codestyle": "1.16.0",
     "typescript": "3.9.5"
   },
   "scripts": {
@@ -73,5 +76,14 @@
   },
   "dependencies": {
     "firebase": "^7.14.6"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,css,md}": "prettier --write"
   }
 }

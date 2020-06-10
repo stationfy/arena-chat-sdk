@@ -29,7 +29,7 @@ export class ArenaChat {
    *
    * @param channel Chat slug
    */
-  public async getChannel(channel: string) {
+  public async getChannel(channel: string): Promise<Channel> {
     const restAPI = new RestAPI({ url: 'https://cached-api-dev.arena.im/v1' });
 
     const { chatRoom, site } = await restAPI.loadChatRoom(this.apiKey, channel);

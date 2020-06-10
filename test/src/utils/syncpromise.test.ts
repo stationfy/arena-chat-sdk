@@ -17,9 +17,9 @@ describe('SyncPromise', () => {
     return new SyncPromise<number>((resolve) => {
       resolve(42);
     })
-      .then((_) => SyncPromise.resolve('a'))
-      .then((_) => SyncPromise.resolve(0.1))
-      .then((_) => SyncPromise.resolve(false))
+      .then(() => SyncPromise.resolve('a'))
+      .then(() => SyncPromise.resolve(0.1))
+      .then(() => SyncPromise.resolve(false))
       .then((val) => {
         expect(val).toBe(false);
       });
