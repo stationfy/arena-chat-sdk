@@ -1,5 +1,6 @@
 {
   "*.{ts,js,json,md}": [
+    "eslint",
     "prettier --write",
     "git add"
   ]
