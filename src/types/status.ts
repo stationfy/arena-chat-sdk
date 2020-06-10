@@ -14,6 +14,7 @@ export enum Status {
   Failed = 'failed',
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Status {
   /**
    * Converts a HTTP status code into a {@link Status}

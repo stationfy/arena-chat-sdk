@@ -81,7 +81,7 @@ describe('FetchTransport', () => {
   });
 });
 
-function mockFetch(status: number, data?: {}) {
+function mockFetch(status: number, data?: { [key: string]: string }) {
   const response = { status, json: () => Promise.resolve(data) };
 
   window = jest.spyOn(misc, 'getGlobalObject');

@@ -66,7 +66,9 @@ describe('RestAPI', () => {
       // @ts-ignore
       XHRTransport.mockImplementation(() => {
         return {
-          post: (path: string, payload: {}) => Promise.resolve(payload),
+          post: function <T>(path: string, payload: T) {
+            Promise.resolve(payload);
+          },
           get: () => Promise.resolve(message),
         };
       });
@@ -139,7 +141,9 @@ describe('RestAPI', () => {
       // @ts-ignore
       XHRTransport.mockImplementation(() => {
         return {
-          post: (path: string, payload: {}) => Promise.resolve(payload),
+          post: function <T>(path: string, payload: T) {
+            Promise.resolve(payload);
+          },
           get: () => Promise.resolve(message),
         };
       });

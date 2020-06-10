@@ -5,6 +5,7 @@
  * @param wat A value to be checked.
  * @returns A boolean representing the result.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isString(wat: any): boolean {
   return Object.prototype.toString.call(wat) === '[object String]';
 }
@@ -16,6 +17,7 @@ export function isString(wat: any): boolean {
  * @param wat A value to be checked.
  * @returns A boolean representing the result.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isPrimitive(wat: any): boolean {
   return wat === null || (typeof wat !== 'object' && typeof wat !== 'function');
 }
@@ -27,6 +29,7 @@ export function isPrimitive(wat: any): boolean {
  * @param wat A value to be checked.
  * @returns A boolean representing the result.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isPlainObject(wat: any): boolean {
   return Object.prototype.toString.call(wat) === '[object Object]';
 }
@@ -35,6 +38,7 @@ export function isPlainObject(wat: any): boolean {
  * Checks whether given value has a then function.
  * @param wat A value to be checked.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function isThenable(wat: any): boolean {
   return Boolean(wat && wat.then && typeof wat.then === 'function');
 }

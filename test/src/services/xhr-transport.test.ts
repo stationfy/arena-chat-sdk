@@ -72,7 +72,7 @@ describe('FetchTransport', () => {
   });
 });
 
-function mockFetch(status: number, data?: {}) {
+function mockFetch(status: number, data?: { [key: string]: string }) {
   const xhrMockObj = {
     open: jest.fn(),
     send: jest.fn(),

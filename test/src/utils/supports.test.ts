@@ -1,9 +1,9 @@
 import { supportsFetch } from '../../../src/utils/supports';
 import * as misc from '../../../src/utils/misc';
 
-let headers = global.Headers;
-let request = global.Request;
-let response = global.Response;
+const headers = global.Headers;
+const request = global.Request;
+const response = global.Response;
 
 describe('supportsFetch()', () => {
   beforeEach(() => {

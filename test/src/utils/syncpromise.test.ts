@@ -60,7 +60,7 @@ describe('SyncPromise', () => {
       new Promise<string>((resolve) => {
         s.then((val) => {
           resolve(prepend + val);
-        }).then(null, (_) => {
+        }).then(null, () => {
           // bla
         });
       });
@@ -124,7 +124,7 @@ describe('SyncPromise', () => {
         resolve(41);
       })
         .then(done)
-        .then(null, (_) => {
+        .then(null, () => {
           //
         });
     }).then((val) => {
@@ -149,9 +149,9 @@ describe('SyncPromise', () => {
   test('calling the callback immediatly', () => {
     expect.assertions(1);
 
-    let foo: number = 1;
+    let foo = 1;
 
-    new SyncPromise<number>((_) => {
+    new SyncPromise<number>(() => {
       foo = 2;
     });
 
@@ -241,7 +241,7 @@ describe('SyncPromise', () => {
     return new SyncPromise<number>((_, reject) => {
       reject('test');
     })
-      .then((_) => {
+      .then(() => {
         expect(true).toBeFalsy();
       })
       .then(null, (reason) => {

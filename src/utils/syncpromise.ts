@@ -46,6 +46,7 @@ class SyncPromise<T> implements PromiseLike<T> {
   }
 
   /** JSDoc */
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   public static reject<T = never>(reason?: any): PromiseLike<T> {
     return new SyncPromise((_, reject) => {
       reject(reason);
