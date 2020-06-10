@@ -2,6 +2,7 @@ import { RestAPI } from './services/rest-api';
 import { ChatRoom } from './types/chat-room';
 import { ChatMessage } from './types/chat-message';
 import { Site } from './types/site';
+import { Status } from './types/status';
 
 /**
  * Chat SDK Client
@@ -32,9 +33,19 @@ export class ArenaChat {
   public async getChannel(channel: string): Promise<Channel> {
     const restAPI = new RestAPI({ url: 'https://cached-api-dev.arena.im/v1' });
 
-    const { chatRoom, site } = await restAPI.loadChatRoom(this.apiKey, channel);
+    try {
+      const { chatRoom, site } = await restAPI.loadChatRoom(this.apiKey, channel);
 
-    return new Channel(chatRoom, site);
+      return new Channel(chatRoom, site);
+    } catch (e) {
+      let erroMessage = 'Internal Server Error. Contact the Arena support team.';
+
+      if (e === Status.Invalid) {
+        erroMessage = `Invalid site (${this.apiKey}) or channel (${channel}) slugs.`;
+      }
+
+      throw new Error(erroMessage);
+    }
   }
 }
 
@@ -60,8 +71,12 @@ class Channel {
       },
     };
 
-    const response = await this.restAPI.sendMessage(this.chatRoom, chatMessage);
+    try {
+      const response = await this.restAPI.sendMessage(this.chatRoom, chatMessage);
 
-    return response;
+      return response;
+    } catch (e) {
+      throw new Error(`Cannot send this message: ${text}. Contact the Arena support team.`);
+    }
   }
 }
