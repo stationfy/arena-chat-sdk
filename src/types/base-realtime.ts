@@ -14,12 +14,12 @@ export interface BaseRealtime {
    *
    * @param callback Callback function
    */
-  listenToChatConfigChanges(callback: Function): void;
+  listenToChatConfigChanges(callback: () => void): void;
 
   /**
    * Listen to banned users
    *
    * @param callback Callback function
    */
-  listenToBannedUsers(callback: Function): void;
+  listenToBannedUsers(callback: () => void): void;
 }

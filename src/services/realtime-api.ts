@@ -37,7 +37,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToBannedUsers(callback: Function): void {
+  public listenToBannedUsers(callback: () => void): void {
     console.log(callback);
     // const unsubscribe = listenToChange({
     //   path: 'banned-users',
@@ -56,7 +56,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatConfigChanges(callback: Function): void {
+  public listenToChatConfigChanges(callback: () => void): void {
     console.log(callback);
     // const unsubscribe = listenToChange({
     //   path: `chat-rooms/${this.channel}`,
