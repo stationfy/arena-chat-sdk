@@ -54,6 +54,7 @@ export class XHRTransport implements BaseTransport {
       request.open('DELETE', url);
 
       for (const header in this.headers) {
+        // eslint-disable-next-line no-prototype-builtins
         if (this.headers.hasOwnProperty(header)) {
           request.setRequestHeader(header, this.headers[header]);
         }
@@ -93,6 +94,7 @@ export class XHRTransport implements BaseTransport {
       request.open(method, url);
 
       for (const header in this.headers) {
+        // eslint-disable-next-line no-prototype-builtins
         if (this.headers.hasOwnProperty(header)) {
           request.setRequestHeader(header, this.headers[header]);
         }
