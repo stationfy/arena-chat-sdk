@@ -8,3 +8,6 @@ coverage/
 
 # os
 .DS_Store
+
+# Optional eslint cache
+.eslintcache
