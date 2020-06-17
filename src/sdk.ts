@@ -1,8 +1,6 @@
 import { RestAPI } from './services/rest-api';
-import { ChatRoom } from './types/chat-room';
-import { ChatMessage } from './types/chat-message';
-import { Site } from './types/site';
 import { Status } from './types/status';
+import { Channel } from './channel/channel';
 
 /**
  * Chat SDK Client
@@ -45,38 +43,6 @@ export class ArenaChat {
       }
 
       throw new Error(erroMessage);
-    }
-  }
-}
-
-class Channel {
-  private restAPI: RestAPI;
-
-  public constructor(private chatRoom: ChatRoom, private site: Site) {
-    const authToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
-    this.restAPI = new RestAPI({ authToken });
-  }
-
-  public async sendMessage(text: string): Promise<ChatMessage> {
-    const chatMessage: ChatMessage = {
-      message: {
-        text,
-      },
-      publisherId: this.site._id,
-      sender: {
-        photoURL: 'https://randomuser.me/api/portraits/women/12.jpg',
-        displayName: 'Kristin Mckinney',
-        anonymousId: '123456',
-      },
-    };
-
-    try {
-      const response = await this.restAPI.sendMessage(this.chatRoom, chatMessage);
-
-      return response;
-    } catch (e) {
-      throw new Error(`Cannot send this message: ${text}. Contact the Arena support team.`);
     }
   }
 }

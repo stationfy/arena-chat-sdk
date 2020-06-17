@@ -14,10 +14,15 @@ const app = firebase.initializeApp(config);
 const firestore = app.firestore();
 
 /**
+ * Listen to a collection on firestore
  *
- * @param listnConfig
+ * @param options Listen config
+ * @param callback
  */
-export function listenToChange({ path, callback, limit, orderBy, where }: ListenChangeConfig): () => void {
+export function listenToCollectionChange(
+  { path, limit, orderBy, where }: ListenChangeConfig,
+  callback: (response: firebase.firestore.DocumentData[]) => void,
+): () => void {
   let queryRef = getQueryRefByPath(path);
 
   if (queryRef === null) {
@@ -54,17 +59,52 @@ export function listenToChange({ path, callback, limit, orderBy, where }: Listen
 
   return queryRef.onSnapshot(
     (querySnapshot) => {
-      if (!querySnapshot.forEach) {
-        callback([]);
+      const results: firebase.firestore.DocumentData[] = [];
+
+      querySnapshot.forEach((doc) => {
+        results.push(doc.data());
+      });
+
+      callback(results);
+    },
+    function (err) {
+      console.log('listen error', err, path);
+    },
+  );
+}
+
+/**
+ * Listen to a document on firestore
+ *
+ * @param options Listen config
+ * @param callback
+ */
+export function listenToDocumentChange(
+  { path, where }: ListenChangeConfig,
+  callback: (response: firebase.firestore.DocumentData) => void,
+): () => void {
+  let queryRef = getQueryRefByPath(path);
+
+  if (queryRef === null) {
+    throw new Error(`Invalid path: ${path}`);
+  }
+
+  if (where) {
+    where.forEach((whereClause) => {
+      if (queryRef === null) {
         return;
       }
 
-      const items: firebase.firestore.DocumentData[] = [];
-      querySnapshot.forEach((doc) => {
-        items.push(doc.data());
-      });
+      queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
+    });
+  }
 
-      callback(items);
+  return queryRef.onSnapshot(
+    (querySnapshot) => {
+      // @ts-ignore
+      const result = querySnapshot.data();
+
+      callback(result);
     },
     function (err) {
       console.log('listen error', err, path);
@@ -97,5 +137,5 @@ function getQueryRefByPath(path: string): firebase.firestore.Query | null {
     }
   });
 
-  return collectionRef;
+  return isNextCollection ? documentRef : collectionRef;
 }

@@ -1,6 +1,7 @@
 import { BaseRealtime } from '../types/base-realtime';
-import { listenToChange } from './firestore-api';
+import { listenToCollectionChange, listenToDocumentChange } from './firestore-api';
 import { ChatMessage } from '../types/chat-message';
+import { ChatRoom } from '../types/chat-room';
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {
@@ -13,11 +14,13 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritDoc
    */
   public listenToMessage(callback: (messages: ChatMessage[]) => void, limit?: number): void {
-    const unsubscribe = listenToChange({
-      path: `chat-rooms/${this.channel}/messages`,
-      limit,
-      callback: (data) => {
-        const messages = data.map((messageData) => ({
+    const unsubscribe = listenToCollectionChange(
+      {
+        path: `chat-rooms/${this.channel}/messages`,
+        limit,
+      },
+      (response) => {
+        const messages: ChatMessage[] = response.map((messageData) => ({
           createdAt: messageData.createdAt,
           key: messageData.key,
           message: messageData.message,
@@ -29,7 +32,7 @@ export class RealtimeAPI implements BaseRealtime {
 
         callback(messages);
       },
-    });
+    );
 
     this.unsbscriteFunctions.push(unsubscribe);
   }
@@ -56,13 +59,18 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatConfigChanges(callback: () => void): void {
-    console.log(callback);
-    // const unsubscribe = listenToChange({
-    //   path: `chat-rooms/${this.channel}`,
-    //   callback: callback,
-    // });
-    // this.unsbscriteFunctions.push(unsubscribe);
+  public listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): void {
+    const unsubscribe = listenToDocumentChange(
+      {
+        path: `chat-rooms/${this.channel}`,
+      },
+      (data) => {
+        const chatRoom: ChatRoom = data as ChatRoom;
+
+        callback(chatRoom);
+      },
+    );
+    this.unsbscriteFunctions.push(unsubscribe);
   }
 
   /** Unsubscribe from all listeners */

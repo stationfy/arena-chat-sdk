@@ -4,7 +4,7 @@ export enum Status {
   Unknown = 'unknown',
   /** The event was skipped due to configuration or callbacks. */
   Skipped = 'skipped',
-  /** The event was sent to Sentry successfully. */
+  /** The event was sent to Arena successfully. */
   Success = 'success',
   /** The client is currently rate limited and will try again later. */
   RateLimit = 'rate_limit',

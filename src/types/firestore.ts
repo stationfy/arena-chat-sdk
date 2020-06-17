@@ -11,7 +11,6 @@ export interface Where {
 
 export interface ListenChangeConfig {
   path: string;
-  callback: (messages: firebase.firestore.DocumentData[]) => void;
   limit?: number;
   orderBy?: OrderBy[];
   startAt?: any[];

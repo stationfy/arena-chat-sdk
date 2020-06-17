@@ -1,4 +1,5 @@
 import { ChatMessage } from './chat-message';
+import { ChatRoom } from './chat-room';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
@@ -14,7 +15,7 @@ export interface BaseRealtime {
    *
    * @param callback Callback function
    */
-  listenToChatConfigChanges(callback: () => void): void;
+  listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): void;
 
   /**
    * Listen to banned users
