@@ -1,11 +1,18 @@
 import { RealtimeAPI } from '../../../src/services/realtime-api';
 import { ChatMessage } from '../../../src/types/chat-message';
-import { listenToCollectionChange, listenToDocumentChange } from '../../../src/services/firestore-api';
+import {
+  listenToCollectionChange,
+  listenToDocumentChange,
+  fetchCollectionItems,
+  listenToCollectionItemChange,
+} from '../../../src/services/firestore-api';
 import { ChatRoom } from '../../../src/types/chat-room';
 
 jest.mock('../../../src/services/firestore-api', () => ({
   listenToCollectionChange: jest.fn(),
   listenToDocumentChange: jest.fn(),
+  fetchCollectionItems: jest.fn(),
+  listenToCollectionItemChange: jest.fn(),
 }));
 
 describe('RealtimeAPI', () => {
@@ -76,6 +83,66 @@ describe('RealtimeAPI', () => {
 
       realtimeAPI.listenToChatConfigChanges((chatRoom: ChatRoom) => {
         expect(chatRoom.id).toEqual('new-chatroom');
+        done();
+      });
+    });
+  });
+
+  describe('fetchRecentMessages()', () => {
+    it('should fetch recent messages', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const message: ChatMessage = {
+          createdAt: 1592342151026,
+          key: 'fake-key',
+          message: {
+            text: 'testing',
+          },
+          publisherId: 'site-id',
+          sender: {
+            displayName: 'Test User',
+            photoURL: 'http://www.google.com',
+          },
+        };
+        const messages: ChatMessage[] = new Array(10).fill(message);
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchRecentMessages(10);
+
+      expect(messages.length).toBe(10);
+    });
+  });
+
+  describe('listenToChatNewMessage()', () => {
+    it('should receive a added message', (done) => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
+        const message: ChatMessage = {
+          createdAt: 1592342151026,
+          key: 'fake-key',
+          message: {
+            text: 'testing',
+          },
+          publisherId: 'site-id',
+          sender: {
+            displayName: 'Test User',
+            photoURL: 'http://www.google.com',
+          },
+          changeType: 'added',
+        };
+
+        callback(message);
+      });
+
+      realtimeAPI.listenToChatNewMessage((message: ChatMessage) => {
+        expect(message.key).toEqual('fake-key');
+
         done();
       });
     });

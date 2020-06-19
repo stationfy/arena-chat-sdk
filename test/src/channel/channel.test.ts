@@ -144,4 +144,143 @@ describe('Channel', () => {
       expect(channel.chatRoom.allowSendGifs).toBeFalsy();
     });
   });
+
+  describe('loadRecentMessages()', () => {
+    it('should load recent messages empty', async () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        fetchRecentMessages: () => {
+          return Promise.resolve([]);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, site);
+
+      const messages = await channel.loadRecentMessages(10);
+
+      expect(messages).toEqual([]);
+    });
+
+    it('should load 5 recent messages', async () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        fetchRecentMessages: () => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          const messages: ChatMessage[] = new Array(5).fill(message);
+
+          return Promise.resolve(messages);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, site);
+
+      const messages = await channel.loadRecentMessages(10);
+
+      expect(messages.length).toEqual(5);
+    });
+
+    it('should receive an error', async () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        fetchRecentMessages: (limit: number) => {
+          return Promise.reject('invalid');
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, site);
+
+      try {
+        await channel.loadRecentMessages(10);
+      } catch (e) {
+        expect(e.message).toEqual(`Cannot load the messages for "${channel.chatRoom.slug}" channel.`);
+      }
+    });
+  });
+
+  describe('watchNewMessage()', () => {
+    it('should receive a message', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToChatNewMessage: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, site);
+
+      channel.watchNewMessage((message: ChatMessage) => {
+        expect(message.key).toEqual('fake-key');
+        done();
+      });
+    });
+
+    it('should receive an error', () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToChatNewMessage: (callback: (message: ChatMessage) => void) => {
+          throw new Error('invalid');
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, site);
+
+      try {
+        channel.watchNewMessage((message: ChatMessage) => {
+          console.log({ message });
+        });
+      } catch (e) {
+        expect(e.message).toEqual(`Cannot watch new message on "${channel.chatRoom.slug}" channel.`);
+      }
+    });
+  });
 });

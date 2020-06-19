@@ -1,5 +1,10 @@
 import { BaseRealtime } from '../types/base-realtime';
-import { listenToCollectionChange, listenToDocumentChange } from './firestore-api';
+import {
+  listenToCollectionChange,
+  listenToDocumentChange,
+  fetchCollectionItems,
+  listenToCollectionItemChange,
+} from './firestore-api';
 import { ChatMessage } from '../types/chat-message';
 import { ChatRoom } from '../types/chat-room';
 
@@ -76,5 +81,31 @@ export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe from all listeners */
   public unsubscribeAll(): void {
     this.unsbscriteFunctions.forEach((fn) => fn());
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
+    const messages = await fetchCollectionItems({
+      path: `chat-rooms/${this.channel}/messages`,
+      limit,
+    });
+
+    return messages as ChatMessage[];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToChatNewMessage(callback: (message: ChatMessage) => void): void {
+    listenToCollectionItemChange(
+      {
+        path: `chat-rooms/${this.channel}/messages`,
+      },
+      (data) => {
+        callback(data as ChatMessage);
+      },
+    );
   }
 }

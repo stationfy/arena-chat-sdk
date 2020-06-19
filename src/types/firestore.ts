@@ -15,4 +15,5 @@ export interface ListenChangeConfig {
   orderBy?: OrderBy[];
   startAt?: any[];
   where?: Where[];
+  endAt?: any[];
 }

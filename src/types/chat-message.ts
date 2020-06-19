@@ -6,6 +6,7 @@ export interface ChatMessage {
   referer?: string;
   replyMessage?: ChatMessage;
   sender: ChatMessageSender;
+  changeType?: string;
 }
 
 export interface ChatMessageSender {
