@@ -1,8 +1,8 @@
-import { ChatMessage } from '../types/chat-message';
-import { RestAPI } from '../services/rest-api';
-import { ChatRoom } from '../types/chat-room';
-import { Site } from '../types/site';
-import { RealtimeAPI } from '../services/realtime-api';
+import { ChatMessage } from '@models/chat-message';
+import { RestAPI } from '@services/rest-api';
+import { ChatRoom } from '@models/chat-room';
+import { Site } from '@models/site';
+import { RealtimeAPI } from '@services/realtime-api';
 
 export class Channel {
   private restAPI: RestAPI;
@@ -38,6 +38,10 @@ export class Channel {
    * @param text
    */
   public async sendMessage(text: string): Promise<ChatMessage> {
+    if (text.trim() === '') {
+      throw new Error('Cannot send an empty message.');
+    }
+
     const chatMessage: ChatMessage = {
       message: {
         text,

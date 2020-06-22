@@ -1,4 +1,4 @@
-import { getGlobalObject, getRequestURL } from '../../../src/utils/misc';
+import { getGlobalObject, getRequestURL } from '@utils/misc';
 
 describe('getGlobalObject()', () => {
   test('should return the same object', () => {

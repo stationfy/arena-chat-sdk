@@ -15,8 +15,8 @@
   "engines": {
     "node": ">=6"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "devDependencies": {
     "@rollup/plugin-replace": "^2.3.2",
     "@types/jest": "^25.2.3",
@@ -39,14 +39,16 @@
     "rollup-plugin-terser": "5.3.0",
     "rollup-plugin-typescript2": "0.27.1",
     "ts-jest": "^26.1.0",
+    "tsc-watch": "^4.2.8",
+    "tscpaths": "^0.0.9",
     "typescript": "3.9.5"
   },
   "scripts": {
     "build": "run-p build:es5 build:bundle",
     "build:bundle": "rollup --config",
     "build:bundle:watch": "rollup --config --watch",
-    "build:es5": "tsc -p tsconfig.build.json",
-    "build:es5:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "build:es5": "tsc -p tsconfig.build.json && tscpaths -p tsconfig.build.json -s ./src -o ./dist",
+    "build:es5:watch": "tsc-watch -p tsconfig.build.json --onSuccess \"tscpaths -p tsconfig.build.json -s ./src -o ./dist\"",
     "build:watch": "run-p build:es5:watch build:bundle:watch",
     "clean": "rimraf dist coverage build",
     "lint": "eslint . --ext .js,.ts",
@@ -55,26 +57,6 @@
     "size:check:es5": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"ES5: \",$1,\"kB\";}'",
     "test": "jest",
     "test:watch": "jest --watch"
-  },
-  "jest": {
-    "collectCoverage": true,
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "ts"
-    ],
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/*.test.ts"
-    ],
-    "globals": {
-      "ts-jest": {
-        "tsConfig": "./tsconfig.json",
-        "diagnostics": false
-      }
-    }
   },
   "dependencies": {
     "firebase": "^7.14.6"

@@ -4,6 +4,8 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 
+import pkg from './package.json';
+
 const terserInstance = terser({
   mangle: {
     properties: {
@@ -62,5 +64,24 @@ export default [
       sourcemap: false,
     },
     plugins: bundleConfig.plugins.concat(terserInstance),
+  },
+  // npm
+  {
+    ...bundleConfig,
+    output: {
+      ...bundleConfig.output,
+      file: pkg.main,
+      format: 'cjs',
+      sourcemap: false,
+    },
+  },
+  {
+    ...bundleConfig,
+    output: {
+      ...bundleConfig.output,
+      file: pkg.main,
+      format: 'es',
+      sourcemap: false,
+    },
   },
 ];

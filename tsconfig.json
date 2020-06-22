@@ -21,7 +21,14 @@
     "sourceMap": true,
     "strict": true,
     "target": "es5",
-    "strictBindCallApply": false
+    "strictBindCallApply": false,
+    "baseUrl": ".",
+    "paths": {
+      "@services/*": ["./src/services/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@channel/*": ["./src/channel/*"],
+      "@models/*": ["./src/models/*"]
+    }
   },
   "include": ["src/**/*", "test/**/*"]
 }

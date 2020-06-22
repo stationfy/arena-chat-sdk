@@ -1,5 +1,5 @@
-import { isThenable, isPlainObject, isPrimitive, isString } from '../../../src/utils/is';
-import { SyncPromise } from '../../../src/utils/syncpromise';
+import { isThenable, isPlainObject, isPrimitive, isString } from '@utils/is';
+import { SyncPromise } from '@utils/syncpromise';
 
 describe('isThenable()', () => {
   test('should work as advertised', () => {

@@ -1,6 +1,6 @@
-import { RestAPI } from './services/rest-api';
-import { Status } from './types/status';
-import { Channel } from './channel/channel';
+import { RestAPI } from '@services/rest-api';
+import { Status } from '@models/status';
+import { Channel } from '@channel/channel';
 
 /**
  * Chat SDK Client

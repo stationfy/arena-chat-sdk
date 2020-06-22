@@ -1,7 +1,7 @@
-import { BaseTransport, XHRHeaders } from '../types/base-transport';
-import { SyncPromise } from '../utils/syncpromise';
-import { Status } from '../types/status';
-import { getRequestURL } from '../utils/misc';
+import { BaseTransport, XHRHeaders } from '@models/base-transport';
+import { SyncPromise } from '@utils/syncpromise';
+import { Status } from '@models/status';
+import { getRequestURL } from '@utils/misc';
 
 /** Base transport class implementation */
 export class XHRTransport implements BaseTransport {

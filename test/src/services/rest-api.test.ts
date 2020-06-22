@@ -1,11 +1,11 @@
-import { RestAPI } from '../../../src/services/rest-api';
-import { ChatRoom } from '../../../src/types/chat-room';
-import { Site } from '../../../src/types/site';
-import { BanUser } from '../../../src/types/user';
-import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '../../../src/types/chat-message';
-import { XHRTransport } from '../../../src/services/xhr-transport';
+import { RestAPI } from '@services/rest-api';
+import { ChatRoom } from '@models/chat-room';
+import { Site } from '@models/site';
+import { BanUser } from '@models/user';
+import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@models/chat-message';
+import { XHRTransport } from '@services/xhr-transport';
 
-jest.mock('../../../src/services/xhr-transport', () => ({
+jest.mock('@services/xhr-transport', () => ({
   XHRTransport: jest.fn(),
 }));
 

@@ -1,16 +1,16 @@
-import { Channel } from '../../../src/channel/channel';
-import { ChatRoom } from '../../../src/types/chat-room';
-import { Site } from '../../../src/types/site';
+import { Channel } from '@channel/channel';
+import { ChatRoom } from '@models/chat-room';
+import { Site } from '@models/site';
 
-import { RestAPI } from '../../../src/services/rest-api';
-import { ChatMessage } from '../../../src/types/chat-message';
-import * as RealtimeAPI from '../../../src/services/realtime-api';
+import { RestAPI } from '@services/rest-api';
+import { ChatMessage } from '@models/chat-message';
+import * as RealtimeAPI from '@services/realtime-api';
 
-jest.mock('../../../src/services/rest-api', () => ({
+jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
 }));
 
-jest.mock('../../../src/services/realtime-api', () => ({
+jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
@@ -61,7 +61,7 @@ describe('Channel', () => {
       // @ts-ignore
       RestAPI.mockImplementation(() => {
         return {
-          sendMessage: (chatRoom: ChatRoom, chatMessage: ChatMessage) => {
+          sendMessage: (_: ChatRoom, chatMessage: ChatMessage) => {
             chatMessage.key = 'new-message-key';
             return Promise.resolve(chatMessage);
           },
@@ -80,7 +80,7 @@ describe('Channel', () => {
       // @ts-ignore
       RestAPI.mockImplementation(() => {
         return {
-          sendMessage: (chatRoom: ChatRoom, chatMessage: ChatMessage) => {
+          sendMessage: () => {
             return Promise.reject('failed');
           },
         };
@@ -92,6 +92,27 @@ describe('Channel', () => {
         await channel.sendMessage('hey!');
       } catch (e) {
         expect(e.message).toBe('Cannot send this message: "hey!". Contact the Arena support team.');
+      }
+    });
+
+    it('should receive an error when try to send an empty message', async () => {
+      // @ts-ignore
+      RestAPI.mockImplementation(() => {
+        return {
+          sendMessage: (_: ChatRoom, chatMessage: ChatMessage) => {
+            chatMessage.key = 'new-message-key';
+            return Promise.resolve(chatMessage);
+          },
+        };
+      });
+
+      const channel = new Channel(chatRoom, site);
+
+      try {
+        const message = await channel.sendMessage('');
+        expect(message).toEqual(null);
+      } catch (e) {
+        expect(e.message).toBe('Cannot send an empty message.');
       }
     });
   });
@@ -204,7 +225,7 @@ describe('Channel', () => {
     it('should receive an error', async () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        fetchRecentMessages: (limit: number) => {
+        fetchRecentMessages: () => {
           return Promise.reject('invalid');
         },
       };
@@ -262,7 +283,7 @@ describe('Channel', () => {
     it('should receive an error', () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToChatNewMessage: (callback: (message: ChatMessage) => void) => {
+        listenToChatNewMessage: () => {
           throw new Error('invalid');
         },
       };

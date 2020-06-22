@@ -1,14 +1,14 @@
-import { RealtimeAPI } from '../../../src/services/realtime-api';
-import { ChatMessage } from '../../../src/types/chat-message';
+import { RealtimeAPI } from '@services/realtime-api';
+import { ChatMessage } from '@models/chat-message';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
   fetchCollectionItems,
   listenToCollectionItemChange,
-} from '../../../src/services/firestore-api';
-import { ChatRoom } from '../../../src/types/chat-room';
+} from '@services/firestore-api';
+import { ChatRoom } from '@models/chat-room';
 
-jest.mock('../../../src/services/firestore-api', () => ({
+jest.mock('@services/firestore-api', () => ({
   listenToCollectionChange: jest.fn(),
   listenToDocumentChange: jest.fn(),
   fetchCollectionItems: jest.fn(),

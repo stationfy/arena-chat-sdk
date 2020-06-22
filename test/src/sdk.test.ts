@@ -1,7 +1,7 @@
 import { RestAPI } from '../../src/services/rest-api';
 import { Channel } from '../../src/channel/channel';
-import { ChatRoom } from '../../src/types/chat-room';
-import { Site } from '../../src/types/site';
+import { ChatRoom } from '../../src/models/chat-room';
+import { Site } from '../../src/models/site';
 import { ArenaChat } from '../../src/sdk';
 
 jest.mock('../../src/services/rest-api', () => ({
@@ -48,7 +48,7 @@ describe('SDK', () => {
       // @ts-ignore
       RestAPI.mockImplementation(() => {
         return {
-          loadChatRoom: (apiKey: string, channel: string) => {
+          loadChatRoom: () => {
             return Promise.resolve({ chatRoom, site });
           },
         };
@@ -72,7 +72,7 @@ describe('SDK', () => {
       // @ts-ignore
       RestAPI.mockImplementation(() => {
         return {
-          loadChatRoom: (apiKey: string, channel: string) => {
+          loadChatRoom: () => {
             return Promise.reject('invalid');
           },
         };
@@ -98,7 +98,7 @@ describe('SDK', () => {
       // @ts-ignore
       RestAPI.mockImplementation(() => {
         return {
-          loadChatRoom: (apiKey: string, channel: string) => {
+          loadChatRoom: () => {
             return Promise.reject('failed');
           },
         };

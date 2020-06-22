@@ -1,7 +1,7 @@
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
-import { OrderBy, ListenChangeConfig } from '../types/firestore';
-import { SyncPromise } from '../utils/syncpromise';
+import { OrderBy, ListenChangeConfig } from '@models/firestore';
+import { SyncPromise } from '@utils/syncpromise';
 
 const config = {
   apiKey: 'AIzaSyB403ShuFdFs733kTm7HJyVTkswCQlUmTA',

@@ -1,5 +1,5 @@
-import { supportsFetch } from '../../../src/utils/supports';
-import * as misc from '../../../src/utils/misc';
+import { supportsFetch } from '@utils/supports';
+import * as misc from '@utils/misc';
 
 const headers = global.Headers;
 const request = global.Request;

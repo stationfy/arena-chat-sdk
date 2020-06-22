@@ -1,12 +1,12 @@
-import { BaseRest, BaseRestOptions } from '../types/base-rest';
-import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '../types/chat-message';
-import { BanUser } from '../types/user';
-import { supportsFetch } from '../utils/supports';
-import { BaseTransport } from '../types/base-transport';
-import { ChatRoom, ChatModerationRequest } from '../types/chat-room';
-import { Site } from '../types/site';
-import { FetchTransport } from './fetch-transport';
-import { XHRTransport } from './xhr-transport';
+import { BaseRest, BaseRestOptions } from '@models/base-rest';
+import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@models/chat-message';
+import { BanUser } from '@models/user';
+import { supportsFetch } from '@utils/supports';
+import { BaseTransport } from '@models/base-transport';
+import { ChatRoom, ChatModerationRequest } from '@models/chat-room';
+import { Site } from '@models/site';
+import { FetchTransport } from '@services/fetch-transport';
+import { XHRTransport } from '@services/xhr-transport';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {

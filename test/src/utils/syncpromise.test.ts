@@ -1,4 +1,4 @@
-import { SyncPromise } from '../../../src/utils/syncpromise';
+import { SyncPromise } from '@utils/syncpromise';
 
 describe('SyncPromise', () => {
   test('simple', () => {

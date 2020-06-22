@@ -1,4 +1,4 @@
-import { isThenable } from './is';
+import { isThenable } from '@utils/is';
 
 /** SyncPromise internal states */
 enum States {

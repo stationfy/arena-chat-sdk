@@ -1,5 +1,5 @@
-import { ChatMessage } from './chat-message';
-import { ChatRoom } from './chat-room';
+import { ChatMessage } from '@models/chat-message';
+import { ChatRoom } from '@models/chat-room';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
