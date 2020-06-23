@@ -32,6 +32,13 @@ export interface BaseRealtime {
   fetchRecentMessages(limit?: number): Promise<ChatMessage[]>;
 
   /**
+   * Fetch previous chat messages
+   *
+   * @param callback maximum number of messages
+   */
+  fetchPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]>;
+
+  /**
    * Listen to chat new message
    *
    * @param callback callback that expect a chat message

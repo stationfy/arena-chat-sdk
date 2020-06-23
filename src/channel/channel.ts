@@ -5,6 +5,7 @@ import { ArenaChat } from '../sdk';
 
 export class Channel {
   private realtimeAPI: RealtimeAPI;
+  private cacheCurrentMessages: ChatMessage[] = [];
 
   public constructor(public chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -77,9 +78,35 @@ export class Channel {
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
       const messages = await this.realtimeAPI.fetchRecentMessages(limit);
+
+      this.cacheCurrentMessages = messages;
+
       return messages;
     } catch (e) {
-      throw new Error(`Cannot load the messages for "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot load messages on "${this.chatRoom.slug}" channel.`);
+    }
+  }
+
+  /**
+   * Load previous messages on channel
+   *
+   * @param limit number of previous messages
+   */
+  public async loadPreviousMessages(limit?: number): Promise<ChatMessage[]> {
+    if (!this.cacheCurrentMessages.length) {
+      return [];
+    }
+
+    try {
+      const firstMessage = this.cacheCurrentMessages[0];
+
+      const messages = await this.realtimeAPI.fetchPreviousMessages(firstMessage, limit);
+
+      this.cacheCurrentMessages = messages;
+
+      return messages;
+    } catch (e) {
+      throw new Error(`Cannot load previous messages on "${this.chatRoom.slug}" channel.`);
     }
   }
 

@@ -147,4 +147,64 @@ describe('RealtimeAPI', () => {
       });
     });
   });
+
+  describe('fetchPreviousMessages()', () => {
+    it('should fetch previous messages', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      const message: ChatMessage = {
+        createdAt: 1592342151026,
+        key: 'fake-key',
+        message: {
+          text: 'testing',
+        },
+        publisherId: 'site-id',
+        sender: {
+          displayName: 'Test User',
+          photoURL: 'http://www.google.com',
+        },
+      };
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = [
+          {
+            ...message,
+            key: 'fake-key',
+          },
+          {
+            ...message,
+            key: 'fake-key-1',
+          },
+          {
+            ...message,
+            key: 'fake-key-2',
+          },
+          {
+            ...message,
+            key: 'fake-key-3',
+          },
+        ];
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchPreviousMessages(message, 3);
+
+      expect(messages).toEqual([
+        {
+          ...message,
+          key: 'fake-key-3',
+        },
+        {
+          ...message,
+          key: 'fake-key-2',
+        },
+        {
+          ...message,
+          key: 'fake-key-1',
+        },
+      ]);
+    });
+  });
 });

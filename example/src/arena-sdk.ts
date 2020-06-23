@@ -31,3 +31,7 @@ export async function initialize(callback: (message: ChatMessage) => void) {
 export async function sendMessage(text: string) {
   return channel.sendMessage(text);
 }
+
+export async function loadPrevious(): Promise<ChatMessage[]> {
+  return channel.loadPreviousMessages(5);
+}

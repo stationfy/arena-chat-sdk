@@ -104,6 +104,33 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
+  public async fetchPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]> {
+    if (limit) {
+      limit = limit + 1;
+    }
+
+    const messages = await fetchCollectionItems({
+      path: `chat-rooms/${this.channel}/messages`,
+      orderBy: [
+        {
+          field: 'createdAt',
+          desc: true,
+        },
+      ],
+      limit,
+      startAt: [firstMessage.createdAt],
+    });
+
+    messages.reverse();
+
+    messages.pop();
+
+    return messages as ChatMessage[];
+  }
+
+  /**
+   * @inheritdoc
+   */
   public listenToChatNewMessage(callback: (message: ChatMessage) => void): void {
     listenToCollectionItemChange(
       {

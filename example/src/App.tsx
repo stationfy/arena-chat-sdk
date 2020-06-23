@@ -9,8 +9,12 @@ function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
   const [error, setError] = useState(null);
+  const [fetchingPrevious, setFetchingPrevious] = useState(false);
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const preventFetchPrevious = useRef(false);
+  const previousScrollHeight = useRef(0);
 
   const newMessagesCallback = useCallback((message: ChatMessage) => {
     console.log({ message });
@@ -34,8 +38,38 @@ function App() {
   }, [newMessagesCallback]);
 
   useEffect(() => {
-    scrollDown();
+    if (preventFetchPrevious.current) {
+      setFetchingPrevious(false);
+      preventFetchPrevious.current = false;
+
+      if (containerRef.current !== null) {
+        const currentScrollHeight = containerRef.current.scrollHeight || 0;
+
+        console.log({ current: currentScrollHeight, previous: previousScrollHeight.current });
+
+        containerRef.current.scrollTop = currentScrollHeight - previousScrollHeight.current;
+      }
+    } else {
+      scrollDown();
+    }
   }, [messages]);
+
+  useEffect(() => {
+    containerRef.current?.addEventListener('scroll', async () => {
+      if (containerRef.current?.scrollTop === 0 && !preventFetchPrevious.current) {
+        setFetchingPrevious(true);
+        preventFetchPrevious.current = true;
+
+        previousScrollHeight.current = containerRef.current.scrollHeight;
+
+        const nextMessages = await ArenaSDKAPI.loadPrevious();
+
+        console.log({ nextMessages });
+
+        setMessages((messages) => [...nextMessages, ...messages]);
+      }
+    });
+  }, []);
 
   async function handleSendMessage() {
     if (sending) {
@@ -88,7 +122,8 @@ function App() {
           {error && <div className="chat-error">{error}</div>}
         </div>
         <div className="messages">
-          <div className="messages-content mCustomScrollbar _mCS_1">
+          <div ref={containerRef} className="messages-content mCustomScrollbar _mCS_1">
+            {fetchingPrevious && <div>Loading...</div>}
             {messages.map((message) => (
               <Message key={message.key} message={message} />
             ))}

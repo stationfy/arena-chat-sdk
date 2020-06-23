@@ -263,8 +263,65 @@ describe('Channel', () => {
       try {
         await channel.loadRecentMessages(10);
       } catch (e) {
-        expect(e.message).toEqual(`Cannot load the messages for "${channel.chatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot load messages on "${channel.chatRoom.slug}" channel.`);
       }
+    });
+  });
+
+  describe('loadPreviousMessages()', () => {
+    it('should load 5 previous message', async () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        fetchRecentMessages: () => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          const messages: ChatMessage[] = new Array(5).fill(message);
+
+          return Promise.resolve(messages);
+        },
+        fetchPreviousMessages: () => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          const messages: ChatMessage[] = new Array(5).fill(message);
+
+          return Promise.resolve(messages);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      await channel.loadRecentMessages(5);
+
+      const messages = await channel.loadPreviousMessages(5);
+
+      expect(messages.length).toEqual(5);
     });
   });
 
