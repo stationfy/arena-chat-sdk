@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChatMessage } from '../../dist/src/types/chat-message';
+import { ChatMessage } from '../../dist/src/models/chat-message';
 
 interface Message {
   message: ChatMessage;

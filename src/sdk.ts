@@ -1,8 +1,8 @@
-import { RestAPI } from '@services/rest-api';
-import { Status } from '@models/status';
-import { Channel } from '@channel/channel';
-import { ExternalUser } from '@models/user';
-import { Site } from '@models/site';
+import { RestAPI } from './services/rest-api';
+import { Status } from './models/status';
+import { Channel } from './channel/channel';
+import { ExternalUser } from './models/user';
+import { Site } from './models/site';
 
 /**
  * Chat SDK Client

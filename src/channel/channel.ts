@@ -1,7 +1,7 @@
-import { ChatMessage } from '@models/chat-message';
-import { ChatRoom } from '@models/chat-room';
-import { RealtimeAPI } from '@services/realtime-api';
-import ArenaChat from 'src';
+import { ChatMessage } from '../models/chat-message';
+import { ChatRoom } from '../models/chat-room';
+import { RealtimeAPI } from '../services/realtime-api';
+import { ArenaChat } from '../sdk';
 
 export class Channel {
   private realtimeAPI: RealtimeAPI;

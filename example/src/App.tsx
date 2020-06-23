@@ -13,8 +13,13 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const newMessagesCallback = useCallback((message: ChatMessage) => {
+    console.log({ message });
     if (message.changeType === 'added') {
       setMessages((messages) => [...messages, message]);
+    }
+
+    if (message.changeType === 'removed') {
+      setMessages((messages) => messages.filter((item) => item.key !== message.key));
     }
   }, []);
 

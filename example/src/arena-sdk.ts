@@ -23,7 +23,7 @@ export async function initialize(callback: (message: ChatMessage) => void) {
 
   channel.watchNewMessage(callback);
 
-  const messages: ChatMessage[] = await channel.loadRecentMessages(10);
+  const messages: ChatMessage[] = await channel.loadRecentMessages(20);
 
   return messages;
 }

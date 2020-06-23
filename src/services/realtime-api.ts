@@ -1,12 +1,12 @@
-import { BaseRealtime } from '@models/base-realtime';
+import { BaseRealtime } from '../models/base-realtime';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
   fetchCollectionItems,
   listenToCollectionItemChange,
-} from '@services/firestore-api';
-import { ChatMessage } from '@models/chat-message';
-import { ChatRoom } from '@models/chat-room';
+} from '../services/firestore-api';
+import { ChatMessage } from '../models/chat-message';
+import { ChatRoom } from '../models/chat-room';
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {

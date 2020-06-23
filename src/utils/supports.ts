@@ -1,4 +1,4 @@
-import { getGlobalObject } from '@utils/misc';
+import { getGlobalObject } from './misc';
 
 /**
  * Tells whether current enviroment supports Fecth API
