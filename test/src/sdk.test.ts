@@ -1,14 +1,15 @@
-import { RestAPI } from '../../src/services/rest-api';
-import { Channel } from '../../src/channel/channel';
-import { ChatRoom } from '../../src/models/chat-room';
-import { Site } from '../../src/models/site';
+import { RestAPI } from '@services/rest-api';
+import { Channel } from '@channel/channel';
+import { ChatRoom } from '@models/chat-room';
+import { Site } from '@models/site';
 import { ArenaChat } from '../../src/sdk';
+import { ExternalUser } from '@models/user';
 
-jest.mock('../../src/services/rest-api', () => ({
+jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
 }));
 
-jest.mock('../../src/channel/channel', () => ({
+jest.mock('@channel/channel', () => ({
   Channel: jest.fn(),
 }));
 
@@ -118,6 +119,30 @@ describe('SDK', () => {
       } catch (e) {
         expect(e.message).toEqual('Internal Server Error. Contact the Arena support team.');
       }
+    });
+  });
+  describe('setUser()', () => {
+    it('should set an anonymous user', async () => {
+      // @ts-ignore
+      RestAPI.mockImplementation(() => {
+        return {
+          getArenaUser: () => {
+            return Promise.resolve('user-token-1234');
+          },
+        };
+      });
+
+      const sender: ExternalUser = {
+        id: '123456',
+        name: 'Kristin Mckinney',
+        image: 'https://randomuser.me/api/portraits/women/12.jpg',
+      };
+
+      const sdk = new ArenaChat('my-api-key');
+
+      const response = await sdk.setUser(sender);
+
+      expect(response).toEqual({ ...sender, token: 'user-token-1234' });
     });
   });
 });

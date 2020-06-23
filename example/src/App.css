@@ -192,6 +192,8 @@ Messages
   bottom: -15px;
   font-size: 9px;
   color: rgba(255, 255, 255, 0.3);
+  width: 300px;
+  text-align: left;
 }
 .messages .message::before {
   content: '';

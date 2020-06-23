@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import './App.css';
 import * as ArenaSDKAPI from './arena-sdk';
-import { ChatMessage } from '../../dist/src/types/chat-message';
+import { ChatMessage } from '../../dist/src/models/chat-message';
 import Message from './Message';
 
 function App() {

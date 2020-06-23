@@ -72,16 +72,16 @@ export default [
       ...bundleConfig.output,
       file: pkg.main,
       format: 'cjs',
-      sourcemap: false,
+      sourcemap: true,
     },
   },
-  {
-    ...bundleConfig,
-    output: {
-      ...bundleConfig.output,
-      file: pkg.main,
-      format: 'es',
-      sourcemap: false,
-    },
-  },
+  // {
+  //   ...bundleConfig,
+  //   output: {
+  //     ...bundleConfig.output,
+  //     file: pkg.main,
+  //     format: 'es',
+  //     sourcemap: true,
+  //   },
+  // },
 ];

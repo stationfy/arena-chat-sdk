@@ -19,7 +19,9 @@ function Message({ message }: Message) {
         <img src={message.sender.photoURL} />
       </figure>
       {message.message.text}
-      <div className="timestamp">{getTimestamp()}</div>
+      <div className="timestamp">
+        {getTimestamp()} | {message.sender.displayName}
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Site } from '@models/site';
 import { RestAPI } from '@services/rest-api';
 import { ChatMessage } from '@models/chat-message';
 import * as RealtimeAPI from '@services/realtime-api';
+import { ArenaChat } from '../../../src/sdk';
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -12,6 +13,21 @@ jest.mock('@services/rest-api', () => ({
 
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
+}));
+
+jest.mock('../../../src/sdk', () => ({
+  ArenaChat: jest.fn(() => ({
+    site: {
+      _id: 'site-id',
+      displayName: 'First Site',
+    },
+    user: {
+      image: 'https://randomuser.me/api/portraits/women/12.jpg',
+      name: 'Kristin Mckinney',
+      id: '123456',
+    },
+    restAPI: jest.fn(),
+  })),
 }));
 
 describe('Channel', () => {
@@ -46,6 +62,15 @@ describe('Channel', () => {
     displayName: 'First Site',
   };
 
+  const sdk = new ArenaChat('my-api-key');
+  sdk.site = site;
+  sdk.user = {
+    image: 'https://randomuser.me/api/portraits/women/12.jpg',
+    name: 'Kristin Mckinney',
+    id: '123456',
+    email: 'test@test.com',
+  };
+
   beforeEach(() => {
     jest.resetAllMocks();
     // @ts-ignore
@@ -59,16 +84,14 @@ describe('Channel', () => {
   describe('sendMessage()', () => {
     it('should send message on a channel', async () => {
       // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          sendMessage: (_: ChatRoom, chatMessage: ChatMessage) => {
-            chatMessage.key = 'new-message-key';
-            return Promise.resolve(chatMessage);
-          },
-        };
-      });
+      sdk.restAPI = {
+        sendMessage: (_: ChatRoom, chatMessage: ChatMessage) => {
+          chatMessage.key = 'new-message-key';
+          return Promise.resolve(chatMessage);
+        },
+      };
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       const sentMessage = await channel.sendMessage('hey!');
 
@@ -86,7 +109,7 @@ describe('Channel', () => {
         };
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       try {
         await channel.sendMessage('hey!');
@@ -106,7 +129,7 @@ describe('Channel', () => {
         };
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       try {
         const message = await channel.sendMessage('');
@@ -120,7 +143,7 @@ describe('Channel', () => {
   it('should create an instance of realtime api with chatroom id', () => {
     const spy = jest.spyOn(RealtimeAPI, 'RealtimeAPI');
 
-    new Channel(chatRoom, site);
+    new Channel(chatRoom, sdk);
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(chatRoom.id);
@@ -139,7 +162,7 @@ describe('Channel', () => {
 
       const spy = jest.spyOn(realtimeAPIInstanceMock, 'listenToChatConfigChanges');
 
-      new Channel(chatRoom, site);
+      new Channel(chatRoom, sdk);
 
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -160,7 +183,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       expect(channel.chatRoom.allowSendGifs).toBeFalsy();
     });
@@ -180,7 +203,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       const messages = await channel.loadRecentMessages(10);
 
@@ -215,7 +238,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       const messages = await channel.loadRecentMessages(10);
 
@@ -235,7 +258,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       try {
         await channel.loadRecentMessages(10);
@@ -272,7 +295,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       channel.watchNewMessage((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -293,7 +316,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, site);
+      const channel = new Channel(chatRoom, sdk);
 
       try {
         channel.watchNewMessage((message: ChatMessage) => {

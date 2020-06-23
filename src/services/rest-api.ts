@@ -1,6 +1,6 @@
 import { BaseRest, BaseRestOptions } from '@models/base-rest';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@models/chat-message';
-import { BanUser } from '@models/user';
+import { BanUser, ProviderUser } from '@models/user';
 import { supportsFetch } from '@utils/supports';
 import { BaseTransport } from '@models/base-transport';
 import { ChatRoom, ChatModerationRequest } from '@models/chat-room';
@@ -90,5 +90,14 @@ export class RestAPI implements BaseRest {
           site: cached.publisher,
         };
       });
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public getArenaUser(user: ProviderUser): PromiseLike<string> {
+    return this.transport.post<{ data: { token: string } }, ProviderUser>('/profile/ssoexchange', user).then((data) => {
+      return data.data.token;
+    });
   }
 }

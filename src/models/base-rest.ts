@@ -1,5 +1,5 @@
 import { ChatMessage, ChatMessageReport } from '@models/chat-message';
-import { BanUser } from '@models/user';
+import { BanUser, ProviderUser } from '@models/user';
 import { ChatRoom } from '@models/chat-room';
 import { Site } from '@models/site';
 
@@ -43,6 +43,14 @@ export interface BaseRest {
    * @param channel The chat room slug
    */
   loadChatRoom(siteSlug: string, channel: string): PromiseLike<{ chatRoom: ChatRoom; site: Site }>;
+
+  /**
+   * Get Arena User - SSO Exchange
+   * If the user doesn't exist create one otherwise return the user with informed id
+   *
+   * @param user user to be created or returned
+   */
+  getArenaUser(user: ProviderUser): PromiseLike<string>;
 }
 
 export interface BaseRestOptions {

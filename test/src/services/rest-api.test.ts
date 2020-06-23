@@ -1,7 +1,7 @@
 import { RestAPI } from '@services/rest-api';
 import { ChatRoom } from '@models/chat-room';
 import { Site } from '@models/site';
-import { BanUser } from '@models/user';
+import { BanUser, ProviderUser } from '@models/user';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@models/chat-message';
 import { XHRTransport } from '@services/xhr-transport';
 
@@ -253,6 +253,47 @@ describe('RestAPI', () => {
       await restAPI.deleteMessage(site, chatRoom, message);
 
       expect(mockPost).toBeCalledWith('/data/chat-room/1234/messages/1235', request);
+    });
+  });
+  describe('getArenaUser()', () => {
+    it('should get a user', async () => {
+      const mockPost = jest.fn(() => {
+        const data = {
+          data: {
+            user: {},
+            token: 'user-token-1234',
+          },
+        };
+        return Promise.resolve(data);
+      });
+      // @ts-ignore
+      XHRTransport.mockImplementation(() => {
+        return {
+          post: mockPost,
+        };
+      });
+
+      const restAPI = new RestAPI();
+
+      const providerUser: ProviderUser = {
+        provider: 'my-api-key',
+        username: 'test-user',
+        profile: {
+          email: 'test@test.com',
+          username: 'test@test.com',
+          displayName: 'New User',
+          name: {
+            familyName: 'User',
+            givenName: 'New',
+          },
+          profileImage: 'http://www.test.com',
+          id: 'new-user-1234',
+        },
+      };
+
+      const token = await restAPI.getArenaUser(providerUser);
+
+      expect(token).toEqual('user-token-1234');
     });
   });
 });

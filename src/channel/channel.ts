@@ -1,17 +1,15 @@
 import { ChatMessage } from '@models/chat-message';
-import { RestAPI } from '@services/rest-api';
 import { ChatRoom } from '@models/chat-room';
-import { Site } from '@models/site';
 import { RealtimeAPI } from '@services/realtime-api';
+import ArenaChat from 'src';
 
 export class Channel {
-  private restAPI: RestAPI;
   private realtimeAPI: RealtimeAPI;
 
-  public constructor(public chatRoom: ChatRoom, private site: Site) {
-    const authToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
-    this.restAPI = new RestAPI({ authToken });
+  public constructor(public chatRoom: ChatRoom, private sdk: ArenaChat) {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot create a channel without a site.');
+    }
 
     this.realtimeAPI = new RealtimeAPI(chatRoom.id);
 
@@ -42,20 +40,28 @@ export class Channel {
       throw new Error('Cannot send an empty message.');
     }
 
+    if (this.sdk.site === null) {
+      throw new Error('Cannot send message without a site id');
+    }
+
+    if (this.sdk.user === null) {
+      throw new Error('Cannot send message without an user');
+    }
+
     const chatMessage: ChatMessage = {
       message: {
         text,
       },
-      publisherId: this.site._id,
+      publisherId: this.sdk.site._id,
       sender: {
-        photoURL: 'https://randomuser.me/api/portraits/women/12.jpg',
-        displayName: 'Kristin Mckinney',
-        anonymousId: '123456',
+        photoURL: this.sdk.user.image,
+        displayName: this.sdk.user.name,
+        anonymousId: this.sdk.user.id,
       },
     };
 
     try {
-      const response = await this.restAPI.sendMessage(this.chatRoom, chatMessage);
+      const response = await this.sdk.restAPI.sendMessage(this.chatRoom, chatMessage);
 
       return response;
     } catch (e) {

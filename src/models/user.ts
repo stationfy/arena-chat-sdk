@@ -6,6 +6,14 @@ export interface User {
   name: string;
 }
 
+export interface ExternalUser {
+  id: string;
+  name: string;
+  image: string;
+  email: string;
+  token?: string;
+}
+
 export interface BanUser {
   anonymousId?: string;
   image: string;
@@ -19,3 +27,20 @@ interface UserThumbnail {
 }
 
 type UserRoles = string[];
+
+export interface ProviderUser {
+  provider: string;
+  username: string;
+  profile: {
+    urlName?: string;
+    email?: string;
+    username: string;
+    displayName: string;
+    name: {
+      familyName: string;
+      givenName: string;
+    };
+    profileImage: string;
+    id: string;
+  };
+}
