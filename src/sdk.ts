@@ -26,11 +26,11 @@ export class ArenaChat {
   public user: ExternalUser | null = null;
   public site: Site | null = null;
   public restAPI: RestAPI;
+  private defaultAuthToken =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
 
   public constructor(private apiKey: string) {
-    const authToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
-    this.restAPI = new RestAPI({ authToken });
+    this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
   }
 
   /**
@@ -58,7 +58,14 @@ export class ArenaChat {
     }
   }
 
-  public async setUser(user: ExternalUser): Promise<ExternalUser> {
+  public async setUser(user: ExternalUser | null): Promise<ExternalUser | null> {
+    if (user === null) {
+      this.user = null;
+      this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+
+      return null;
+    }
+
     const [givenName, ...familyName] = user.name.split(' ');
 
     const token = await this.restAPI.getArenaUser({

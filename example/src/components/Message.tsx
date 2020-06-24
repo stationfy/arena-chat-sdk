@@ -1,10 +1,11 @@
 import React from 'react';
-import { ChatMessage } from '../../dist/src/models/chat-message';
+import { ChatMessage } from '../../../dist/src/models/chat-message';
 
-interface Message {
+interface Props {
   message: ChatMessage;
 }
-function Message({ message }: Message) {
+
+function Message({ message }: Props) {
   function getTimestamp() {
     const date = message.createdAt ? new Date(message.createdAt) : new Date();
     const hours = date.getHours();
@@ -16,7 +17,7 @@ function Message({ message }: Message) {
   return (
     <div className="message new">
       <figure className="avatar">
-        <img src={message.sender.photoURL} />
+        <img src={message.sender.photoURL} alt="avatar" />
       </figure>
       {message.message.text}
       <div className="timestamp">

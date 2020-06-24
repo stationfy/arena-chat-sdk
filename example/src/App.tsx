@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import './App.css';
-import * as ArenaSDKAPI from './arena-sdk';
+import * as ArenaSDKAPI from './services/arena-sdk-api';
 import { ChatMessage } from '../../dist/src/models/chat-message';
-import Message from './Message';
+import Message from './components/Message';
+import { ExternalUser } from '../../dist/src/models/user';
 
 function App() {
   const [sending, setSending] = useState(false);
@@ -10,6 +11,7 @@ function App() {
   const [text, setText] = useState('');
   const [error, setError] = useState(null);
   const [fetchingPrevious, setFetchingPrevious] = useState(false);
+  const [user, setUser] = useState<ExternalUser | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -17,7 +19,6 @@ function App() {
   const previousScrollHeight = useRef(0);
 
   const newMessagesCallback = useCallback((message: ChatMessage) => {
-    console.log({ message });
     if (message.changeType === 'added') {
       setMessages((messages) => [...messages, message]);
     }
@@ -28,13 +29,16 @@ function App() {
   }, []);
 
   useEffect(() => {
-    async function fetchMessages() {
-      console.log('initialize');
-      const messages = await ArenaSDKAPI.initialize(newMessagesCallback);
+    async function initialize() {
+      await ArenaSDKAPI.initChannel('twf1');
 
+      const messages = await ArenaSDKAPI.loadRecentMessages(20);
       setMessages(messages);
+
+      ArenaSDKAPI.watchNewMessage(newMessagesCallback);
     }
-    fetchMessages();
+
+    initialize();
   }, [newMessagesCallback]);
 
   useEffect(() => {
@@ -44,8 +48,6 @@ function App() {
 
       if (containerRef.current !== null) {
         const currentScrollHeight = containerRef.current.scrollHeight || 0;
-
-        console.log({ current: currentScrollHeight, previous: previousScrollHeight.current });
 
         containerRef.current.scrollTop = currentScrollHeight - previousScrollHeight.current;
       }
@@ -64,12 +66,14 @@ function App() {
 
         const nextMessages = await ArenaSDKAPI.loadPrevious();
 
-        console.log({ nextMessages });
-
         setMessages((messages) => [...nextMessages, ...messages]);
       }
     });
   }, []);
+
+  useEffect(() => {
+    ArenaSDKAPI.arenaChat.setUser(user);
+  }, [user]);
 
   async function handleSendMessage() {
     if (sending) {
@@ -108,6 +112,15 @@ function App() {
     }
   }
 
+  function handleLogin() {
+    setUser({
+      image: 'https://randomuser.me/api/portraits/women/56.jpg',
+      name: 'Naomi Carter',
+      id: 'tornado',
+      email: 'naomi.carter@example.com',
+    });
+  }
+
   return (
     <div className="App">
       <div className="chat">
@@ -130,19 +143,27 @@ function App() {
           </div>
         </div>
         <div className="message-box">
-          <input
-            ref={inputRef}
-            type="text"
-            className="message-input"
-            placeholder="Type message..."
-            onChange={(e) => setText(e.target.value)}
-            value={text}
-            onKeyDown={handleKeyDown}
-            disabled={sending}
-          ></input>
-          <button type="submit" className="message-submit" onClick={handleSendMessage} disabled={sending}>
-            {!sending ? 'Send' : 'Sending...'}
-          </button>
+          {user === null ? (
+            <button className="login-button" onClick={handleLogin}>
+              Login
+            </button>
+          ) : (
+            <>
+              <input
+                ref={inputRef}
+                type="text"
+                className="message-input"
+                placeholder="Type message..."
+                onChange={(e) => setText(e.target.value)}
+                value={text}
+                onKeyDown={handleKeyDown}
+                disabled={sending}
+              ></input>
+              <button type="submit" className="message-submit" onClick={handleSendMessage} disabled={sending}>
+                {!sending ? 'Send' : 'Sending...'}
+              </button>
+            </>
+          )}
         </div>
       </div>
       <div className="bg"></div>
