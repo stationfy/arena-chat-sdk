@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import './App.css';
 import * as ArenaSDKAPI from './services/arena-sdk-api';
-import { ChatMessage } from '../../dist/src/models/chat-message';
+import { ChatMessage } from '../../dist/models/chat-message';
 import Message from './components/Message';
-import { ExternalUser } from '../../dist/src/models/user';
+import { ExternalUser } from '../../dist/models/user';
 
 function App() {
   const [sending, setSending] = useState(false);
@@ -12,6 +12,7 @@ function App() {
   const [error, setError] = useState(null);
   const [fetchingPrevious, setFetchingPrevious] = useState(false);
   const [user, setUser] = useState<ExternalUser | null>(null);
+  const [loginWait, setLoginWait] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,10 +72,6 @@ function App() {
     });
   }, []);
 
-  useEffect(() => {
-    ArenaSDKAPI.arenaChat.setUser(user);
-  }, [user]);
-
   async function handleSendMessage() {
     if (sending) {
       return;
@@ -112,13 +109,25 @@ function App() {
     }
   }
 
-  function handleLogin() {
-    setUser({
+  async function handleLogin() {
+    if (loginWait) {
+      return;
+    }
+
+    setLoginWait(true);
+
+    const user = {
       image: 'https://randomuser.me/api/portraits/women/56.jpg',
       name: 'Naomi Carter',
       id: 'tornado',
       email: 'naomi.carter@example.com',
-    });
+    };
+
+    await ArenaSDKAPI.arenaChat.setUser(user);
+
+    setLoginWait(false);
+
+    setUser(user);
   }
 
   return (
@@ -138,14 +147,18 @@ function App() {
           <div ref={containerRef} className="messages-content mCustomScrollbar _mCS_1">
             {fetchingPrevious && <div>Loading...</div>}
             {messages.map((message) => (
-              <Message key={message.key} message={message} />
+              <Message key={message.key} message={message} currentUser={user} />
             ))}
           </div>
         </div>
         <div className="message-box">
           {user === null ? (
-            <button className="login-button" onClick={handleLogin}>
-              Login
+            <button
+              className="login-button"
+              onClick={handleLogin}
+              style={loginWait ? { background: 'gray', cursor: 'wait' } : {}}
+            >
+              {loginWait ? 'Loading...' : 'Login'}
             </button>
           ) : (
             <>

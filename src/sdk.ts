@@ -3,6 +3,7 @@ import { Status } from './models/status';
 import { Channel } from './channel/channel';
 import { ExternalUser } from './models/user';
 import { Site } from './models/site';
+import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
 
 /**
  * Chat SDK Client
@@ -26,8 +27,7 @@ export class ArenaChat {
   public user: ExternalUser | null = null;
   public site: Site | null = null;
   public restAPI: RestAPI;
-  private defaultAuthToken =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1NGQ5OGJiNmY3MDIyOGU4MWI4Njc5YmUiLCJyb2xlcyI6WyJVU0VSIl0sImV4cCI6MzM2OTQxODM2OSwiaWF0IjoxNDc3MjU4MzY5fQ.dNpdrs3ehrGAhnPFIlWMrQFR4mCFKZl_Lvpxk1Ddp4o';
+  private defaultAuthToken = DEFAULT_AUTH_TOKEN;
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
@@ -39,7 +39,7 @@ export class ArenaChat {
    * @param channel Chat slug
    */
   public async getChannel(channel: string): Promise<Channel> {
-    const restAPI = new RestAPI({ url: 'https://cached-api-dev.arena.im/v1' });
+    const restAPI = new RestAPI({ url: CACHED_API });
 
     try {
       const { chatRoom, site } = await restAPI.loadChatRoom(this.apiKey, channel);

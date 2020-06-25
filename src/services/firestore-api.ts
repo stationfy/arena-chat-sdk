@@ -2,11 +2,12 @@ import * as firebase from 'firebase/app';
 import 'firebase/firestore';
 import { OrderBy, ListenChangeConfig } from '../models/firestore';
 import { SyncPromise } from '../utils/syncpromise';
+import { FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_PROJECT_ID } from '../config';
 
 const config = {
-  apiKey: 'AIzaSyB403ShuFdFs733kTm7HJyVTkswCQlUmTA',
-  authDomain: 'arena-im-dev.firebaseapp.com',
-  projectId: 'arena-im-dev',
+  apiKey: FIREBASE_APIKEY,
+  authDomain: FIREBASE_AUTHDOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
 };
 
 // @ts-ignore

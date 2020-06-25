@@ -1,4 +1,4 @@
-import { BaseTransport } from '@models/base-transport';
+import { BaseTransport } from 'src/interfaces/base-transport';
 import { FetchTransport } from '@services/fetch-transport';
 import * as misc from '@utils/misc';
 

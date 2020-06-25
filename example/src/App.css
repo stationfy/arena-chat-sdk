@@ -47,6 +47,7 @@ Login
   padding: 0 10px;
   margin: 0 auto;
   cursor: pointer;
+  outline: none;
 }
 
 /*--------------------
@@ -138,6 +139,7 @@ Messages
 }
 .messages .messages-content {
   overflow: auto;
+  overflow-x: hidden;
   position: absolute;
   top: 0;
   left: 0;

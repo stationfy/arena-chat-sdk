@@ -1,4 +1,4 @@
-import { BaseRealtime } from '../models/base-realtime';
+import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,
   listenToDocumentChange,

@@ -1,16 +1,17 @@
-import { BaseRest, BaseRestOptions } from '../models/base-rest';
+import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '../models/chat-message';
 import { BanUser, ProviderUser } from '../models/user';
 import { supportsFetch } from '../utils/supports';
-import { BaseTransport } from '../models/base-transport';
+import { BaseTransport } from '../interfaces/base-transport';
 import { ChatRoom, ChatModerationRequest } from '../models/chat-room';
 import { Site } from '../models/site';
 import { FetchTransport } from './fetch-transport';
 import { XHRTransport } from './xhr-transport';
+import { API_V2_URL } from '../config';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {
-  private baseURL = 'https://api-dev.arena.im/v2';
+  private baseURL = API_V2_URL;
   private transport: BaseTransport;
 
   public constructor(options?: BaseRestOptions) {

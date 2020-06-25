@@ -1,7 +1,7 @@
-import { ChatMessage, ChatMessageReport } from './chat-message';
-import { BanUser, ProviderUser } from './user';
-import { ChatRoom } from './chat-room';
-import { Site } from './site';
+import { ChatMessage, ChatMessageReport } from '../models/chat-message';
+import { BanUser, ProviderUser } from '../models/user';
+import { ChatRoom } from '../models/chat-room';
+import { Site } from '../models/site';
 
 /** Rest api used to consume the rest services */
 export interface BaseRest {

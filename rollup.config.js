@@ -65,23 +65,4 @@ export default [
     },
     plugins: bundleConfig.plugins.concat(terserInstance),
   },
-  // npm
-  {
-    ...bundleConfig,
-    output: {
-      ...bundleConfig.output,
-      file: pkg.main,
-      format: 'cjs',
-      sourcemap: true,
-    },
-  },
-  // {
-  //   ...bundleConfig,
-  //   output: {
-  //     ...bundleConfig.output,
-  //     file: pkg.main,
-  //     format: 'es',
-  //     sourcemap: true,
-  //   },
-  // },
 ];

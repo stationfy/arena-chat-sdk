@@ -1,4 +1,4 @@
-import { BaseTransport, XHRHeaders } from '../models/base-transport';
+import { BaseTransport, XHRHeaders } from '../interfaces/base-transport';
 import { SyncPromise } from '../utils/syncpromise';
 import { Status } from '../models/status';
 import { getRequestURL } from '../utils/misc';

@@ -1,4 +1,4 @@
-import { BaseTransport } from '../models/base-transport';
+import { BaseTransport } from '../interfaces/base-transport';
 import { SyncPromise } from '../utils/syncpromise';
 import { getGlobalObject, getRequestURL } from '../utils/misc';
 import { Status } from '../models/status';

@@ -1,6 +1,6 @@
 import ArenaChat from 'arena-chat-sdk';
-import { ChatMessage } from '../../../dist/src/models/chat-message';
-import { Channel } from '../../../dist/src/channel/channel';
+import { Channel } from '../../../dist/channel/channel';
+import { ChatMessage } from '../../../dist/models/chat-message';
 
 export const arenaChat = new ArenaChat('globoesporte');
 
@@ -11,7 +11,7 @@ export async function initChannel(channelId: string) {
 }
 
 export async function loadRecentMessages(total: number) {
-  const messages: ChatMessage[] = await channel.loadRecentMessages(total);
+  const messages = await channel.loadRecentMessages(total);
 
   return messages;
 }

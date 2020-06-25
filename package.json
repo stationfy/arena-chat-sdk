@@ -15,8 +15,8 @@
   "engines": {
     "node": ">=6"
   },
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@rollup/plugin-replace": "^2.3.2",
     "@types/jest": "^25.2.3",
@@ -42,19 +42,26 @@
     "typescript": "3.9.5"
   },
   "scripts": {
-    "build": "run-p build:es5 build:bundle",
+    "build": "run-p copy-config:prod build:dist build:bundle",
     "build:bundle": "rollup --config",
     "build:bundle:watch": "rollup --config --watch",
-    "build:es5": "tsc -p tsconfig.build.json",
-    "build:es5:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
-    "build:watch": "run-p build:es5:watch build:bundle:watch",
+    "build:dev": "run-p copy-config:dev build:dist build:bundle",
+    "build:dist": "tsc -p tsconfig.build.json",
+    "build:dist:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "build:watch": "run-p copy-config:dev build:dist:watch build:bundle:watch",
     "clean": "rimraf dist coverage build",
+    "copy-config:dev": "cp config.dev.ts ./src/config.ts",
+    "copy-config:prod": "cp config.prod.ts ./src/config.ts",
     "lint": "eslint . --ext .js,.ts",
+    "postinstall": "run-s copy-config:dev",
     "pre-commit": "yarn lint-staged",
-    "size:check": "run-p size:check:es5",
-    "size:check:es5": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"ES5: \",$1,\"kB\";}'",
+    "prepare": "run-s build",
+    "pretest": "run-s copy-config:dev",
+    "size:check": "run-p size:check:bundle",
+    "size:check:bundle": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:jest:watch": "jest --watch",
+    "test:watch": "run-s copy-config:dev test:jest:watch"
   },
   "dependencies": {
     "firebase": "^7.14.6"

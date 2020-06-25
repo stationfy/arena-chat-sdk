@@ -57,7 +57,7 @@ export class Channel {
       sender: {
         photoURL: this.sdk.user.image,
         displayName: this.sdk.user.name,
-        anonymousId: this.sdk.user.id,
+        uid: this.sdk.user.id,
       },
     };
 
