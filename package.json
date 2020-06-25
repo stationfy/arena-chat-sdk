@@ -1,6 +1,6 @@
 {
   "name": "arena-chat-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "arena-chat-sdk is the official JavaScript client for Arena Chat, a service for building chat applications.",
   "author": "Cesar William Alvarenga",
   "license": "ISC",
@@ -53,7 +53,6 @@
     "copy-config:dev": "cp config.dev.ts ./src/config.ts",
     "copy-config:prod": "cp config.prod.ts ./src/config.ts",
     "lint": "eslint . --ext .js,.ts",
-    "postinstall": "run-s copy-config:dev",
     "pre-commit": "yarn lint-staged",
     "prepare": "run-s build",
     "pretest": "run-s copy-config:dev",
