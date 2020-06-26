@@ -1,4 +1,4 @@
-/** The status of an event */
+/** The status of an event. */
 export enum Status {
   /** The status could not be determined. */
   Unknown = 'unknown',
