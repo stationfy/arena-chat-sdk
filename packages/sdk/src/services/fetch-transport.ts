@@ -1,7 +1,7 @@
+import { Status } from '@arena-im/chat-types';
 import { BaseTransport } from '../interfaces/base-transport';
 import { SyncPromise } from '../utils/syncpromise';
 import { getGlobalObject, getRequestURL } from '../utils/misc';
-import { Status } from '../models/status';
 
 /** Base transport class implementation */
 export class FetchTransport implements BaseTransport {

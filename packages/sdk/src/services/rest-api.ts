@@ -1,10 +1,16 @@
+import {
+  ChatMessage,
+  ChatMessageReport,
+  DeleteChatMessageRequest,
+  BanUser,
+  ProviderUser,
+  ChatRoom,
+  ChatModerationRequest,
+  Site,
+} from '@arena-im/chat-types';
 import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
-import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '../models/chat-message';
-import { BanUser, ProviderUser } from '../models/user';
 import { supportsFetch } from '../utils/supports';
 import { BaseTransport } from '../interfaces/base-transport';
-import { ChatRoom, ChatModerationRequest } from '../models/chat-room';
-import { Site } from '../models/site';
 import { FetchTransport } from './fetch-transport';
 import { XHRTransport } from './xhr-transport';
 import { API_V2_URL } from '../config';

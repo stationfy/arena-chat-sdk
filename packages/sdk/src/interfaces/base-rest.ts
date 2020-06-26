@@ -1,7 +1,4 @@
-import { ChatMessage, ChatMessageReport } from '../models/chat-message';
-import { BanUser, ProviderUser } from '../models/user';
-import { ChatRoom } from '../models/chat-room';
-import { Site } from '../models/site';
+import { ChatMessage, ChatMessageReport, BanUser, ProviderUser, ChatRoom, Site } from '@arena-im/chat-types';
 
 /** Rest api used to consume the rest services */
 export interface BaseRest {

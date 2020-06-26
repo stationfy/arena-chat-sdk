@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { ChatMessage } from '../../../dist/models/chat-message';
-import { ExternalUser } from '../../../dist/models/user';
+import { ChatMessage, ExternalUser } from '@arena-im/chat-types';
 
 interface Props {
   message: ChatMessage;

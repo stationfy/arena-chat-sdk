@@ -1,5 +1,4 @@
-import { ChatMessage } from '../models/chat-message';
-import { ChatRoom } from '../models/chat-room';
+import { ChatMessage, ChatRoom } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 

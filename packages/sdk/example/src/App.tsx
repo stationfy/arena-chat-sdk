@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import ArenaChat from '@arena-im/chat-sdk';
+import { ExternalUser, ChatMessage } from '@arena-im/chat-types';
 import './App.css';
-import * as ArenaSDKAPI from './services/arena-sdk-api';
-import { ChatMessage } from '../../dist/models/chat-message';
 import Message from './components/Message';
-import { ExternalUser } from '../../dist/models/user';
+import { Channel } from '../../dist/channel/channel';
 
 function App() {
   const [sending, setSending] = useState(false);
@@ -18,6 +18,8 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const preventFetchPrevious = useRef(false);
   const previousScrollHeight = useRef(0);
+  const channel = useRef<Channel | null>(null);
+  const arenaChat = useRef<ArenaChat | null>(null);
 
   const newMessagesCallback = useCallback((message: ChatMessage) => {
     if (message.changeType === 'added') {
@@ -30,16 +32,23 @@ function App() {
   }, []);
 
   useEffect(() => {
-    async function initialize() {
-      await ArenaSDKAPI.initChannel('twf1');
+    async function initializeChat() {
+      try {
+        arenaChat.current = new ArenaChat('globoesportee');
 
-      const messages = await ArenaSDKAPI.loadRecentMessages(20);
-      setMessages(messages);
+        channel.current = await arenaChat.current.getChannel('twf1');
 
-      ArenaSDKAPI.watchNewMessage(newMessagesCallback);
+        const messages = await channel.current.loadRecentMessages(20);
+
+        setMessages(messages);
+
+        channel.current.watchNewMessage(newMessagesCallback);
+      } catch (e) {
+        setError(e.message);
+      }
     }
 
-    initialize();
+    initializeChat();
   }, [newMessagesCallback]);
 
   useEffect(() => {
@@ -59,13 +68,13 @@ function App() {
 
   useEffect(() => {
     containerRef.current?.addEventListener('scroll', async () => {
-      if (containerRef.current?.scrollTop === 0 && !preventFetchPrevious.current) {
+      if (containerRef.current?.scrollTop === 0 && !preventFetchPrevious.current && channel.current !== null) {
         setFetchingPrevious(true);
         preventFetchPrevious.current = true;
 
         previousScrollHeight.current = containerRef.current.scrollHeight;
 
-        const nextMessages = await ArenaSDKAPI.loadPrevious();
+        const nextMessages = await channel.current.loadPreviousMessages(5);
 
         setMessages((messages) => [...nextMessages, ...messages]);
       }
@@ -73,14 +82,14 @@ function App() {
   }, []);
 
   async function handleSendMessage() {
-    if (sending) {
+    if (sending || !channel.current) {
       return;
     }
 
     setSending(true);
 
     try {
-      await ArenaSDKAPI.sendMessage(text);
+      await channel.current.sendMessage(text);
       setText('');
     } catch (e) {
       setError(e.message);
@@ -110,7 +119,7 @@ function App() {
   }
 
   async function handleLogin() {
-    if (loginWait) {
+    if (loginWait || !arenaChat.current) {
       return;
     }
 
@@ -123,7 +132,7 @@ function App() {
       email: 'naomi.carter@example.com',
     };
 
-    await ArenaSDKAPI.arenaChat.setUser(user);
+    await arenaChat.current.setUser(user);
 
     setLoginWait(false);
 

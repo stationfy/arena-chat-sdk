@@ -5,7 +5,7 @@ export interface OrderBy {
 
 export interface Where {
   fieldPath: string;
-  opStr: firebase.firestore.WhereFilterOp;
+  opStr: string;
   value: any;
 }
 

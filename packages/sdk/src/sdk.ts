@@ -1,8 +1,6 @@
+import { Status, ExternalUser, Site } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
-import { Status } from './models/status';
 import { Channel } from './channel/channel';
-import { ExternalUser } from './models/user';
-import { Site } from './models/site';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
 
 /**

@@ -4,8 +4,6 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 
-import pkg from './package.json';
-
 const terserInstance = terser({
   mangle: {
     properties: {

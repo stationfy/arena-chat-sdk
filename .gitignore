@@ -6,6 +6,7 @@ src/config.ts
 dist/
 build/
 coverage/
+esm/
 
 # os
 .DS_Store

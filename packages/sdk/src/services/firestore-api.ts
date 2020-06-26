@@ -1,6 +1,6 @@
+import { OrderBy, ListenChangeConfig } from '@arena-im/chat-types';
 import * as firebase from 'firebase/app';
 import 'firebase/firestore';
-import { OrderBy, ListenChangeConfig } from '../models/firestore';
 import { SyncPromise } from '../utils/syncpromise';
 import { FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_PROJECT_ID } from '../config';
 
@@ -55,6 +55,7 @@ export function listenToCollectionChange(
         return;
       }
 
+      // @ts-ignore
       queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
     });
   }
@@ -97,6 +98,7 @@ export function listenToDocumentChange(
         return;
       }
 
+      // @ts-ignore
       queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
     });
   }
@@ -193,6 +195,8 @@ export function fetchCollectionItems({
         if (queryRef === null) {
           return;
         }
+
+        // @ts-ignore
         queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
       });
     }
@@ -254,6 +258,7 @@ export function listenToCollectionItemChange(
         return;
       }
 
+      // @ts-ignore
       queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
     });
   }

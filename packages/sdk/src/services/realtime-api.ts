@@ -1,3 +1,4 @@
+import { ChatMessage, ChatRoom } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,
@@ -5,8 +6,6 @@ import {
   fetchCollectionItems,
   listenToCollectionItemChange,
 } from '../services/firestore-api';
-import { ChatMessage } from '../models/chat-message';
-import { ChatRoom } from '../models/chat-room';
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {

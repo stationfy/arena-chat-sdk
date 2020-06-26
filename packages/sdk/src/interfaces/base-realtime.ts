@@ -1,5 +1,4 @@
-import { ChatMessage } from '../models/chat-message';
-import { ChatRoom } from '../models/chat-room';
+import { ChatMessage, ChatRoom } from '@arena-im/chat-types';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
