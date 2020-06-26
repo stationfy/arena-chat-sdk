@@ -22,6 +22,8 @@ jobs:
     - name: Build
       if: steps.cache-modules.outputs.cache-hit != 'true'
       run: yarn install
+    - name: Link
+      run: yarn link:yarn
     - name: Test
       run: yarn test
   publish:
