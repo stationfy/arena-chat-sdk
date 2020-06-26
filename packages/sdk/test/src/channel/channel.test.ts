@@ -40,7 +40,7 @@ describe('Channel', () => {
     chatPreviewEnabled: true,
     chatRequestModeratorIsEnabled: false,
     createdAt: 1592335254033,
-    id: 'new-chatroom',
+    _id: 'new-chatroom',
     lang: 'en-us',
     language: 'en-us',
     name: 'My First ChatRoom',
@@ -146,7 +146,7 @@ describe('Channel', () => {
     new Channel(chatRoom, sdk);
 
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(chatRoom.id);
+    expect(spy).toHaveBeenCalledWith(chatRoom._id);
   });
 
   describe('listenToChatConfigChanges()', () => {

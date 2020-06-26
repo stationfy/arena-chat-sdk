@@ -22,7 +22,7 @@ describe('RestAPI', () => {
       chatPreviewEnabled: true,
       chatRequestModeratorIsEnabled: true,
       createdAt: 11111111,
-      id: '1234',
+      _id: '1234',
       lang: 'en-us',
       language: 'en-us',
       name: 'Foo',

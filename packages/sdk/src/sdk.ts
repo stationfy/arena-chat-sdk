@@ -81,6 +81,7 @@ export class ArenaChat {
         profileImage: user.image,
         id: user.id,
       },
+      metadata: user.metaData,
     });
 
     this.user = {

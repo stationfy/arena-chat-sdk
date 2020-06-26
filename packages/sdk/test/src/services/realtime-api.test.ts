@@ -61,7 +61,7 @@ describe('RealtimeAPI', () => {
           chatPreviewEnabled: true,
           chatRequestModeratorIsEnabled: false,
           createdAt: 1592335254033,
-          id: 'new-chatroom',
+          _id: 'new-chatroom',
           lang: 'en-us',
           language: 'en-us',
           name: 'My First ChatRoom',
@@ -82,7 +82,7 @@ describe('RealtimeAPI', () => {
       });
 
       realtimeAPI.listenToChatConfigChanges((chatRoom: ChatRoom) => {
-        expect(chatRoom.id).toEqual('new-chatroom');
+        expect(chatRoom._id).toEqual('new-chatroom');
         done();
       });
     });

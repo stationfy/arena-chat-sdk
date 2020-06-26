@@ -38,7 +38,7 @@ export class RestAPI implements BaseRest {
    * @inheritdoc
    */
   public sendMessage(chatRoom: ChatRoom, message: ChatMessage): PromiseLike<ChatMessage> {
-    return this.transport.post<ChatMessage, ChatMessage>(`/data/chat-room/${chatRoom.id}`, message);
+    return this.transport.post<ChatMessage, ChatMessage>(`/data/chat-room/${chatRoom._id}`, message);
   }
 
   /**
@@ -46,7 +46,7 @@ export class RestAPI implements BaseRest {
    */
   public reportMessage(chatRoom: ChatRoom, report: ChatMessageReport): PromiseLike<ChatMessageReport> {
     return this.transport.post<ChatMessageReport, ChatMessageReport>(
-      `/data/chat-room/${chatRoom.id}/report/${report.message.key}`,
+      `/data/chat-room/${chatRoom._id}/report/${report.message.key}`,
       report,
     );
   }
@@ -57,7 +57,7 @@ export class RestAPI implements BaseRest {
   public requestModeration(site: Site, chatRoom: ChatRoom): PromiseLike<void> {
     const request: ChatModerationRequest = {
       siteId: site._id,
-      chatRoomId: chatRoom.id,
+      chatRoomId: chatRoom._id,
     };
 
     return this.transport.post<void, ChatModerationRequest>('/data/moderation/request-mod-status', request);
@@ -80,7 +80,7 @@ export class RestAPI implements BaseRest {
       },
     };
     return this.transport.post<void, DeleteChatMessageRequest>(
-      `/data/chat-room/${chatRoom.id}/messages/${message.key}`,
+      `/data/chat-room/${chatRoom._id}/messages/${message.key}`,
       request,
     );
   }

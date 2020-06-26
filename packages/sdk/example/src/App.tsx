@@ -34,9 +34,9 @@ function App() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat('globoesportee');
+        arenaChat.current = new ArenaChat('cesar');
 
-        channel.current = await arenaChat.current.getChannel('twf1');
+        channel.current = await arenaChat.current.getChannel('wtn1');
 
         const messages = await channel.current.loadRecentMessages(20);
 

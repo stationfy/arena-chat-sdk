@@ -7,7 +7,7 @@ export interface ChatRoom {
   chatPreviewEnabled: boolean;
   chatRequestModeratorIsEnabled: boolean;
   createdAt: number;
-  id: string;
+  _id: string;
   lang: string;
   language: string;
   name: string;

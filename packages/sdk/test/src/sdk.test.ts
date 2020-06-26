@@ -24,7 +24,7 @@ describe('SDK', () => {
       chatPreviewEnabled: true,
       chatRequestModeratorIsEnabled: false,
       createdAt: 1592335254033,
-      id: 'new-chatroom',
+      _id: 'new-chatroom',
       lang: 'en-us',
       language: 'en-us',
       name: 'My First ChatRoom',
