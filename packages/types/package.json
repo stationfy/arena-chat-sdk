@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/chat-types",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Types for Arena Chat SDK",
   "author": "Arena",
   "license": "BSD-3-Clause",
