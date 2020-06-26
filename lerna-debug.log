@@ -1,0 +1,17 @@
+0 silly argv { _: [ 'publish' ],
+0 silly argv   composed: 'publish',
+0 silly argv   lernaVersion: '3.13.4',
+0 silly argv   '$0':
+0 silly argv    '/Users/cesar/dev/arena/arena-chat-sdk/node_modules/.bin/lerna' }
+1 notice cli v3.13.4
+2 verbose rootPath /Users/cesar/dev/arena/arena-chat-sdk
+3 error Error: Invalid package name "publish:registry": name can only contain URL-friendly characters
+3 error     at invalidPackageName (/Users/cesar/dev/arena/arena-chat-sdk/node_modules/npm-package-arg/npa.js:86:15)
+3 error     at Result.setName (/Users/cesar/dev/arena/arena-chat-sdk/node_modules/npm-package-arg/npa.js:121:11)
+3 error     at new Result (/Users/cesar/dev/arena/arena-chat-sdk/node_modules/npm-package-arg/npa.js:111:23)
+3 error     at Function.resolve (/Users/cesar/dev/arena/arena-chat-sdk/node_modules/npm-package-arg/npa.js:58:15)
+3 error     at Object.keys.forEach.depName (/Users/cesar/dev/arena/arena-chat-sdk/node_modules/@lerna/package-graph/index.js:109:30)
+3 error     at Array.forEach (<anonymous>)
+3 error     at PackageGraph.forEach (/Users/cesar/dev/arena/arena-chat-sdk/node_modules/@lerna/package-graph/index.js:103:38)
+3 error     at Map.forEach (<anonymous>)
+3 error     at new PackageGraph (/Users/cesar/dev/arena/arena-chat-sdk/node_modules/@lerna/package-graph/index.js:92:10)

@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+packages/sdk/src/config.ts
+
+# build and test
+dist/
+build/
+coverage/
+esm/
+
+# os
+.DS_Store
+
+# Optional eslint cache
+.eslintcache

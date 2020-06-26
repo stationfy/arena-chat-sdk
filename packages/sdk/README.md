@@ -24,6 +24,31 @@ yarn add arena-chat-sdk
 <script src="https://cdn.jsdelivr.net/npm/arena-chat-sdk"></script>
 ```
 
+### Example
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Chat</title>
+  </head>
+  <body>
+    <script src="bundle.js"></script>
+    <script>
+      (async function () {
+        var arenaChat = new ArenaChat(SITE_SLUG);
+        const channel = await arenaChat.getChannel(CHAT_SLUG);
+
+        channel.sendMessage('my first chat message').then(() => {
+          console.log('sent!');
+        });
+      })();
+    </script>
+  </body>
+</html>
+```
+
 ### API Documentation
 
 Documentation for this JavaScript client are available at the [Arena website](https://arena.im)
