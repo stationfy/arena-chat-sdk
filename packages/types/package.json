@@ -42,5 +42,6 @@
     "prepare": "run-s build",
     "publish:registry": "yarn publish --access public"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "gitHead": "769b1a9a457e24ac16f0a90ea827b55a1a86f07b"
 }

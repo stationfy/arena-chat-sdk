@@ -1,6 +1,6 @@
 # dependencies
 node_modules/
-src/config.ts
+packages/sdk/src/config.ts
 
 # build and test
 dist/
