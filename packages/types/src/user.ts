@@ -10,8 +10,11 @@ export interface ExternalUser {
   id: string;
   name: string;
   image: string;
-  email: string;
+  email?: string;
   token?: string;
+  metaData?: {
+    [key: string]: string;
+  };
 }
 
 export interface BanUser {
@@ -42,5 +45,8 @@ export interface ProviderUser {
     };
     profileImage: string;
     id: string;
+  };
+  metadata?: {
+    [key: string]: string;
   };
 }

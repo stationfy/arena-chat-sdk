@@ -11,7 +11,7 @@ export class Channel {
       throw new Error('Cannot create a channel without a site.');
     }
 
-    this.realtimeAPI = new RealtimeAPI(chatRoom.id);
+    this.realtimeAPI = new RealtimeAPI(chatRoom._id);
 
     this.watchChatConfigChanges();
   }
@@ -116,7 +116,13 @@ export class Channel {
    */
   public watchNewMessage(callback: (message: ChatMessage) => void): void {
     try {
-      this.realtimeAPI.listenToChatNewMessage(callback);
+      this.realtimeAPI.listenToChatNewMessage(newMessage => {
+        if (this.cacheCurrentMessages.some(message => newMessage.key === message.key)) {
+          return
+        }
+
+        callback(newMessage)
+      });
     } catch (e) {
       throw new Error(`Cannot watch new message on "${this.chatRoom.slug}" channel.`);
     }

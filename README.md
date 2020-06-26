@@ -33,6 +33,11 @@ const user: ExternalUser = {
   id: "user-id",
   name: "Ruby Sims",
   image: "https://randomuser.me/api/portraits/women/21.jpg",
+  // User metadata
+  // metaData: {
+  //   'key1': 'value1',
+  //   'key2': 'value2'
+  // }
 };
 await arenaChat.setUser(user);
 // ...
