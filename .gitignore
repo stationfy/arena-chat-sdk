@@ -13,3 +13,6 @@ esm/
 
 # Optional eslint cache
 .eslintcache
+
+# logs
+*.log
