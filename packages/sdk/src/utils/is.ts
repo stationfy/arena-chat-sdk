@@ -1,5 +1,5 @@
 /**
- * Checks whether given value's type is a string
+ * Checks whether given value's type is a string.
  * {@link isString}.
  *
  * @param wat A value to be checked.
@@ -11,7 +11,7 @@ export function isString(wat: any): boolean {
 }
 
 /**
- * Checks whether given value's is a primitive (undefined, null, number, boolean, string)
+ * Checks whether given value's is a primitive (undefined, null, number, boolean, string).
  * {@link isPrimitive}.
  *
  * @param wat A value to be checked.
