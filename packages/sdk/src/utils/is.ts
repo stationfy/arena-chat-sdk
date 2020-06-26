@@ -1,5 +1,5 @@
 /**
- * Checks whether given value's type is a string
+ * Checks whether given value's type is a string.
  * {@link isString}.
  *
  * @param wat A value to be checked.
