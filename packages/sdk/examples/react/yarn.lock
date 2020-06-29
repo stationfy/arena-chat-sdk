@@ -2,6 +2,15 @@
 # yarn lockfile v1
 
 
+"@arena-im/chat-sdk@link:../..":
+  version "0.0.0"
+  uid ""
+
+"@arena-im/chat-types@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-0.2.1.tgz#38818387328104727c391a5605409099e8da89a7"
+  integrity sha512-GdQ297nuUsotuxUvzPvO7VCz5sB/1v7p7ExWxKipv4D+cn1is6J7ZizITrnMUmYBbOyND2OTZ21OObivZyYh8w==
+
 "@babel/code-frame@7.8.3", "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.8.3.tgz#33e25903d7481181534e12ec0a25f16b6fcf419e"
@@ -2307,10 +2316,6 @@ aproba@^1.1.1:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/aproba/-/aproba-1.2.0.tgz#6802e6264efd18c790a1b0d517f0f2627bf2c94a"
   integrity sha512-Y9J6ZjXtoYh8RnXVCMOU/ttDmk1aBjunq9vO0ta5x85WDQiQfUF9sIPBITdbiiIVcBo03Hi3jMxigBtsddlXRw==
-
-"arena-chat-sdk@link:..":
-  version "0.0.0"
-  uid ""
 
 argparse@^1.0.7:
   version "1.0.10"

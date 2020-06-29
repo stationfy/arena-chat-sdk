@@ -3,7 +3,7 @@ import ArenaChat from '@arena-im/chat-sdk';
 import { ExternalUser, ChatMessage } from '@arena-im/chat-types';
 import './App.css';
 import Message from './components/Message';
-import { Channel } from '../../dist/channel/channel';
+import { Channel } from '../../../dist/channel/channel';
 
 function App() {
   const [sending, setSending] = useState(false);
@@ -34,9 +34,9 @@ function App() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat('cesar');
+        arenaChat.current = new ArenaChat(YOUR_SITE_SLUG);
 
-        channel.current = await arenaChat.current.getChannel('wtn1');
+        channel.current = await arenaChat.current.getChannel(YOUR_CHAT_SLUG);
 
         const messages = await channel.current.loadRecentMessages(20);
 
