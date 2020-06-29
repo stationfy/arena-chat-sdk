@@ -4,49 +4,71 @@ arena-chat-sdk is the official JavaScript client for Arena Chat, a service for b
 
 You can sign up for a Arena account at https://dashboard.arena.im/.
 
-### Installation
+## Installation
 
-#### Install with NPM
+### Install with NPM
 
 ```bash
 npm install arena-chat-sdk
 ```
 
-#### Install with Yarn
+### Install with Yarn
 
 ```bash
 yarn add arena-chat-sdk
 ```
 
-#### Using JS deliver
+## Usage
 
-```html
-<script src="https://cdn.jsdelivr.net/npm/arena-chat-sdk"></script>
+To use this SDK, call `ArenaChat(YOUR_SITE_SLUG)` as early as possible after loading the page. This will initialize the SDK and hook into the environment.
+
+```javascript
+import ArenaChat from '@arena-im/chat-sdk';
+
+const arenaChat = new ArenaChat('my-site-slug');
 ```
 
-### Example
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Chat</title>
-  </head>
-  <body>
-    <script src="bundle.js"></script>
-    <script>
-      (async function () {
-        var arenaChat = new ArenaChat(SITE_SLUG);
-        const channel = await arenaChat.getChannel(CHAT_SLUG);
+To get a channel or set a user, use the exported functions of `arenaChat`.
 
-        channel.sendMessage('my first chat message').then(() => {
-          console.log('sent!');
-        });
-      })();
-    </script>
-  </body>
-</html>
+```javascript
+// create a channel with chat slug
+const channel = await arenaChat.getChannel(YOUR_CHAT_SLUG);
+
+// set current user
+await arenaChat.setUser({
+  id: "user-id",
+  name: "Ruby Sims",
+  image: "https://randomuser.me/api/portraits/women/21.jpg",
+  // additional information to user
+  metaData: {
+    'key1': 'value1',
+    'key2': 'value2'
+  }
+});
+```
+
+To send messages, fetch recent messages, load previous messages, or listen to channel events, use the exported functions on `channel` object.
+
+```javascript
+// receive the last 20 messages
+const messages = await channel.loadRecentMessages(20);
+
+// send message
+await channel.sendMessage('Hello World!');
+
+// receive the 5 previous messages
+const previousMessages = await channel.loadPreviousMessages(5);
+
+// watch new messages
+channel.watchNewMessage((message) => {
+  // if the message was added
+  if (message.changeType === 'added') {
+    // add message to the UI
+  } else if (message.changeType === 'removed') {
+    // remove message from the UI
+  }
+});
+
 ```
 
 ### API Documentation
