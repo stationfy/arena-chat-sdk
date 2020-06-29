@@ -52,8 +52,3 @@ yarn add arena-chat-sdk
 ### API Documentation
 
 Documentation for this JavaScript client are available at the [Arena website](https://arena.im)
-
-### More
-
-- [Logging](docs/logging.md)
-- [User Token](docs/userToken.md)
