@@ -38,7 +38,7 @@ $ yarn
 
 ### Step 4: Configure the example with your information
 
-Open the `App.tsx` file and search for `YOUR_SITE_SLUG` and replace it with your site slug. Then, search for `YOUR_CHAT_SLUG` and replace it with your chat slug.
+Open the `src/App.tsx` file and search for `YOUR_SITE_SLUG` and replace it with your site slug. Then, search for `YOUR_CHAT_SLUG` and replace it with your chat slug.
 
 ### Step 5: Run the example
 
