@@ -13,7 +13,7 @@ Arena provides a ready-to-use live group chat widget that doesn't require any de
 
 The SDKs are organized inside the `@arena-im/` namespace. It can be used conveniently integrated with any Javascript framework and environment.
 
-## Installation and Usage
+## Installation
 
 To install the SDK, simply add it to your project:
 
@@ -22,28 +22,57 @@ npm install --save @arena-im/chat-sdk
 yarn add @arena-im/chat-sdk
 ```
 
+## Usage
+
 To initialize the SDK you'll need your site slug and a chat room slug and both can be obtained from the Arena Dashboard or using the Platform API.
 
 ```javascript
 import ArenaChat from '@arena-im/chat-sdk';
-// ...
-const arenaChat = new ArenaChat(YOUR_SITE_SLUG);
+
+const arenaChat = new ArenaChat('my-site-slug');
+```
+
+To get a channel or set a user, use the exported functions of `arenaChat`.
+
+```javascript
+// create a channel with chat slug
 const channel = await arenaChat.getChannel(YOUR_CHAT_SLUG);
 
-const user: ExternalUser = {
+// set current user
+await arenaChat.setUser({
   // ID of the user on your authentication system
   id: "user-id",
   name: "Ruby Sims",
   image: "https://randomuser.me/api/portraits/women/21.jpg",
   // User metadata attached to the user object
-  // metaData: {
-  //   'key1': 'value1',
-  //   'key2': 'value2'
-  // }
-};
-await arenaChat.setUser(user);
-// ...
-channel.sendMessage("Hello, world!");
+  metaData: {
+    'key1': 'value1',
+    'key2': 'value2'
+  }
+});
+```
+
+To send messages, fetch recent messages, load previous messages, or listen to channel events, use the exported functions on `channel` object.
+
+```javascript
+// receive the last 20 messages
+const messages = await channel.loadRecentMessages(20);
+
+// send message
+await channel.sendMessage('Hello World!');
+
+// receive the 5 previous messages
+const previousMessages = await channel.loadPreviousMessages(5);
+
+// watch new messages
+channel.watchNewMessage((message) => {
+  // if the message was added
+  if (message.changeType === 'added') {
+    // add message to the UI
+  } else if (message.changeType === 'removed') {
+    // remove message from the UI
+  }
+});
 
 ```
 
