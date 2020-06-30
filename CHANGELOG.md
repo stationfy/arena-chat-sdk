@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.3.0 (2020-06-30)
+
+
+### Features
+
+* change event names ([87fcfdf](https://github.com/stationfy/arena-chat-sdk/commit/87fcfdf1338011a8f175be5ebc68a39011615839))
+
+
+
+
+
 ## 0.2.4 (2020-06-30)
 
 
