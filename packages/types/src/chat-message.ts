@@ -9,6 +9,11 @@ export interface ChatMessage {
   changeType?: string;
 }
 
+export enum MessageChangeType {
+  ADDED = 'added',
+  REMOVED = 'removed',
+}
+
 export interface ChatMessageSender {
   anonymousId?: string;
   label?: string;

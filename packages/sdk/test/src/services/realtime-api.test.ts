@@ -1,12 +1,12 @@
 import { RealtimeAPI } from '@services/realtime-api';
-import { ChatMessage } from '@models/chat-message';
+import { ChatMessage } from '@arena-im/chat-types';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
   fetchCollectionItems,
   listenToCollectionItemChange,
 } from '@services/firestore-api';
-import { ChatRoom } from '@models/chat-room';
+import { ChatRoom } from '@arena-im/chat-types';
 
 jest.mock('@services/firestore-api', () => ({
   listenToCollectionChange: jest.fn(),
@@ -117,7 +117,7 @@ describe('RealtimeAPI', () => {
     });
   });
 
-  describe('listenToChatNewMessage()', () => {
+  describe('listenToMessageReceived()', () => {
     it('should receive a added message', (done) => {
       const realtimeAPI = new RealtimeAPI('my-channel');
 
@@ -140,7 +140,7 @@ describe('RealtimeAPI', () => {
         callback(message);
       });
 
-      realtimeAPI.listenToChatNewMessage((message: ChatMessage) => {
+      realtimeAPI.listenToMessageReceived((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
 
         done();

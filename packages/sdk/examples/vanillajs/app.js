@@ -2,7 +2,7 @@
 var arenaChat = new window.ArenaChat(YOUR_SITE_SLUG);
 
 async function initialize() {
-  // create a channel with chat slug
+  // get a channel with chat slug
   const channel = await arenaChat.getChannel(YOUR_CHAT_SLUG);
 
   // receive recent messages
@@ -26,11 +26,9 @@ async function initialize() {
   await arenaChat.setUser(user);
 
   // watch new messages
-  channel.watchNewMessage((message) => {
-    if (message.changeType === 'added') {
-      container.appendChild(getMessageEl(message));
-      container.scrollTop = container.scrollHeight;
-    }
+  channel.onMessageReceived((message) => {
+    container.appendChild(getMessageEl(message));
+    container.scrollTop = container.scrollHeight;
   });
 
   // send message

@@ -22,13 +22,11 @@ function App() {
   const arenaChat = useRef<ArenaChat | null>(null);
 
   const newMessagesCallback = useCallback((message: ChatMessage) => {
-    if (message.changeType === 'added') {
-      setMessages((messages) => [...messages, message]);
-    }
+    setMessages((messages) => [...messages, message]);
+  }, []);
 
-    if (message.changeType === 'removed') {
-      setMessages((messages) => messages.filter((item) => item.key !== message.key));
-    }
+  const delededMessagesCallback = useCallback((message: ChatMessage) => {
+    setMessages((messages) => messages.filter((item) => item.key !== message.key));
   }, []);
 
   useEffect(() => {
@@ -42,7 +40,9 @@ function App() {
 
         setMessages(messages);
 
-        channel.current.watchNewMessage(newMessagesCallback);
+        channel.current.onMessageReceived(newMessagesCallback);
+
+        channel.current.onMessageDeleted(delededMessagesCallback);
       } catch (e) {
         setError(e.message);
       }

@@ -1,8 +1,8 @@
 import { RestAPI } from '@services/rest-api';
-import { ChatRoom } from '@models/chat-room';
-import { Site } from '@models/site';
-import { BanUser, ProviderUser } from '@models/user';
-import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@models/chat-message';
+import { ChatRoom } from '@arena-im/chat-types';
+import { Site } from '@arena-im/chat-types';
+import { BanUser, ProviderUser } from '@arena-im/chat-types';
+import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@arena-im/chat-types';
 import { XHRTransport } from '@services/xhr-transport';
 
 jest.mock('@services/xhr-transport', () => ({

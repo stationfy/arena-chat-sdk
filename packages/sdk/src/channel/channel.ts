@@ -1,10 +1,12 @@
-import { ChatMessage, ChatRoom } from '@arena-im/chat-types';
+import { ChatMessage, ChatRoom, MessageChangeType } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 
 export class Channel {
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
+  private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
+  private messageModificationListener: (() => void) | null = null;
 
   public constructor(public chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -14,20 +16,6 @@ export class Channel {
     this.realtimeAPI = new RealtimeAPI(chatRoom._id);
 
     this.watchChatConfigChanges();
-  }
-
-  /**
-   * Watch chat config changes
-   *
-   */
-  private watchChatConfigChanges() {
-    try {
-      this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
-        this.chatRoom = nextChatRoom;
-      });
-    } catch (e) {
-      throw new Error('Cannot listen to chat config changes');
-    }
   }
 
   /**
@@ -114,17 +102,75 @@ export class Channel {
    *
    * @param callback
    */
-  public watchNewMessage(callback: (message: ChatMessage) => void): void {
+  public onMessageReceived(callback: (message: ChatMessage) => void): void {
     try {
-      this.realtimeAPI.listenToChatNewMessage(newMessage => {
-        if (this.cacheCurrentMessages.some(message => newMessage.key === message.key)) {
-          return
+      this.registerMessageModificationCallback((newMessage) => {
+        if (this.cacheCurrentMessages.some((message) => newMessage.key === message.key)) {
+          return;
         }
 
-        callback(newMessage)
+        callback(newMessage);
+      }, MessageChangeType.ADDED);
+    } catch (e) {
+      throw new Error(`Cannot watch new messages on "${this.chatRoom.slug}" channel.`);
+    }
+  }
+
+  public onMessageDeleted(callback: (message: ChatMessage) => void): void {
+    try {
+      this.registerMessageModificationCallback(callback, MessageChangeType.REMOVED);
+    } catch (e) {
+      throw new Error(`Cannot watch deleted messages on "${this.chatRoom.slug}" channel.`);
+    }
+  }
+
+  /**
+   * Register message modification callback
+   *
+   */
+  private registerMessageModificationCallback(callback: (message: ChatMessage) => void, type: MessageChangeType) {
+    if (!this.messageModificationCallbacks[type]) {
+      this.messageModificationCallbacks[type] = [];
+    }
+
+    this.messageModificationCallbacks[type].push(callback);
+
+    this.listenToAllTypeMessageModification();
+  }
+
+  /**
+   * Listen to all type message modification
+   *
+   */
+  private listenToAllTypeMessageModification() {
+    if (this.messageModificationListener !== null) {
+      return;
+    }
+
+    this.messageModificationListener = this.realtimeAPI.listenToMessageReceived((message) => {
+      if (
+        message.changeType === undefined ||
+        !this.messageModificationCallbacks[message.changeType] ||
+        (message.changeType !== MessageChangeType.ADDED && message.changeType !== MessageChangeType.REMOVED)
+      ) {
+        return;
+      }
+
+      this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
+    });
+  }
+
+  /**
+   * Watch chat config changes
+   *
+   */
+  private watchChatConfigChanges() {
+    try {
+      this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
+        this.chatRoom = nextChatRoom;
       });
     } catch (e) {
-      throw new Error(`Cannot watch new message on "${this.chatRoom.slug}" channel.`);
+      throw new Error('Cannot listen to chat config changes');
     }
   }
 }

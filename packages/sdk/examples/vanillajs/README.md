@@ -42,6 +42,3 @@ $ npx serve -S
 ```
 
 The example will be up and running on http://localhost:5000
-
-
-

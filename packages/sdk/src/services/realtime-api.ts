@@ -10,7 +10,7 @@ import {
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe functions */
-  private unsbscriteFunctions: (() => void)[] = [];
+  private unsbscribeFunctions: (() => void)[] = [];
 
   public constructor(private channel: string) {}
 
@@ -38,7 +38,7 @@ export class RealtimeAPI implements BaseRealtime {
       },
     );
 
-    this.unsbscriteFunctions.push(unsubscribe);
+    this.unsbscribeFunctions.push(unsubscribe);
   }
 
   /**
@@ -57,7 +57,7 @@ export class RealtimeAPI implements BaseRealtime {
     //   ],
     //   callback,
     // });
-    // this.unsbscriteFunctions.push(unsubscribe);
+    // this.unsbscribeFunctions.push(unsubscribe);
   }
 
   /**
@@ -74,12 +74,12 @@ export class RealtimeAPI implements BaseRealtime {
         callback(chatRoom);
       },
     );
-    this.unsbscriteFunctions.push(unsubscribe);
+    this.unsbscribeFunctions.push(unsubscribe);
   }
 
   /** Unsubscribe from all listeners */
   public unsubscribeAll(): void {
-    this.unsbscriteFunctions.forEach((fn) => fn());
+    this.unsbscribeFunctions.forEach((fn) => fn());
   }
 
   /**
@@ -130,8 +130,8 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatNewMessage(callback: (message: ChatMessage) => void): void {
-    listenToCollectionItemChange(
+  public listenToMessageReceived(callback: (message: ChatMessage) => void): () => void {
+    const unsubscribe = listenToCollectionItemChange(
       {
         path: `chat-rooms/${this.channel}/messages`,
       },
@@ -139,5 +139,9 @@ export class RealtimeAPI implements BaseRealtime {
         callback(data as ChatMessage);
       },
     );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
   }
 }

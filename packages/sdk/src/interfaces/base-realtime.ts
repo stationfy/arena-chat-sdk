@@ -42,5 +42,5 @@ export interface BaseRealtime {
    *
    * @param callback callback that expect a chat message
    */
-  listenToChatNewMessage(callback: (message: ChatMessage) => void): void;
+  listenToMessageReceived(callback: (message: ChatMessage) => void): () => void;
 }

@@ -1,9 +1,9 @@
 import { Channel } from '@channel/channel';
-import { ChatRoom } from '@models/chat-room';
-import { Site } from '@models/site';
+import { ChatRoom } from '@arena-im/chat-types';
+import { Site } from '@arena-im/chat-types';
 
 import { RestAPI } from '@services/rest-api';
-import { ChatMessage } from '@models/chat-message';
+import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaChat } from '../../../src/sdk';
 
@@ -325,14 +325,15 @@ describe('Channel', () => {
     });
   });
 
-  describe('watchNewMessage()', () => {
+  describe('onMessageReceived()', () => {
     it('should receive a message', (done) => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToChatNewMessage: (callback: (message: ChatMessage) => void) => {
+        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
+            changeType: 'added',
             message: {
               text: 'testing',
             },
@@ -354,8 +355,70 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      channel.watchNewMessage((message: ChatMessage) => {
+      channel.onMessageReceived((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
+        done();
+      });
+    });
+
+    it('should receive an error', () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToMessageReceived: () => {
+          throw new Error('invalid');
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      try {
+        channel.onMessageReceived((message: ChatMessage) => {
+          console.log({ message });
+        });
+      } catch (e) {
+        expect(e.message).toEqual(`Cannot watch new messages on "${channel.chatRoom.slug}" channel.`);
+      }
+    });
+  });
+
+  describe('onMessageDeleted()', () => {
+    it('should receive a message deleted', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            changeType: 'removed',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.onMessageDeleted((message: ChatMessage) => {
+        expect(message.key).toEqual('fake-key');
+        expect(message.changeType).toEqual('removed');
         done();
       });
     });
@@ -376,11 +439,11 @@ describe('Channel', () => {
       const channel = new Channel(chatRoom, sdk);
 
       try {
-        channel.watchNewMessage((message: ChatMessage) => {
+        channel.onMessageDeleted((message: ChatMessage) => {
           console.log({ message });
         });
       } catch (e) {
-        expect(e.message).toEqual(`Cannot watch new message on "${channel.chatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot watch deleted messages on "${channel.chatRoom.slug}" channel.`);
       }
     });
   });

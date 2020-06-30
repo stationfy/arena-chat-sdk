@@ -31,7 +31,7 @@ const arenaChat = new ArenaChat('my-site-slug');
 To get a channel or set a user, use the exported functions of `arenaChat`.
 
 ```javascript
-// create a channel with chat slug
+// get a channel with chat slug
 const channel = await arenaChat.getChannel(YOUR_CHAT_SLUG);
 
 // set current user
@@ -60,13 +60,13 @@ await channel.sendMessage('Hello World!');
 const previousMessages = await channel.loadPreviousMessages(5);
 
 // watch new messages
-channel.watchNewMessage((message) => {
-  // if the message was added
-  if (message.changeType === 'added') {
-    // add message to the UI
-  } else if (message.changeType === 'removed') {
-    // remove message from the UI
-  }
+channel.onMessageReceived((message) => {
+  // add message to the UI
+});
+
+// watch deleted messages
+channel.onMessageDeleted((message) => {
+  // remove message from the UI
 });
 
 ```
