@@ -3,13 +3,15 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.0.0"
-  uid ""
+  version "0.2.2"
+  dependencies:
+    "@arena-im/chat-types" "^0.2.2"
+    firebase "^7.14.6"
 
-"@arena-im/chat-types@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-0.2.1.tgz#38818387328104727c391a5605409099e8da89a7"
-  integrity sha512-GdQ297nuUsotuxUvzPvO7VCz5sB/1v7p7ExWxKipv4D+cn1is6J7ZizITrnMUmYBbOyND2OTZ21OObivZyYh8w==
+"@arena-im/chat-types@^0.2.2":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-0.2.3.tgz#b14e64f4467648881de6c30c8c03c52e2f1a97d6"
+  integrity sha512-+MH2O33THEHI2XsAmCJl66+eZNae5/YP2LgwZAoqzS54Rcx5wjAe7x8qb/EQAVt4FPJOuI+oKb0P50YdOC315Q==
 
 "@babel/code-frame@7.8.3", "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
   version "7.8.3"
@@ -10918,9 +10920,9 @@ websocket-driver@>=0.5.1:
     websocket-extensions ">=0.1.1"
 
 websocket-extensions@>=0.1.1:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.3.tgz#5d2ff22977003ec687a4b87073dfbbac146ccf29"
-  integrity sha512-nqHUnMXmBzT0w570r2JpJxfiSD1IzoI+HGVdd3aZ0yNi3ngvQ4jv1dtHt5VGxfI2yj5yqImPhOK4vmIh2xMbGg==
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42"
+  integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
 
 whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3, whatwg-encoding@^1.0.5:
   version "1.0.5"
