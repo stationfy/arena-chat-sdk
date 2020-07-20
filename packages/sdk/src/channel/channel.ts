@@ -102,13 +102,13 @@ export class Channel {
    *
    * @param message chat message
    */
-  public async sendLikeReaction(message: ChatMessage): Promise<void> {
+  public async sendLikeReaction(messageId: string): Promise<void> {
     if (this.sdk.site === null) {
       throw new Error('Cannot react to a message without a site id');
     }
 
-    if (!message || !message.key) {
-      throw new Error('Invalid message');
+    if (typeof messageId === 'undefined') {
+      throw new Error('Invalid message id');
     }
 
     if (this.sdk.user === null) {
@@ -120,14 +120,14 @@ export class Channel {
         itemType: 'chatMessage',
         reaction: 'love',
         publisherId: this.sdk.site._id,
-        itemId: message.key,
+        itemId: messageId,
         chatRoomId: this.chatRoom._id,
         userId: this.sdk.user.id,
       };
 
       await this.realtimeAPI.sendReaction(reaction);
     } catch (e) {
-      throw new Error(`Cannot react to the message "${message.key}"`);
+      throw new Error(`Cannot react to the message "${messageId}"`);
     }
   }
 

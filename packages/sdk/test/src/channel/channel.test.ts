@@ -464,20 +464,7 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      const message: ChatMessage = {
-        createdAt: 1592342151026,
-        key: 'fake-key',
-        message: {
-          text: 'testing',
-        },
-        publisherId: 'site-id',
-        sender: {
-          displayName: 'Test User',
-          photoURL: 'http://www.google.com',
-        },
-      };
-
-      channel.sendLikeReaction(message).then(done);
+      channel.sendLikeReaction('fake-key').then(done);
     });
   });
 });
