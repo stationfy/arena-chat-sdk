@@ -1,10 +1,11 @@
 import { RealtimeAPI } from '@services/realtime-api';
-import { ChatMessage } from '@arena-im/chat-types';
+import { ChatMessage, Reaction } from '@arena-im/chat-types';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
   fetchCollectionItems,
   listenToCollectionItemChange,
+  addItem,
 } from '@services/firestore-api';
 import { ChatRoom } from '@arena-im/chat-types';
 
@@ -13,6 +14,7 @@ jest.mock('@services/firestore-api', () => ({
   listenToDocumentChange: jest.fn(),
   fetchCollectionItems: jest.fn(),
   listenToCollectionItemChange: jest.fn(),
+  addItem: jest.fn(),
 }));
 
 describe('RealtimeAPI', () => {
@@ -205,6 +207,53 @@ describe('RealtimeAPI', () => {
           key: 'fake-key-1',
         },
       ]);
+    });
+  });
+
+  describe('sendReaction()', () => {
+    it('should react to a message', (done) => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      const reaction: Reaction = {
+        itemType: 'chatMessage',
+        reaction: 'love',
+        publisherId: 'fake-site-id',
+        itemId: 'fake-message-key',
+        chatRoomId: 'fake-chat-room-key',
+        userId: 'fake-user-uid',
+      };
+
+      // @ts-ignore
+      addItem.mockImplementation(async () => {
+        return;
+      });
+
+      realtimeAPI.sendReaction(reaction).then(() => {
+        done();
+      });
+    });
+
+    it('should handle a react error', (done) => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      const reaction: Reaction = {
+        itemType: 'chatMessage',
+        reaction: 'love',
+        publisherId: 'fake-site-id',
+        itemId: 'fake-message-key',
+        chatRoomId: 'fake-chat-room-key',
+        userId: 'fake-user-uid',
+      };
+
+      // @ts-ignore
+      addItem.mockImplementation(async () => {
+        throw new Error('cannot set this doc');
+      });
+
+      realtimeAPI.sendReaction(reaction).catch((e) => {
+        expect(e.message).toEqual('failed');
+        done();
+      });
     });
   });
 });

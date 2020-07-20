@@ -447,4 +447,37 @@ describe('Channel', () => {
       }
     });
   });
+
+  describe('sendLikeReaction()', () => {
+    it('should send a like reaction', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        sendReaction: async () => {
+          return;
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const message: ChatMessage = {
+        createdAt: 1592342151026,
+        key: 'fake-key',
+        message: {
+          text: 'testing',
+        },
+        publisherId: 'site-id',
+        sender: {
+          displayName: 'Test User',
+          photoURL: 'http://www.google.com',
+        },
+      };
+
+      channel.sendLikeReaction(message).then(done);
+    });
+  });
 });

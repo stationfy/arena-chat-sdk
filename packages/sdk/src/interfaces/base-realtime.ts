@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRoom } from '@arena-im/chat-types';
+import { ChatMessage, ChatRoom, Reaction } from '@arena-im/chat-types';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
@@ -43,4 +43,11 @@ export interface BaseRealtime {
    * @param callback callback that expect a chat message
    */
   listenToMessageReceived(callback: (message: ChatMessage) => void): () => void;
+
+  /**
+   * Send a reaction on a message
+   *
+   * @param reaction a chat message reaction
+   */
+  sendReaction(reaction: Reaction): Promise<void>;
 }

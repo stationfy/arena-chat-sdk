@@ -281,3 +281,28 @@ export function listenToCollectionItemChange(
     },
   );
 }
+
+/**
+ *
+ * @param path
+ * @param value
+ */
+export function addItem(path: string, value: { [key: string]: any }): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const collectionRef = getQueryRefByPath(path) as firebase.firestore.CollectionReference;
+
+    if (collectionRef === null) {
+      throw new Error(`Invalid path: ${path}`);
+    }
+
+    const docRef = collectionRef.doc();
+    value.key = docRef.id;
+
+    return docRef
+      .set(value)
+      .then(() => {
+        resolve();
+      })
+      .catch(reject);
+  });
+}

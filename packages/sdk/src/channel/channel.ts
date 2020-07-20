@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRoom, MessageChangeType } from '@arena-im/chat-types';
+import { ChatMessage, ChatRoom, MessageChangeType, Reaction } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 
@@ -98,7 +98,41 @@ export class Channel {
   }
 
   /**
-   * Watch messages on channel
+   * Send a like reaction
+   *
+   * @param message chat message
+   */
+  public async sendLikeReaction(message: ChatMessage): Promise<void> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot react to a message without a site id');
+    }
+
+    if (!message || !message.key) {
+      throw new Error('Invalid message');
+    }
+
+    if (this.sdk.user === null) {
+      throw new Error('Cannot react to a message without an user');
+    }
+
+    try {
+      const reaction: Reaction = {
+        itemType: 'chatMessage',
+        reaction: 'love',
+        publisherId: this.sdk.site._id,
+        itemId: message.key,
+        chatRoomId: this.chatRoom._id,
+        userId: this.sdk.user.id,
+      };
+
+      await this.realtimeAPI.sendReaction(reaction);
+    } catch (e) {
+      throw new Error(`Cannot react to the message "${message.key}"`);
+    }
+  }
+
+  /**
+   * Watch new messages on channel
    *
    * @param callback
    */
@@ -116,6 +150,11 @@ export class Channel {
     }
   }
 
+  /**
+   * Watch messages deleted
+   *
+   * @param callback
+   */
   public onMessageDeleted(callback: (message: ChatMessage) => void): void {
     try {
       this.registerMessageModificationCallback(callback, MessageChangeType.REMOVED);

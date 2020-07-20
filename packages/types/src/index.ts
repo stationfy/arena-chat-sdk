@@ -7,6 +7,7 @@ export {
   ChatMessageReport,
   ChatMessageReportedBy,
   DeleteChatMessageRequest,
+  Reaction,
 } from './chat-message';
 export * from './chat-room';
 export * from './firestore';

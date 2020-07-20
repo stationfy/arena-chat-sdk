@@ -49,3 +49,12 @@ export interface DeleteChatMessageRequest {
     siteId: string;
   };
 }
+
+export interface Reaction {
+  itemType: string;
+  reaction: string;
+  publisherId: string;
+  itemId: string;
+  chatRoomId: string;
+  userId: string;
+}

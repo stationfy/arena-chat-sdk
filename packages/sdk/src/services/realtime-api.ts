@@ -1,10 +1,11 @@
-import { ChatMessage, ChatRoom } from '@arena-im/chat-types';
+import { ChatMessage, ChatRoom, Reaction } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
   fetchCollectionItems,
   listenToCollectionItemChange,
+  addItem,
 } from '../services/firestore-api';
 
 /** Base realtime class implementation */
@@ -143,5 +144,16 @@ export class RealtimeAPI implements BaseRealtime {
     this.unsbscribeFunctions.push(unsubscribe);
 
     return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async sendReaction(reaction: Reaction): Promise<void> {
+    try {
+      return await addItem('reactions', reaction);
+    } catch (e) {
+      throw new Error('failed');
+    }
   }
 }
