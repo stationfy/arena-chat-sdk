@@ -3,15 +3,13 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.2.2"
-  dependencies:
-    "@arena-im/chat-types" "^0.2.2"
-    firebase "^7.14.6"
+  version "0.0.0"
+  uid ""
 
-"@arena-im/chat-types@^0.2.2":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-0.2.3.tgz#b14e64f4467648881de6c30c8c03c52e2f1a97d6"
-  integrity sha512-+MH2O33THEHI2XsAmCJl66+eZNae5/YP2LgwZAoqzS54Rcx5wjAe7x8qb/EQAVt4FPJOuI+oKb0P50YdOC315Q==
+"@arena-im/chat-types@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-0.3.2.tgz#dcb9db9b477e4cbf5084697e5cdadeabc126f49d"
+  integrity sha512-bOwjKGg2UZk0jqn914yp6BjaNjCJcbThdrFRuI1752DV5HLhmL5OjevInk3BxNuluRwbDbhH2FtSGBKvQgqfLA==
 
 "@babel/code-frame@7.8.3", "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
   version "7.8.3"
