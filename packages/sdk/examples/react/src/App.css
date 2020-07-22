@@ -137,6 +137,33 @@ Messages
   position: relative;
   width: 100%;
 }
+
+.messages .message-personal.message .timestamp {
+  right: 0;
+  justify-content: flex-end;
+}
+
+.message-heart {
+  width: 17px;
+  height: 17px;
+  cursor: pointer;
+  margin: 0 8px;
+}
+
+.message-heart-container {
+  position: absolute;
+  right: -40px;
+  top: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.message-personal .message-heart-container {
+  right: auto;
+  left: -40px;
+  flex-direction: row-reverse;
+}
+
 .messages .messages-content {
   overflow: auto;
   overflow-x: hidden;
@@ -168,6 +195,10 @@ Messages
   color: rgba(255, 255, 255, 0.3);
   width: 300px;
   text-align: left;
+  display: flex;
+}
+.messages .message .timestamp div {
+  margin: 0 3px;
 }
 .messages .message::before {
   content: '';

@@ -1,12 +1,15 @@
-import React, { useMemo } from 'react';
-import { ChatMessage, ExternalUser } from '@arena-im/chat-types';
+import React, { useMemo, memo } from 'react';
+import { ChatMessage, ExternalUser, MessageReaction } from '@arena-im/chat-types';
+import { Channel } from '../../../../dist/channel/channel';
 
 interface Props {
   message: ChatMessage;
   currentUser: ExternalUser | null;
+  currentChannel: Channel | null;
+  setError: any;
 }
 
-function Message({ message, currentUser }: Props) {
+function Message({ message, currentUser, currentChannel, setError }: Props) {
   const isCurrentUser = useMemo(() => {
     if (currentUser === null) {
       return false;
@@ -14,6 +17,26 @@ function Message({ message, currentUser }: Props) {
 
     return currentUser.id === message.sender.uid;
   }, [message, currentUser]);
+
+  const likes = useMemo(() => {
+    return message.reactions?.like || 0;
+  }, [message]);
+
+  const userReacted = useMemo(() => {
+    return message.currentUserReactions?.like ?? false;
+  }, [message]);
+
+  const likeImage = useMemo(() => {
+    if (userReacted) {
+      return '/heart-user.png';
+    }
+
+    if (likes > 0) {
+      return './heart-others.png';
+    }
+
+    return './heart.png';
+  }, [likes, userReacted]);
 
   function getTimestamp() {
     const date = message.createdAt ? new Date(message.createdAt) : new Date();
@@ -23,6 +46,30 @@ function Message({ message, currentUser }: Props) {
     return `${hours}:${minutes}`;
   }
 
+  function like() {
+    if (currentUser === null) {
+      setError('Cannot react to a message without an user');
+      return setTimeout(() => {
+        setError(null);
+      }, 2000);
+    }
+
+    if (typeof message.key === 'undefined') {
+      return;
+    }
+
+    const reaction: MessageReaction = {
+      type: 'like',
+      messageID: message.key,
+    };
+
+    try {
+      currentChannel?.sendReaction(reaction);
+    } catch (e) {
+      setError(e.message);
+    }
+  }
+
   return (
     <div className={`message new${isCurrentUser ? ' message-personal' : ''}`}>
       {!isCurrentUser && (
@@ -30,12 +77,18 @@ function Message({ message, currentUser }: Props) {
           <img src={message.sender.photoURL} alt="avatar" />
         </figure>
       )}
-      {message.message.text}
+      <div className="message-text">{message.message.text}</div>
+      <div className="message-heart-container">
+        <img src={likeImage} className="message-heart" onClick={like} />
+        {likes}
+      </div>
       <div className="timestamp">
-        {getTimestamp()} | {isCurrentUser ? '' : message.sender.displayName}
+        <div>{getTimestamp()}</div>
+        <div>{' | '}</div>
+        <div>{isCurrentUser ? '' : message.sender.displayName}</div>
       </div>
     </div>
   );
 }
 
-export default Message;
+export default memo(Message);

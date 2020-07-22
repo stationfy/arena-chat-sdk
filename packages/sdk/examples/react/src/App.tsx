@@ -29,12 +29,25 @@ function App() {
     setMessages((messages) => messages.filter((item) => item.key !== message.key));
   }, []);
 
+  const modifiedMessagesCallback = useCallback((modifiedMessage: ChatMessage) => {
+    console.log({ modifiedMessage });
+    setMessages((messages) => {
+      return messages.map((message) => {
+        if (message.key === modifiedMessage.key) {
+          return modifiedMessage;
+        }
+
+        return message;
+      });
+    });
+  }, []);
+
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat(YOUR_SITE_SLUG);
+        arenaChat.current = new ArenaChat('publisher-2510');
 
-        channel.current = await arenaChat.current.getChannel(YOUR_CHAT_SLUG);
+        channel.current = await arenaChat.current.getChannel('publisher-2510-global');
 
         const messages = await channel.current.loadRecentMessages(20);
 
@@ -43,6 +56,8 @@ function App() {
         channel.current.onMessageReceived(newMessagesCallback);
 
         channel.current.onMessageDeleted(delededMessagesCallback);
+
+        channel.current.onMessageModified(modifiedMessagesCallback);
       } catch (e) {
         setError(e.message);
       }
@@ -156,7 +171,13 @@ function App() {
           <div ref={containerRef} className="messages-content mCustomScrollbar _mCS_1">
             {fetchingPrevious && <div>Loading...</div>}
             {messages.map((message) => (
-              <Message key={message.key} message={message} currentUser={user} />
+              <Message
+                key={message.key}
+                message={message}
+                currentUser={user}
+                currentChannel={channel.current}
+                setError={setError}
+              />
             ))}
           </div>
         </div>
