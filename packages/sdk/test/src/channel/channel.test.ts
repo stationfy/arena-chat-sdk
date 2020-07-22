@@ -1,11 +1,12 @@
 import { Channel } from '@channel/channel';
-import { ChatRoom } from '@arena-im/chat-types';
+import { ChatRoom, ExternalUser, UserChangedListener } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
 import { RestAPI } from '@services/rest-api';
 import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaChat } from '../../../src/sdk';
+import { MessageReaction, ServerReaction } from '@arena-im/chat-types/dist/chat-message';
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -27,6 +28,7 @@ jest.mock('../../../src/sdk', () => ({
       id: '123456',
     },
     restAPI: jest.fn(),
+    onUserChanged: jest.fn(),
   })),
 }));
 
@@ -325,6 +327,44 @@ describe('Channel', () => {
     });
   });
 
+  describe('onMessageModified()', () => {
+    it('should receive a message modified', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            changeType: 'modified',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.onMessageModified((message: ChatMessage) => {
+        expect(message.key).toEqual('fake-key');
+        expect(message.changeType).toEqual('modified');
+        done();
+      });
+    });
+  });
+
   describe('onMessageReceived()', () => {
     it('should receive a message', (done) => {
       const realtimeAPIInstanceMock = {
@@ -448,12 +488,16 @@ describe('Channel', () => {
     });
   });
 
-  describe('sendLikeReaction()', () => {
-    it('should send a like reaction', (done) => {
+  describe('sendReaction()', () => {
+    it('should send a reaction', async () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
         sendReaction: async () => {
-          return;
+          return {
+            key: 'new-reaction-key',
+            reaction: 'like',
+            itemId: 'fake-message',
+          };
         },
       };
 
@@ -464,7 +508,113 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      channel.sendLikeReaction('fake-key').then(done);
+      const reaction: MessageReaction = {
+        messageID: 'fake-message',
+        type: 'like',
+      };
+
+      const result: MessageReaction = await channel.sendReaction(reaction);
+
+      expect(result.id).toEqual('new-reaction-key');
+      expect(result.type).toEqual('like');
+      expect(result.messageID).toEqual('fake-message');
+    });
+  });
+
+  describe('watchUserChanged()', () => {
+    beforeEach(() => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToMessageReceived: jest.fn(),
+        listenToUserReactions: (_: ExternalUser, callback: (reactions: ServerReaction[]) => void) => {
+          const reaction: ServerReaction = {
+            itemType: 'chatMessage',
+            reaction: 'love',
+            publisherId: 'fake-site-id',
+            itemId: 'fake-message-key',
+            chatRoomId: 'fake-chat-room-key',
+            userId: 'fake-user-uid',
+          };
+
+          const reactions: ServerReaction[] = [reaction];
+
+          callback(reactions);
+        },
+        fetchRecentMessages: () => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-message-key',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'fake-site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          const messages: ChatMessage[] = new Array(5).fill(message);
+
+          return Promise.resolve(messages);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+    });
+    it('should call watchUserChanged without watch for messages modified', async () => {
+      const user: ExternalUser = {
+        image: 'https://randomuser.me/api/portraits/women/12.jpg',
+        name: 'Kristin Mckinney',
+        id: 'fake-user-uid',
+        email: 'test@test.com',
+      };
+
+      let localCallback;
+
+      // @ts-ignore
+      sdk.onUserChanged = (callback: UserChangedListener) => {
+        localCallback = callback;
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      await channel.loadRecentMessages(10);
+
+      // @ts-ignore
+      localCallback.call(channel, user);
+    });
+
+    it('should call watchUserChanged with watch for messages modified', async (done) => {
+      const user: ExternalUser = {
+        image: 'https://randomuser.me/api/portraits/women/12.jpg',
+        name: 'Kristin Mckinney',
+        id: 'fake-user-uid',
+        email: 'test@test.com',
+      };
+
+      let localCallback;
+
+      // @ts-ignore
+      sdk.onUserChanged = (callback: UserChangedListener) => {
+        localCallback = callback;
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.onMessageModified((message: ChatMessage) => {
+        expect(message?.currentUserReactions?.love).toBeTruthy();
+
+        done();
+      });
+
+      await channel.loadRecentMessages(10);
+
+      // @ts-ignore
+      localCallback.call(channel, user);
     });
   });
 });

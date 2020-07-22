@@ -7,11 +7,22 @@ export interface ChatMessage {
   replyMessage?: ChatMessage;
   sender: ChatMessageSender;
   changeType?: string;
+  reactions?: ChatMessageReaction;
+  currentUserReactions?: ChatMessageCurrentUserReactions;
+}
+
+interface ChatMessageReaction {
+  [type: string]: number;
+}
+
+interface ChatMessageCurrentUserReactions {
+  [type: string]: boolean;
 }
 
 export enum MessageChangeType {
   ADDED = 'added',
   REMOVED = 'removed',
+  MODIFIED = 'modified',
 }
 
 export interface ChatMessageSender {
@@ -50,11 +61,18 @@ export interface DeleteChatMessageRequest {
   };
 }
 
-export interface Reaction {
+export interface ServerReaction {
   itemType: string;
   reaction: string;
   publisherId: string;
   itemId: string;
   chatRoomId: string;
   userId: string;
+  key?: string;
+}
+
+export interface MessageReaction {
+  id?: string;
+  messageID: string;
+  type: string;
 }

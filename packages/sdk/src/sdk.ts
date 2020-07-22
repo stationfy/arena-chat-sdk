@@ -1,4 +1,4 @@
-import { Status, ExternalUser, Site } from '@arena-im/chat-types';
+import { Status, ExternalUser, Site, UserChangedListener } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { Channel } from './channel/channel';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
@@ -26,6 +26,8 @@ export class ArenaChat {
   public site: Site | null = null;
   public restAPI: RestAPI;
   private defaultAuthToken = DEFAULT_AUTH_TOKEN;
+  private currentChannels: Channel[] = [];
+  private userChangedListeners: UserChangedListener[] = [];
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
@@ -44,7 +46,11 @@ export class ArenaChat {
 
       this.site = site;
 
-      return new Channel(chatRoom, this);
+      const channelI = new Channel(chatRoom, this);
+
+      this.currentChannels.push(channelI);
+
+      return channelI;
     } catch (e) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
@@ -56,14 +62,68 @@ export class ArenaChat {
     }
   }
 
+  /**
+   * Whatch set a new user
+   *
+   * @param callback
+   */
+  public onUserChanged(callback: UserChangedListener): void {
+    if (typeof callback !== 'function') {
+      return;
+    }
+
+    this.userChangedListeners.push(callback);
+  }
+
+  /**
+   * Set a external user
+   *
+   * @param user external user
+   */
   public async setUser(user: ExternalUser | null): Promise<ExternalUser | null> {
     if (user === null) {
-      this.user = null;
-      this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+      this.unsetUser();
 
       return null;
     }
 
+    const createdUser = await this.setNewUser(user);
+
+    if (createdUser.token) {
+      this.setRestAPIAuthToken(createdUser.token);
+    }
+
+    this.callChangedUserListeners(createdUser);
+
+    return this.user;
+  }
+
+  /**
+   * Call all changed user listeners
+   *
+   * @param user created user
+   */
+  private callChangedUserListeners(user: ExternalUser): void {
+    this.userChangedListeners.forEach((listener) => {
+      listener(user);
+    });
+  }
+
+  /**
+   * Unset user
+   *
+   */
+  private unsetUser(): void {
+    this.user = null;
+    this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+  }
+
+  /**
+   * Set a new user
+   *
+   * @param user external user
+   */
+  private async setNewUser(user: ExternalUser): Promise<ExternalUser> {
     const [givenName, ...familyName] = user.name.split(' ');
 
     const token = await this.restAPI.getArenaUser({
@@ -89,8 +149,10 @@ export class ArenaChat {
       token,
     };
 
-    this.restAPI = new RestAPI({ authToken: token });
+    return user;
+  }
 
-    return this.user;
+  private setRestAPIAuthToken(token: string): void {
+    this.restAPI = new RestAPI({ authToken: token });
   }
 }

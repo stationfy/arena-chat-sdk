@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRoom, Reaction } from '@arena-im/chat-types';
+import { ChatMessage, ChatRoom, ExternalUser, ServerReaction } from '@arena-im/chat-types';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
@@ -49,5 +49,13 @@ export interface BaseRealtime {
    *
    * @param reaction a chat message reaction
    */
-  sendReaction(reaction: Reaction): Promise<void>;
+  sendReaction(reaction: ServerReaction): Promise<ServerReaction>;
+
+  /**
+   * Listen to user reactions
+   *
+   * @param user external user
+   * @param callback callback that will receive the reactions
+   */
+  listenToUserReactions(user: ExternalUser, callback: (reaction: ServerReaction[]) => void): () => void;
 }

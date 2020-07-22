@@ -1,12 +1,21 @@
-import { ChatMessage, ChatRoom, MessageChangeType, Reaction } from '@arena-im/chat-types';
+import {
+  ChatMessage,
+  ChatRoom,
+  MessageChangeType,
+  ServerReaction,
+  MessageReaction,
+  ExternalUser,
+} from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 
 export class Channel {
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
+  private cacheUserReactions: { [key: string]: ServerReaction } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
+  private userReactionsSubscription: (() => void) | null = null;
 
   public constructor(public chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -16,6 +25,8 @@ export class Channel {
     this.realtimeAPI = new RealtimeAPI(chatRoom._id);
 
     this.watchChatConfigChanges();
+
+    this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
   }
 
   /**
@@ -58,6 +69,71 @@ export class Channel {
   }
 
   /**
+   * Watch user changed
+   *
+   * @param user external user
+   */
+  private watchUserChanged(user: ExternalUser) {
+    this.watchUserReactions(user);
+  }
+
+  /**
+   * Watch user reactions
+   *
+   * @param user external user
+   */
+  private watchUserReactions(user: ExternalUser) {
+    if (this.userReactionsSubscription !== null) {
+      this.userReactionsSubscription();
+    }
+
+    try {
+      this.cacheUserReactions = {};
+
+      this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(user, (reactions) => {
+        reactions.forEach((reaction) => {
+          this.cacheUserReactions[reaction.itemId] = reaction;
+        });
+
+        this.notifyUserReactionsVerification();
+      });
+    } catch (e) {
+      throw new Error('Cannot listen to user reactions');
+    }
+  }
+
+  private notifyUserReactionsVerification() {
+    this.cacheCurrentMessages.forEach((message) => {
+      if (typeof message.key === 'undefined') {
+        return;
+      }
+
+      const reaction = this.cacheUserReactions[message.key];
+      if (
+        reaction &&
+        (typeof message.currentUserReactions === 'undefined' || !message.currentUserReactions[reaction.reaction])
+      ) {
+        if (typeof message.currentUserReactions === 'undefined') {
+          message.currentUserReactions = {};
+        }
+
+        message.currentUserReactions[reaction.reaction] = true;
+
+        const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
+        if (typeof modifiedCallbacks !== 'undefined') {
+          modifiedCallbacks.forEach((callback) => callback({ ...message }));
+        }
+      }
+    });
+  }
+
+  private updateCacheCurrentMessages(messages: ChatMessage[]): void {
+    this.cacheCurrentMessages = messages;
+
+    this.notifyUserReactionsVerification();
+  }
+
+  /**
    * Load recent messages on channel
    *
    * @param limit number of last messages
@@ -66,7 +142,7 @@ export class Channel {
     try {
       const messages = await this.realtimeAPI.fetchRecentMessages(limit);
 
-      this.cacheCurrentMessages = messages;
+      this.updateCacheCurrentMessages(messages);
 
       return messages;
     } catch (e) {
@@ -89,7 +165,7 @@ export class Channel {
 
       const messages = await this.realtimeAPI.fetchPreviousMessages(firstMessage, limit);
 
-      this.cacheCurrentMessages = messages;
+      this.updateCacheCurrentMessages([...messages, ...this.cacheCurrentMessages]);
 
       return messages;
     } catch (e) {
@@ -102,13 +178,9 @@ export class Channel {
    *
    * @param message chat message
    */
-  public async sendLikeReaction(messageId: string): Promise<void> {
+  public async sendReaction(reaction: MessageReaction): Promise<MessageReaction> {
     if (this.sdk.site === null) {
       throw new Error('Cannot react to a message without a site id');
-    }
-
-    if (typeof messageId === 'undefined') {
-      throw new Error('Invalid message id');
     }
 
     if (this.sdk.user === null) {
@@ -116,18 +188,24 @@ export class Channel {
     }
 
     try {
-      const reaction: Reaction = {
+      const serverReaction: ServerReaction = {
         itemType: 'chatMessage',
-        reaction: 'love',
+        reaction: reaction.type,
         publisherId: this.sdk.site._id,
-        itemId: messageId,
+        itemId: reaction.messageID,
         chatRoomId: this.chatRoom._id,
         userId: this.sdk.user.id,
       };
 
-      await this.realtimeAPI.sendReaction(reaction);
+      const result = await this.realtimeAPI.sendReaction(serverReaction);
+
+      return {
+        id: result.key,
+        type: result.reaction,
+        messageID: result.itemId,
+      };
     } catch (e) {
-      throw new Error(`Cannot react to the message "${messageId}"`);
+      throw new Error(`Cannot react to the message "${reaction.messageID}"`);
     }
   }
 
@@ -143,10 +221,40 @@ export class Channel {
           return;
         }
 
+        const messages = [...this.cacheCurrentMessages, newMessage];
+
+        this.updateCacheCurrentMessages(messages);
+
         callback(newMessage);
       }, MessageChangeType.ADDED);
     } catch (e) {
       throw new Error(`Cannot watch new messages on "${this.chatRoom.slug}" channel.`);
+    }
+  }
+
+  /**
+   * Watch messages modified
+   *
+   * @param callback
+   */
+  public onMessageModified(callback: (message: ChatMessage) => void): void {
+    try {
+      this.registerMessageModificationCallback((modifiedMessage) => {
+        const messages = this.cacheCurrentMessages.map((message) => {
+          if (message.key === modifiedMessage.key) {
+            modifiedMessage.currentUserReactions = message.currentUserReactions;
+            return modifiedMessage;
+          }
+
+          return message;
+        });
+
+        this.updateCacheCurrentMessages(messages);
+
+        callback(modifiedMessage);
+      }, MessageChangeType.MODIFIED);
+    } catch (e) {
+      throw new Error(`Cannot watch messages modified on "${this.chatRoom.slug}" channel.`);
     }
   }
 
@@ -157,7 +265,13 @@ export class Channel {
    */
   public onMessageDeleted(callback: (message: ChatMessage) => void): void {
     try {
-      this.registerMessageModificationCallback(callback, MessageChangeType.REMOVED);
+      this.registerMessageModificationCallback((message) => {
+        const messages = this.cacheCurrentMessages.filter((item) => item.key !== message.key);
+
+        this.updateCacheCurrentMessages(messages);
+
+        callback(message);
+      }, MessageChangeType.REMOVED);
     } catch (e) {
       throw new Error(`Cannot watch deleted messages on "${this.chatRoom.slug}" channel.`);
     }
@@ -187,11 +301,7 @@ export class Channel {
     }
 
     this.messageModificationListener = this.realtimeAPI.listenToMessageReceived((message) => {
-      if (
-        message.changeType === undefined ||
-        !this.messageModificationCallbacks[message.changeType] ||
-        (message.changeType !== MessageChangeType.ADDED && message.changeType !== MessageChangeType.REMOVED)
-      ) {
+      if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
         return;
       }
 

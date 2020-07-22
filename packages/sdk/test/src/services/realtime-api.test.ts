@@ -1,5 +1,5 @@
 import { RealtimeAPI } from '@services/realtime-api';
-import { ChatMessage, Reaction } from '@arena-im/chat-types';
+import { ChatMessage, ServerReaction, ExternalUser } from '@arena-im/chat-types';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
@@ -45,6 +45,40 @@ describe('RealtimeAPI', () => {
         expect(messages.length).toEqual(20);
         done();
       }, 20);
+    });
+  });
+
+  describe('listenToUserReactions()', () => {
+    it('should call the callback function with a list of reactions', (done) => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      listenToCollectionChange.mockImplementation((_, callback) => {
+        const reaction: ServerReaction = {
+          itemType: 'chatMessage',
+          reaction: 'love',
+          publisherId: 'fake-site-id',
+          itemId: 'fake-message-key',
+          chatRoomId: 'fake-chat-room-key',
+          userId: 'fake-user-uid',
+        };
+
+        const reactions: ServerReaction[] = new Array(20).fill(reaction);
+
+        callback(reactions);
+      });
+
+      const user: ExternalUser = {
+        id: 'fake-user',
+        name: 'Face user',
+        image: 'https://www.google.com',
+      };
+
+      realtimeAPI.listenToUserReactions(user, (reactions: ServerReaction[]) => {
+        expect(reactions.length).toBe(20);
+
+        done();
+      });
     });
   });
 
@@ -214,7 +248,7 @@ describe('RealtimeAPI', () => {
     it('should react to a message', (done) => {
       const realtimeAPI = new RealtimeAPI('my-channel');
 
-      const reaction: Reaction = {
+      const reaction: ServerReaction = {
         itemType: 'chatMessage',
         reaction: 'love',
         publisherId: 'fake-site-id',
@@ -236,7 +270,7 @@ describe('RealtimeAPI', () => {
     it('should handle a react error', (done) => {
       const realtimeAPI = new RealtimeAPI('my-channel');
 
-      const reaction: Reaction = {
+      const reaction: ServerReaction = {
         itemType: 'chatMessage',
         reaction: 'love',
         publisherId: 'fake-site-id',

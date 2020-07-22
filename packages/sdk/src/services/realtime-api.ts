@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRoom, Reaction } from '@arena-im/chat-types';
+import { ChatMessage, ChatRoom, ServerReaction, ExternalUser } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,
@@ -149,11 +149,41 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public async sendReaction(reaction: Reaction): Promise<void> {
+  public async sendReaction(reaction: ServerReaction): Promise<ServerReaction> {
     try {
-      return await addItem('reactions', reaction);
+      return (await addItem('reactions', reaction)) as ServerReaction;
     } catch (e) {
       throw new Error('failed');
     }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToUserReactions(user: ExternalUser, callback: (reactions: ServerReaction[]) => void): () => void {
+    const unsubscribe = listenToCollectionChange(
+      {
+        path: 'reactions',
+        where: [
+          {
+            fieldPath: 'userId',
+            opStr: '==',
+            value: user.id,
+          },
+          {
+            fieldPath: 'chatRoomId',
+            opStr: '==',
+            value: this.channel,
+          },
+        ],
+      },
+      (response) => {
+        callback(response as ServerReaction[]);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
   }
 }

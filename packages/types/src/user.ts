@@ -50,3 +50,5 @@ export interface ProviderUser {
     [key: string]: string;
   };
 }
+
+export type UserChangedListener = (user: ExternalUser) => void;

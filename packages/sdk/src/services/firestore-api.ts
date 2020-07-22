@@ -287,7 +287,7 @@ export function listenToCollectionItemChange(
  * @param path
  * @param value
  */
-export function addItem(path: string, value: { [key: string]: any }): Promise<void> {
+export function addItem(path: string, value: { [key: string]: any }): Promise<{ [key: string]: any }> {
   return new Promise((resolve, reject) => {
     const collectionRef = getQueryRefByPath(path) as firebase.firestore.CollectionReference;
 
@@ -301,7 +301,7 @@ export function addItem(path: string, value: { [key: string]: any }): Promise<vo
     return docRef
       .set(value)
       .then(() => {
-        resolve();
+        resolve(value);
       })
       .catch(reject);
   });
