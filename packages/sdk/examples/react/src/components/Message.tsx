@@ -19,11 +19,11 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
   }, [message, currentUser]);
 
   const likes = useMemo(() => {
-    return message.reactions?.like || 0;
+    return message.reactions?.love || 0;
   }, [message]);
 
   const userReacted = useMemo(() => {
-    return message.currentUserReactions?.like ?? false;
+    return message.currentUserReactions?.love ?? false;
   }, [message]);
 
   const likeImage = useMemo(() => {
@@ -59,7 +59,7 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
     }
 
     const reaction: MessageReaction = {
-      type: 'like',
+      type: 'love',
       messageID: message.key,
     };
 
@@ -79,7 +79,7 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
       )}
       <div className="message-text">{message.message.text}</div>
       <div className="message-heart-container">
-        <img src={likeImage} className="message-heart" onClick={like} />
+        <img src={likeImage} alt="" className="message-heart" onClick={like} />
         {likes}
       </div>
       <div className="timestamp">
