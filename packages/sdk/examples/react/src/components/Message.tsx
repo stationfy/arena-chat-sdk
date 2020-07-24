@@ -79,7 +79,7 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
       )}
       <div className="message-text">{message.message.text}</div>
       <div className="message-heart-container">
-        <img src={likeImage} alt="" className="message-heart" onClick={like} />
+        <img src={likeImage} alt="love" className="message-heart" onClick={like} />
         {likes}
       </div>
       <div className="timestamp">
