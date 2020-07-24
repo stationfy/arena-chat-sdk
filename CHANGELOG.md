@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.4.0 (2020-07-24)
+
+
+### Features
+
+* add message reactions ([6bf8778](https://github.com/stationfy/arena-chat-sdk/commit/6bf8778a09ff8e4714a788a567c8ff25ccce9729))
+
+
+
+
+
 ## 0.3.2 (2020-07-20)
 
 **Note:** Version bump only for package arena-chat-sdk
