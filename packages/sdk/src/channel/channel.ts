@@ -71,7 +71,7 @@ export class Channel {
   /**
    * Watch user changed
    *
-   * @param user external user
+   * @param {ExternalUser} user external user
    */
   private watchUserChanged(user: ExternalUser) {
     this.watchUserReactions(user);
@@ -102,6 +102,9 @@ export class Channel {
     }
   }
 
+  /**
+   * Notify User Reaction Verication
+   */
   private notifyUserReactionsVerification() {
     this.cacheCurrentMessages.forEach((message) => {
       if (typeof message.key === 'undefined') {
@@ -127,6 +130,11 @@ export class Channel {
     });
   }
 
+  /**
+   * Update the cache of current messages
+   *
+   * @param {ChatMessage[]} messages updated messages
+   */
   private updateCacheCurrentMessages(messages: ChatMessage[]): void {
     this.cacheCurrentMessages = messages;
 
@@ -210,6 +218,14 @@ export class Channel {
   }
 
   /**
+   * Remove message modified listener
+   *
+   */
+  public offMessageReceived(): void {
+    this.messageModificationCallbacks[MessageChangeType.ADDED] = []
+  }
+
+  /**
    * Watch new messages on channel
    *
    * @param callback
@@ -230,6 +246,14 @@ export class Channel {
     } catch (e) {
       throw new Error(`Cannot watch new messages on "${this.chatRoom.slug}" channel.`);
     }
+  }
+
+  /**
+   * Remove message modified listener
+   *
+   */
+  public offMessageModified(): void {
+    this.messageModificationCallbacks[MessageChangeType.MODIFIED] = []
   }
 
   /**
@@ -259,6 +283,14 @@ export class Channel {
   }
 
   /**
+   * Remove message deleted listener
+   *
+   */
+  public offMessageDeleted(): void {
+    this.messageModificationCallbacks[MessageChangeType.REMOVED] = []
+  }
+
+  /**
    * Watch messages deleted
    *
    * @param callback
@@ -275,6 +307,16 @@ export class Channel {
     } catch (e) {
       throw new Error(`Cannot watch deleted messages on "${this.chatRoom.slug}" channel.`);
     }
+  }
+
+  /**
+   * Remove all channel's listeners
+   *
+   */
+  public offAllListeners(): void {
+    this.messageModificationCallbacks[MessageChangeType.ADDED] = []
+    this.messageModificationCallbacks[MessageChangeType.MODIFIED] = []
+    this.messageModificationCallbacks[MessageChangeType.REMOVED] = []
   }
 
   /**

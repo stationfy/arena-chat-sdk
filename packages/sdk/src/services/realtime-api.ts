@@ -13,7 +13,7 @@ export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe functions */
   private unsbscribeFunctions: (() => void)[] = [];
 
-  public constructor(private channel: string) {}
+  public constructor(private channel: string) { }
 
   /**
    * @inheritDoc
@@ -64,7 +64,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): void {
+  public listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): () => void {
     const unsubscribe = listenToDocumentChange(
       {
         path: `chat-rooms/${this.channel}`,
@@ -76,6 +76,8 @@ export class RealtimeAPI implements BaseRealtime {
       },
     );
     this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
   }
 
   /** Unsubscribe from all listeners */
