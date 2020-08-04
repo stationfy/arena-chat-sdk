@@ -64,7 +64,7 @@ function App() {
     }
 
     initializeChat();
-  }, [newMessagesCallback]);
+  }, []);
 
   useEffect(() => {
     if (preventFetchPrevious.current) {
@@ -154,6 +154,11 @@ function App() {
     setUser(user);
   }
 
+  function stopChatting() {
+    channel.current?.offMessageDeleted();
+    setUser(null);
+  }
+
   return (
     <div className="App">
       <div className="chat">
@@ -166,6 +171,11 @@ function App() {
             </figure>
           </div>
           {error && <div className="chat-error">{error}</div>}
+          {user !== null && (
+            <button className="stop-chatting-button" onClick={stopChatting}>
+              Stop Chatting
+            </button>
+          )}
         </div>
         <div className="messages">
           <div ref={containerRef} className="messages-content mCustomScrollbar _mCS_1">

@@ -327,6 +327,44 @@ describe('Channel', () => {
     });
   });
 
+  describe('offMessageModified()', () => {
+    it('should stop listening message modified', () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            changeType: 'modified',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const handleMessageModified = () => { }
+
+      channel.onMessageModified(handleMessageModified);
+
+      channel.offMessageModified();
+    })
+  })
+
   describe('onMessageModified()', () => {
     it('should receive a message modified', (done) => {
       const realtimeAPIInstanceMock = {
@@ -364,6 +402,41 @@ describe('Channel', () => {
       });
     });
   });
+
+  describe('offMessageReceived()', () => {
+    it('should stop listening message received', () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            changeType: 'added',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.onMessageReceived(() => { });
+      channel.offMessageReceived();
+    })
+  })
 
   describe('onMessageReceived()', () => {
     it('should receive a message', (done) => {
@@ -426,6 +499,41 @@ describe('Channel', () => {
     });
   });
 
+  describe('offMessageDeleted()', () => {
+    it('should receive a message deleted', () => {
+      const realtimeAPIInstanceMock = {
+        listenToChatConfigChanges: jest.fn(),
+        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            changeType: 'removed',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.onMessageDeleted(() => { });
+      channel.offMessageDeleted();
+    });
+  })
+
   describe('onMessageDeleted()', () => {
     it('should receive a message deleted', (done) => {
       const realtimeAPIInstanceMock = {
@@ -487,6 +595,14 @@ describe('Channel', () => {
       }
     });
   });
+
+  describe('offAllListeners()', () => {
+    it("should off all channel's listeners", () => {
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.offAllListeners();
+    })
+  })
 
   describe('sendReaction()', () => {
     it('should send a reaction', async () => {

@@ -92,7 +92,22 @@ channel.onMessageDeleted((message) => {
 channel.onMessageModified((message) => {
   // update message on the UI
 })
+```
 
+#### Remove Listeners
+
+```javascript
+// remove all listeners for new messages on the channel
+channel.offMessageReceived();
+
+// remove all listeners for deleted messages on the channel
+channel.offMessageDeleted();
+
+// remove all listeners for modified message on the channel
+channel.offMessageModified();
+
+// remove all listeners on the channel
+channel.offAllListeners();
 ```
 
 ### Reactions
