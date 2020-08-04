@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.5.0 (2020-08-04)
+
+
+### Features
+
+* expose remove listener methods ([aa4117d](https://github.com/stationfy/arena-chat-sdk/commit/aa4117d67108d19bc817a3d49591a4e6cf68f432))
+
+
+
+
+
 ## 0.4.2 (2020-08-04)
 
 **Note:** Version bump only for package arena-chat-sdk
