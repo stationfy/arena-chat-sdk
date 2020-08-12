@@ -5,6 +5,8 @@ import {
   ServerReaction,
   MessageReaction,
   ExternalUser,
+  Moderation,
+  BanUser,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
@@ -27,6 +29,68 @@ export class Channel {
     this.watchChatConfigChanges();
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+  }
+
+  /**
+   * Request chat moderation for current user
+   *
+   * @returns {Promise<Moderation>} moderation
+   */
+  public async requestModeration(): Promise<Moderation> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot request moderation without a site id');
+    }
+
+    if (this.sdk.user === null) {
+      throw new Error('Cannot request moderation without an user');
+    }
+
+    try {
+      return await this.sdk.restAPI.requestModeration(this.sdk.site, this.chatRoom);
+    } catch (e) {
+      throw new Error(`Cannot request moderation for user: "${this.sdk.user.id}". Contact the Arena support team.`);
+    }
+  }
+
+  /**
+   * Ban an user
+   * @param user
+   * @returns {Promise<void>} only waits for the service return
+   */
+  public async banUser(user: BanUser): Promise<void> {
+    if (this.sdk.user === null) {
+      throw new Error('Cannot ban an user without an user');
+    }
+
+    if (typeof user === 'undefined' || user === null) {
+      throw new Error('You have to inform an user');
+    }
+
+    try {
+      await this.sdk.restAPI.banUser(user);
+    } catch (e) {
+      throw new Error(`Cannot ban this user: "${user.userId || user.anonymousId}". Contact the Arena support team.`);
+    }
+  }
+
+  public async deleteMessage(message: ChatMessage): Promise<void> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot request moderation without a site id');
+    }
+
+    if (this.sdk.user === null) {
+      throw new Error('Cannot ban an user without an user');
+    }
+
+    if (typeof message === 'undefined' || message === null) {
+      throw new Error('You have to inform a message');
+    }
+
+    try {
+      await this.sdk.restAPI.deleteMessage(this.sdk.site, this.chatRoom, message);
+    } catch (e) {
+      throw new Error(`Cannot delete this message: "${message.key}". Contact the Arena support team.`);
+    }
   }
 
   /**
@@ -222,7 +286,7 @@ export class Channel {
    *
    */
   public offMessageReceived(): void {
-    this.messageModificationCallbacks[MessageChangeType.ADDED] = []
+    this.messageModificationCallbacks[MessageChangeType.ADDED] = [];
   }
 
   /**
@@ -253,7 +317,7 @@ export class Channel {
    *
    */
   public offMessageModified(): void {
-    this.messageModificationCallbacks[MessageChangeType.MODIFIED] = []
+    this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
   }
 
   /**
@@ -287,7 +351,7 @@ export class Channel {
    *
    */
   public offMessageDeleted(): void {
-    this.messageModificationCallbacks[MessageChangeType.REMOVED] = []
+    this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
   }
 
   /**
@@ -314,9 +378,9 @@ export class Channel {
    *
    */
   public offAllListeners(): void {
-    this.messageModificationCallbacks[MessageChangeType.ADDED] = []
-    this.messageModificationCallbacks[MessageChangeType.MODIFIED] = []
-    this.messageModificationCallbacks[MessageChangeType.REMOVED] = []
+    this.messageModificationCallbacks[MessageChangeType.ADDED] = [];
+    this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
+    this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
   }
 
   /**

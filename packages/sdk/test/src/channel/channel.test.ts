@@ -1,5 +1,12 @@
 import { Channel } from '@channel/channel';
-import { ChatRoom, ExternalUser, UserChangedListener } from '@arena-im/chat-types';
+import {
+  ChatRoom,
+  ExternalUser,
+  UserChangedListener,
+  Moderation,
+  ModeratorStatus,
+  BanUser,
+} from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
 import { RestAPI } from '@services/rest-api';
@@ -80,6 +87,156 @@ describe('Channel', () => {
       return {
         listenToChatConfigChanges: jest.fn(),
       };
+    });
+
+    // @ts-ignore
+    sdk.restAPI = {};
+  });
+
+  describe('banUser()', () => {
+    it('should ban a user', async (done) => {
+      // @ts-ignore
+      sdk.restAPI = {
+        banUser: () => {
+          return Promise.resolve();
+        },
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const user: BanUser = {
+        image: 'https://www.google.com',
+        name: 'Ban User',
+        siteId: site._id,
+        userId: 'test-ban-user-id',
+      };
+
+      channel.banUser(user).then(done);
+    });
+
+    it('should receive an error when ban a user', (done) => {
+      // @ts-ignore
+      sdk.restAPI = {
+        banUser: () => {
+          return Promise.reject('failed');
+        },
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const user: BanUser = {
+        image: 'https://www.google.com',
+        name: 'Ban User',
+        siteId: site._id,
+        userId: 'test-ban-user-id',
+      };
+
+      channel.banUser(user).catch((e) => {
+        expect(e.message).toBe('Cannot ban this user: "test-ban-user-id". Contact the Arena support team.');
+        done();
+      });
+    });
+  });
+
+  describe('requestModeration()', () => {
+    it('should request moderation for a user', async () => {
+      // @ts-ignore
+      sdk.restAPI = {
+        requestModeration: async (site: Site, chatRoom: ChatRoom) => {
+          const moderation: Moderation = {
+            label: 'Mod',
+            _id: 'fake-moderation-id',
+            siteId: site._id,
+            chatRoomId: chatRoom._id,
+            userId: '123456',
+            status: ModeratorStatus.PENDING,
+          };
+
+          return moderation;
+        },
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const moderation = await channel.requestModeration();
+
+      expect(moderation.chatRoomId).toBe('new-chatroom');
+      expect(moderation.siteId).toBe('site-id');
+      expect(moderation.userId).toBe('123456');
+      expect(moderation.status).toEqual('PENDING');
+    });
+
+    it('should receive an error when request moderation', (done) => {
+      // @ts-ignore
+      sdk.restAPI = {
+        requestModeration: async () => {
+          return Promise.reject('failed');
+        },
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.requestModeration().catch((e) => {
+        expect(e.message).toBe('Cannot request moderation for user: "123456". Contact the Arena support team.');
+        done();
+      });
+    });
+  });
+
+  describe('deleteMessage()', () => {
+    it('should delete a message by a moderator', (done) => {
+      // @ts-ignore
+      sdk.restAPI = {
+        deleteMessage: () => {
+          return Promise.resolve();
+        },
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const message: ChatMessage = {
+        createdAt: 1592342151026,
+        key: 'fake-key',
+        message: {
+          text: 'testing',
+        },
+        publisherId: 'site-id',
+        sender: {
+          displayName: 'Test User',
+          photoURL: 'http://www.google.com',
+        },
+      };
+
+      channel.deleteMessage(message).then(done);
+    });
+
+    it('should receive an error when delete a message', (done) => {
+      // @ts-ignore
+      sdk.restAPI = {
+        deleteMessage: async () => {
+          return Promise.reject('failed');
+        },
+      };
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const message: ChatMessage = {
+        createdAt: 1592342151026,
+        key: 'fake-key',
+        message: {
+          text: 'testing',
+        },
+        publisherId: 'site-id',
+        sender: {
+          displayName: 'Test User',
+          photoURL: 'http://www.google.com',
+        },
+      };
+
+      channel.deleteMessage(message).catch((e) => {
+        expect(e.message).toBe(`Cannot delete this message: "${message.key}". Contact the Arena support team.`);
+        done();
+      });
     });
   });
 
@@ -357,13 +514,14 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      const handleMessageModified = () => { }
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      const handleMessageModified = () => {};
 
       channel.onMessageModified(handleMessageModified);
 
       channel.offMessageModified();
-    })
-  })
+    });
+  });
 
   describe('onMessageModified()', () => {
     it('should receive a message modified', (done) => {
@@ -433,10 +591,11 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      channel.onMessageReceived(() => { });
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      channel.onMessageReceived(() => {});
       channel.offMessageReceived();
-    })
-  })
+    });
+  });
 
   describe('onMessageReceived()', () => {
     it('should receive a message', (done) => {
@@ -529,10 +688,11 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      channel.onMessageDeleted(() => { });
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      channel.onMessageDeleted(() => {});
       channel.offMessageDeleted();
     });
-  })
+  });
 
   describe('onMessageDeleted()', () => {
     it('should receive a message deleted', (done) => {
@@ -601,8 +761,8 @@ describe('Channel', () => {
       const channel = new Channel(chatRoom, sdk);
 
       channel.offAllListeners();
-    })
-  })
+    });
+  });
 
   describe('sendReaction()', () => {
     it('should send a reaction', async () => {

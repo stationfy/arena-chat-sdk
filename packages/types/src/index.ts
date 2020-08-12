@@ -15,3 +15,4 @@ export * from './firestore';
 export * from './site';
 export * from './status';
 export { User, ExternalUser, BanUser, ProviderUser, UserChangedListener } from './user';
+export { Moderation, ModeratorStatus } from './moderation';

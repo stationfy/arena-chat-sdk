@@ -1,4 +1,12 @@
-import { ChatMessage, ChatMessageReport, BanUser, ProviderUser, ChatRoom, Site } from '@arena-im/chat-types';
+import {
+  ChatMessage,
+  ChatMessageReport,
+  BanUser,
+  ProviderUser,
+  ChatRoom,
+  Site,
+  Moderation,
+} from '@arena-im/chat-types';
 
 /** Rest api used to consume the rest services */
 export interface BaseRest {
@@ -17,7 +25,7 @@ export interface BaseRest {
   reportMessage(chatRoom: ChatRoom, report: ChatMessageReport): PromiseLike<ChatMessageReport>;
 
   /** User request moderation role */
-  requestModeration(site: Site, chatRoom: ChatRoom): PromiseLike<void>;
+  requestModeration(site: Site, chatRoom: ChatRoom): PromiseLike<Moderation>;
 
   /**
    * Ban a user

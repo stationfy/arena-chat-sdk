@@ -7,6 +7,7 @@ import {
   ChatRoom,
   ChatModerationRequest,
   Site,
+  Moderation,
 } from '@arena-im/chat-types';
 import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
 import { supportsFetch } from '../utils/supports';
@@ -54,13 +55,13 @@ export class RestAPI implements BaseRest {
   /**
    * @inheritdoc
    */
-  public requestModeration(site: Site, chatRoom: ChatRoom): PromiseLike<void> {
+  public requestModeration(site: Site, chatRoom: ChatRoom): PromiseLike<Moderation> {
     const request: ChatModerationRequest = {
       siteId: site._id,
       chatRoomId: chatRoom._id,
     };
 
-    return this.transport.post<void, ChatModerationRequest>('/data/moderation/request-mod-status', request);
+    return this.transport.post<Moderation, ChatModerationRequest>('/data/moderation/request-mod-status', request);
   }
 
   /**
