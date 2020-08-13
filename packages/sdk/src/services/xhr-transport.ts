@@ -30,7 +30,7 @@ export class XHRTransport implements BaseTransport {
   /**
    * @inheritdoc
    */
-  public delete(path: string): PromiseLike<void> {
+  public delete<T>(path: string, payload: T): PromiseLike<void> {
     const url = getRequestURL(this.baseURL, path);
 
     return new SyncPromise<void>((resolve, reject) => {
@@ -60,7 +60,7 @@ export class XHRTransport implements BaseTransport {
         }
       }
 
-      request.send();
+      request.send(payload ? JSON.stringify(payload) : null);
     });
   }
 

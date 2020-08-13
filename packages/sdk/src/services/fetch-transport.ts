@@ -44,9 +44,10 @@ export class FetchTransport implements BaseTransport {
     return this.makeRequestResponse<T>(url, options);
   }
 
-  public delete(path: string): PromiseLike<void> {
+  public delete<T>(path: string, payload?: T): PromiseLike<void> {
     const options: RequestInit = {
       method: 'DELETE',
+      body: payload ? JSON.stringify(payload) : null,
       headers: this.headers,
     };
 

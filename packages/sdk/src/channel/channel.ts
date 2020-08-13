@@ -7,6 +7,7 @@ import {
   ExternalUser,
   Moderation,
   BanUser,
+  ChatMessageSender,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
@@ -42,7 +43,7 @@ export class Channel {
     }
 
     if (this.sdk.user === null) {
-      throw new Error('Cannot request moderation without an user');
+      throw new Error('Cannot request moderation without a user');
     }
 
     try {
@@ -53,23 +54,37 @@ export class Channel {
   }
 
   /**
-   * Ban an user
+   * Ban a user
    * @param user
    * @returns {Promise<void>} only waits for the service return
    */
-  public async banUser(user: BanUser): Promise<void> {
+  public async banUser(user: ChatMessageSender): Promise<void> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot ban a user without a site id');
+    }
+
     if (this.sdk.user === null) {
-      throw new Error('Cannot ban an user without an user');
+      throw new Error('Cannot ban a user without a user');
     }
 
     if (typeof user === 'undefined' || user === null) {
-      throw new Error('You have to inform an user');
+      throw new Error('You have to inform a user');
     }
 
+    const requestUser: BanUser = {
+      anonymousId: user.anonymousId,
+      image: user.photoURL,
+      name: user.displayName,
+      siteId: this.sdk.site._id,
+      userId: user.uid,
+    };
+
     try {
-      await this.sdk.restAPI.banUser(user);
+      await this.sdk.restAPI.banUser(requestUser);
     } catch (e) {
-      throw new Error(`Cannot ban this user: "${user.userId || user.anonymousId}". Contact the Arena support team.`);
+      throw new Error(
+        `Cannot ban this user: "${requestUser.userId || requestUser.anonymousId}". Contact the Arena support team.`,
+      );
     }
   }
 
@@ -79,7 +94,7 @@ export class Channel {
     }
 
     if (this.sdk.user === null) {
-      throw new Error('Cannot ban an user without an user');
+      throw new Error('Cannot ban a user without a user');
     }
 
     if (typeof message === 'undefined' || message === null) {
@@ -108,7 +123,7 @@ export class Channel {
     }
 
     if (this.sdk.user === null) {
-      throw new Error('Cannot send message without an user');
+      throw new Error('Cannot send message without a user');
     }
 
     const chatMessage: ChatMessage = {
@@ -256,7 +271,7 @@ export class Channel {
     }
 
     if (this.sdk.user === null) {
-      throw new Error('Cannot react to a message without an user');
+      throw new Error('Cannot react to a message without a user');
     }
 
     try {

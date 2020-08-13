@@ -135,6 +135,25 @@ const messageLikes: number = message.reactions[reactionType];
 const currentUserReacted: boolean = message.currentUserReactions[reactionType]
 ```
 
+### Moderation
+
+If the "Request Moderator" is enabled for your chat, users may request to be moderators of messages sent by other users on your site.
+
+You can "Request Moderator" calling this function (it will request moderation for the logged-in user):
+```typescript
+channel.requestModeration();
+```
+
+When moderation is granted to the user (via Dashboard), the user object will contain the `isModerator` property. From there the current user can delete a message or ban a user.
+
+```typescript
+// delete a ChatMessage
+channel.deleteMessage(message);
+
+// ban a message sender ChatMessageSender
+channel.banUser(message.sender);
+```
+
 ### API Documentation
 
 Documentation for this JavaScript client are available at the [Arena website](https://arena.im)

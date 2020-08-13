@@ -15,6 +15,7 @@ export interface ExternalUser {
   metaData?: {
     [key: string]: string;
   };
+  isModerator?: boolean;
 }
 
 export interface BanUser {
@@ -52,3 +53,38 @@ export interface ProviderUser {
 }
 
 export type UserChangedListener = (user: ExternalUser) => void;
+
+export interface SSOExchangeResult {
+  data: {
+    user: {
+      thumbnails: {
+        raw: string;
+      };
+      functionType: [];
+      adminType: [];
+      tags: [];
+      roles: string[];
+      _id: string;
+      userName: string;
+      name: string;
+      urlName: string;
+      provider: string;
+      providerUserId: string;
+      profile: {
+        urlName: string;
+        email: string;
+        username: string;
+        displayName: string;
+        name: {
+          familyName: string;
+          givenName: string;
+        };
+        id: string;
+      };
+      joinedAt: string;
+      type: string;
+    };
+    token: string;
+    firebaseToken: string;
+  };
+}

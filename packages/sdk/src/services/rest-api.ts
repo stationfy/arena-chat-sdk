@@ -8,6 +8,8 @@ import {
   ChatModerationRequest,
   Site,
   Moderation,
+  ExternalUser,
+  SSOExchangeResult,
 } from '@arena-im/chat-types';
 import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
 import { supportsFetch } from '../utils/supports';
@@ -76,11 +78,10 @@ export class RestAPI implements BaseRest {
    */
   public deleteMessage(site: Site, chatRoom: ChatRoom, message: ChatMessage): PromiseLike<void> {
     const request: DeleteChatMessageRequest = {
-      data: {
-        siteId: site._id,
-      },
+      siteId: site._id,
     };
-    return this.transport.post<void, DeleteChatMessageRequest>(
+
+    return this.transport.delete<DeleteChatMessageRequest>(
       `/data/chat-room/${chatRoom._id}/messages/${message.key}`,
       request,
     );
@@ -103,9 +104,21 @@ export class RestAPI implements BaseRest {
   /**
    * @inheritdoc
    */
-  public getArenaUser(user: ProviderUser): PromiseLike<string> {
-    return this.transport.post<{ data: { token: string } }, ProviderUser>('/profile/ssoexchange', user).then((data) => {
-      return data.data.token;
+  public getArenaUser(user: ProviderUser): PromiseLike<ExternalUser> {
+    return this.transport.post<SSOExchangeResult, ProviderUser>('/profile/ssoexchange', user).then((data) => {
+      const resultUser = data.data.user;
+      const resultToken = data.data.token;
+
+      const externalUser: ExternalUser = {
+        id: resultUser._id,
+        name: resultUser.name,
+        image: resultUser.thumbnails.raw,
+        email: resultUser.profile.email,
+        token: resultToken,
+        isModerator: resultUser.roles.includes('MODERATOR'),
+      };
+
+      return externalUser;
     });
   }
 }

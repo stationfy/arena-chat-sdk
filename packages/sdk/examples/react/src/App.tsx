@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import ArenaChat from '@arena-im/chat-sdk';
 import { ExternalUser, ChatMessage } from '@arena-im/chat-types';
 import './App.css';
@@ -147,11 +147,11 @@ function App() {
       email: 'naomi.carter@example.com',
     };
 
-    await arenaChat.current.setUser(user);
+    const result = await arenaChat.current.setUser(user);
 
     setLoginWait(false);
 
-    setUser(user);
+    setUser(result);
   }
 
   function stopChatting() {
@@ -159,8 +159,19 @@ function App() {
     setUser(null);
   }
 
+  async function requestModeration() {
+    const moderation = await channel.current?.requestModeration();
+
+    console.log(moderation);
+  }
+
+  const isModerator = useMemo(() => {
+    return user && user.isModerator;
+  }, [user]);
+
   return (
     <div className="App">
+      {user && !isModerator && <button onClick={requestModeration}>Request Moderation</button>}
       <div className="chat">
         <div className="chat-title">
           <div>

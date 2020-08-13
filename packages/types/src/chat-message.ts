@@ -56,9 +56,7 @@ export interface ChatMessageReportedBy {
 }
 
 export interface DeleteChatMessageRequest {
-  data: {
-    siteId: string;
-  };
+  siteId: string;
 }
 
 export interface ServerReaction {

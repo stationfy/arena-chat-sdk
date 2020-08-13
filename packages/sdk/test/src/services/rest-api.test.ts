@@ -1,5 +1,5 @@
 import { RestAPI } from '@services/rest-api';
-import { ChatRoom } from '@arena-im/chat-types';
+import { ChatRoom, ExternalUser, SSOExchangeResult } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 import { BanUser, ProviderUser } from '@arena-im/chat-types';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@arena-im/chat-types';
@@ -238,14 +238,12 @@ describe('RestAPI', () => {
       // @ts-ignore
       XHRTransport.mockImplementation(() => {
         return {
-          post: mockPost,
+          delete: mockPost,
         };
       });
 
       const request: DeleteChatMessageRequest = {
-        data: {
-          siteId: site._id,
-        },
+        siteId: site._id,
       };
 
       const restAPI = new RestAPI();
@@ -258,10 +256,38 @@ describe('RestAPI', () => {
   describe('getArenaUser()', () => {
     it('should get a user', async () => {
       const mockPost = jest.fn(() => {
-        const data = {
+        const data: SSOExchangeResult = {
           data: {
-            user: {},
+            user: {
+              thumbnails: {
+                raw: 'https://www.google.com',
+              },
+              functionType: [],
+              adminType: [],
+              tags: [],
+              roles: ['USER'],
+              _id: 'user-id',
+              userName: 'username',
+              name: 'User Name',
+              urlName: 'username',
+              provider: 'site-provider',
+              providerUserId: 'user-id',
+              profile: {
+                urlName: 'username',
+                email: 'user@example.com',
+                username: 'username',
+                displayName: 'User Name',
+                name: {
+                  familyName: 'Name',
+                  givenName: 'User',
+                },
+                id: 'user-id',
+              },
+              joinedAt: '123423423',
+              type: 'user',
+            },
             token: 'user-token-1234',
+            firebaseToken: 'fb-token-1234',
           },
         };
         return Promise.resolve(data);
@@ -291,9 +317,9 @@ describe('RestAPI', () => {
         },
       };
 
-      const token = await restAPI.getArenaUser(providerUser);
+      const externalUser: ExternalUser = await restAPI.getArenaUser(providerUser);
 
-      expect(token).toEqual('user-token-1234');
+      expect(externalUser.token).toEqual('user-token-1234');
     });
   });
 });

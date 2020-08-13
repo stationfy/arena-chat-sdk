@@ -127,7 +127,14 @@ describe('SDK', () => {
       RestAPI.mockImplementation(() => {
         return {
           getArenaUser: () => {
-            return Promise.resolve('user-token-1234');
+            const user: ExternalUser = {
+              id: '123456',
+              name: 'Kristin Mckinney',
+              image: 'https://randomuser.me/api/portraits/women/12.jpg',
+              token: 'user-token-1234',
+              isModerator: false,
+            };
+            return Promise.resolve(user);
           },
         };
       });
@@ -136,6 +143,7 @@ describe('SDK', () => {
         id: '123456',
         name: 'Kristin Mckinney',
         image: 'https://randomuser.me/api/portraits/women/12.jpg',
+        isModerator: false,
       };
 
       const sdk = new ArenaChat('my-api-key');

@@ -126,7 +126,7 @@ export class ArenaChat {
   private async setNewUser(user: ExternalUser): Promise<ExternalUser> {
     const [givenName, ...familyName] = user.name.split(' ');
 
-    const token = await this.restAPI.getArenaUser({
+    const result = await this.restAPI.getArenaUser({
       provider: this.apiKey,
       username: user.id,
       profile: {
@@ -146,10 +146,11 @@ export class ArenaChat {
 
     this.user = {
       ...user,
-      token,
+      token: result.token,
+      isModerator: result.isModerator,
     };
 
-    return user;
+    return this.user;
   }
 
   private setRestAPIAuthToken(token: string): void {

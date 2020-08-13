@@ -70,6 +70,14 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
     }
   }
 
+  function handleDeleteMessage() {
+    currentChannel?.deleteMessage(message);
+  }
+
+  function handleBanUser() {
+    currentChannel?.banUser(message.sender);
+  }
+
   return (
     <div className={`message new${isCurrentUser ? ' message-personal' : ''}`}>
       {!isCurrentUser && (
@@ -81,6 +89,16 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
       <div className="message-heart-container">
         <img src={likeImage} alt="love" className="message-heart" onClick={like} />
         {likes}
+        {!isCurrentUser && currentUser?.isModerator && (
+          <>
+            <span role="img" aria-label="delete" className="message-moderator-button" onClick={handleDeleteMessage}>
+              ❌
+            </span>
+            <span role="img" aria-label="ban" className="message-moderator-button" onClick={handleBanUser}>
+              🚷
+            </span>
+          </>
+        )}
       </div>
       <div className="timestamp">
         <div>{getTimestamp()}</div>

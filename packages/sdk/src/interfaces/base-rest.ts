@@ -6,6 +6,7 @@ import {
   ChatRoom,
   Site,
   Moderation,
+  ExternalUser,
 } from '@arena-im/chat-types';
 
 /** Rest api used to consume the rest services */
@@ -55,7 +56,7 @@ export interface BaseRest {
    *
    * @param user user to be created or returned
    */
-  getArenaUser(user: ProviderUser): PromiseLike<string>;
+  getArenaUser(user: ProviderUser): PromiseLike<ExternalUser>;
 }
 
 export interface BaseRestOptions {

@@ -20,7 +20,7 @@ export interface BaseTransport {
    *
    * @param path service route
    */
-  delete(path: string): PromiseLike<void>;
+  delete<T>(path: string, payload?: T): PromiseLike<void>;
 }
 
 export interface XHRHeaders {

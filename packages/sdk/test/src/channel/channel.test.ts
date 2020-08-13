@@ -13,7 +13,7 @@ import { RestAPI } from '@services/rest-api';
 import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaChat } from '../../../src/sdk';
-import { MessageReaction, ServerReaction } from '@arena-im/chat-types/dist/chat-message';
+import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -104,11 +104,10 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      const user: BanUser = {
-        image: 'https://www.google.com',
-        name: 'Ban User',
-        siteId: site._id,
-        userId: 'test-ban-user-id',
+      const user: ChatMessageSender = {
+        photoURL: 'https://www.google.com',
+        displayName: 'Ban User',
+        uid: 'test-ban-user-id',
       };
 
       channel.banUser(user).then(done);
@@ -124,11 +123,10 @@ describe('Channel', () => {
 
       const channel = new Channel(chatRoom, sdk);
 
-      const user: BanUser = {
-        image: 'https://www.google.com',
-        name: 'Ban User',
-        siteId: site._id,
-        userId: 'test-ban-user-id',
+      const user: ChatMessageSender = {
+        photoURL: 'https://www.google.com',
+        displayName: 'Ban User',
+        uid: 'test-ban-user-id',
       };
 
       channel.banUser(user).catch((e) => {
