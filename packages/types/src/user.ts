@@ -16,6 +16,7 @@ export interface ExternalUser {
     [key: string]: string;
   };
   isModerator?: boolean;
+  isBanned?: boolean;
 }
 
 export interface BanUser {
@@ -61,6 +62,8 @@ export interface SSOExchangeResult {
         raw: string;
       };
       functionType: [];
+      isBanned: boolean;
+      isModerator: boolean;
       adminType: [];
       tags: [];
       roles: string[];

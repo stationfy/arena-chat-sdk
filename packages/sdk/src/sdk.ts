@@ -148,6 +148,7 @@ export class ArenaChat {
       ...user,
       token: result.token,
       isModerator: result.isModerator,
+      isBanned: result.isBanned,
     };
 
     return this.user;

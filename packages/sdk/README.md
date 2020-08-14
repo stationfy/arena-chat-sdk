@@ -154,6 +154,8 @@ channel.deleteMessage(message);
 channel.banUser(message.sender);
 ```
 
+To verify if the user was banned, check the property `isBanned` in the user object.
+
 ### API Documentation
 
 Documentation for this JavaScript client are available at the [Arena website](https://arena.im)

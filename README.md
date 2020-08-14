@@ -158,6 +158,8 @@ channel.deleteMessage(message);
 channel.banUser(message.sender);
 ```
 
+To verify if the user was banned, check the property `isBanned` in the user object.
+
 ## Other Packages
 
 Besides the high-level SDKs, this repository contains shared packages, helpers and configuration used for SDK

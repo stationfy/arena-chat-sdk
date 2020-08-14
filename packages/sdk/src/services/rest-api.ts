@@ -115,7 +115,8 @@ export class RestAPI implements BaseRest {
         image: resultUser.thumbnails.raw,
         email: resultUser.profile.email,
         token: resultToken,
-        isModerator: resultUser.roles.includes('MODERATOR'),
+        isModerator: resultUser.isModerator,
+        isBanned: resultUser.isBanned,
       };
 
       return externalUser;
