@@ -19,7 +19,9 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@arena-im/chat-types": "^0.5.0",
-    "firebase": "^7.14.6"
+    "firebase": "^7.14.6",
+    "graphql": "^15.3.0",
+    "graphql-request": "^3.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "^2.3.2",

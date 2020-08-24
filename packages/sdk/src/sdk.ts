@@ -2,6 +2,7 @@ import { Status, ExternalUser, Site, UserChangedListener } from '@arena-im/chat-
 import { RestAPI } from './services/rest-api';
 import { Channel } from './channel/channel';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
+import { PrivateChannel } from './channel/private-channel';
 
 /**
  * Chat SDK Client
@@ -25,6 +26,7 @@ export class ArenaChat {
   public user: ExternalUser | null = null;
   public site: Site | null = null;
   public restAPI: RestAPI;
+  public privateChannel: PrivateChannel | null = null;
   private defaultAuthToken = DEFAULT_AUTH_TOKEN;
   private currentChannels: Channel[] = [];
   private userChangedListeners: UserChangedListener[] = [];
@@ -94,6 +96,8 @@ export class ArenaChat {
     }
 
     this.callChangedUserListeners(createdUser);
+
+    this.privateChannel = new PrivateChannel(createdUser);
 
     return this.user;
   }

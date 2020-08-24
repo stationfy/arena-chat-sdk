@@ -16,3 +16,4 @@ export * from './site';
 export * from './status';
 export { User, ExternalUser, BanUser, ProviderUser, UserChangedListener, SSOExchangeResult } from './user';
 export { Moderation, ModeratorStatus } from './moderation';
+export { PublicUser, PublicUserStatus, GroupChannel } from './private-chat';
