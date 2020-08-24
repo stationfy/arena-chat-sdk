@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.6.0 (2020-08-17)
+
+
+### Features
+
+* request moderation, ban user and delete message ([ab43053](https://github.com/stationfy/arena-chat-sdk/commit/ab43053542a12088bc5c94fcc1f4708043826a31))
+
+
+
+
+
 # 0.5.0 (2020-08-04)
 
 
