@@ -10,8 +10,16 @@ const config = {
   projectId: FIREBASE_PROJECT_ID,
 };
 
+let app;
+
 // @ts-ignore
-const app = firebase.initializeApp(config);
+if (firebase.apps.length) {
+  // @ts-ignore
+  app = firebase.initializeApp(config, 'arena-firebase');
+} else {
+  // @ts-ignore
+  app = firebase.initializeApp(config);
+}
 
 const firestore = app.firestore();
 
