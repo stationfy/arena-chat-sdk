@@ -54,8 +54,6 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
-      - name: Test
-        run: yarn test
       - name: Setup Node ${{ matrix.node_version }}
         uses: actions/setup-node@v1
         with:
