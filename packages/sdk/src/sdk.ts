@@ -1,8 +1,8 @@
-import { Status, ExternalUser, Site, UserChangedListener } from '@arena-im/chat-types';
+import { Status, ExternalUser, Site, UserChangedListener, GroupChannel, ChatRoom } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { Channel } from './channel/channel';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
-import { PrivateChannel } from './channel/private-channel';
+import { BasePrivateChannel } from './interfaces/base-private-channel';
 
 /**
  * Chat SDK Client
@@ -25,8 +25,9 @@ import { PrivateChannel } from './channel/private-channel';
 export class ArenaChat {
   public user: ExternalUser | null = null;
   public site: Site | null = null;
+  public mainChatRoom: ChatRoom | null = null;
   public restAPI: RestAPI;
-  public privateChannel: PrivateChannel | null = null;
+  // public privateChannel: PrivateChannel | null = null;
   private defaultAuthToken = DEFAULT_AUTH_TOKEN;
   private currentChannels: Channel[] = [];
   private userChangedListeners: UserChangedListener[] = [];
@@ -36,17 +37,50 @@ export class ArenaChat {
   }
 
   /**
+   * Get a Arena Private Chat Channel
+   */
+  public async getPrivateChannel(channelId: string): Promise<BasePrivateChannel> {
+    if (this.user === null) {
+      throw new Error('Cannot get a private channel without a user.');
+    }
+
+    const { PrivateChannel } = await import('./channel/private-channel');
+
+    return new PrivateChannel(channelId);
+  }
+
+  public async getUserPrivateChannels(): Promise<GroupChannel[]> {
+    if (this.user === null) {
+      throw new Error('Cannot get a private channel without a user.');
+    }
+
+    const site = await this.fetchAndSetSite();
+
+    const { PrivateChannel } = await import('./channel/private-channel');
+
+    return PrivateChannel.getUserChannels(this.user, site);
+  }
+
+  public async createUserPrivateChannel(userId: string): Promise<BasePrivateChannel> {
+    if (this.user === null) {
+      throw new Error('Cannot create a private channel without a user.');
+    }
+
+    const site = await this.fetchAndSetSite();
+
+    const { PrivateChannel } = await import('./channel/private-channel');
+
+    return PrivateChannel.createUserChannel(this.user, userId, site);
+  }
+
+  /**
    * Get a Arena Chat Channel
    *
    * @param channel Chat slug
    */
   public async getChannel(channel: string): Promise<Channel> {
-    const restAPI = new RestAPI({ url: CACHED_API });
-
     try {
-      const { chatRoom, site } = await restAPI.loadChatRoom(this.apiKey, channel);
-
-      this.site = site;
+      const { chatRoom } = await this.fetchAndSetChatRoomAndSite(channel);
 
       const channelI = new Channel(chatRoom, this);
 
@@ -97,9 +131,54 @@ export class ArenaChat {
 
     this.callChangedUserListeners(createdUser);
 
-    this.privateChannel = new PrivateChannel(createdUser);
+    return this.user;
+  }
+
+  public setInternalUser(user: ExternalUser): ExternalUser | null {
+    if (user === null) {
+      this.unsetUser();
+
+      return null;
+    }
+
+    if (user.token) {
+      this.setRestAPIAuthToken(user.token);
+    }
+
+    this.callChangedUserListeners(user);
+
+    this.user = user;
 
     return this.user;
+  }
+
+  private async fetchAndSetChatRoomAndSite(channel: string): Promise<{ chatRoom: ChatRoom; site: Site }> {
+    if (this.mainChatRoom !== null && this.site !== null) {
+      return { chatRoom: this.mainChatRoom, site: this.site };
+    }
+
+    const restAPI = new RestAPI({ url: CACHED_API });
+
+    const { chatRoom, site } = await restAPI.loadChatRoom(this.apiKey, channel);
+
+    this.mainChatRoom = chatRoom;
+    this.site = site;
+
+    return { chatRoom, site };
+  }
+
+  private async fetchAndSetSite(): Promise<Site> {
+    if (this.site !== null) {
+      return this.site;
+    }
+
+    const restAPI = new RestAPI({ url: CACHED_API });
+
+    const site = await restAPI.loadSite(this.apiKey);
+
+    this.site = site;
+
+    return site;
   }
 
   /**

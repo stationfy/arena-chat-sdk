@@ -8,6 +8,7 @@ import {
   Moderation,
   BanUser,
   ChatMessageSender,
+  PublicUser,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
@@ -30,6 +31,21 @@ export class Channel {
     this.watchChatConfigChanges();
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+  }
+
+  public async getMembers(): Promise<PublicUser[]> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot get chat members without a site id');
+    }
+
+    if (this.sdk.user === null) {
+      throw new Error('Cannot get chat members without a user');
+    }
+
+    const { GraphQLAPI } = await import('../services/graphql-api');
+    const graphQLAPI = new GraphQLAPI(this.sdk.user, this.sdk.site);
+
+    return graphQLAPI.fetchMembers(this.chatRoom._id);
   }
 
   /**

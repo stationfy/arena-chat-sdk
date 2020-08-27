@@ -51,6 +51,13 @@ export interface BaseRest {
   loadChatRoom(siteSlug: string, channel: string): PromiseLike<{ chatRoom: ChatRoom; site: Site }>;
 
   /**
+   * Load Site
+   *
+   * @param {string} siteSlug
+   */
+  loadSite(siteSlug: string): PromiseLike<Site>;
+
+  /**
    * Get Arena User - SSO Exchange
    * If the user doesn't exist create one otherwise return the user with informed id
    *

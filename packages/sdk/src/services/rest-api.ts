@@ -102,6 +102,16 @@ export class RestAPI implements BaseRest {
   }
 
   /**
+   *
+   * @inheritdoc
+   */
+  public loadSite(siteSlug: string): PromiseLike<Site> {
+    return this.transport.get<Site>(`/sites/${siteSlug}`).then((site) => {
+      return site;
+    });
+  }
+
+  /**
    * @inheritdoc
    */
   public getArenaUser(user: ProviderUser): PromiseLike<ExternalUser> {

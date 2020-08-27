@@ -13,7 +13,7 @@ export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe functions */
   private unsbscribeFunctions: (() => void)[] = [];
 
-  public constructor(private channel: string) { }
+  public constructor(private channel: string) {}
 
   /**
    * @inheritDoc
@@ -106,6 +106,24 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
+  public async fetchGroupRecentMessages(limit?: number): Promise<ChatMessage[]> {
+    const messages = await fetchCollectionItems({
+      path: `group-channels/${this.channel}/messages`,
+      orderBy: [
+        {
+          field: 'createdAt',
+          desc: true,
+        },
+      ],
+      limit,
+    });
+
+    return messages.reverse() as ChatMessage[];
+  }
+
+  /**
+   * @inheritdoc
+   */
   public async fetchPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]> {
     if (limit) {
       limit = limit + 1;
@@ -133,10 +151,55 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
+  public async fetchGroupPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]> {
+    if (limit) {
+      limit = limit + 1;
+    }
+
+    const messages = await fetchCollectionItems({
+      path: `group-channels/${this.channel}/messages`,
+      orderBy: [
+        {
+          field: 'createdAt',
+          desc: true,
+        },
+      ],
+      limit,
+      startAt: [firstMessage.createdAt],
+    });
+
+    messages.reverse();
+
+    messages.pop();
+
+    return messages as ChatMessage[];
+  }
+
+  /**
+   * @inheritdoc
+   */
   public listenToMessageReceived(callback: (message: ChatMessage) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
         path: `chat-rooms/${this.channel}/messages`,
+      },
+      (data) => {
+        callback(data as ChatMessage);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToGroupMessageReceived(callback: (message: ChatMessage) => void): () => void {
+    const unsubscribe = listenToCollectionItemChange(
+      {
+        path: `group-channels/${this.channel}/messages`,
       },
       (data) => {
         callback(data as ChatMessage);

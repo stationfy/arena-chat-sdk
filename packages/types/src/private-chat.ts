@@ -7,7 +7,7 @@ export interface GroupChannel {
   lastClearedTimestamp?: number;
   lastMessage?: ChatMessage;
   lastReadTimestamp?: number;
-  members: PublicUser[];
+  members?: PublicUser[];
   name?: string;
   unreadCount?: number;
 }
