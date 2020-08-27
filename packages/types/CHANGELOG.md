@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.6.2 (2020-08-27)
+
+
+### Bug Fixes
+
+* firebase conflit with other app ([18e9b02](https://github.com/stationfy/arena-chat-sdk/commit/18e9b02fee7e7d187892ffdf4f27b2061027a852))
+
+
+
+
+
 ## 0.6.1 (2020-08-27)
 
 
