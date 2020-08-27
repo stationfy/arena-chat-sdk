@@ -46,7 +46,7 @@
     "typescript": "3.9.5"
   },
   "scripts": {
-    "build": "run-p copy-config:prod build:dist build:bundle",
+    "build": "run-s copy-config:prod build:dist build:bundle",
     "build:bundle": "rollup --config",
     "build:bundle:watch": "rollup --config --watch",
     "build:dev": "run-p copy-config:dev build:dist build:bundle",
