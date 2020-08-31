@@ -1,4 +1,5 @@
 import React, { useMemo, memo } from 'react';
+import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
 import { ChatMessage, ExternalUser, MessageReaction } from '@arena-im/chat-types';
 import { Channel } from '../../../../dist/channel/channel';
 
@@ -89,14 +90,16 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
       <div className="message-heart-container">
         <img src={likeImage} alt="love" className="message-heart" onClick={like} />
         {likes}
-        {!isCurrentUser && currentUser?.isModerator && (
+        {currentUser?.isModerator && (
           <>
             <span role="img" aria-label="delete" className="message-moderator-button" onClick={handleDeleteMessage}>
-              ❌
+              ❌Delete
             </span>
-            <span role="img" aria-label="ban" className="message-moderator-button" onClick={handleBanUser}>
-              🚷
-            </span>
+            {!isCurrentUser && (
+              <span role="img" aria-label="ban" className="message-moderator-button" onClick={handleBanUser}>
+                BanUser
+              </span>
+            )}
           </>
         )}
       </div>

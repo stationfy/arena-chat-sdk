@@ -45,9 +45,9 @@ function App() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat(YOUR_SITE_SLUG);
+        arenaChat.current = new ArenaChat('gabriel-lino-de-carvalho-neto');
 
-        channel.current = await arenaChat.current.getChannel(YOUR_CHAT_SLUG);
+        channel.current = await arenaChat.current.getChannel('gabriel-lino-de-carvalho-neto-global');
 
         const messages = await channel.current.loadRecentMessages(20);
 
@@ -171,7 +171,6 @@ function App() {
 
   return (
     <div className="App">
-      {user && !isModerator && <button onClick={requestModeration}>Request Moderation</button>}
       <div className="chat">
         <div className="chat-title">
           <div>
@@ -182,6 +181,11 @@ function App() {
             </figure>
           </div>
           {error && <div className="chat-error">{error}</div>}
+          {user && !isModerator &&(
+            <button className="request-moderation-button" onClick={requestModeration}>
+              Request Moderation
+            </button>
+          )}
           {user !== null && (
             <button className="stop-chatting-button" onClick={stopChatting}>
               Stop Chatting

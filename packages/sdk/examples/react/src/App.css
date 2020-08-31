@@ -160,8 +160,19 @@ Messages
 }
 
 .message-moderator-button {
-  margin-left: 10px;
+  box-sizing: border-box;
+  color: #fff;
+  border: none;
+  background: #e91e63;
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  outline: none !important;
   cursor: pointer;
+}
+
+[aria-label="delete"] {
+  margin: 0 10px;
 }
 
 .message-personal .message-heart-container {
@@ -334,6 +345,19 @@ Messages
   border-radius: 10px;
   outline: none !important;
   transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.request-moderation-button {
+  color: #fff;
+  border: none;
+  background: #248a52;
+  font-size: 10px;
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: 10px;
+  outline: none !important;
   cursor: pointer;
 }
 
