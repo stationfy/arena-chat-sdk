@@ -45,9 +45,9 @@ function App() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat('gabriel-lino-de-carvalho-neto');
+        arenaChat.current = new ArenaChat(YOUR_SITE_SLUG);
 
-        channel.current = await arenaChat.current.getChannel('gabriel-lino-de-carvalho-neto-global');
+        channel.current = await arenaChat.current.getChannel(YOUR_CHAT_SLUG);
 
         const messages = await channel.current.loadRecentMessages(20);
 
