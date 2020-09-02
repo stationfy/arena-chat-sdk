@@ -1,5 +1,4 @@
 import React, { useMemo, memo } from 'react';
-import DropdownMenu, { DropdownItem, DropdownItemGroup } from '@atlaskit/dropdown-menu';
 import { ChatMessage, ExternalUser, MessageReaction } from '@arena-im/chat-types';
 import { Channel } from '../../../../dist/channel/channel';
 
