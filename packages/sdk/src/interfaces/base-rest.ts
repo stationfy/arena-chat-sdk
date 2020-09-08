@@ -7,6 +7,7 @@ import {
   Site,
   Moderation,
   ExternalUser,
+  EmbedSettings,
 } from '@arena-im/chat-types';
 
 /** Rest api used to consume the rest services */
@@ -48,7 +49,10 @@ export interface BaseRest {
    * @param siteSlug The current publisher's site
    * @param channel The chat room slug
    */
-  loadChatRoom(siteSlug: string, channel: string): PromiseLike<{ chatRoom: ChatRoom; site: Site }>;
+  loadChatRoom(
+    siteSlug: string,
+    channel: string,
+  ): PromiseLike<{ chatRoom: ChatRoom; site: Site; settings: EmbedSettings }>;
 
   /**
    * Load Site

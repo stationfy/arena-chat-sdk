@@ -1,4 +1,4 @@
-import { ChatMessage } from './chat-message';
+import { ChatMessage, ChatMessageContent } from './chat-message';
 
 export interface GroupChannel {
   _id: string;
@@ -10,6 +10,7 @@ export interface GroupChannel {
   members?: PublicUser[];
   name?: string;
   unreadCount?: number;
+  amIBlocked: boolean;
 }
 
 export enum PublicUserStatus {
@@ -26,4 +27,13 @@ export interface PublicUser {
   name: string;
   status: PublicUserStatus;
   totalGroupChannelUnreadCount?: number;
+  modLabel?: string;
+  isBanned?: boolean;
+  isBlocked?: boolean;
+}
+
+export interface PrivateMessageInput {
+  groupChannelId: string;
+  message: ChatMessageContent;
+  replyTo?: string;
 }

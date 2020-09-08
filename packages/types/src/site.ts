@@ -10,6 +10,7 @@ export interface Site {
   uid?: string;
   websiteUrl?: string;
   _id: string;
+  settings: EmbedSettings;
 }
 
 interface SiteConfig {
@@ -18,4 +19,8 @@ interface SiteConfig {
 
 interface SiteFeatureFlags {
   [key: string]: string;
+}
+
+export interface EmbedSettings {
+  graphqlPubApiKey: string;
 }

@@ -38,12 +38,13 @@ export class Channel {
       throw new Error('Cannot get chat members without a site id');
     }
 
-    if (this.sdk.user === null) {
-      throw new Error('Cannot get chat members without a user');
+    let user;
+    if (this.sdk.user !== null) {
+      user = this.sdk.user;
     }
 
     const { GraphQLAPI } = await import('../services/graphql-api');
-    const graphQLAPI = new GraphQLAPI(this.sdk.user, this.sdk.site);
+    const graphQLAPI = new GraphQLAPI(this.sdk.site, user);
 
     return graphQLAPI.fetchMembers(this.chatRoom._id);
   }
