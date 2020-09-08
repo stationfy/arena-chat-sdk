@@ -11,6 +11,11 @@ export class GraphQLAPI {
     this.graphQL = new GraphQLTransport(user?.token || DEFAULT_AUTH_TOKEN, site._id, site.settings.graphqlPubApiKey);
   }
 
+  /**
+   * Fetch group Channels
+   *
+   * @param user current logged user
+   */
   public async fetchGroupChannels(user?: ExternalUser): Promise<GroupChannel[]> {
     if (typeof user?.token !== 'undefined') {
       this.graphQL.setToken(user.token);
@@ -60,6 +65,11 @@ export class GraphQLAPI {
     return me.groupChannels;
   }
 
+  /**
+   * Fetch the total of unread messages on a group channel
+   *
+   * @param user current logged user
+   */
   public async fetchGroupChannelTotalUnreadCount(user?: ExternalUser): Promise<number> {
     if (typeof user?.token !== 'undefined') {
       this.graphQL.setToken(user.token);
@@ -84,6 +94,11 @@ export class GraphQLAPI {
     return me.totalGroupChannelUnreadCount;
   }
 
+  /**
+   * Create a new group channel or return a exist one
+   *
+   * @param input group channel config
+   */
   public async createGroupChannel(input: {
     userIds: string[];
     siteId: string;
@@ -126,6 +141,11 @@ export class GraphQLAPI {
     return groupChannel;
   }
 
+  /**
+   * Fetch all members of the chat
+   *
+   * @param chatId the current chat id
+   */
   public async fetchMembers(chatId: string): Promise<PublicUser[]> {
     const query = gql`
       query chatRoom($id: ID!) {
@@ -152,6 +172,11 @@ export class GraphQLAPI {
     return users;
   }
 
+  /**
+   * Fetch the group channel by id
+   *
+   * @param id group channel id
+   */
   public async fetchGroupChannel(id: string): Promise<GroupChannel> {
     const query = gql`
       query groupChannel($id: ID!) {
@@ -191,6 +216,11 @@ export class GraphQLAPI {
     return groupChannel;
   }
 
+  /**
+   * Send a private message to a group channel
+   *
+   * @param privateMessageInput message config
+   */
   public async sendPrivateMessage(privateMessageInput: PrivateMessageInput): Promise<string> {
     const mutation = gql`
       mutation sendMessage($input: SendMessageInput!) {
@@ -205,6 +235,11 @@ export class GraphQLAPI {
     return messageId;
   }
 
+  /**
+   * Mark the group channel as read
+   *
+   * @param groupChannelId GroupChannel id
+   */
   public async markGroupChannelRead(groupChannelId: string): Promise<boolean> {
     const mutation = gql`
       mutation markRead($input: MarkReadInput!) {
@@ -216,9 +251,19 @@ export class GraphQLAPI {
 
     const result = data.markRead as boolean;
 
+    if (!result) {
+      throw new Error('failed');
+    }
+
     return result;
   }
 
+  /**
+   * Delete a private message on a group channel
+   *
+   * @param groupChannelId GroupChannel id
+   * @param messageId ChatMessage id
+   */
   public async deletePrivateMessage(groupChannelId: string, messageId: string): Promise<boolean> {
     const mutation = gql`
       mutation deleteMessage($input: DeleteMessageInput!) {
@@ -230,9 +275,18 @@ export class GraphQLAPI {
 
     const result = data.deleteMessage as boolean;
 
+    if (!result) {
+      throw new Error('failed');
+    }
+
     return result;
   }
 
+  /**
+   * Remove all messages of a group channel for a user
+   *
+   * @param groupChannelId GroupChannel id
+   */
   public async removeGroupChannel(groupChannelId: string): Promise<boolean> {
     const mutation = gql`
       mutation removeGroupChannel($input: RemoveGroupChannelInput!) {
@@ -244,9 +298,18 @@ export class GraphQLAPI {
 
     const result = data.removeGroupChannel as boolean;
 
+    if (!result) {
+      throw new Error('failed');
+    }
+
     return result;
   }
 
+  /**
+   * Block a private user
+   *
+   * @param userId the id of a user that the current user wants to block
+   */
   public async blockPrivateUser(userId: string): Promise<boolean> {
     const mutation = gql`
       mutation blockUser($input: BlockUserInput!) {
@@ -258,9 +321,18 @@ export class GraphQLAPI {
 
     const result = data.blockUser as boolean;
 
+    if (!result) {
+      throw new Error('failed');
+    }
+
     return result;
   }
 
+  /**
+   * Unblock a private user
+   *
+   * @param userId the id of a user that the current user wants to unblock
+   */
   public async unblockPrivateUser(userId: string): Promise<boolean> {
     const mutation = gql`
       mutation unblockUser($input: BlockUserInput!) {
@@ -271,6 +343,10 @@ export class GraphQLAPI {
     const data = await this.graphQL.client.request(mutation, { input: { userId } });
 
     const result = data.unblockUser as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
 
     return result;
   }
