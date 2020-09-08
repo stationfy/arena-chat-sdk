@@ -5,15 +5,21 @@ import {
   UserChangedListener,
   Moderation,
   ModeratorStatus,
-  BanUser,
+  PublicUser,
+  PublicUserStatus,
 } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
+import * as GraphQLAPI from '@services/graphql-api';
 import { RestAPI } from '@services/rest-api';
 import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaChat } from '../../../src/sdk';
 import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
+
+jest.mock('@services/graphql-api', () => ({
+  GraphQLAPI: jest.fn(),
+}));
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -66,22 +72,28 @@ describe('Channel', () => {
     standalone: false,
   };
 
-  const site: Site = {
-    _id: 'site-id',
-    displayName: 'First Site',
-  };
-
   const sdk = new ArenaChat('my-api-key');
-  sdk.site = site;
-  sdk.user = {
-    image: 'https://randomuser.me/api/portraits/women/12.jpg',
-    name: 'Kristin Mckinney',
-    id: '123456',
-    email: 'test@test.com',
-  };
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    const site: Site = {
+      _id: 'site-id',
+      displayName: 'First Site',
+      settings: {
+        graphqlPubApiKey: '1234',
+      },
+    };
+
+    sdk.site = site;
+
+    sdk.user = {
+      image: 'https://randomuser.me/api/portraits/women/12.jpg',
+      name: 'Kristin Mckinney',
+      id: '123456',
+      email: 'test@test.com',
+    };
+
     // @ts-ignore
     RealtimeAPI.RealtimeAPI.mockImplementation(() => {
       return {
@@ -889,6 +901,86 @@ describe('Channel', () => {
 
       // @ts-ignore
       localCallback.call(channel, user);
+    });
+  });
+
+  describe('getMembers()', () => {
+    it('should fetch members with an anonymous user', async () => {
+      const user: PublicUser = {
+        _id: 'fake-user-uid',
+        name: 'Kristin Mckinney',
+        status: PublicUserStatus.OFFLINE,
+        isModerator: false,
+        image: 'https://randomuser.me/api/portraits/women/12.jpg',
+        isBlocked: false,
+      };
+
+      const graphQLAPIInstanceMock = {
+        fetchMembers: async () => {
+          return [user];
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      sdk.user = null;
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const members = await channel.getMembers();
+
+      expect(members).toEqual([user]);
+    });
+
+    it('should fetch members with a user', async () => {
+      const user: PublicUser = {
+        _id: 'fake-user-uid',
+        name: 'Kristin Mckinney',
+        status: PublicUserStatus.OFFLINE,
+        isModerator: false,
+        image: 'https://randomuser.me/api/portraits/women/12.jpg',
+        isBlocked: false,
+      };
+
+      const graphQLAPIInstanceMock = {
+        fetchMembers: async () => {
+          return [user];
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      const members = await channel.getMembers();
+
+      expect(members).toEqual([user]);
+    });
+
+    it('should receive a error', (done) => {
+      const graphQLAPIInstanceMock = {
+        fetchMembers: async () => {
+          throw new Error('invalid');
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(chatRoom, sdk);
+
+      channel.getMembers().catch((e) => {
+        expect(e.message).toEqual(`Cannot fetch chat members messages on "${channel.chatRoom.slug}" channel.`);
+        done();
+      });
     });
   });
 });

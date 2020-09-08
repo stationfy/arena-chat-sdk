@@ -137,7 +137,6 @@ export class GraphQLAPI {
               status
               modLabel
               isModerator
-              modLabel
               image
               isBlocked
             }

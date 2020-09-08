@@ -33,6 +33,9 @@ export class Channel {
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
   }
 
+  /**
+   * Get all online and offline chat members
+   */
   public async getMembers(): Promise<PublicUser[]> {
     if (this.sdk.site === null) {
       throw new Error('Cannot get chat members without a site id');
@@ -43,10 +46,17 @@ export class Channel {
       user = this.sdk.user;
     }
 
-    const { GraphQLAPI } = await import('../services/graphql-api');
-    const graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+    try {
+      const { GraphQLAPI } = await import('../services/graphql-api');
 
-    return graphQLAPI.fetchMembers(this.chatRoom._id);
+      const graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+
+      const members = await graphQLAPI.fetchMembers(this.chatRoom._id);
+
+      return members;
+    } catch (e) {
+      throw new Error(`Cannot fetch chat members messages on "${this.chatRoom.slug}" channel.`);
+    }
   }
 
   /**
