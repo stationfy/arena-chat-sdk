@@ -16,47 +16,112 @@ export class PrivateChannel implements BasePrivateChannel {
   private cacheCurrentMessages: ChatMessage[] = [];
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
+  private loadRecentMessagesCalled = false;
 
   public constructor(private groupChannel: GroupChannel, private site: Site, private user: ExternalUser) {
     this.realtimeAPI = new RealtimeAPI(groupChannel._id);
     this.graphQLAPI = new GraphQLAPI(site, user);
   }
 
+  /**
+   * Get a group channel by id
+   *
+   * @param site current site
+   * @param user current logged user
+   * @param id GroupChannel id
+   */
   static async getGroupChannel(site: Site, user: ExternalUser, id: string): Promise<GroupChannel> {
     const graphQLAPI = new GraphQLAPI(site, user);
 
-    return graphQLAPI.fetchGroupChannel(id);
+    try {
+      const groupChannel = await graphQLAPI.fetchGroupChannel(id);
+      return groupChannel;
+    } catch (e) {
+      throw new Error(`Cannot get the "${id}" group channel.`);
+    }
   }
 
+  /**
+   * Unblock a private user
+   *
+   * @param user current logged user
+   * @param site current site
+   * @param userId the userid of the user that the current user wants to unblock
+   */
   static async unblockPrivateUser(user: ExternalUser, site: Site, userId: string): Promise<boolean> {
     const graphQLAPI = new GraphQLAPI(site, user);
 
-    return graphQLAPI.unblockPrivateUser(userId);
+    try {
+      const result = await graphQLAPI.unblockPrivateUser(userId);
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot unblock the user: "${userId}".`);
+    }
   }
 
+  /**
+   * Block a private user
+   *
+   * @param user current logged user
+   * @param site current site
+   * @param userId the userid of the user that the current user wants to block
+   */
   static async blockPrivateUser(user: ExternalUser, site: Site, userId: string): Promise<boolean> {
     const graphQLAPI = new GraphQLAPI(site, user);
 
-    return graphQLAPI.blockPrivateUser(userId);
+    try {
+      const result = await graphQLAPI.blockPrivateUser(userId);
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot block the user: "${userId}".`);
+    }
   }
 
-  static getUserChannels(user: ExternalUser, site: Site): Promise<GroupChannel[]> {
+  /**
+   * Get User Channels
+   *
+   * @param user current logged user
+   * @param site current site
+   */
+  static async getUserChannels(user: ExternalUser, site: Site): Promise<GroupChannel[]> {
     const graphQLAPI = new GraphQLAPI(site, user);
 
-    return graphQLAPI.fetchGroupChannels();
+    try {
+      const groupChannel = await graphQLAPI.fetchGroupChannels();
+
+      return groupChannel;
+    } catch (e) {
+      throw new Error(`Cannot the channels for the user: "${user.id}".`);
+    }
   }
 
+  /**
+   * Watch unread messages count
+   *
+   * @param user current logged user
+   * @param site current site
+   * @param callback callback with total
+   */
   static onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): void {
-    const realtimeAPI = new RealtimeAPI();
-    realtimeAPI.listenToUserGroupChannels(user, async () => {
-      const graphQLAPI = new GraphQLAPI(site, user);
+    try {
+      const realtimeAPI = new RealtimeAPI();
+      realtimeAPI.listenToUserGroupChannels(user, async () => {
+        const graphQLAPI = new GraphQLAPI(site, user);
 
-      const totalUnreadMessages = await graphQLAPI.fetchGroupChannelTotalUnreadCount();
+        const totalUnreadMessages = await graphQLAPI.fetchGroupChannelTotalUnreadCount();
 
-      callback(totalUnreadMessages);
-    });
+        callback(totalUnreadMessages);
+      });
+    } catch (e) {
+      throw new Error(`Cannot watch unread messages count for the user: "${user.id}".`);
+    }
   }
 
+  /**
+   * Create a private user channel
+   *
+   * @param options create user options
+   */
   static async createUserChannel(options: {
     user: ExternalUser;
     userId: string;
@@ -67,39 +132,68 @@ export class PrivateChannel implements BasePrivateChannel {
       throw new Error('Cannot create a channel without a user');
     }
 
-    const graphQLAPI = new GraphQLAPI(options.site, options.user);
-
-    const groupChannel = await graphQLAPI.createGroupChannel({
-      userIds: [options.userId],
-      siteId: options.site._id,
-      firstMessage: options.firstMessage,
-    });
-
-    return new PrivateChannel(groupChannel, options.site, options.user);
-  }
-
-  public async markRead(): Promise<boolean> {
     try {
-      return this.graphQLAPI.markGroupChannelRead(this.groupChannel._id);
+      const graphQLAPI = new GraphQLAPI(options.site, options.user);
+
+      const groupChannel = await graphQLAPI.createGroupChannel({
+        userIds: [options.userId],
+        siteId: options.site._id,
+        firstMessage: options.firstMessage,
+      });
+
+      return new PrivateChannel(groupChannel, options.site, options.user);
     } catch (e) {
-      console.error('Cannot set group channel read.');
-      return false;
+      throw new Error(`Cannot create a channel for with this user: "${options.userId}".`);
     }
   }
 
-  public async deleteMessage(messageId: string): Promise<boolean> {
-    return this.graphQLAPI.deletePrivateMessage(this.groupChannel._id, messageId);
+  /**
+   * Mark all messages on this channel as read.
+   */
+  public async markRead(): Promise<boolean> {
+    try {
+      const result = await this.graphQLAPI.markGroupChannelRead(this.groupChannel._id);
+
+      return result;
+    } catch (e) {
+      throw new Error('Cannot set group channel read.');
+    }
   }
 
+  /**
+   * Delete a private message
+   *
+   * @param messageId ChatMessage id
+   */
+  public async deleteMessage(messageId: string): Promise<boolean> {
+    try {
+      const result = await this.graphQLAPI.deletePrivateMessage(this.groupChannel._id, messageId);
+
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot delete this message: "${messageId}".`);
+    }
+  }
+
+  /**
+   * Remove all message for the current user
+   */
   public async removeAllMessages(): Promise<boolean> {
-    return this.graphQLAPI.removeGroupChannel(this.groupChannel._id);
+    try {
+      const result = await this.graphQLAPI.removeGroupChannel(this.groupChannel._id);
+
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot remove all messages for this user: "${this.user.id}".`);
+    }
   }
 
   /**
    * Send message on the channel
    *
-   * @param {ChatMessageContent} message
-   * @returns {string} message id
+   * @param message
+   * @param replyMessageId message it's replying
+   * @returns message id
    */
   public async sendMessage(message: ChatMessageContent, replyMessageId?: string): Promise<string> {
     if (message.text?.trim() === '' && !message.media?.url) {
@@ -140,6 +234,8 @@ export class PrivateChannel implements BasePrivateChannel {
 
       this.markRead();
 
+      this.loadRecentMessagesCalled = true;
+
       return messages;
     } catch (e) {
       throw new Error(`Cannot load messages on "${this.groupChannel._id}" channel.`);
@@ -152,6 +248,10 @@ export class PrivateChannel implements BasePrivateChannel {
    * @param limit number of previous messages
    */
   public async loadPreviousMessages(limit?: number): Promise<ChatMessage[]> {
+    if (!this.loadRecentMessagesCalled) {
+      throw new Error('You should call the loadRecentMessages method first.');
+    }
+
     if (!this.cacheCurrentMessages.length) {
       return [];
     }

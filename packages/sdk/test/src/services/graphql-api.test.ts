@@ -303,7 +303,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return a exception', (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -352,7 +352,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return a exception', (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -401,7 +401,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return a exception', (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -450,7 +450,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return a exception', (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -499,7 +499,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return a exception', (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
