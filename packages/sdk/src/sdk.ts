@@ -44,7 +44,7 @@ export class ArenaChat {
   }
 
   /**
-   * Block a user for the current user
+   * Block a user for the current user on private channels
    *
    * @param userId block the userId for the current user
    */
@@ -61,7 +61,7 @@ export class ArenaChat {
   }
 
   /**
-   * Unblock a user for the current user
+   * Unblock a user for the current user on private channels
    *
    * @param userId unblock the userId for the current user
    */
