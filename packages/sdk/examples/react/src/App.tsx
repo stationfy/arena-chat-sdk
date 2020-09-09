@@ -171,7 +171,6 @@ function App() {
 
   return (
     <div className="App">
-      {user && !isModerator && <button onClick={requestModeration}>Request Moderation</button>}
       <div className="chat">
         <div className="chat-title">
           <div>
@@ -182,6 +181,11 @@ function App() {
             </figure>
           </div>
           {error && <div className="chat-error">{error}</div>}
+          {user && !isModerator &&(
+            <button className="request-moderation-button" onClick={requestModeration}>
+              Request Moderation
+            </button>
+          )}
           {user !== null && (
             <button className="stop-chatting-button" onClick={stopChatting}>
               Stop Chatting

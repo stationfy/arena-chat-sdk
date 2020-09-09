@@ -10,6 +10,7 @@ import {
   Moderation,
   ExternalUser,
   SSOExchangeResult,
+  EmbedSettings,
 } from '@arena-im/chat-types';
 import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
 import { supportsFetch } from '../utils/supports';
@@ -90,15 +91,29 @@ export class RestAPI implements BaseRest {
   /**
    * @inheritdoc
    */
-  public loadChatRoom(siteSlug: string, channel: string): PromiseLike<{ chatRoom: ChatRoom; site: Site }> {
+  public loadChatRoom(
+    siteSlug: string,
+    channel: string,
+  ): PromiseLike<{ chatRoom: ChatRoom; site: Site; settings: EmbedSettings }> {
     return this.transport
-      .get<{ chatInfo: ChatRoom; publisher: Site }>(`/chatroom/${siteSlug}/${channel}`)
+      .get<{ chatInfo: ChatRoom; publisher: Site; settings: EmbedSettings }>(`/chatroom/${siteSlug}/${channel}`)
       .then((cached) => {
         return {
           chatRoom: cached.chatInfo,
           site: cached.publisher,
+          settings: cached.settings,
         };
       });
+  }
+
+  /**
+   *
+   * @inheritdoc
+   */
+  public loadSite(siteSlug: string): PromiseLike<Site> {
+    return this.transport.get<Site>(`/sites/${siteSlug}`).then((site) => {
+      return site;
+    });
   }
 
   /**

@@ -4,6 +4,9 @@ import { ChatRoom } from '@models/chat-room';
 import { Site } from '@models/site';
 import { ArenaChat } from '../../src/sdk';
 import { ExternalUser } from '@models/user';
+import { PrivateChannel } from '@channel/private-channel';
+import { exampleUser, exampleSite, exampleGroupChannel } from '../fixtures/examples';
+import { ProviderUser } from '@arena-im/chat-types';
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -13,7 +16,21 @@ jest.mock('@channel/channel', () => ({
   Channel: jest.fn(),
 }));
 
+jest.mock('@channel/private-channel', () => ({
+  PrivateChannel: jest.fn(),
+}));
+
 describe('SDK', () => {
+  beforeEach(() => {
+    // @ts-ignore
+    RestAPI.mockImplementation(() => {
+      return {
+        loadSite: async () => {
+          return exampleSite;
+        },
+      };
+    });
+  });
   describe('getChannel()', () => {
     const chatRoom: ChatRoom = {
       allowSendGifs: true,
@@ -151,6 +168,96 @@ describe('SDK', () => {
       const response = await sdk.setUser(sender);
 
       expect(response).toEqual({ ...sender, token: 'user-token-1234' });
+    });
+  });
+
+  describe('blockPrivateUser()', () => {
+    it('should block a user', async () => {
+      const mockBlockPrivateUser = jest.fn();
+
+      mockBlockPrivateUser.mockReturnValue(true);
+
+      PrivateChannel.blockPrivateUser = mockBlockPrivateUser;
+
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.user = exampleUser;
+
+      const result = await sdk.blockPrivateUser('fake-user');
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('unblockPrivateUser()', () => {
+    it('should unblock a user', async () => {
+      const mockUnblockPrivateUser = jest.fn();
+
+      mockUnblockPrivateUser.mockReturnValue(true);
+
+      PrivateChannel.unblockPrivateUser = mockUnblockPrivateUser;
+
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.user = exampleUser;
+
+      const result = await sdk.unblockPrivateUser('fake-user');
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('getPrivateChannel()', () => {
+    it('should get a private channel', async () => {
+      const mockGetGroupChannel = jest.fn();
+
+      mockGetGroupChannel.mockReturnValue({});
+
+      PrivateChannel.getGroupChannel = mockGetGroupChannel;
+
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.user = exampleUser;
+
+      const result = await sdk.getPrivateChannel('fake-channel');
+
+      expect(result).toEqual({});
+    });
+  });
+
+  describe('getUserPrivateChannels()', () => {
+    it("should get all the user's private channels", async () => {
+      const mockGetUserChannels = jest.fn();
+
+      mockGetUserChannels.mockReturnValue([exampleGroupChannel]);
+
+      PrivateChannel.getUserChannels = mockGetUserChannels;
+
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.user = exampleUser;
+
+      const result = await sdk.getUserPrivateChannels();
+
+      expect(result).toEqual([exampleGroupChannel]);
+    });
+  });
+
+  describe('createUserPrivateChannel()', () => {
+    it('shoudl create a new private channel', async () => {
+      const mockCreateUserChannel = jest.fn();
+
+      mockCreateUserChannel.mockReturnValue({});
+
+      PrivateChannel.createUserChannel = mockCreateUserChannel;
+
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.user = exampleUser;
+
+      const result = await sdk.createUserPrivateChannel('fake-user');
+
+      expect(result).toEqual({});
     });
   });
 });

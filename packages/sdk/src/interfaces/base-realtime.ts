@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRoom, ExternalUser, ServerReaction } from '@arena-im/chat-types';
+import { ChatMessage, ChatRoom, ExternalUser, ServerReaction, GroupChannel } from '@arena-im/chat-types';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
@@ -58,4 +58,11 @@ export interface BaseRealtime {
    * @param callback callback that will receive the reactions
    */
   listenToUserReactions(user: ExternalUser, callback: (reaction: ServerReaction[]) => void): () => void;
+
+  /**
+   * Listen to user group channels change
+   *
+   * @param user external user
+   */
+  listenToUserGroupChannels(user: ExternalUser, callback: (groupChannels: GroupChannel[]) => void): () => void;
 }
