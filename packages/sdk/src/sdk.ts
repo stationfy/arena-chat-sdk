@@ -35,7 +35,6 @@ export class ArenaChat {
   public site: Site | null = null;
   public mainChatRoom: ChatRoom | null = null;
   public restAPI: RestAPI;
-  // public privateChannel: PrivateChannel | null = null;
   private defaultAuthToken = DEFAULT_AUTH_TOKEN;
   private currentChannels: Channel[] = [];
   private userChangedListeners: UserChangedListener[] = [];
@@ -44,6 +43,11 @@ export class ArenaChat {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
   }
 
+  /**
+   * Block a user for the current user
+   *
+   * @param userId block the userId for the current user
+   */
   public async blockPrivateUser(userId: string): Promise<boolean> {
     if (this.user === null) {
       throw new Error('Cannot block a user without a current user.');
@@ -56,6 +60,11 @@ export class ArenaChat {
     return PrivateChannel.blockPrivateUser(this.user, site, userId);
   }
 
+  /**
+   * Unblock a user for the current user
+   *
+   * @param userId unblock the userId for the current user
+   */
   public async unblockPrivateUser(userId: string): Promise<boolean> {
     if (this.user === null) {
       throw new Error('Cannot unblock a user without a current user.');
@@ -68,6 +77,11 @@ export class ArenaChat {
     return PrivateChannel.unblockPrivateUser(this.user, site, userId);
   }
 
+  /**
+   * Watch unread preivate messages on the current site for the current user
+   *
+   * @param callback
+   */
   public async onUnreadMessagesCountChanged(callback: (total: number) => void): Promise<void> {
     if (this.user === null) {
       throw new Error('Cannot block a user without a current user.');
@@ -82,6 +96,8 @@ export class ArenaChat {
 
   /**
    * Get a Arena Private Chat Channel
+   *
+   * @param channelId
    */
   public async getPrivateChannel(channelId: string): Promise<BasePrivateChannel> {
     if (this.user === null) {
@@ -97,6 +113,9 @@ export class ArenaChat {
     return new PrivateChannel(groupChannel, site, this.user);
   }
 
+  /**
+   * Get all user's private channels
+   */
   public async getUserPrivateChannels(): Promise<GroupChannel[]> {
     if (this.user === null) {
       throw new Error('Cannot get a private channel without a user.');
@@ -109,6 +128,12 @@ export class ArenaChat {
     return PrivateChannel.getUserChannels(this.user, site);
   }
 
+  /**
+   * Create a new private channel or return an exist one
+   *
+   * @param userId
+   * @param firstMessage
+   */
   public async createUserPrivateChannel(
     userId: string,
     firstMessage?: ChatMessageContent,
