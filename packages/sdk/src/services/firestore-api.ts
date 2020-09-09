@@ -179,7 +179,7 @@ export function fetchCollectionItems({
     }
 
     if (endAt) {
-      queryRef = queryRef.endAt(endAt);
+      queryRef = queryRef.endAt(...endAt);
     }
 
     if (startAt) {

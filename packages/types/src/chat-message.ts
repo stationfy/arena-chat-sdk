@@ -41,6 +41,15 @@ export interface ChatMessageContent {
 
 export interface ChatMessageContentMedia {
   url: string;
+  description?: string;
+  html?: string;
+  providerName?: string;
+  providerUrl?: string;
+  thumbnailHeight?: number;
+  thumbnailUrl?: string;
+  thumbnailWidth?: number;
+  title?: string;
+  type?: string;
 }
 
 export interface ChatMessageReport {

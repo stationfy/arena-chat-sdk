@@ -1,4 +1,11 @@
-import { ChatMessage, ChatRoom, ServerReaction, ExternalUser } from '@arena-im/chat-types';
+import {
+  ChatMessage,
+  ChatRoom,
+  ServerReaction,
+  ExternalUser,
+  GroupChannel,
+  ListenChangeConfig,
+} from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,
@@ -13,7 +20,7 @@ export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe functions */
   private unsbscribeFunctions: (() => void)[] = [];
 
-  public constructor(private channel: string) { }
+  public constructor(private channel?: string) {}
 
   /**
    * @inheritDoc
@@ -89,7 +96,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
-    const messages = await fetchCollectionItems({
+    const config: ListenChangeConfig = {
       path: `chat-rooms/${this.channel}/messages`,
       orderBy: [
         {
@@ -98,7 +105,33 @@ export class RealtimeAPI implements BaseRealtime {
         },
       ],
       limit,
-    });
+    };
+
+    const messages = await fetchCollectionItems(config);
+
+    return messages.reverse() as ChatMessage[];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async fetchGroupRecentMessages(limit?: number, lastClearedTimestamp?: number): Promise<ChatMessage[]> {
+    const config: ListenChangeConfig = {
+      path: `group-channels/${this.channel}/messages`,
+      orderBy: [
+        {
+          field: 'createdAt',
+          desc: true,
+        },
+      ],
+      limit,
+    };
+
+    if (lastClearedTimestamp) {
+      config.endAt = [lastClearedTimestamp];
+    }
+
+    const messages = await fetchCollectionItems(config);
 
     return messages.reverse() as ChatMessage[];
   }
@@ -133,10 +166,65 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
+  public async fetchGroupPreviousMessages(
+    firstMessage: ChatMessage,
+    lastClearedTimestamp?: number,
+    limit?: number,
+  ): Promise<ChatMessage[]> {
+    if (limit) {
+      limit = limit + 1;
+    }
+
+    const config: ListenChangeConfig = {
+      path: `group-channels/${this.channel}/messages`,
+      orderBy: [
+        {
+          field: 'createdAt',
+          desc: true,
+        },
+      ],
+      limit,
+      startAt: [firstMessage.createdAt],
+    };
+
+    if (lastClearedTimestamp) {
+      config.endAt = [lastClearedTimestamp];
+    }
+
+    const messages = await fetchCollectionItems(config);
+
+    messages.reverse();
+
+    messages.pop();
+
+    return messages as ChatMessage[];
+  }
+
+  /**
+   * @inheritdoc
+   */
   public listenToMessageReceived(callback: (message: ChatMessage) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
         path: `chat-rooms/${this.channel}/messages`,
+      },
+      (data) => {
+        callback(data as ChatMessage);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToGroupMessageReceived(callback: (message: ChatMessage) => void): () => void {
+    const unsubscribe = listenToCollectionItemChange(
+      {
+        path: `group-channels/${this.channel}/messages`,
       },
       (data) => {
         callback(data as ChatMessage);
@@ -181,6 +269,31 @@ export class RealtimeAPI implements BaseRealtime {
       },
       (response) => {
         callback(response as ServerReaction[]);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToUserGroupChannels(user: ExternalUser, callback: (groupChannels: GroupChannel[]) => void): () => void {
+    const unsubscribe = listenToCollectionChange(
+      {
+        path: 'group-channels',
+        where: [
+          {
+            fieldPath: 'members',
+            opStr: 'array-contains',
+            value: user.id,
+          },
+        ],
+      },
+      (response) => {
+        callback(response as GroupChannel[]);
       },
     );
 

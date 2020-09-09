@@ -22,7 +22,7 @@ const plugins = [
       compilerOptions: {
         declaration: false,
         declarationMap: false,
-        module: 'ES2015',
+        module: 'ESNext',
       },
     },
     include: ['*.ts+(|x)', '**/*.ts+(|x)', '../**/*.ts+(|x)'],
@@ -41,6 +41,7 @@ const bundleConfig = {
     sourcemap: true,
     strict: false,
   },
+  inlineDynamicImports: true,
   context: 'window',
   plugins: [...plugins],
 };
