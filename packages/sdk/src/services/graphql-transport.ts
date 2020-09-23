@@ -15,6 +15,10 @@ export class GraphQLTransport {
     });
   }
 
+  /**
+   * Set user token
+   * @param token
+   */
   public setToken(token: string): void {
     this.client.setHeader('ar-token', token);
   }
