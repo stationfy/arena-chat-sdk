@@ -6,8 +6,7 @@
       "@utils/*": ["./src/utils/*"],
       "@channel/*": ["./src/channel/*"],
       "@models/*": ["./src/models/*"]
-    },
-    "module": "ESNext"
+    }
   },
   "include": ["src/**/*", "test/**/*"]
 }

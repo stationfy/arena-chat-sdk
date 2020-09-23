@@ -32,6 +32,7 @@ export interface ChatMessageSender {
   displayName: string;
   photoURL: string;
   isPublisher?: boolean;
+  _id?: string;
 }
 
 export interface ChatMessageContent {
