@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.1 (2020-09-23)
+
+
+### Bug Fixes
+
+* add graphql endpoint ([fa3dc67](https://github.com/stationfy/arena-chat-sdk/commit/fa3dc67225ebee37eee1242d6cf85fb69a6cab2a))
+
+
+
+
+
 # 1.0.0 (2020-09-23)
 
 
