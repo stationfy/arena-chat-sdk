@@ -1,12 +1,11 @@
 import { GraphQLClient } from 'graphql-request';
-
-const ENDPOINT = 'https://vvfkuo3y7zecvapitevg4h7h6i.appsync-api.us-west-2.amazonaws.com/graphql';
+import { GRAPHQL_ENDPOINT } from '../config';
 
 export class GraphQLTransport {
   public client: GraphQLClient;
 
   public constructor(token: string, siteId: string, apiKey: string) {
-    this.client = new GraphQLClient(ENDPOINT, {
+    this.client = new GraphQLClient(GRAPHQL_ENDPOINT, {
       headers: {
         'content-type': 'application/json',
         'x-api-key': apiKey,

@@ -5,3 +5,4 @@ export const DEFAULT_AUTH_TOKEN =
 export const FIREBASE_APIKEY = 'AIzaSyCQ6GusAUlKV7FQZDtKplQqpNjQWzE3inE';
 export const FIREBASE_AUTHDOMAIN = 'arena-im-prd.firebaseapp.com';
 export const FIREBASE_PROJECT_ID = 'arena-im-prd';
+export const GRAPHQL_ENDPOINT = 'https://svwasfrojfhtvajv3re6mulzse.appsync-api.us-west-2.amazonaws.com/graphql';
