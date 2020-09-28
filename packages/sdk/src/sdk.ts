@@ -7,6 +7,7 @@ import {
   ChatRoom,
   ChatMessageContent,
   BasePrivateChannel,
+  BaseQna,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { Channel } from './channel/channel';
@@ -147,6 +148,25 @@ export class ArenaChat {
     const { PrivateChannel } = await import('./channel/private-channel');
 
     return PrivateChannel.createUserChannel({ user: this.user, userId, site, firstMessage });
+  }
+
+  /**
+   * Get a Arena Chat Q&A
+   *
+   * @param chatSlug
+   */
+  public async getChatQna(chatSlug: string): Promise<BaseQna> {
+    const { chatRoom, site } = await this.fetchAndSetChatRoomAndSite(chatSlug);
+
+    if (typeof chatRoom.qnaId === 'undefined') {
+      throw new Error(`Cannot get the Q&A for this chat: "${chatSlug}"`);
+    }
+
+    const { Qna } = await import('./qna/qna');
+
+    const qnaI = new Qna(chatRoom.qnaId, site, this);
+
+    return qnaI;
   }
 
   /**

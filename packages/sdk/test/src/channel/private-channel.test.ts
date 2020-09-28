@@ -215,6 +215,7 @@ describe('PrivateChannel', () => {
       });
 
       try {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         PrivateChannel.onUnreadMessagesCountChanged(exampleUser, exampleSite, () => {});
       } catch (e) {
         expect(e.message).toEqual(`Cannot watch unread messages count for the user: "${exampleUser.id}".`);

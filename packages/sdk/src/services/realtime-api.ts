@@ -5,7 +5,9 @@ import {
   ExternalUser,
   GroupChannel,
   ListenChangeConfig,
+  OrderBy,
 } from '@arena-im/chat-types';
+import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,
@@ -21,6 +23,35 @@ export class RealtimeAPI implements BaseRealtime {
   private unsbscribeFunctions: (() => void)[] = [];
 
   public constructor(private channel?: string) {}
+
+  /**
+   * @inheritDoc
+   */
+  public async fetchAllQnaQuestions(qnaId: string, limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]> {
+    let orderBy: OrderBy;
+
+    if (filter === QnaQuestionFilter.POPULAR) {
+      orderBy = {
+        field: 'upvotes',
+        desc: true,
+      };
+    } else {
+      orderBy = {
+        field: 'createdAt',
+        desc: true,
+      };
+    }
+
+    const config: ListenChangeConfig = {
+      path: `qnas/${qnaId}/questions`,
+      orderBy: [orderBy],
+      limit,
+    };
+
+    const questions = await fetchCollectionItems(config);
+
+    return questions as QnaQuestion[];
+  }
 
   /**
    * @inheritDoc
@@ -198,6 +229,21 @@ export class RealtimeAPI implements BaseRealtime {
     messages.pop();
 
     return messages as ChatMessage[];
+  }
+
+  public listenToQuestionReceived(callback: (message: QnaQuestion) => void): () => void {
+    const unsubscribe = listenToCollectionItemChange(
+      {
+        path: `qnas/${this.channel}/questions`,
+      },
+      (data) => {
+        callback(data as QnaQuestion);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
   }
 
   /**

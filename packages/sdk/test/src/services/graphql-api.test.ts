@@ -523,4 +523,249 @@ describe('GraphQLAPI', () => {
       });
     });
   });
+
+  describe('addQuestion()', () => {
+    it('should add a question on Q&A', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              addQuestion: 'fake-qna-id',
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.addQuestion('fake-qna-id', 'hey?');
+
+      expect(result).toEqual('fake-qna-id');
+    });
+
+    it('should return an exception', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              addQuestion: null,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.addQuestion('fake-qna-id', 'hey?').catch((e) => {
+        expect(e.message).toEqual('failed');
+        done();
+      });
+    });
+  });
+
+  describe('answerQuestion()', () => {
+    it('should answer a question on Q&A', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              answerQuestion: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.answerQuestion('fake-qna-id', 'fake-question-id', 'hey?');
+
+      expect(result).toEqual(true);
+    });
+
+    it('should return an exception', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              answerQuestion: false,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.answerQuestion('fake-qna-id', 'fake-question-id', 'hey?').catch((e) => {
+        expect(e.message).toEqual('failed');
+        done();
+      });
+    });
+  });
+
+  describe('deleteQuestion()', () => {
+    it('should delete a question on Q&A', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              deleteQuestion: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.deleteQuestion('fake-qna-id', 'fake-question-id');
+
+      expect(result).toEqual(true);
+    });
+
+    it('should return an exception', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              deleteQuestion: false,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.deleteQuestion('fake-qna-id', 'fake-question-id').catch((e) => {
+        expect(e.message).toEqual('failed');
+        done();
+      });
+    });
+  });
+
+  describe('upvoteQuestion()', () => {
+    it('should upvote a question on Q&A', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              upvoteQuestion: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.upvoteQuestion('fake-qna-id', 'fake-question-id', 'fake-user-id');
+
+      expect(result).toEqual(true);
+    });
+
+    it('should return an exception', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              upvoteQuestion: false,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.upvoteQuestion('fake-qna-id', 'fake-question-id', 'fake-user-id').catch((e) => {
+        expect(e.message).toEqual('failed');
+        done();
+      });
+    });
+  });
+
+  describe('banUser()', () => {
+    it('should ban a user on Q&A', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              banUser: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.banUser({ anonymousId: 'anonymous-user-id' });
+
+      expect(result).toEqual(true);
+    });
+
+    it('should return an exception', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              banUser: false,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.banUser({ anonymousId: 'anonymous-user-id' }).catch((e) => {
+        expect(e.message).toEqual('failed');
+        done();
+      });
+    });
+  });
 });

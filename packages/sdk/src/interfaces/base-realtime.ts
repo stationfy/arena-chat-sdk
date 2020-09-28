@@ -1,4 +1,5 @@
 import { ChatMessage, ChatRoom, ExternalUser, ServerReaction, GroupChannel } from '@arena-im/chat-types';
+import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types/dist/qna';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
@@ -65,4 +66,13 @@ export interface BaseRealtime {
    * @param user external user
    */
   listenToUserGroupChannels(user: ExternalUser, callback: (groupChannels: GroupChannel[]) => void): () => void;
+
+  /**
+   * Fetch all q&a questions
+   *
+   * @param qnaId
+   * @param limit
+   * @param filter
+   */
+  fetchAllQnaQuestions(qnaId: string, limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]>;
 }

@@ -1,4 +1,40 @@
-import { Site, GroupChannel, PublicUserStatus, ChatMessage, PublicUser, ExternalUser } from '@arena-im/chat-types';
+import {
+  Site,
+  GroupChannel,
+  PublicUserStatus,
+  ChatMessage,
+  PublicUser,
+  ExternalUser,
+  QnaQuestion,
+  ChatRoom,
+} from '@arena-im/chat-types';
+import { ArenaChat } from '../../src/sdk';
+
+export const exampleChatRoom: ChatRoom = {
+  allowSendGifs: true,
+  allowShareUrls: true,
+  chatAutoOpen: false,
+  chatClosedIsEnabled: false,
+  chatPreModerationIsEnabled: false,
+  chatPreviewEnabled: true,
+  chatRequestModeratorIsEnabled: false,
+  createdAt: 1592335254033,
+  _id: 'new-chatroom',
+  lang: 'en-us',
+  language: 'en-us',
+  name: 'My First ChatRoom',
+  presenceId: 'pesence-id',
+  reactionsEnabled: true,
+  showOnlineUsersNumber: true,
+  signUpRequired: false,
+  signUpSettings: {
+    suggest: true,
+    type: 'REQUIRED',
+  },
+  siteId: 'site-id',
+  slug: 'crsl',
+  standalone: false,
+};
 
 export const exampleSite: Site = {
   _id: 'site-id',
@@ -72,4 +108,17 @@ export const exampleUser: ExternalUser = {
   id: 'fake-user-uid',
   email: 'test@test.com',
   token: 'user-token',
+};
+
+export const exampleSDK = new ArenaChat('my-api-key');
+exampleSDK.site = exampleSite;
+exampleSDK.user = exampleUser;
+
+export const exampleQnaQuestion: QnaQuestion = {
+  createdAt: 1111111111,
+  isAnswered: false,
+  key: 'fake-qna-question',
+  sender: examplePublicUser,
+  text: 'what are you doing?',
+  upvotes: 5,
 };
