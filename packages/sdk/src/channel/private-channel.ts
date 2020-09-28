@@ -102,16 +102,18 @@ export class PrivateChannel implements BasePrivateChannel {
    * @param site current site
    * @param callback callback with total
    */
-  static onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): void {
+  static onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): () => void {
     try {
       const realtimeAPI = new RealtimeAPI();
-      realtimeAPI.listenToUserGroupChannels(user, async () => {
+      const unsubscribe = realtimeAPI.listenToUserGroupChannels(user, async () => {
         const graphQLAPI = new GraphQLAPI(site, user);
 
         const totalUnreadMessages = await graphQLAPI.fetchGroupChannelTotalUnreadCount();
 
         callback(totalUnreadMessages);
       });
+
+      return unsubscribe;
     } catch (e) {
       throw new Error(`Cannot watch unread messages count for the user: "${user.id}".`);
     }
@@ -297,9 +299,11 @@ export class PrivateChannel implements BasePrivateChannel {
 
         this.updateCacheCurrentMessages(messages);
 
-        callback(newMessage);
+        if (this.user.id !== newMessage.sender._id) {
+          this.markRead();
+        }
 
-        this.markRead();
+        callback(newMessage);
       }, MessageChangeType.ADDED);
     } catch (e) {
       throw new Error(`Cannot watch new messages on "${this.groupChannel._id}" channel.`);
@@ -329,6 +333,7 @@ export class PrivateChannel implements BasePrivateChannel {
         callback(message);
       }, MessageChangeType.REMOVED);
     } catch (e) {
+      console.log({ e });
       throw new Error(`Cannot watch deleted messages on "${this.groupChannel._id}" channel.`);
     }
   }

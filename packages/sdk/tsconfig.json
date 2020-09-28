@@ -7,8 +7,7 @@
       "@channel/*": ["./src/channel/*"],
       "@qna/*": ["./src/qna/*"],
       "@models/*": ["./src/models/*"]
-    },
-    "module": "ESNext"
+    }
   },
   "include": ["src/**/*", "test/**/*"]
 }

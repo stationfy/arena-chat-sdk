@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.1 (2020-09-23)
+
+
+### Bug Fixes
+
+* add graphql endpoint ([fa3dc67](https://github.com/stationfy/arena-chat-sdk/commit/fa3dc67225ebee37eee1242d6cf85fb69a6cab2a))
+
+
+
+
+
+# 1.0.0 (2020-09-23)
+
+
+### Features
+
+* add private channels ([d8e058b](https://github.com/stationfy/arena-chat-sdk/commit/d8e058b13bf497edb758e0eb246c18556827c116))
+
+
+
+
+
+## 0.6.3 (2020-09-09)
+
+**Note:** Version bump only for package @arena-im/chat-types
+
+
+
+
+
 ## 0.6.2 (2020-08-27)
 
 

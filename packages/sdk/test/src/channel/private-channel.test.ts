@@ -712,6 +712,9 @@ describe('PrivateChannel', () => {
   });
 
   describe('onMessageReceived()', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+    });
     it('should receive a message', (done) => {
       const realtimeAPIInstanceMock = {
         listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
@@ -742,6 +745,80 @@ describe('PrivateChannel', () => {
 
       privateChannel.onMessageReceived((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
+        done();
+      });
+    });
+
+    it('should call markRead method for other users message', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            changeType: 'added',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              uid: 'other-user-id',
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+
+      const spy = jest.spyOn(privateChannel, 'markRead');
+
+      privateChannel.onMessageReceived(() => {
+        expect(spy).toBeCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should not call markRead method for current user message', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+          const message: ChatMessage = {
+            createdAt: 1592342151026,
+            key: 'fake-key',
+            changeType: 'added',
+            message: {
+              text: 'testing',
+            },
+            publisherId: 'site-id',
+            sender: {
+              _id: exampleUser.id,
+              displayName: 'Test User',
+              photoURL: 'http://www.google.com',
+            },
+          };
+
+          callback(message);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+
+      const spy = jest.spyOn(privateChannel, 'markRead');
+
+      privateChannel.onMessageReceived(() => {
+        expect(spy).toBeCalledTimes(0);
         done();
       });
     });
