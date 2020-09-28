@@ -1,4 +1,5 @@
 import { ChatMessage, ChatMessageContent } from './chat-message';
+import { PublicUser } from './user';
 
 export interface GroupChannel {
   _id: string;
@@ -16,20 +17,6 @@ export interface GroupChannel {
 export enum PublicUserStatus {
   ONLINE = 'ONLINE',
   OFFLINE = 'OFFLINE',
-}
-
-export interface PublicUser {
-  _id: string;
-  defaultImage?: boolean;
-  groupChannels?: GroupChannel[];
-  image?: string;
-  isModerator?: boolean;
-  name: string;
-  status: PublicUserStatus;
-  totalGroupChannelUnreadCount?: number;
-  modLabel?: string;
-  isBanned?: boolean;
-  isBlocked?: boolean;
 }
 
 export interface PrivateMessageInput {

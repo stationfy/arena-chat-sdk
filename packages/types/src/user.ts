@@ -1,3 +1,5 @@
+import { GroupChannel, PublicUserStatus } from './private-chat';
+
 export interface User {
   _id: string;
   thumbnails: UserThumbnail;
@@ -90,4 +92,18 @@ export interface SSOExchangeResult {
     token: string;
     firebaseToken: string;
   };
+}
+
+export interface PublicUser {
+  _id: string;
+  defaultImage?: boolean;
+  groupChannels?: GroupChannel[];
+  image?: string;
+  isModerator?: boolean;
+  name: string;
+  status: PublicUserStatus;
+  totalGroupChannelUnreadCount?: number;
+  modLabel?: string;
+  isBanned?: boolean;
+  isBlocked?: boolean;
 }
