@@ -11,7 +11,7 @@ export interface BaseQna {
   addQuestion(text: string): Promise<string>;
   answerQuestion(question: QnaQuestion, text: string): Promise<boolean>;
   deleteQuestion(question: QnaQuestion): Promise<boolean>;
-  upvoteQuestion(question: QnaQuestion): Promise<boolean>;
+  upvoteQuestion(question: QnaQuestion, anonymousId?: string): Promise<boolean>;
   banUser({ anonymousId, userId }: { anonymousId?: string; userId?: string }): Promise<boolean>;
 }
 
@@ -28,6 +28,11 @@ export interface QnaQuestion {
   text: string;
   upvotes: number;
   changeType?: string;
+  answer: {
+    sender: PublicUser;
+    text: string;
+  };
+  userVoted: boolean;
 }
 
 export enum DocumentChangeType {

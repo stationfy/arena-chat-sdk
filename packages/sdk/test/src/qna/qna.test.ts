@@ -17,6 +17,9 @@ describe('Qna', () => {
   describe('loadQuestions()', () => {
     it('should load questions empty', async () => {
       const realtimeAPIInstanceMock = {
+        fetchQnaUserReactions: () => {
+          return Promise.resolve([]);
+        },
         fetchAllQnaQuestions: () => {
           return Promise.resolve([]);
         },
@@ -36,6 +39,9 @@ describe('Qna', () => {
 
     it('should load 5 questions', async () => {
       const realtimeAPIInstanceMock = {
+        fetchQnaUserReactions: () => {
+          return Promise.resolve([]);
+        },
         fetchAllQnaQuestions: () => {
           const questions: QnaQuestion[] = new Array(5).fill(exampleQnaQuestion);
 
@@ -152,6 +158,8 @@ describe('Qna', () => {
   describe('onQuestionModified()', () => {
     it('should receive a question modified', (done) => {
       const realtimeAPIInstanceMock = {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        listenToQnaUserReactions: () => {},
         listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,
@@ -178,6 +186,8 @@ describe('Qna', () => {
   describe('offQuestionReceived()', () => {
     it('should stop listening question modified', () => {
       const realtimeAPIInstanceMock = {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        listenToQnaUserReactions: () => {},
         listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,

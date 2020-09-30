@@ -326,6 +326,63 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
+  public listenToQnaUserReactions(
+    userId: string,
+    qnaId: string,
+    callback: (reaction: ServerReaction[]) => void,
+  ): () => void {
+    const unsubscribe = listenToCollectionChange(
+      {
+        path: 'reactions',
+        where: [
+          {
+            fieldPath: 'userId',
+            opStr: '==',
+            value: userId,
+          },
+          {
+            fieldPath: 'qnaId',
+            opStr: '==',
+            value: qnaId,
+          },
+        ],
+      },
+      (response) => {
+        callback(response as ServerReaction[]);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async fetchQnaUserReactions(userId: string, qnaId: string): Promise<ServerReaction[]> {
+    const reactions = await fetchCollectionItems({
+      path: 'reactions',
+      where: [
+        {
+          fieldPath: 'userId',
+          opStr: '==',
+          value: userId,
+        },
+        {
+          fieldPath: 'qnaId',
+          opStr: '==',
+          value: qnaId,
+        },
+      ],
+    });
+
+    return reactions as ServerReaction[];
+  }
+
+  /**
+   * @inheritdoc
+   */
   public listenToUserGroupChannels(user: ExternalUser, callback: (groupChannels: GroupChannel[]) => void): () => void {
     const unsubscribe = listenToCollectionChange(
       {

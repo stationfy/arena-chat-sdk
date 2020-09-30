@@ -424,7 +424,7 @@ export class GraphQLAPI {
   }
 
   public async banUser({ anonymousId, userId }: { anonymousId?: string; userId?: string }): Promise<boolean> {
-    if (!anonymousId && userId) {
+    if (!anonymousId && !userId) {
       throw new Error('failed');
     }
 

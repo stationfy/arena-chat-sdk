@@ -19,6 +19,7 @@ export interface ExternalUser {
   };
   isModerator?: boolean;
   isBanned?: boolean;
+  isAnonymous?: boolean;
 }
 
 export interface BanUser {

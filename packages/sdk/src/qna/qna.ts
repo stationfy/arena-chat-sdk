@@ -1,4 +1,12 @@
-import { BaseQna, Site, QnaQuestionFilter, QnaQuestion, DocumentChangeType } from '@arena-im/chat-types';
+import {
+  BaseQna,
+  Site,
+  QnaQuestionFilter,
+  QnaQuestion,
+  DocumentChangeType,
+  ServerReaction,
+  ExternalUser,
+} from '@arena-im/chat-types';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
@@ -9,10 +17,26 @@ export class Qna implements BaseQna {
   private cacheCurrentQuestions: QnaQuestion[] = [];
   private questionModificationCallbacks: { [type: string]: ((question: QnaQuestion) => void)[] } = {};
   private questionModificationListener: (() => void) | null = null;
+  private userReactionsSubscription: (() => void) | null = null;
+  private cacheCurrentUserReactions: { [key: string]: ServerReaction } = {};
 
-  public constructor(private qnaId: string, site: Site, private sdk: ArenaChat) {
+  public constructor(private qnaId: string, private site: Site, private sdk: ArenaChat) {
     this.realtimeAPI = new RealtimeAPI(qnaId);
     this.graphQLAPI = new GraphQLAPI(site, this.sdk.user || undefined);
+
+    this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+  }
+
+  /**
+   * Watch user changed
+   *
+   * @param {ExternalUser} user external user
+   */
+  private watchUserChanged(user: ExternalUser) {
+    this.cleanQuestionsReaction();
+    this.watchUserReactions(user);
+
+    this.graphQLAPI = new GraphQLAPI(this.site, user || undefined);
   }
 
   public async loadQuestions(limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]> {
@@ -21,7 +45,17 @@ export class Qna implements BaseQna {
 
       this.updateCacheCurrentQuestions(questions);
 
-      return questions;
+      const reactions = await this.getUserReactions();
+
+      if (reactions) {
+        reactions.forEach((reaction) => {
+          this.cacheCurrentUserReactions[reaction.itemId] = reaction;
+        });
+
+        this.updateAndNotifyQuestionReaction();
+      }
+
+      return this.cacheCurrentQuestions;
     } catch (e) {
       throw new Error(`Cannot load questions on "${this.qnaId}" Q&A.`);
     }
@@ -51,7 +85,12 @@ export class Qna implements BaseQna {
 
   public onQuestionModified(callback: (question: QnaQuestion) => void): void {
     try {
+      this.watchUserReactions();
       this.registerQuestionModificationCallback((modifiedQuestion) => {
+        if (this.cacheCurrentUserReactions[modifiedQuestion.key]) {
+          modifiedQuestion.userVoted = true;
+        }
+
         const questions = this.cacheCurrentQuestions.map((question) => {
           return question;
         });
@@ -135,6 +174,64 @@ export class Qna implements BaseQna {
     } catch (e) {
       throw new Error(`Cannot upvote to the "${question.key}" question.`);
     }
+  }
+
+  private async getUserReactions(): Promise<ServerReaction[] | void> {
+    if (typeof this.sdk.user?.id === 'undefined') {
+      return;
+    }
+
+    return this.realtimeAPI.fetchQnaUserReactions(this.sdk.user.id, this.qnaId);
+  }
+
+  /**
+   * Watch user reactions
+   *
+   * @param user external user
+   */
+  private watchUserReactions(user = this.sdk.user): void {
+    if (typeof user?.id === 'undefined') {
+      return;
+    }
+
+    if (this.userReactionsSubscription !== null) {
+      this.userReactionsSubscription();
+    }
+
+    try {
+      this.userReactionsSubscription = this.realtimeAPI.listenToQnaUserReactions(user.id, this.qnaId, (reactions) => {
+        reactions.forEach((reaction) => {
+          this.cacheCurrentUserReactions[reaction.itemId] = reaction;
+        });
+
+        this.updateAndNotifyQuestionReaction();
+      });
+    } catch (e) {
+      throw new Error('Cannot listen to user reactions');
+    }
+  }
+
+  private cleanQuestionsReaction() {
+    this.cacheCurrentQuestions.forEach((question) => {
+      if (question.userVoted) {
+        question.userVoted = false;
+        if (this.questionModificationCallbacks['modified']) {
+          this.questionModificationCallbacks['modified'].forEach((callback) => callback(question));
+        }
+      }
+    });
+  }
+
+  private updateAndNotifyQuestionReaction() {
+    this.cacheCurrentQuestions.forEach((question) => {
+      if (this.cacheCurrentUserReactions[question.key] && !question.userVoted) {
+        question.userVoted = true;
+
+        if (this.questionModificationCallbacks['modified']) {
+          this.questionModificationCallbacks['modified'].forEach((callback) => callback(question));
+        }
+      }
+    });
   }
 
   public async banUser({ anonymousId, userId }: { anonymousId?: string; userId?: string }): Promise<boolean> {
