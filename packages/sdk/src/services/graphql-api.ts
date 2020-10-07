@@ -45,6 +45,7 @@ export class GraphQLAPI {
               name
               image
               isBlocked
+              status
             }
             name
             unreadCount
@@ -127,6 +128,7 @@ export class GraphQLAPI {
             name
             image
             isBlocked
+            status
           }
           name
           amIBlocked
@@ -201,6 +203,7 @@ export class GraphQLAPI {
             name
             image
             isBlocked
+            status
           }
           name
           unreadCount
