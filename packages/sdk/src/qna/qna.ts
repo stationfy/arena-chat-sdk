@@ -6,6 +6,7 @@ import {
   DocumentChangeType,
   ServerReaction,
   ExternalUser,
+  QnaProps,
 } from '@arena-im/chat-types';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
@@ -15,16 +16,65 @@ export class Qna implements BaseQna {
   private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentQuestions: QnaQuestion[] = [];
+  private propsChangeListener: (() => void) | null = null;
   private questionModificationCallbacks: { [type: string]: ((question: QnaQuestion) => void)[] } = {};
+  private propsChangeCallbacks: ((props: QnaProps) => void)[] = [];
   private questionModificationListener: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
   private cacheCurrentUserReactions: { [key: string]: ServerReaction } = {};
+  public preModeration: boolean;
+  public language: string;
+  public status: string;
+  public updatedAt: number;
+  public createdAt: number;
+  public createdBy: string;
+  public name: string;
 
-  public constructor(private qnaId: string, private site: Site, private sdk: ArenaChat) {
+  public constructor(props: QnaProps, private qnaId: string, private site: Site, private sdk: ArenaChat) {
     this.realtimeAPI = new RealtimeAPI(qnaId);
     this.graphQLAPI = new GraphQLAPI(site, this.sdk.user || undefined);
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+
+    this.preModeration = props.preModeration;
+    this.language = props.language;
+    this.status = props.status;
+    this.updatedAt = props.updatedAt;
+    this.createdAt = props.createdAt;
+    this.createdBy = props.createdBy;
+    this.name = props.name;
+  }
+
+  static getQnaProps(qnaId: string): Promise<QnaProps> {
+    const realtimeAPI = new RealtimeAPI(qnaId);
+
+    return realtimeAPI.fetchQnaProps(qnaId);
+  }
+
+  public offChange(): void {
+    this.propsChangeCallbacks = [];
+
+    if (typeof this.propsChangeListener === 'function') {
+      this.propsChangeListener();
+    }
+  }
+
+  public onChange(callback: (instance: BaseQna) => void): void {
+    try {
+      this.registerPropsChangeCallback((props) => {
+        this.preModeration = props.preModeration;
+        this.language = props.language;
+        this.status = props.status;
+        this.updatedAt = props.updatedAt;
+        this.createdAt = props.createdAt;
+        this.createdBy = props.createdBy;
+        this.name = props.name;
+
+        callback(this);
+      });
+    } catch (e) {
+      throw new Error(`Cannot watch props change on "${this.qnaId}" Q&A.`);
+    }
   }
 
   /**
@@ -262,6 +312,12 @@ export class Qna implements BaseQna {
     this.listenToAllTypeQuestionModification();
   }
 
+  private registerPropsChangeCallback(callback: (props: QnaProps) => void): void {
+    this.propsChangeCallbacks.push(callback);
+
+    this.listenToPropsChange();
+  }
+
   /**
    * Update the cache of current questions
    *
@@ -286,6 +342,16 @@ export class Qna implements BaseQna {
       }
 
       this.questionModificationCallbacks[question.changeType].forEach((callback) => callback(question));
+    });
+  }
+
+  private listenToPropsChange() {
+    if (this.propsChangeListener !== null) {
+      return;
+    }
+
+    this.propsChangeListener = this.realtimeAPI.listenToQnaProps(this.qnaId, (props) => {
+      this.propsChangeCallbacks.forEach((callback) => callback(props));
     });
   }
 }

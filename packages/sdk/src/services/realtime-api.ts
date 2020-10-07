@@ -6,6 +6,7 @@ import {
   GroupChannel,
   ListenChangeConfig,
   OrderBy,
+  QnaProps,
 } from '@arena-im/chat-types';
 import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
@@ -15,6 +16,7 @@ import {
   fetchCollectionItems,
   listenToCollectionItemChange,
   addItem,
+  fetchDocument,
 } from '../services/firestore-api';
 
 /** Base realtime class implementation */
@@ -378,6 +380,35 @@ export class RealtimeAPI implements BaseRealtime {
     });
 
     return reactions as ServerReaction[];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async fetchQnaProps(qnaId: string): Promise<QnaProps> {
+    const qnaProps = (await fetchDocument({
+      path: `qnas/${qnaId}`,
+    })) as QnaProps;
+
+    return qnaProps;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToQnaProps(qnaId: string, callback: (props: QnaProps) => void): () => void {
+    const unsubscribe = listenToDocumentChange(
+      {
+        path: `qnas/${qnaId}`,
+      },
+      (response) => {
+        callback(response as QnaProps);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
   }
 
   /**

@@ -18,4 +18,4 @@ export { PublicUser, User, ExternalUser, BanUser, ProviderUser, UserChangedListe
 export { Moderation, ModeratorStatus } from './moderation';
 export { PublicUserStatus, GroupChannel } from './private-chat';
 export { BasePrivateChannel } from './base-private-channel';
-export { BaseQna, QnaQuestion, QnaQuestionFilter, DocumentChangeType } from './qna';
+export { BaseQna, QnaQuestion, QnaQuestionFilter, DocumentChangeType, QnaProps } from './qna';

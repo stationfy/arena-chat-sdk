@@ -1,7 +1,9 @@
 import { PublicUser } from './user';
 
-export interface BaseQna {
+export interface BaseQna extends QnaProps {
   loadQuestions(limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]>;
+  onChange(callback: (instance: BaseQna) => void): void;
+  offChange(): void;
   onQuestionReceived(callback: (question: QnaQuestion) => void): void;
   offQuestionReceived(): void;
   onQuestionModified(callback: (question: QnaQuestion) => void): void;
@@ -13,6 +15,16 @@ export interface BaseQna {
   deleteQuestion(question: QnaQuestion): Promise<boolean>;
   upvoteQuestion(question: QnaQuestion, anonymousId?: string): Promise<boolean>;
   banUser({ anonymousId, userId }: { anonymousId?: string; userId?: string }): Promise<boolean>;
+}
+
+export interface QnaProps {
+  preModeration: boolean;
+  language: string;
+  status: string;
+  updatedAt: number;
+  createdAt: number;
+  createdBy: string;
+  name: string;
 }
 
 export enum QnaQuestionFilter {

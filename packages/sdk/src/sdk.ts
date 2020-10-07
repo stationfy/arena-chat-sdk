@@ -178,7 +178,9 @@ export class ArenaChat {
 
     const { Qna } = await import('./qna/qna');
 
-    const qnaI = new Qna(chatRoom.qnaId, site, this);
+    const qnaProps = await Qna.getQnaProps(chatRoom.qnaId);
+
+    const qnaI = new Qna(qnaProps, chatRoom.qnaId, site, this);
 
     return qnaI;
   }
