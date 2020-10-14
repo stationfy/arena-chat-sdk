@@ -7,6 +7,7 @@ import {
   ExternalUser,
   QnaQuestion,
   ChatRoom,
+  QnaProps,
 } from '@arena-im/chat-types';
 import { ArenaChat } from '../../src/sdk';
 
@@ -121,4 +122,19 @@ export const exampleQnaQuestion: QnaQuestion = {
   sender: examplePublicUser,
   text: 'what are you doing?',
   upvotes: 5,
+  answer: {
+    text: 'fake answer',
+    sender: examplePublicUser,
+  },
+  userVoted: false,
+};
+
+export const exampleQnaProps: QnaProps = {
+  preModeration: true,
+  language: 'en-us',
+  status: 'OK',
+  updatedAt: 11111,
+  createdAt: 11111,
+  createdBy: 'fake-user',
+  name: 'Fake Q&A',
 };

@@ -178,6 +178,8 @@ export class ArenaChat {
 
     const { Qna } = await import('./qna/qna');
 
+    console.log({ question: Qna.addQuestion });
+
     const qnaProps = await Qna.getQnaProps(chatRoom.qnaId);
 
     const qnaI = new Qna(qnaProps, chatRoom.qnaId, site, this);
