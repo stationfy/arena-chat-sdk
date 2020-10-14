@@ -9,9 +9,13 @@ import {
   BanUser,
   ChatMessageSender,
   PublicUser,
+  BasePolls,
+  PollFilter,
+  Poll,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
+import { Polls } from 'src/polls/polls';
 
 export class Channel {
   private realtimeAPI: RealtimeAPI;
@@ -20,6 +24,7 @@ export class Channel {
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
+  private polls: BasePolls | null = null;
 
   public constructor(public chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -31,6 +36,20 @@ export class Channel {
     this.watchChatConfigChanges();
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+  }
+
+  /**
+   * Load all chat polls
+   *
+   * @param filter
+   * @param limit
+   */
+  public async loadPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {
+    if (this.polls === null) {
+      this.polls = new Polls(this.chatRoom);
+    }
+
+    return await this.polls.loadPolls(filter, limit);
   }
 
   /**

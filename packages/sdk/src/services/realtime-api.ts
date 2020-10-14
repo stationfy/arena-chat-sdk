@@ -7,6 +7,9 @@ import {
   ListenChangeConfig,
   OrderBy,
   QnaProps,
+  PollFilter,
+  Poll,
+  Where,
 } from '@arena-im/chat-types';
 import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
@@ -53,6 +56,70 @@ export class RealtimeAPI implements BaseRealtime {
     const questions = await fetchCollectionItems(config);
 
     return questions as QnaQuestion[];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async fetchAllPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {
+    let orderBy: OrderBy;
+    const where: Where[] = [
+      {
+        fieldPath: 'chatRoomId',
+        opStr: '==',
+        value: this.channel,
+      },
+      {
+        fieldPath: 'draft',
+        opStr: '==',
+        value: false,
+      },
+    ];
+
+    if (filter === PollFilter.POPULAR) {
+      orderBy = {
+        field: 'total',
+        desc: true,
+      };
+    } else if (filter === PollFilter.ACTIVE) {
+      orderBy = {
+        field: 'expireAt',
+        desc: true,
+      };
+
+      where.push({
+        fieldPath: 'expireAt',
+        opStr: '>=',
+        value: +new Date(),
+      });
+    } else if (filter === PollFilter.ENDED) {
+      orderBy = {
+        field: 'expireAt',
+        desc: true,
+      };
+
+      where.push({
+        fieldPath: 'expireAt',
+        opStr: '<',
+        value: +new Date(),
+      });
+    } else {
+      orderBy = {
+        field: 'createdAt',
+        desc: true,
+      };
+    }
+
+    const config: ListenChangeConfig = {
+      path: 'polls',
+      orderBy: [orderBy],
+      limit,
+      where,
+    };
+
+    const polls = await fetchCollectionItems(config);
+
+    return polls as Poll[];
   }
 
   /**
