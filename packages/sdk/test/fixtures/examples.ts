@@ -7,6 +7,7 @@ import {
   ExternalUser,
   QnaQuestion,
   ChatRoom,
+  Poll,
 } from '@arena-im/chat-types';
 import { ArenaChat } from '../../src/sdk';
 
@@ -121,4 +122,34 @@ export const exampleQnaQuestion: QnaQuestion = {
   sender: examplePublicUser,
   text: 'what are you doing?',
   upvotes: 5,
+  answer: {
+    text: 'hey!',
+    sender: examplePublicUser,
+  },
+  userVoted: true,
+};
+
+export const examplePoll: Poll = {
+  _id: 'fake-poll',
+  chatRoomId: 'new-chatroom',
+  createdAt: 111111,
+  createBy: 'fake-user',
+  draft: false,
+  duration: 900000,
+  options: [
+    {
+      name: 'op 1',
+      total: 10,
+    },
+    {
+      name: 'op 2',
+      total: 25,
+    },
+  ],
+  publishedAt: 111111,
+  question: 'what are you doing?',
+  showVotes: true,
+  siteId: 'site-id',
+  total: 35,
+  updatedAt: 1111111,
 };

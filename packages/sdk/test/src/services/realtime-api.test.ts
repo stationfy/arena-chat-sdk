@@ -309,6 +309,23 @@ describe('RealtimeAPI', () => {
     });
   });
 
+  describe('fetchAllPolls()', () => {
+    it('should fetch chat polls', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = new Array(10).fill(exampleQnaQuestion);
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchAllQnaQuestions('fake-qna-id', 10);
+
+      expect(messages.length).toBe(10);
+    });
+  });
+
   describe('listenToQuestionReceived()', () => {
     it('should receive a added question', (done) => {
       const realtimeAPI = new RealtimeAPI('my-channel');

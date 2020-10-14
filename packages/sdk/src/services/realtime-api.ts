@@ -10,8 +10,9 @@ import {
   PollFilter,
   Poll,
   Where,
+  QnaQuestion,
+  QnaQuestionFilter,
 } from '@arena-im/chat-types';
-import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,

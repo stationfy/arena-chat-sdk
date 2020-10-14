@@ -9,10 +9,7 @@ export interface Poll {
   createBy: string;
   draft: boolean;
   duration: number;
-  options: {
-    name: string;
-    total: number;
-  };
+  options: PollOption[];
   publishedAt: number;
   question: string;
   showVotes: boolean;
@@ -26,4 +23,9 @@ export enum PollFilter {
   RECENT = 'recent',
   ACTIVE = 'active',
   ENDED = 'ended',
+}
+
+interface PollOption {
+  name: string;
+  total: number;
 }

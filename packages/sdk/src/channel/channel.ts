@@ -15,7 +15,7 @@ import {
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
-import { Polls } from 'src/polls/polls';
+import { Polls } from '../polls/polls';
 
 export class Channel {
   private realtimeAPI: RealtimeAPI;
