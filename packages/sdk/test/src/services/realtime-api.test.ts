@@ -8,7 +8,7 @@ import {
   addItem,
 } from '@services/firestore-api';
 import { ChatRoom } from '@arena-im/chat-types';
-import { exampleQnaQuestion } from '../../fixtures/examples';
+import { examplePoll, exampleQnaQuestion } from '../../fixtures/examples';
 
 jest.mock('@services/firestore-api', () => ({
   listenToCollectionChange: jest.fn(),
@@ -315,12 +315,12 @@ describe('RealtimeAPI', () => {
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
-        const messages: ChatMessage[] = new Array(10).fill(exampleQnaQuestion);
+        const messages: ChatMessage[] = new Array(10).fill(examplePoll);
 
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchAllQnaQuestions('fake-qna-id', 10);
+      const messages = await realtimeAPI.fetchAllPolls('popular', 11);
 
       expect(messages.length).toBe(10);
     });
