@@ -3,6 +3,69 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.0.1 (2020-09-23)
+
+
+### Bug Fixes
+
+* add graphql endpoint ([fa3dc67](https://github.com/stationfy/arena-chat-sdk/commit/fa3dc67225ebee37eee1242d6cf85fb69a6cab2a))
+
+
+
+
+
+# 1.0.0 (2020-09-23)
+
+
+### Features
+
+* add private channels ([d8e058b](https://github.com/stationfy/arena-chat-sdk/commit/d8e058b13bf497edb758e0eb246c18556827c116))
+
+
+
+
+
+## 0.6.3 (2020-09-09)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+## 0.6.2 (2020-08-27)
+
+
+### Bug Fixes
+
+* firebase conflit with other app ([18e9b02](https://github.com/stationfy/arena-chat-sdk/commit/18e9b02fee7e7d187892ffdf4f27b2061027a852))
+
+
+
+
+
+## 0.6.1 (2020-08-27)
+
+
+### Bug Fixes
+
+* build script ([ea941e7](https://github.com/stationfy/arena-chat-sdk/commit/ea941e7d8a8e949d3b1bf9161c8adb7a8c2229a4))
+
+
+
+
+
+# 0.6.0 (2020-08-17)
+
+
+### Features
+
+* request moderation, ban user and delete message ([ab43053](https://github.com/stationfy/arena-chat-sdk/commit/ab43053542a12088bc5c94fcc1f4708043826a31))
+
+
+
+
+
 # 0.5.0 (2020-08-04)
 
 

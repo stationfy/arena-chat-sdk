@@ -38,13 +38,14 @@ export class ArenaChat {
   private defaultAuthToken = DEFAULT_AUTH_TOKEN;
   private currentChannels: Channel[] = [];
   private userChangedListeners: UserChangedListener[] = [];
+  private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
   }
 
   /**
-   * Block a user for the current user
+   * Block a user for the current user on private channels
    *
    * @param userId block the userId for the current user
    */
@@ -61,7 +62,7 @@ export class ArenaChat {
   }
 
   /**
-   * Unblock a user for the current user
+   * Unblock a user for the current user on private channels
    *
    * @param userId unblock the userId for the current user
    */
@@ -91,7 +92,20 @@ export class ArenaChat {
 
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    return PrivateChannel.onUnreadMessagesCountChanged(this.user, site, callback);
+    this.unsubscribeOnUnreadMessagesCountChanged = PrivateChannel.onUnreadMessagesCountChanged(
+      this.user,
+      site,
+      callback,
+    );
+  }
+
+  /**
+   * Unlisten to onUnreadMessagesCountChanged listener
+   */
+  public offUnreadMessagesCountChanged(): void {
+    if (this.unsubscribeOnUnreadMessagesCountChanged) {
+      this.unsubscribeOnUnreadMessagesCountChanged();
+    }
   }
 
   /**

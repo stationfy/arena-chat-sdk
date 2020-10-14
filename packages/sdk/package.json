@@ -18,7 +18,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^0.5.0",
+    "@arena-im/chat-types": "^1.0.1",
     "firebase": "^7.14.6",
     "graphql": "^15.3.0",
     "graphql-request": "^3.0.0"
@@ -48,7 +48,7 @@
     "typescript": "3.9.5"
   },
   "scripts": {
-    "build": "run-p copy-config:prod build:dist build:bundle",
+    "build": "run-s copy-config:prod build:dist build:bundle",
     "build:bundle": "rollup --config",
     "build:bundle:watch": "rollup --config --watch",
     "build:dev": "run-p copy-config:dev build:dist build:bundle",
