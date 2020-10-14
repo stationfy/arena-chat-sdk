@@ -353,4 +353,98 @@ export class GraphQLAPI {
 
     return result;
   }
+
+  public async addQuestion(qnaId: string, text: string): Promise<string> {
+    const mutation = gql`
+      mutation addQuestion($input: AddQnAQuestionInput!) {
+        addQuestion(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { qnaId, text } });
+
+    const result = data.addQuestion as string;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  public async answerQuestion(qnaId: string, questionId: string, text: string): Promise<boolean> {
+    const mutation = gql`
+      mutation answerQuestion($input: AnswerQnAQuestionInput!) {
+        answerQuestion(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { qnaId, questionId, text } });
+
+    const result = data.answerQuestion as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  public async deleteQuestion(qnaId: string, questionId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation deleteQuestion($input: QnAQuestionInput!) {
+        deleteQuestion(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { qnaId, questionId } });
+
+    const result = data.deleteQuestion as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  public async upvoteQuestion(qnaId: string, questionId: string, userId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation upvoteQuestion($input: QnAQuestionUpvoteInput!) {
+        upvoteQuestion(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { qnaId, questionId, userId } });
+
+    const result = data.upvoteQuestion as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  public async banUser({ anonymousId, userId }: { anonymousId?: string; userId?: string }): Promise<boolean> {
+    if (!anonymousId && !userId) {
+      throw new Error('failed');
+    }
+
+    const mutation = gql`
+      mutation banUser($input: BanUserInput!) {
+        banUser(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { anonymousId, userId } });
+
+    const result = data.banUser as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
 }
