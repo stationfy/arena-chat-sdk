@@ -5,8 +5,9 @@ import { Site } from '@models/site';
 import { ArenaChat } from '../../src/sdk';
 import { ExternalUser } from '@models/user';
 import { PrivateChannel } from '@channel/private-channel';
-import { exampleUser, exampleSite, exampleGroupChannel } from '../fixtures/examples';
+import { exampleUser, exampleSite, exampleGroupChannel, exampleChatRoom, exampleQnaProps } from '../fixtures/examples';
 import { ProviderUser } from '@arena-im/chat-types';
+import { Qna } from '@qna/qna';
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -14,6 +15,10 @@ jest.mock('@services/rest-api', () => ({
 
 jest.mock('@channel/channel', () => ({
   Channel: jest.fn(),
+}));
+
+jest.mock('@qna/qna', () => ({
+  Qna: jest.fn(),
 }));
 
 jest.mock('@channel/private-channel', () => ({
@@ -244,7 +249,7 @@ describe('SDK', () => {
   });
 
   describe('createUserPrivateChannel()', () => {
-    it('shoudl create a new private channel', async () => {
+    it('should create a new private channel', async () => {
       const mockCreateUserChannel = jest.fn();
 
       mockCreateUserChannel.mockReturnValue({});
@@ -258,6 +263,62 @@ describe('SDK', () => {
       const result = await sdk.createUserPrivateChannel('fake-user');
 
       expect(result).toEqual({});
+    });
+  });
+
+  describe('getChatQna', () => {
+    it('should get a chat Q&A', async () => {
+      // @ts-ignore
+      RestAPI.mockImplementation(() => {
+        return {
+          loadChatRoom: () => {
+            return Promise.resolve({ chatRoom: { ...exampleChatRoom, qnaId: 'fake-qna-id' }, site: exampleSite });
+          },
+        };
+      });
+      // @ts-ignore
+      Qna.mockImplementation(() => {
+        return {
+          addQuestion: jest.fn(),
+          getQnaProps: async () => {
+            return exampleQnaProps;
+          },
+        };
+      });
+
+      Qna.getQnaProps = async () => {
+        return exampleQnaProps;
+      };
+
+      const sdk = new ArenaChat('my-api-key');
+
+      const nextQna = await sdk.getChatQna('my-channel');
+
+      expect(typeof nextQna.addQuestion).toEqual('function');
+    });
+
+    it('should return an exception', (done) => {
+      // @ts-ignore
+      RestAPI.mockImplementation(() => {
+        return {
+          loadChatRoom: () => {
+            return Promise.resolve({ chatRoom: { ...exampleChatRoom }, site: exampleSite });
+          },
+        };
+      });
+      // @ts-ignore
+      Qna.mockImplementation(() => {
+        return {
+          addQuestion: jest.fn(),
+        };
+      });
+
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.getChatQna('my-channel').catch((error) => {
+        expect(error.message).toEqual('Cannot get the Q&A for this chat: "my-channel"');
+        done();
+      });
     });
   });
 });
