@@ -36,4 +36,5 @@ export interface PrivateMessageInput {
   groupChannelId: string;
   message: ChatMessageContent;
   replyTo?: string;
+  tempId?: string;
 }
