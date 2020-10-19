@@ -45,6 +45,7 @@ export class GraphQLAPI {
               name
               image
               isBlocked
+              status
             }
             name
             unreadCount
@@ -127,6 +128,7 @@ export class GraphQLAPI {
             name
             image
             isBlocked
+            status
           }
           name
           amIBlocked
@@ -201,6 +203,7 @@ export class GraphQLAPI {
             name
             image
             isBlocked
+            status
           }
           name
           unreadCount
@@ -437,6 +440,31 @@ export class GraphQLAPI {
     const data = await this.graphQL.client.request(mutation, { input: { anonymousId, userId } });
 
     const result = data.banUser as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  public async pollVote({
+    pollId,
+    userId,
+    optionId,
+  }: {
+    pollId: string;
+    userId: string;
+    optionId: number;
+  }): Promise<boolean> {
+    const mutation = gql`
+      mutation pollVote($input: PollVoteInput!) {
+        pollVote(input: $input)
+      }
+    `;
+    const data = await this.graphQL.client.request(mutation, { input: { pollId, userId, optionId } });
+
+    const result = data.pollVote as boolean;
 
     if (!result) {
       throw new Error('failed');

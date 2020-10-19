@@ -337,6 +337,31 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
+  public listenToPollReceived(callback: (poll: Poll) => void): () => void {
+    const unsubscribe = listenToCollectionItemChange(
+      {
+        path: `polls`,
+        where: [
+          {
+            fieldPath: 'chatRoomId',
+            opStr: '==',
+            value: this.channel,
+          },
+        ],
+      },
+      (data) => {
+        callback(data as Poll);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
   public listenToGroupMessageReceived(callback: (message: ChatMessage) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
@@ -380,6 +405,41 @@ export class RealtimeAPI implements BaseRealtime {
             fieldPath: 'chatRoomId',
             opStr: '==',
             value: this.channel,
+          },
+        ],
+      },
+      (response) => {
+        callback(response as ServerReaction[]);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToUserChatPollsReactions(userId: string, callback: (reactions: ServerReaction[]) => void): () => void {
+    const unsubscribe = listenToCollectionChange(
+      {
+        path: 'reactions',
+        where: [
+          {
+            fieldPath: 'userId',
+            opStr: '==',
+            value: userId,
+          },
+          {
+            fieldPath: 'eventId',
+            opStr: '==',
+            value: this.channel,
+          },
+          {
+            fieldPath: 'itemType',
+            opStr: '==',
+            value: 'poll',
           },
         ],
       },

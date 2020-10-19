@@ -8,6 +8,7 @@ import {
   QnaQuestion,
   ChatRoom,
   Poll,
+  QnaProps,
 } from '@arena-im/chat-types';
 import { ArenaChat } from '../../src/sdk';
 
@@ -152,4 +153,14 @@ export const examplePoll: Poll = {
   siteId: 'site-id',
   total: 35,
   updatedAt: 1111111,
+};
+
+export const exampleQnaProps: QnaProps = {
+  preModeration: false,
+  language: 'en-us',
+  status: 'ENABLED',
+  updatedAt: 1111,
+  createdAt: 1111,
+  createdBy: 'fake-user',
+  name: 'fake qna',
 };

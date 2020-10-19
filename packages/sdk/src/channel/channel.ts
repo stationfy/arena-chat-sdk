@@ -10,12 +10,9 @@ import {
   ChatMessageSender,
   PublicUser,
   BasePolls,
-  PollFilter,
-  Poll,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
-import { Polls } from '../polls/polls';
 
 export class Channel {
   private realtimeAPI: RealtimeAPI;
@@ -24,7 +21,7 @@ export class Channel {
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
-  private polls: BasePolls | null = null;
+  public polls: BasePolls | null = null;
 
   public constructor(public chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -38,18 +35,18 @@ export class Channel {
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
   }
 
-  /**
-   * Load all chat polls
-   *
-   * @param filter
-   * @param limit
-   */
-  public async loadPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {
-    if (this.polls === null) {
-      this.polls = new Polls(this.chatRoom);
+  public async getPollsIntance(userId: string): Promise<BasePolls> {
+    const { Polls } = await import('../polls/polls');
+
+    this.polls = new Polls(this.chatRoom, this.sdk);
+
+    if (this.sdk.user) {
+      userId = this.sdk.user.id;
     }
 
-    return await this.polls.loadPolls(filter, limit);
+    this.polls.watchUserPollsReactions(userId);
+
+    return this.polls;
   }
 
   /**
@@ -200,6 +197,10 @@ export class Channel {
    */
   private watchUserChanged(user: ExternalUser) {
     this.watchUserReactions(user);
+
+    if (this.polls) {
+      this.polls.watchUserPollsReactions(user.id);
+    }
   }
 
   /**
@@ -343,7 +344,7 @@ export class Channel {
   }
 
   /**
-   * Remove message modified listener
+   * Remove message received listener
    *
    */
   public offMessageReceived(): void {

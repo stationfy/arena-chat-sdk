@@ -320,6 +320,7 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
+      // @ts-ignore
       const messages = await realtimeAPI.fetchAllPolls('popular', 11);
 
       expect(messages.length).toBe(10);

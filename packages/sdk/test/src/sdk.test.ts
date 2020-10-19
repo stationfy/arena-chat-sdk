@@ -5,8 +5,7 @@ import { Site } from '@models/site';
 import { ArenaChat } from '../../src/sdk';
 import { ExternalUser } from '@models/user';
 import { PrivateChannel } from '@channel/private-channel';
-import { exampleUser, exampleSite, exampleGroupChannel, exampleChatRoom } from '../fixtures/examples';
-import { ProviderUser } from '@arena-im/chat-types';
+import { exampleUser, exampleSite, exampleGroupChannel, exampleChatRoom, exampleQnaProps } from '../fixtures/examples';
 import { Qna } from '@qna/qna';
 
 jest.mock('@services/rest-api', () => ({
@@ -280,8 +279,15 @@ describe('SDK', () => {
       Qna.mockImplementation(() => {
         return {
           addQuestion: jest.fn(),
+          getQnaProps: async () => {
+            return exampleQnaProps;
+          },
         };
       });
+
+      Qna.getQnaProps = async () => {
+        return exampleQnaProps;
+      };
 
       const sdk = new ArenaChat('my-api-key');
 
