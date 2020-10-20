@@ -195,9 +195,10 @@ export class PrivateChannel implements BasePrivateChannel {
    *
    * @param message
    * @param replyMessageId message it's replying
-   * @returns message id
+   * @param tempId
+   * @returns message id, temp id
    */
-  public async sendMessage(message: ChatMessageContent, replyMessageId?: string): Promise<string> {
+  public async sendMessage(message: ChatMessageContent, replyMessageId?: string, tempId?: string): Promise<string> {
     if (message.text?.trim() === '' && !message.media?.url) {
       throw new Error('Cannot send an empty message.');
     }
@@ -215,6 +216,7 @@ export class PrivateChannel implements BasePrivateChannel {
         groupChannelId: this.groupChannel._id,
         message,
         replyTo: replyMessageId,
+        tempId,
       });
 
       return response;
@@ -333,7 +335,6 @@ export class PrivateChannel implements BasePrivateChannel {
         callback(message);
       }, MessageChangeType.REMOVED);
     } catch (e) {
-      console.log({ e });
       throw new Error(`Cannot watch deleted messages on "${this.groupChannel._id}" channel.`);
     }
   }

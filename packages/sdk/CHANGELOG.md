@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.2.1 (2020-10-20)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+# [1.2.0](https://github.com/stationfy/arena-chat-sdk/compare/v1.1.1...v1.2.0) (2020-10-20)
+
+
+### Features
+
+* add arena hub system ([e0faf56](https://github.com/stationfy/arena-chat-sdk/commit/e0faf56a530ad592198598c470e41f43255ffa8f))
+* add arena hub system ([62ffa2f](https://github.com/stationfy/arena-chat-sdk/commit/62ffa2f955e4b101eee5d6b4fdb1d04fc98ee809))
+
+
+
+
+
 ## 1.1.1 (2020-10-14)
 
 **Note:** Version bump only for package @arena-im/chat-sdk

@@ -13,8 +13,10 @@ import {
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
+import { ArenaHub } from '../services/arena-hub';
 
 export class Channel {
+  private arenaHub: ArenaHub;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction } = {};
@@ -33,6 +35,9 @@ export class Channel {
     this.watchChatConfigChanges();
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+
+    this.arenaHub = new ArenaHub(chatRoom, sdk);
+    this.arenaHub.track('page');
   }
 
   public async getPollsIntance(userId: string): Promise<BasePolls> {
