@@ -21,7 +21,8 @@
     "@arena-im/chat-types": "^1.1.1",
     "firebase": "^7.14.6",
     "graphql": "^15.3.0",
-    "graphql-request": "^3.0.0"
+    "graphql-request": "^3.0.0",
+    "rollup-plugin-json": "^4.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-replace": "^2.3.2",
