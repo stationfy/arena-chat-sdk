@@ -19,3 +19,4 @@ export { Moderation, ModeratorStatus } from './moderation';
 export { PublicUserStatus, GroupChannel } from './private-chat';
 export { BasePrivateChannel } from './base-private-channel';
 export { BaseQna, QnaQuestion, QnaQuestionFilter, DocumentChangeType, QnaProps } from './qna';
+export { TrackPayload, TrackContext, TrackPageInfo } from './arena-hub';

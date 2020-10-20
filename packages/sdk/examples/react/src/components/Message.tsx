@@ -85,7 +85,7 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
           <img src={message.sender.photoURL} alt="avatar" />
         </figure>
       )}
-      <div className="message-text">{message.message.text}</div>
+      <div className="message-text">{message.message ? message.message.text : ''}</div>
       <div className="message-heart-container">
         <img src={likeImage} alt="love" className="message-heart" onClick={like} />
         {likes}
