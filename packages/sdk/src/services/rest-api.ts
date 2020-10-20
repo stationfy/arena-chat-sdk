@@ -11,6 +11,7 @@ import {
   ExternalUser,
   SSOExchangeResult,
   EmbedSettings,
+  TrackPayload,
 } from '@arena-im/chat-types';
 import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
 import { supportsFetch } from '../utils/supports';
@@ -36,6 +37,13 @@ export class RestAPI implements BaseRest {
     } else {
       this.transport = new XHRTransport(this.baseURL, authToken);
     }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public collect(trackObj: TrackPayload): PromiseLike<{ success: boolean }> {
+    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, trackObj, true);
   }
 
   /**

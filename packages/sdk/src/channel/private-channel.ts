@@ -333,7 +333,6 @@ export class PrivateChannel implements BasePrivateChannel {
         callback(message);
       }, MessageChangeType.REMOVED);
     } catch (e) {
-      console.log({ e });
       throw new Error(`Cannot watch deleted messages on "${this.groupChannel._id}" channel.`);
     }
   }

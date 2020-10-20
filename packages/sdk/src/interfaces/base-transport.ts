@@ -6,7 +6,7 @@ export interface BaseTransport {
    * @param path service route
    * @param payload post data
    */
-  post<T, K>(path: string, payload: K): PromiseLike<T>;
+  post<T, K>(path: string, payload: K, noAuth?: boolean): PromiseLike<T>;
 
   /**
    * GET method
