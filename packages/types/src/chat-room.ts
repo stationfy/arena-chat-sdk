@@ -13,6 +13,8 @@ export interface ChatRoom {
   name: string;
   presenceId: string;
   profanityFilterType?: string;
+  qnaId?: string;
+  qnaIsEnabled?: boolean;
   reactionsEnabled: boolean;
   showOnlineUsersNumber: boolean;
   signUpRequired: boolean;

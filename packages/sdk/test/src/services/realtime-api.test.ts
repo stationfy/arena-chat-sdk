@@ -1,5 +1,5 @@
 import { RealtimeAPI } from '@services/realtime-api';
-import { ChatMessage, ServerReaction, ExternalUser } from '@arena-im/chat-types';
+import { ChatMessage, ServerReaction, ExternalUser, QnaQuestion } from '@arena-im/chat-types';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
@@ -8,6 +8,7 @@ import {
   addItem,
 } from '@services/firestore-api';
 import { ChatRoom } from '@arena-im/chat-types';
+import { exampleQnaQuestion } from '../../fixtures/examples';
 
 jest.mock('@services/firestore-api', () => ({
   listenToCollectionChange: jest.fn(),
@@ -286,6 +287,40 @@ describe('RealtimeAPI', () => {
 
       realtimeAPI.sendReaction(reaction).catch((e) => {
         expect(e.message).toEqual('failed');
+        done();
+      });
+    });
+  });
+
+  describe('fetchAllQnaQuestions()', () => {
+    it('should fetch qna questions', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = new Array(10).fill(exampleQnaQuestion);
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchAllQnaQuestions('fake-qna-id', 10);
+
+      expect(messages.length).toBe(10);
+    });
+  });
+
+  describe('listenToQuestionReceived()', () => {
+    it('should receive a added question', (done) => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      listenToCollectionItemChange.mockImplementation((_, callback: (question: QnaQuestion) => void) => {
+        callback({ ...exampleQnaQuestion, changeType: 'added' });
+      });
+
+      realtimeAPI.listenToQuestionReceived((question: QnaQuestion) => {
+        expect(question.key).toEqual('fake-qna-question');
+
         done();
       });
     });

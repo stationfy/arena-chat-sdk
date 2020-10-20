@@ -227,6 +227,48 @@ export function fetchCollectionItems({
 }
 
 /**
+ * Fetch the collection items
+ *
+ * @param options
+ */
+export function fetchDocument({ path, where }: ListenChangeConfig): PromiseLike<firebase.firestore.DocumentData> {
+  return new SyncPromise<firebase.firestore.DocumentData>((resolve, reject) => {
+    const queryRef = getQueryRefByPath(path);
+
+    if (queryRef === null) {
+      throw new Error(`Invalid path: ${path}`);
+    }
+
+    // @ts-ignore
+    const documentRef: firebase.firestore.DocumentReference = queryRef;
+
+    if (where) {
+      where.forEach((whereClause) => {
+        if (queryRef === null) {
+          return;
+        }
+
+        // @ts-ignore
+        documentRef = documentRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
+      });
+    }
+
+    documentRef
+      .get()
+      .then((querySnapshot) => {
+        if (!querySnapshot.exists) {
+          resolve(null);
+        }
+
+        resolve(querySnapshot.data());
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+/**
  * Listen to a item changed on a collection
  *
  * @param options

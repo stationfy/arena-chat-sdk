@@ -18,7 +18,11 @@ export class FetchTransport implements BaseTransport {
   /**
    * @inheritDoc
    */
-  public post<T, K>(path: string, payload: K): PromiseLike<T> {
+  public post<T, K>(path: string, payload: K, noAuth?: boolean): PromiseLike<T> {
+    if (noAuth) {
+      this.headers.delete('Authorization');
+    }
+
     const options: RequestInit = {
       method: 'POST',
       body: JSON.stringify(payload),

@@ -8,6 +8,7 @@ import {
   Moderation,
   ExternalUser,
   EmbedSettings,
+  TrackPayload,
 } from '@arena-im/chat-types';
 
 /** Rest api used to consume the rest services */
@@ -68,6 +69,13 @@ export interface BaseRest {
    * @param user user to be created or returned
    */
   getArenaUser(user: ProviderUser): PromiseLike<ExternalUser>;
+
+  /**
+   * Call Arena Hub
+   *
+   * @param trackObj
+   */
+  collect(trackObj: TrackPayload): PromiseLike<{ success: boolean }>;
 }
 
 export interface BaseRestOptions {

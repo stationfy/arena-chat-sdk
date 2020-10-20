@@ -14,8 +14,13 @@ import * as GraphQLAPI from '@services/graphql-api';
 import { RestAPI } from '@services/rest-api';
 import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
+import { ArenaHub } from '@services/arena-hub';
 import { ArenaChat } from '../../../src/sdk';
 import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
+
+jest.mock('@services/arena-hub', () => ({
+  ArenaHub: jest.fn(),
+}));
 
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: jest.fn(),
@@ -98,6 +103,13 @@ describe('Channel', () => {
     RealtimeAPI.RealtimeAPI.mockImplementation(() => {
       return {
         listenToChatConfigChanges: jest.fn(),
+      };
+    });
+
+    // @ts-ignore
+    ArenaHub.mockImplementation(() => {
+      return {
+        track: jest.fn(),
       };
     });
 
