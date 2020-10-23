@@ -1,5 +1,13 @@
 import { RealtimeAPI } from '@services/realtime-api';
-import { ChatMessage, ServerReaction, ExternalUser, QnaQuestion } from '@arena-im/chat-types';
+import {
+  ChatMessage,
+  ServerReaction,
+  ExternalUser,
+  QnaQuestion,
+  QnaQuestionFilter,
+  PollFilter,
+  Poll,
+} from '@arena-im/chat-types';
 import {
   listenToCollectionChange,
   listenToDocumentChange,
@@ -8,7 +16,7 @@ import {
   addItem,
 } from '@services/firestore-api';
 import { ChatRoom } from '@arena-im/chat-types';
-import { examplePoll, exampleQnaQuestion } from '../../fixtures/examples';
+import { exampleChatMessage, examplePoll, exampleQnaQuestion } from '../../fixtures/examples';
 
 jest.mock('@services/firestore-api', () => ({
   listenToCollectionChange: jest.fn(),
@@ -154,6 +162,40 @@ describe('RealtimeAPI', () => {
     });
   });
 
+  describe('fetchGroupRecentMessages()', () => {
+    it('should featch group channel recent messages', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        exampleChatMessage;
+        const messages: ChatMessage[] = new Array(10).fill(exampleChatMessage);
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchGroupRecentMessages(10);
+
+      expect(messages.length).toBe(10);
+    });
+
+    it('should featch group channel recent messages from the last cleared timestamp', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        exampleChatMessage;
+        const messages: ChatMessage[] = new Array(10).fill(exampleChatMessage);
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchGroupRecentMessages(10, +new Date());
+
+      expect(messages.length).toBe(10);
+    });
+  });
+
   describe('listenToMessageReceived()', () => {
     it('should receive a added message', (done) => {
       const realtimeAPI = new RealtimeAPI('my-channel');
@@ -179,6 +221,87 @@ describe('RealtimeAPI', () => {
 
       realtimeAPI.listenToMessageReceived((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
+
+        done();
+      });
+    });
+  });
+
+  describe('fetchGroupPreviousMessages', () => {
+    it('should fetch previous messages', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = [
+          {
+            ...exampleChatMessage,
+            key: 'fake-key',
+          },
+          {
+            ...exampleChatMessage,
+            key: 'fake-key-1',
+          },
+          {
+            ...exampleChatMessage,
+            key: 'fake-key-2',
+          },
+          {
+            ...exampleChatMessage,
+            key: 'fake-key-3',
+          },
+        ];
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchGroupPreviousMessages(exampleChatMessage, +new Date(), 3);
+
+      expect(messages).toEqual([
+        {
+          ...exampleChatMessage,
+          key: 'fake-key-3',
+        },
+        {
+          ...exampleChatMessage,
+          key: 'fake-key-2',
+        },
+        {
+          ...exampleChatMessage,
+          key: 'fake-key-1',
+        },
+      ]);
+    });
+  });
+
+  describe('listenToPollReceived()', () => {
+    it('should receive a added poll', (done) => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      listenToCollectionItemChange.mockImplementation((_, callback: (poll: Poll) => void) => {
+        callback(examplePoll);
+      });
+
+      realtimeAPI.listenToPollReceived((poll: Poll) => {
+        expect(poll._id).toEqual('fake-poll');
+
+        done();
+      });
+    });
+  });
+
+  describe('listenToGroupMessageReceived()', () => {
+    it('should receive a added group message', (done) => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
+        callback(exampleChatMessage);
+      });
+
+      realtimeAPI.listenToGroupMessageReceived((message: ChatMessage) => {
+        expect(message.key).toEqual('fake-message');
 
         done();
       });
@@ -307,6 +430,21 @@ describe('RealtimeAPI', () => {
 
       expect(messages.length).toBe(10);
     });
+
+    it('should fetch popular qna questions', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = new Array(10).fill(exampleQnaQuestion);
+
+        return messages;
+      });
+
+      const messages = await realtimeAPI.fetchAllQnaQuestions('fake-qna-id', 10, QnaQuestionFilter.POPULAR);
+
+      expect(messages.length).toBe(10);
+    });
   });
 
   describe('fetchAllPolls()', () => {
@@ -321,7 +459,55 @@ describe('RealtimeAPI', () => {
       });
 
       // @ts-ignore
-      const messages = await realtimeAPI.fetchAllPolls('popular', 11);
+      const messages = await realtimeAPI.fetchAllPolls(PollFilter.POPULAR, 11);
+
+      expect(messages.length).toBe(10);
+    });
+
+    it('should fetch all active chat polls', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = new Array(10).fill(examplePoll);
+
+        return messages;
+      });
+
+      // @ts-ignore
+      const messages = await realtimeAPI.fetchAllPolls(PollFilter.ACTIVE, 11);
+
+      expect(messages.length).toBe(10);
+    });
+
+    it('should fetch all ended chat polls', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = new Array(10).fill(examplePoll);
+
+        return messages;
+      });
+
+      // @ts-ignore
+      const messages = await realtimeAPI.fetchAllPolls(PollFilter.ENDED, 11);
+
+      expect(messages.length).toBe(10);
+    });
+
+    it('should fetch all recent chat polls', async () => {
+      const realtimeAPI = new RealtimeAPI('my-channel');
+
+      // @ts-ignore
+      fetchCollectionItems.mockImplementation(async () => {
+        const messages: ChatMessage[] = new Array(10).fill(examplePoll);
+
+        return messages;
+      });
+
+      // @ts-ignore
+      const messages = await realtimeAPI.fetchAllPolls(PollFilter.RECENT, 11);
 
       expect(messages.length).toBe(10);
     });

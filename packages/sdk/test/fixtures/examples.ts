@@ -153,6 +153,7 @@ export const examplePoll: Poll = {
   siteId: 'site-id',
   total: 35,
   updatedAt: 1111111,
+  expireAt: 2222222,
 };
 
 export const exampleQnaProps: QnaProps = {

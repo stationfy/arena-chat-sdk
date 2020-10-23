@@ -80,13 +80,13 @@ export class ArenaChat {
   }
 
   /**
-   * Watch unread preivate messages on the current site for the current user
+   * Watch unread private messages on the current site for the current user
    *
    * @param callback
    */
-  public async onUnreadMessagesCountChanged(callback: (total: number) => void): Promise<void> {
+  public async onUnreadPrivateMessagesCountChanged(callback: (total: number) => void): Promise<void> {
     if (this.user === null) {
-      throw new Error('Cannot block a user without a current user.');
+      throw new Error('Cannot listen to unread private messages without a current user.');
     }
 
     const site = await this.fetchAndSetSite();
@@ -103,9 +103,13 @@ export class ArenaChat {
   /**
    * Unlisten to onUnreadMessagesCountChanged listener
    */
-  public offUnreadMessagesCountChanged(): void {
+  public offUnreadMessagesCountChanged(callback?: (result: boolean) => void): void {
     if (this.unsubscribeOnUnreadMessagesCountChanged) {
       this.unsubscribeOnUnreadMessagesCountChanged();
+
+      if (typeof callback === 'function') callback(true);
+    } else {
+      if (typeof callback === 'function') callback(false);
     }
   }
 
@@ -116,7 +120,7 @@ export class ArenaChat {
    */
   public async getPrivateChannel(channelId: string): Promise<BasePrivateChannel> {
     if (this.user === null) {
-      throw new Error('Cannot get a private channel without a user.');
+      throw new Error('Cannot get a private channel without a current user.');
     }
 
     const site = await this.fetchAndSetSite();
@@ -133,7 +137,7 @@ export class ArenaChat {
    */
   public async getUserPrivateChannels(): Promise<GroupChannel[]> {
     if (this.user === null) {
-      throw new Error('Cannot get a private channel without a user.');
+      throw new Error('Cannot get the list of private channels without a current user.');
     }
 
     const site = await this.fetchAndSetSite();
@@ -154,7 +158,7 @@ export class ArenaChat {
     firstMessage?: ChatMessageContent,
   ): Promise<BasePrivateChannel> {
     if (this.user === null) {
-      throw new Error('Cannot create a private channel without a user.');
+      throw new Error('Cannot create a private channel without a current user.');
     }
 
     const site = await this.fetchAndSetSite();

@@ -27,7 +27,6 @@ export class Polls implements BasePolls {
 
       return this.cacheCurrentPolls;
     } catch (e) {
-      console.log({ e });
       throw new Error(`Cannot load polls on "${this.chatRoom._id}" chat channel.`);
     }
   }

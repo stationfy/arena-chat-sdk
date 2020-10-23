@@ -1,6 +1,4 @@
 import { ArenaHub } from '@services/arena-hub';
-import { RestAPI } from '@services/rest-api';
-import ArenaChat from 'src';
 import { exampleChatRoom, exampleSDK } from '../../fixtures/examples';
 import * as misc from '@utils/misc';
 

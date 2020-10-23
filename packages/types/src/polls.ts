@@ -26,8 +26,8 @@ export interface Poll {
   total: number;
   updatedAt: number;
   expireAt: number;
-  currentUserVote: number;
-  changeType: string;
+  currentUserVote?: number;
+  changeType?: string;
 }
 
 export enum PollFilter {

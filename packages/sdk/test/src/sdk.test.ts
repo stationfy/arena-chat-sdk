@@ -1,12 +1,10 @@
 import { RestAPI } from '@services/rest-api';
 import { Channel } from '@channel/channel';
-import { ChatRoom } from '@models/chat-room';
-import { Site } from '@models/site';
 import { ArenaChat } from '../../src/sdk';
-import { ExternalUser } from '@models/user';
 import { PrivateChannel } from '@channel/private-channel';
 import { exampleUser, exampleSite, exampleGroupChannel, exampleChatRoom, exampleQnaProps } from '../fixtures/examples';
 import { Qna } from '@qna/qna';
+import { ChatRoom, ExternalUser, Site } from '@arena-im/chat-types';
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -62,10 +60,7 @@ describe('SDK', () => {
       standalone: false,
     };
 
-    const site: Site = {
-      _id: 'site-id',
-      displayName: 'First Site',
-    };
+    const site: Site = exampleSite;
     it('should get a channel', async () => {
       // @ts-ignore
       RestAPI.mockImplementation(() => {
@@ -173,6 +168,30 @@ describe('SDK', () => {
 
       expect(response).toEqual({ ...sender, token: 'user-token-1234' });
     });
+
+    it('should unset the current user', async () => {
+      // @ts-ignore
+      RestAPI.mockImplementation(() => {
+        return {
+          getArenaUser: () => {
+            const user: ExternalUser = {
+              id: '123456',
+              name: 'Kristin Mckinney',
+              image: 'https://randomuser.me/api/portraits/women/12.jpg',
+              token: 'user-token-1234',
+              isModerator: false,
+            };
+            return Promise.resolve(user);
+          },
+        };
+      });
+
+      const sdk = new ArenaChat('my-api-key');
+
+      const response = await sdk.setUser(null);
+
+      expect(response).toEqual(null);
+    });
   });
 
   describe('blockPrivateUser()', () => {
@@ -190,6 +209,15 @@ describe('SDK', () => {
       const result = await sdk.blockPrivateUser('fake-user');
 
       expect(result).toBe(true);
+    });
+
+    it('should return an error if there is no current user', (done) => {
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.blockPrivateUser('fake-user').catch((error) => {
+        expect(error.message).toBe('Cannot block a user without a current user.');
+        done();
+      });
     });
   });
 
@@ -209,6 +237,15 @@ describe('SDK', () => {
 
       expect(result).toBe(true);
     });
+
+    it('should return an error if there is no current user', (done) => {
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.unblockPrivateUser('fake-user').catch((error) => {
+        expect(error.message).toBe('Cannot unblock a user without a current user.');
+        done();
+      });
+    });
   });
 
   describe('getPrivateChannel()', () => {
@@ -226,6 +263,15 @@ describe('SDK', () => {
       const result = await sdk.getPrivateChannel('fake-channel');
 
       expect(result).toEqual({});
+    });
+
+    it('should return an error if there is no current user', (done) => {
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.getPrivateChannel('fake-channel').catch((error) => {
+        expect(error.message).toBe('Cannot get a private channel without a current user.');
+        done();
+      });
     });
   });
 
@@ -245,6 +291,15 @@ describe('SDK', () => {
 
       expect(result).toEqual([exampleGroupChannel]);
     });
+
+    it('should return an error if there is no current user', (done) => {
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.getUserPrivateChannels().catch((error) => {
+        expect(error.message).toBe('Cannot get the list of private channels without a current user.');
+        done();
+      });
+    });
   });
 
   describe('createUserPrivateChannel()', () => {
@@ -262,6 +317,15 @@ describe('SDK', () => {
       const result = await sdk.createUserPrivateChannel('fake-user');
 
       expect(result).toEqual({});
+    });
+
+    it('should return an error if there is no current user', (done) => {
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk.createUserPrivateChannel('fake-user').catch((error) => {
+        expect(error.message).toBe('Cannot create a private channel without a current user.');
+        done();
+      });
     });
   });
 
@@ -316,6 +380,86 @@ describe('SDK', () => {
 
       sdk.getChatQna('my-channel').catch((error) => {
         expect(error.message).toEqual('Cannot get the Q&A for this chat: "my-channel"');
+        done();
+      });
+    });
+  });
+
+  describe('onUnreadPrivateMessagesCountChanged()', () => {
+    it('should return an error if there is no current user', (done) => {
+      const sdk = new ArenaChat('my-api-key');
+
+      sdk
+        .onUnreadPrivateMessagesCountChanged((total: number) => {
+          console.log({ total });
+        })
+        .catch((error) => {
+          expect(error.message).toBe('Cannot listen to unread private messages without a current user.');
+          done();
+        });
+    });
+
+    it('should call the unread messages from the private chat', async () => {
+      PrivateChannel.onUnreadMessagesCountChanged = jest.fn();
+
+      const sdk = new ArenaChat('my-api-key');
+      sdk.user = exampleUser;
+      sdk.site = exampleSite;
+
+      const spy = jest.spyOn(PrivateChannel, 'onUnreadMessagesCountChanged');
+
+      const callback = (total: number) => {
+        console.log({ total });
+      };
+
+      await sdk.onUnreadPrivateMessagesCountChanged(callback);
+
+      expect(spy).toBeCalledTimes(1);
+      expect(spy).toBeCalledWith(exampleUser, exampleSite, callback);
+    });
+  });
+
+  describe('offUnreadMessagesCountChanged()', () => {
+    it('should turn off the unread messages listener', (done) => {
+      const mockListener = jest.fn();
+      mockListener.mockReturnValue(() => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return () => {};
+      });
+
+      PrivateChannel.onUnreadMessagesCountChanged = mockListener;
+
+      const sdk = new ArenaChat('my-api-key');
+      sdk.user = exampleUser;
+      sdk.site = exampleSite;
+
+      sdk
+        .onUnreadPrivateMessagesCountChanged((total: number) => {
+          console.log({ total });
+        })
+        .then(() => {
+          sdk.offUnreadMessagesCountChanged((result) => {
+            expect(result).toBe(true);
+            done();
+          });
+        });
+    });
+
+    it('should not turn off the unread messages without a listener', (done) => {
+      const mockListener = jest.fn();
+      mockListener.mockReturnValue(() => {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return () => {};
+      });
+
+      PrivateChannel.onUnreadMessagesCountChanged = mockListener;
+
+      const sdk = new ArenaChat('my-api-key');
+      sdk.user = exampleUser;
+      sdk.site = exampleSite;
+
+      sdk.offUnreadMessagesCountChanged((result) => {
+        expect(result).toBe(false);
         done();
       });
     });
