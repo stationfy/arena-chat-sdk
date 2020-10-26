@@ -2,13 +2,17 @@ export interface ChatMessage {
   createdAt?: number;
   key?: string;
   message: ChatMessageContent;
-  publisherId: string;
+  publisherId?: string;
   referer?: string;
   replyMessage?: ChatMessage;
   sender: ChatMessageSender;
   changeType?: string;
   reactions?: ChatMessageReaction;
   currentUserReactions?: ChatMessageCurrentUserReactions;
+  groupChannelId?: string;
+  openChannelId?: string;
+  tempId?: string;
+  replyTo?: string;
 }
 
 interface ChatMessageReaction {

@@ -16,7 +16,13 @@ import {
   addItem,
 } from '@services/firestore-api';
 import { ChatRoom } from '@arena-im/chat-types';
-import { exampleChatMessage, examplePoll, exampleQnaQuestion } from '../../fixtures/examples';
+import {
+  exampleChatMessage,
+  exampleChatRoom,
+  exampleLiveChatChannel,
+  examplePoll,
+  exampleQnaQuestion,
+} from '../../fixtures/examples';
 
 jest.mock('@services/firestore-api', () => ({
   listenToCollectionChange: jest.fn(),
@@ -93,37 +99,11 @@ describe('RealtimeAPI', () => {
 
   describe('listenToChatConfigChanges()', () => {
     it('should call the callback function with the chat config', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
 
       // @ts-ignore
       listenToDocumentChange.mockImplementation((_, callback) => {
-        const chatRoom: ChatRoom = {
-          allowSendGifs: true,
-          allowShareUrls: true,
-          chatAutoOpen: false,
-          chatClosedIsEnabled: false,
-          chatPreModerationIsEnabled: false,
-          chatPreviewEnabled: true,
-          chatRequestModeratorIsEnabled: false,
-          createdAt: 1592335254033,
-          _id: 'new-chatroom',
-          lang: 'en-us',
-          language: 'en-us',
-          name: 'My First ChatRoom',
-          presenceId: 'pesence-id',
-          reactionsEnabled: true,
-          showOnlineUsersNumber: true,
-          signUpRequired: false,
-          signUpSettings: {
-            suggest: true,
-            type: 'REQUIRED',
-          },
-          siteId: 'site-id',
-          slug: 'crsl',
-          standalone: false,
-        };
-
-        callback(chatRoom);
+        callback(exampleChatRoom);
       });
 
       realtimeAPI.listenToChatConfigChanges((chatRoom: ChatRoom) => {
@@ -135,7 +115,7 @@ describe('RealtimeAPI', () => {
 
   describe('fetchRecentMessages()', () => {
     it('should fetch recent messages', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -198,29 +178,15 @@ describe('RealtimeAPI', () => {
 
   describe('listenToMessageReceived()', () => {
     it('should receive a added message', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
 
       // @ts-ignore
       listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
-        const message: ChatMessage = {
-          createdAt: 1592342151026,
-          key: 'fake-key',
-          message: {
-            text: 'testing',
-          },
-          publisherId: 'site-id',
-          sender: {
-            displayName: 'Test User',
-            photoURL: 'http://www.google.com',
-          },
-          changeType: 'added',
-        };
-
-        callback(message);
+        callback(exampleChatMessage);
       });
 
       realtimeAPI.listenToMessageReceived((message: ChatMessage) => {
-        expect(message.key).toEqual('fake-key');
+        expect(message.key).toEqual('fake-message');
 
         done();
       });
@@ -228,7 +194,7 @@ describe('RealtimeAPI', () => {
   });
 
   describe('fetchGroupPreviousMessages', () => {
-    it('should fetch previous messages', async () => {
+    it('f', async () => {
       const realtimeAPI = new RealtimeAPI('my-channel');
 
       // @ts-ignore
@@ -310,38 +276,25 @@ describe('RealtimeAPI', () => {
 
   describe('fetchPreviousMessages()', () => {
     it('should fetch previous messages', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
-
-      const message: ChatMessage = {
-        createdAt: 1592342151026,
-        key: 'fake-key',
-        message: {
-          text: 'testing',
-        },
-        publisherId: 'site-id',
-        sender: {
-          displayName: 'Test User',
-          photoURL: 'http://www.google.com',
-        },
-      };
+      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = [
           {
-            ...message,
+            ...exampleChatMessage,
             key: 'fake-key',
           },
           {
-            ...message,
+            ...exampleChatMessage,
             key: 'fake-key-1',
           },
           {
-            ...message,
+            ...exampleChatMessage,
             key: 'fake-key-2',
           },
           {
-            ...message,
+            ...exampleChatMessage,
             key: 'fake-key-3',
           },
         ];
@@ -349,19 +302,19 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchPreviousMessages(message, 3);
+      const messages = await realtimeAPI.fetchPreviousMessages(exampleChatMessage, 3);
 
       expect(messages).toEqual([
         {
-          ...message,
+          ...exampleChatMessage,
           key: 'fake-key-3',
         },
         {
-          ...message,
+          ...exampleChatMessage,
           key: 'fake-key-2',
         },
         {
-          ...message,
+          ...exampleChatMessage,
           key: 'fake-key-1',
         },
       ]);

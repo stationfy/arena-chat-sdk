@@ -135,6 +135,10 @@ function getQueryRefByPath(path: string): firebase.firestore.Query | null {
   let isNextCollection = true;
 
   path.split('/').forEach((item) => {
+    if (!item) {
+      return;
+    }
+
     if (isNextCollection) {
       if (documentRef === null) {
         collectionRef = firestore.collection(item);

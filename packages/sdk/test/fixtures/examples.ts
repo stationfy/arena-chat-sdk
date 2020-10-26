@@ -9,13 +9,32 @@ import {
   ChatRoom,
   Poll,
   QnaProps,
+  LiveChatChannel,
 } from '@arena-im/chat-types';
 import { ArenaChat } from '../../src/sdk';
+
+export const exampleLiveChatChannel: LiveChatChannel = {
+  _id: 'fake-main-channel',
+  allowSendGifs: true,
+  allowShareUrls: true,
+  chatColor: '#FFFFFF',
+  chatPreModerationIsEnabled: true,
+  chatRequestModeratorIsEnabled: true,
+  dataPath: '/chat-room/fake-main-channel',
+  hasPolls: true,
+  name: 'Fake Main Channel',
+  qnaId: 'fake-qna',
+  qnaIsEnabled: true,
+  reactionsEnabled: true,
+  showEmojiButton: true,
+  unreadCount: 0,
+};
 
 export const exampleChatRoom: ChatRoom = {
   allowSendGifs: true,
   allowShareUrls: true,
   chatAutoOpen: false,
+  chatColor: '#FFFFFF',
   chatClosedIsEnabled: false,
   chatPreModerationIsEnabled: false,
   chatPreviewEnabled: true,
@@ -36,6 +55,12 @@ export const exampleChatRoom: ChatRoom = {
   siteId: 'site-id',
   slug: 'crsl',
   standalone: false,
+  dataPath: '/chat-room/fake-main-channel',
+  hasPolls: true,
+  numChannels: 1,
+  mainChannel: exampleLiveChatChannel,
+  showEmojiButton: true,
+  unreadCount: 0,
 };
 
 export const exampleSite: Site = {
@@ -115,6 +140,7 @@ export const exampleUser: ExternalUser = {
 export const exampleSDK = new ArenaChat('my-api-key');
 exampleSDK.site = exampleSite;
 exampleSDK.user = exampleUser;
+exampleSDK.mainChatRoom = exampleChatRoom;
 
 export const exampleQnaQuestion: QnaQuestion = {
   createdAt: 1111111111,

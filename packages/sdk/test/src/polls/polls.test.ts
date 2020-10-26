@@ -1,7 +1,7 @@
 import * as RealtimeAPI from '@services/realtime-api';
 import * as GraphQLAPI from '@services/graphql-api';
 import { Polls } from '@polls/polls';
-import { exampleChatRoom, examplePoll, exampleSDK } from '../../fixtures/examples';
+import { exampleChatRoom, exampleLiveChatChannel, examplePoll, exampleSDK } from '../../fixtures/examples';
 import { Poll, PollFilter, ServerReaction } from '@arena-im/chat-types';
 import ArenaChat from 'src';
 
@@ -27,7 +27,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
       const items = await polls.loadPolls();
 
       expect(items).toEqual([]);
@@ -46,7 +46,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
       const items = await polls.loadPolls(PollFilter.ACTIVE, 5);
 
       expect(items.length).toEqual(5);
@@ -64,12 +64,12 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       try {
         await polls.loadPolls(PollFilter.ACTIVE, 5);
       } catch (e) {
-        expect(e.message).toEqual('Cannot load polls on "new-chatroom" chat channel.');
+        expect(e.message).toEqual(`Cannot load polls on "${exampleLiveChatChannel._id}" chat channel.`);
       }
     });
   });
@@ -87,7 +87,7 @@ describe('Polls', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       const result = await polls.pollVote('111111', 0, '1234');
 
@@ -106,7 +106,7 @@ describe('Polls', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       polls.pollVote('111111', 0, '1234').catch((error) => {
         expect(error.message).toEqual('Cannot vote for the "111111" poll question.');
@@ -139,7 +139,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollReceived(() => {});
@@ -160,7 +160,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       polls.onPollReceived((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -180,14 +180,14 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       try {
         polls.onPollReceived((poll: Poll) => {
           console.log({ poll });
         });
       } catch (e) {
-        expect(e.message).toEqual(`Cannot watch new polls on "${exampleChatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot watch new polls on "${exampleLiveChatChannel._id}" channel.`);
       }
     });
   });
@@ -205,7 +205,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollDeleted(() => {});
@@ -226,7 +226,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       polls.onPollDeleted((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -247,14 +247,14 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       try {
         polls.onPollDeleted((poll: Poll) => {
           console.log({ poll });
         });
       } catch (e) {
-        expect(e.message).toEqual(`Cannot watch deleted polls on "${exampleChatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot watch deleted polls on "${exampleLiveChatChannel._id}" channel.`);
       }
     });
   });
@@ -272,7 +272,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       polls.watchUserPollsReactions('fake-user');
     });
@@ -291,7 +291,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollModified(() => {});
@@ -312,7 +312,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       polls.onPollModified((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -333,14 +333,14 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       try {
         polls.onPollModified((poll: Poll) => {
           console.log({ poll });
         });
       } catch (e) {
-        expect(e.message).toEqual(`Cannot watch polls modified on "${exampleChatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot watch polls modified on "${exampleLiveChatChannel._id}" channel.`);
       }
     });
   });
@@ -358,7 +358,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleChatRoom, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollModified(() => {});

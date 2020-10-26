@@ -10,8 +10,8 @@ import {
   BaseQna,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
-import { Channel } from './channel/channel';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
+import { LiveChat } from './live-chat/live-chat';
 
 /**
  * Chat SDK Client
@@ -37,9 +37,9 @@ export class ArenaChat {
   public mainChatRoom: ChatRoom | null = null;
   public restAPI: RestAPI;
   private defaultAuthToken = DEFAULT_AUTH_TOKEN;
-  private currentChannels: Channel[] = [];
   private userChangedListeners: UserChangedListener[] = [];
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
+  private liveChat: LiveChat | null = null;
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
@@ -190,24 +190,28 @@ export class ArenaChat {
   }
 
   /**
-   * Get a Arena Chat Channel
+   * Get live chat by slug
    *
-   * @param channel Chat slug
+   * @param slug
    */
-  public async getChannel(channel: string): Promise<Channel> {
+  public async getLiveChat(slug: string): Promise<LiveChat> {
+    if (this.liveChat) {
+      return this.liveChat;
+    }
+
     try {
-      const { chatRoom } = await this.fetchAndSetChatRoomAndSite(channel);
+      const { chatRoom, site } = await this.fetchAndSetChatRoomAndSite(slug);
 
-      const channelI = new Channel(chatRoom, this);
+      const liveChatI = new LiveChat(chatRoom, site, this);
 
-      this.currentChannels.push(channelI);
+      this.liveChat = liveChatI;
 
-      return channelI;
+      return liveChatI;
     } catch (e) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
       if (e === Status.Invalid) {
-        erroMessage = `Invalid site (${this.apiKey}) or channel (${channel}) slugs.`;
+        erroMessage = `Invalid site (${this.apiKey}) or live chat (${slug}) slugs.`;
       }
 
       throw new Error(erroMessage);

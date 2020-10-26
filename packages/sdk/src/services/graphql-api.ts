@@ -1,5 +1,14 @@
 import { gql } from 'graphql-request';
-import { ExternalUser, PublicUser, GroupChannel, Site, ChatMessageContent } from '@arena-im/chat-types';
+import {
+  ExternalUser,
+  PublicUser,
+  GroupChannel,
+  Site,
+  ChatMessageContent,
+  LiveChatChannel,
+  ChatMessage,
+  Status,
+} from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
 import { PrivateMessageInput } from '@arena-im/chat-types/dist/private-chat';
@@ -471,5 +480,100 @@ export class GraphQLAPI {
     }
 
     return result;
+  }
+
+  public async sendMessaToChannel(input: ChatMessage): Promise<string> {
+    const mutation = gql`
+      mutation sendMessage($input: PollVoteInput!) {
+        sendMessage(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input });
+
+    const result = data.sendMessage as string;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  public async deleteOpenChannelMessage(openChannelId: string, messageId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation deleteMessage($input: DeleteMessageInput!) {
+        deleteMessage(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { openChannelId, messageId } });
+
+    const result = data.deleteMessage as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  public async listChannels(chatId: string): Promise<LiveChatChannel[]> {
+    const query = gql`
+      query chatRoom($id: ID!) {
+        chatRoom(id: $id) {
+          channels {
+            _id
+            name
+            dataPath
+            unreadCount
+            qnaId
+            qnaIsEnabled
+            reactionsEnabled
+            showEmojiButton
+            unreadCount
+          }
+        }
+      }
+    `;
+
+    const data = await this.graphQL.client.request(query, { id: chatId });
+
+    const channels = data.chatRoom.channels as LiveChatChannel[];
+
+    return channels;
+  }
+
+  public async fetchChannel(channelId: string): Promise<LiveChatChannel> {
+    const query = gql`
+      query openChannel($id: ID!) {
+        openChannel(id: $id) {
+          _id
+          allowSendGifs
+          allowShareUrls
+          chatColor
+          chatPreModerationsIsEnabled
+          chatRequestModeratorIsEnabled
+          dataPath
+          hasPolls
+          name
+          qnaIsEnabled
+          qnaId
+          reactionsEnabled
+          showEmojiButton
+          unreadCount
+        }
+      }
+    `;
+
+    const data = await this.graphQL.client.request(query, { id: channelId });
+
+    const channel = data.openChannel as LiveChatChannel;
+
+    if (!channel) {
+      throw new Error(Status.Invalid);
+    }
+
+    return channel;
   }
 }

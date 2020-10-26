@@ -34,6 +34,31 @@ describe('GraphQLAPI', () => {
 
       expect(groupChannels).toEqual([exampleGroupChannel]);
     });
+
+    it('should return an empty array when group channels are invalid', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              me: {
+                groupChannels: null,
+              },
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const groupChannels = await graphqlAPI.fetchGroupChannels();
+
+      expect(groupChannels).toEqual([]);
+    });
   });
 
   describe('fetchGroupChannelTotalUnreadCount()', () => {

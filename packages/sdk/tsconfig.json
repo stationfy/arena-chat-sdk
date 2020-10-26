@@ -7,7 +7,8 @@
       "@channel/*": ["./src/channel/*"],
       "@qna/*": ["./src/qna/*"],
       "@models/*": ["./src/models/*"],
-      "@polls/*": ["./src/polls/*"]
+      "@polls/*": ["./src/polls/*"],
+      "@live-chat/*": ["./src/live-chat/*"]
     }
   },
   "include": ["src/**/*", "test/**/*"]

@@ -1,13 +1,5 @@
 import { Channel } from '@channel/channel';
-import {
-  ChatRoom,
-  ExternalUser,
-  UserChangedListener,
-  Moderation,
-  ModeratorStatus,
-  PublicUser,
-  PublicUserStatus,
-} from '@arena-im/chat-types';
+import { ChatRoom, ExternalUser, UserChangedListener, Moderation, ModeratorStatus } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
 import * as GraphQLAPI from '@services/graphql-api';
@@ -17,6 +9,7 @@ import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaHub } from '@services/arena-hub';
 import { ArenaChat } from '../../../src/sdk';
 import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
+import { exampleChatMessage, exampleChatRoom, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
 
 jest.mock('@services/arena-hub', () => ({
   ArenaHub: jest.fn(),
@@ -51,32 +44,6 @@ jest.mock('../../../src/sdk', () => ({
 }));
 
 describe('Channel', () => {
-  const chatRoom: ChatRoom = {
-    allowSendGifs: true,
-    allowShareUrls: true,
-    chatAutoOpen: false,
-    chatClosedIsEnabled: false,
-    chatPreModerationIsEnabled: false,
-    chatPreviewEnabled: true,
-    chatRequestModeratorIsEnabled: false,
-    createdAt: 1592335254033,
-    _id: 'new-chatroom',
-    lang: 'en-us',
-    language: 'en-us',
-    name: 'My First ChatRoom',
-    presenceId: 'pesence-id',
-    reactionsEnabled: true,
-    showOnlineUsersNumber: true,
-    signUpRequired: false,
-    signUpSettings: {
-      suggest: true,
-      type: 'REQUIRED',
-    },
-    siteId: 'site-id',
-    slug: 'crsl',
-    standalone: false,
-  };
-
   const sdk = new ArenaChat('my-api-key');
 
   beforeEach(() => {
@@ -118,7 +85,9 @@ describe('Channel', () => {
   });
 
   describe('banUser()', () => {
-    it('should ban a user', async (done) => {
+    it('should ban a user', (done) => {
+      // @ts-ignore
+      const sdk: ArenaChat = { ...exampleSDK };
       // @ts-ignore
       sdk.restAPI = {
         banUser: () => {
@@ -126,7 +95,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, sdk);
 
       const user: ChatMessageSender = {
         photoURL: 'https://www.google.com',
@@ -145,7 +114,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       const user: ChatMessageSender = {
         photoURL: 'https://www.google.com',
@@ -163,6 +132,8 @@ describe('Channel', () => {
   describe('requestModeration()', () => {
     it('should request moderation for a user', async () => {
       // @ts-ignore
+      const sdk: ArenaChat = { ...exampleSDK };
+      // @ts-ignore
       sdk.restAPI = {
         requestModeration: async (site: Site, chatRoom: ChatRoom) => {
           const moderation: Moderation = {
@@ -178,7 +149,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, sdk);
 
       const moderation = await channel.requestModeration();
 
@@ -196,25 +167,31 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       channel.requestModeration().catch((e) => {
-        expect(e.message).toBe('Cannot request moderation for user: "123456". Contact the Arena support team.');
+        expect(e.message).toBe(
+          `Cannot request moderation for user: "${exampleSDK.user?.id}". Contact the Arena support team.`,
+        );
         done();
       });
     });
   });
 
   describe('deleteMessage()', () => {
-    it('should delete a message by a moderator', (done) => {
-      // @ts-ignore
-      sdk.restAPI = {
-        deleteMessage: () => {
-          return Promise.resolve();
+    it('should delete a message by a moderator', async () => {
+      const graphQLAPIInstanceMock = {
+        deleteOpenChannelMessage: async () => {
+          return true;
         },
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       const message: ChatMessage = {
         createdAt: 1592342151026,
@@ -229,7 +206,9 @@ describe('Channel', () => {
         },
       };
 
-      channel.deleteMessage(message).then(done);
+      const result = await channel.deleteMessage(message);
+
+      expect(result).toEqual(true);
     });
 
     it('should receive an error when delete a message', (done) => {
@@ -240,7 +219,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       const message: ChatMessage = {
         createdAt: 1592342151026,
@@ -264,20 +243,22 @@ describe('Channel', () => {
 
   describe('sendMessage()', () => {
     it('should send message on a channel', async () => {
-      // @ts-ignore
-      sdk.restAPI = {
-        sendMessage: (_: ChatRoom, chatMessage: ChatMessage) => {
-          chatMessage.key = 'new-message-key';
-          return Promise.resolve(chatMessage);
+      const graphQLAPIInstanceMock = {
+        sendMessaToChannel: async () => {
+          return exampleChatMessage.key;
         },
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
 
-      const sentMessage = await channel.sendMessage('hey!');
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
-      expect(sentMessage.key).toEqual('new-message-key');
-      expect(sentMessage.message.text).toEqual('hey!');
+      const sentMessage = await channel.sendMessage({ text: 'hey!' });
+
+      expect(sentMessage).toEqual(exampleChatMessage.key);
     });
 
     it('should receive an error when try to send a message', async () => {
@@ -290,10 +271,10 @@ describe('Channel', () => {
         };
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       try {
-        await channel.sendMessage('hey!');
+        await channel.sendMessage({ text: 'hey!' });
       } catch (e) {
         expect(e.message).toBe('Cannot send this message: "hey!". Contact the Arena support team.');
       }
@@ -310,10 +291,10 @@ describe('Channel', () => {
         };
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       try {
-        const message = await channel.sendMessage('');
+        const message = await channel.sendMessage({ text: '' });
         expect(message).toEqual(null);
       } catch (e) {
         expect(e.message).toBe('Cannot send an empty message.');
@@ -324,10 +305,10 @@ describe('Channel', () => {
   it('should create an instance of realtime api with chatroom id', () => {
     const spy = jest.spyOn(RealtimeAPI, 'RealtimeAPI');
 
-    new Channel(chatRoom, sdk);
+    new Channel(exampleLiveChatChannel, exampleSDK);
 
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(chatRoom._id);
+    expect(spy).toHaveBeenCalledWith(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
   });
 
   describe('listenToChatConfigChanges()', () => {
@@ -343,7 +324,7 @@ describe('Channel', () => {
 
       const spy = jest.spyOn(realtimeAPIInstanceMock, 'listenToChatConfigChanges');
 
-      new Channel(chatRoom, sdk);
+      new Channel(exampleLiveChatChannel, exampleSDK);
 
       expect(spy).toHaveBeenCalledTimes(1);
     });
@@ -352,7 +333,7 @@ describe('Channel', () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: (callback: (chatRoom: ChatRoom) => void) => {
           const nextChatRoom: ChatRoom = {
-            ...chatRoom,
+            ...exampleChatRoom,
             allowSendGifs: false,
           };
           callback(nextChatRoom);
@@ -364,9 +345,9 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
 
-      expect(channel.chatRoom.allowSendGifs).toBeFalsy();
+      expect(channelI.channel.allowSendGifs).toBeFalsy();
     });
   });
 
@@ -384,7 +365,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       const messages = await channel.loadRecentMessages(10);
 
@@ -419,7 +400,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       const messages = await channel.loadRecentMessages(10);
 
@@ -439,12 +420,12 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
 
       try {
-        await channel.loadRecentMessages(10);
+        await channelI.loadRecentMessages(10);
       } catch (e) {
-        expect(e.message).toEqual(`Cannot load messages on "${channel.chatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot load messages on "${channelI.channel._id}" channel.`);
       }
     });
   });
@@ -496,7 +477,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       await channel.loadRecentMessages(5);
 
@@ -534,7 +515,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const handleMessageModified = () => {};
@@ -573,7 +554,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       channel.onMessageModified((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -611,7 +592,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       channel.onMessageReceived(() => {});
@@ -647,7 +628,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       channel.onMessageReceived((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -668,14 +649,14 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
 
       try {
-        channel.onMessageReceived((message: ChatMessage) => {
+        channelI.onMessageReceived((message: ChatMessage) => {
           console.log({ message });
         });
       } catch (e) {
-        expect(e.message).toEqual(`Cannot watch new messages on "${channel.chatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot watch new messages on "${channelI.channel._id}" channel.`);
       }
     });
   });
@@ -708,7 +689,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       channel.onMessageDeleted(() => {});
@@ -744,7 +725,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       channel.onMessageDeleted((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -766,21 +747,21 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
 
       try {
-        channel.onMessageDeleted((message: ChatMessage) => {
+        channelI.onMessageDeleted((message: ChatMessage) => {
           console.log({ message });
         });
       } catch (e) {
-        expect(e.message).toEqual(`Cannot watch deleted messages on "${channel.chatRoom.slug}" channel.`);
+        expect(e.message).toEqual(`Cannot watch deleted messages on "${channelI.channel._id}" channel.`);
       }
     });
   });
 
   describe('offAllListeners()', () => {
     it("should off all channel's listeners", () => {
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       channel.offAllListeners();
     });
@@ -804,7 +785,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
 
       const reaction: MessageReaction = {
         messageID: 'fake-message',
@@ -874,11 +855,14 @@ describe('Channel', () => {
       let localCallback;
 
       // @ts-ignore
+      const sdk: ArenaChat = { ...exampleSDK };
+
+      // @ts-ignore
       sdk.onUserChanged = (callback: UserChangedListener) => {
         localCallback = callback;
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, sdk);
 
       await channel.loadRecentMessages(10);
 
@@ -897,11 +881,14 @@ describe('Channel', () => {
       let localCallback;
 
       // @ts-ignore
+      const sdk: ArenaChat = { ...exampleSDK };
+
+      // @ts-ignore
       sdk.onUserChanged = (callback: UserChangedListener) => {
         localCallback = callback;
       };
 
-      const channel = new Channel(chatRoom, sdk);
+      const channel = new Channel(exampleLiveChatChannel, sdk);
 
       channel.onMessageModified((message: ChatMessage) => {
         expect(message?.currentUserReactions?.love).toBeTruthy();
@@ -913,86 +900,6 @@ describe('Channel', () => {
 
       // @ts-ignore
       localCallback.call(channel, user);
-    });
-  });
-
-  describe('getMembers()', () => {
-    it('should fetch members with an anonymous user', async () => {
-      const user: PublicUser = {
-        _id: 'fake-user-uid',
-        name: 'Kristin Mckinney',
-        status: PublicUserStatus.OFFLINE,
-        isModerator: false,
-        image: 'https://randomuser.me/api/portraits/women/12.jpg',
-        isBlocked: false,
-      };
-
-      const graphQLAPIInstanceMock = {
-        fetchMembers: async () => {
-          return [user];
-        },
-      };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      sdk.user = null;
-
-      const channel = new Channel(chatRoom, sdk);
-
-      const members = await channel.getMembers();
-
-      expect(members).toEqual([user]);
-    });
-
-    it('should fetch members with a user', async () => {
-      const user: PublicUser = {
-        _id: 'fake-user-uid',
-        name: 'Kristin Mckinney',
-        status: PublicUserStatus.OFFLINE,
-        isModerator: false,
-        image: 'https://randomuser.me/api/portraits/women/12.jpg',
-        isBlocked: false,
-      };
-
-      const graphQLAPIInstanceMock = {
-        fetchMembers: async () => {
-          return [user];
-        },
-      };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const channel = new Channel(chatRoom, sdk);
-
-      const members = await channel.getMembers();
-
-      expect(members).toEqual([user]);
-    });
-
-    it('should receive a error', (done) => {
-      const graphQLAPIInstanceMock = {
-        fetchMembers: async () => {
-          throw new Error('invalid');
-        },
-      };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const channel = new Channel(chatRoom, sdk);
-
-      channel.getMembers().catch((e) => {
-        expect(e.message).toEqual(`Cannot fetch chat members messages on "${channel.chatRoom.slug}" channel.`);
-        done();
-      });
     });
   });
 });

@@ -1,22 +1,21 @@
 import {
   ChatMessage,
-  ChatRoom,
   MessageChangeType,
   ServerReaction,
   MessageReaction,
   ExternalUser,
-  Moderation,
   BanUser,
   ChatMessageSender,
-  PublicUser,
   BasePolls,
+  LiveChatChannel,
+  Moderation,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
-import { ArenaHub } from '../services/arena-hub';
+import { GraphQLAPI } from '../services/graphql-api';
 
 export class Channel {
-  private arenaHub: ArenaHub;
+  private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction } = {};
@@ -25,25 +24,24 @@ export class Channel {
   private userReactionsSubscription: (() => void) | null = null;
   public polls: BasePolls | null = null;
 
-  public constructor(public chatRoom: ChatRoom, private sdk: ArenaChat) {
+  public constructor(public channel: LiveChatChannel, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
       throw new Error('Cannot create a channel without a site.');
     }
 
-    this.realtimeAPI = new RealtimeAPI(chatRoom._id);
+    this.graphQLAPI = new GraphQLAPI(this.sdk.site, this.sdk.user || undefined);
+
+    this.realtimeAPI = new RealtimeAPI(channel._id, channel.dataPath);
 
     this.watchChatConfigChanges();
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
-
-    this.arenaHub = new ArenaHub(chatRoom, sdk);
-    this.arenaHub.track('page');
   }
 
   public async getPollsIntance(userId: string): Promise<BasePolls> {
     const { Polls } = await import('../polls/polls');
 
-    this.polls = new Polls(this.chatRoom, this.sdk);
+    this.polls = new Polls(this.channel, this.sdk);
 
     if (this.sdk.user) {
       userId = this.sdk.user.id;
@@ -52,53 +50,6 @@ export class Channel {
     this.polls.watchUserPollsReactions(userId);
 
     return this.polls;
-  }
-
-  /**
-   * Get all online and offline chat members
-   */
-  public async getMembers(): Promise<PublicUser[]> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot get chat members without a site id');
-    }
-
-    let user;
-    if (this.sdk.user !== null) {
-      user = this.sdk.user;
-    }
-
-    try {
-      const { GraphQLAPI } = await import('../services/graphql-api');
-
-      const graphQLAPI = new GraphQLAPI(this.sdk.site, user);
-
-      const members = await graphQLAPI.fetchMembers(this.chatRoom._id);
-
-      return members;
-    } catch (e) {
-      throw new Error(`Cannot fetch chat members messages on "${this.chatRoom.slug}" channel.`);
-    }
-  }
-
-  /**
-   * Request chat moderation for current user
-   *
-   * @returns {Promise<Moderation>} moderation
-   */
-  public async requestModeration(): Promise<Moderation> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot request moderation without a site id');
-    }
-
-    if (this.sdk.user === null) {
-      throw new Error('Cannot request moderation without a user');
-    }
-
-    try {
-      return await this.sdk.restAPI.requestModeration(this.sdk.site, this.chatRoom);
-    } catch (e) {
-      throw new Error(`Cannot request moderation for user: "${this.sdk.user.id}". Contact the Arena support team.`);
-    }
   }
 
   /**
@@ -136,7 +87,7 @@ export class Channel {
     }
   }
 
-  public async deleteMessage(message: ChatMessage): Promise<void> {
+  public async deleteMessage(message: ChatMessage): Promise<boolean> {
     if (this.sdk.site === null) {
       throw new Error('Cannot request moderation without a site id');
     }
@@ -145,14 +96,39 @@ export class Channel {
       throw new Error('Cannot ban a user without a user');
     }
 
-    if (typeof message === 'undefined' || message === null) {
+    if (typeof message === 'undefined' || !message.key) {
       throw new Error('You have to inform a message');
     }
 
     try {
-      await this.sdk.restAPI.deleteMessage(this.sdk.site, this.chatRoom, message);
+      return this.graphQLAPI.deleteOpenChannelMessage(this.channel._id, message.key);
     } catch (e) {
       throw new Error(`Cannot delete this message: "${message.key}". Contact the Arena support team.`);
+    }
+  }
+
+  /**
+   * Request chat moderation for current user
+   *
+   * @returns {Promise<Moderation>} moderation
+   */
+  public async requestModeration(): Promise<Moderation> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot request moderation without a site id');
+    }
+
+    if (this.sdk.user === null) {
+      throw new Error('Cannot request moderation without a user');
+    }
+
+    if (this.sdk.mainChatRoom === null) {
+      throw new Error('Cannot request moderation without a chat room');
+    }
+
+    try {
+      return await this.sdk.restAPI.requestModeration(this.sdk.site, this.sdk.mainChatRoom);
+    } catch (e) {
+      throw new Error(`Cannot request moderation for user: "${this.sdk.user.id}". Contact the Arena support team.`);
     }
   }
 
@@ -161,8 +137,18 @@ export class Channel {
    *
    * @param text
    */
-  public async sendMessage(text: string): Promise<ChatMessage> {
-    if (text.trim() === '') {
+  public async sendMessage({
+    text,
+    replyTo,
+    mediaURL,
+    tempId,
+  }: {
+    text?: string;
+    replyTo?: string;
+    mediaURL?: string;
+    tempId?: string;
+  }): Promise<string> {
+    if (text?.trim() === '' && (!mediaURL || mediaURL?.trim() === '')) {
       throw new Error('Cannot send an empty message.');
     }
 
@@ -176,18 +162,24 @@ export class Channel {
 
     const chatMessage: ChatMessage = {
       message: {
-        text,
+        text: text || '',
       },
-      publisherId: this.sdk.site._id,
+      openChannelId: this.channel._id,
       sender: {
         photoURL: this.sdk.user.image,
         displayName: this.sdk.user.name,
         uid: this.sdk.user.id,
       },
+      tempId,
+      replyTo,
     };
 
+    if (mediaURL) {
+      chatMessage.message.media = { url: mediaURL };
+    }
+
     try {
-      const response = await this.sdk.restAPI.sendMessage(this.chatRoom, chatMessage);
+      const response = await this.graphQLAPI.sendMessaToChannel(chatMessage);
 
       return response;
     } catch (e) {
@@ -205,6 +197,10 @@ export class Channel {
 
     if (this.polls) {
       this.polls.watchUserPollsReactions(user.id);
+    }
+
+    if (this.sdk.site) {
+      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user);
     }
   }
 
@@ -285,7 +281,7 @@ export class Channel {
 
       return messages;
     } catch (e) {
-      throw new Error(`Cannot load messages on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot load messages on "${this.channel._id}" channel.`);
     }
   }
 
@@ -308,7 +304,7 @@ export class Channel {
 
       return messages;
     } catch (e) {
-      throw new Error(`Cannot load previous messages on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot load previous messages on "${this.channel._id}" channel.`);
     }
   }
 
@@ -332,7 +328,7 @@ export class Channel {
         reaction: reaction.type,
         publisherId: this.sdk.site._id,
         itemId: reaction.messageID,
-        chatRoomId: this.chatRoom._id,
+        chatRoomId: this.channel._id,
         userId: this.sdk.user.id,
       };
 
@@ -375,7 +371,7 @@ export class Channel {
         callback(newMessage);
       }, MessageChangeType.ADDED);
     } catch (e) {
-      throw new Error(`Cannot watch new messages on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot watch new messages on "${this.channel._id}" channel.`);
     }
   }
 
@@ -409,7 +405,7 @@ export class Channel {
         callback(modifiedMessage);
       }, MessageChangeType.MODIFIED);
     } catch (e) {
-      throw new Error(`Cannot watch messages modified on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot watch messages modified on "${this.channel._id}" channel.`);
     }
   }
 
@@ -436,7 +432,7 @@ export class Channel {
         callback(message);
       }, MessageChangeType.REMOVED);
     } catch (e) {
-      throw new Error(`Cannot watch deleted messages on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot watch deleted messages on "${this.channel._id}" channel.`);
     }
   }
 
@@ -489,7 +485,7 @@ export class Channel {
   private watchChatConfigChanges() {
     try {
       this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
-        this.chatRoom = nextChatRoom;
+        this.channel = nextChatRoom;
       });
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');

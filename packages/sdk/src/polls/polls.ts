@@ -1,4 +1,4 @@
-import { ChatRoom, BasePolls, Poll, PollFilter, ServerReaction } from '@arena-im/chat-types';
+import { BasePolls, Poll, PollFilter, ServerReaction, LiveChatChannel } from '@arena-im/chat-types';
 import { ArenaChat } from '../sdk';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
@@ -13,8 +13,8 @@ export class Polls implements BasePolls {
   private cacheUserPollsReactions: { [key: string]: ServerReaction } = {};
   private pollModificationCallbacks: { [type: string]: ((poll: Poll) => void)[] } = {};
 
-  public constructor(private chatRoom: ChatRoom, private sdk: ArenaChat) {
-    this.realtimeAPI = new RealtimeAPI(chatRoom._id);
+  public constructor(private channel: LiveChatChannel, private sdk: ArenaChat) {
+    this.realtimeAPI = new RealtimeAPI(channel._id);
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
   }
@@ -27,7 +27,7 @@ export class Polls implements BasePolls {
 
       return this.cacheCurrentPolls;
     } catch (e) {
-      throw new Error(`Cannot load polls on "${this.chatRoom._id}" chat channel.`);
+      throw new Error(`Cannot load polls on "${this.channel._id}" chat channel.`);
     }
   }
 
@@ -78,7 +78,7 @@ export class Polls implements BasePolls {
         callback(newPoll);
       }, DocumentChangeType.ADDED);
     } catch (e) {
-      throw new Error(`Cannot watch new polls on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot watch new polls on "${this.channel._id}" channel.`);
     }
   }
 
@@ -112,7 +112,7 @@ export class Polls implements BasePolls {
         callback(modifiedPoll);
       }, DocumentChangeType.MODIFIED);
     } catch (e) {
-      throw new Error(`Cannot watch polls modified on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot watch polls modified on "${this.channel._id}" channel.`);
     }
   }
 
@@ -139,7 +139,7 @@ export class Polls implements BasePolls {
         callback(poll);
       }, DocumentChangeType.REMOVED);
     } catch (e) {
-      throw new Error(`Cannot watch deleted polls on "${this.chatRoom.slug}" channel.`);
+      throw new Error(`Cannot watch deleted polls on "${this.channel._id}" channel.`);
     }
   }
 

@@ -28,7 +28,7 @@ export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe functions */
   private unsbscribeFunctions: (() => void)[] = [];
 
-  public constructor(private channel?: string) {}
+  public constructor(private channel?: string, private dataPath?: string) {}
 
   /**
    * @inheritDoc
@@ -173,9 +173,13 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): () => void {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     const unsubscribe = listenToDocumentChange(
       {
-        path: `chat-rooms/${this.channel}`,
+        path: this.dataPath,
       },
       (data) => {
         const chatRoom: ChatRoom = data as ChatRoom;
@@ -197,8 +201,12 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     const config: ListenChangeConfig = {
-      path: `chat-rooms/${this.channel}/messages`,
+      path: `${this.dataPath}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -241,12 +249,16 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]> {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     if (limit) {
       limit = limit + 1;
     }
 
     const messages = await fetchCollectionItems({
-      path: `chat-rooms/${this.channel}/messages`,
+      path: `${this.dataPath}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -320,9 +332,13 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToMessageReceived(callback: (message: ChatMessage) => void): () => void {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     const unsubscribe = listenToCollectionItemChange(
       {
-        path: `chat-rooms/${this.channel}/messages`,
+        path: `${this.dataPath}/messages`,
       },
       (data) => {
         callback(data as ChatMessage);

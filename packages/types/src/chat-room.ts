@@ -1,27 +1,37 @@
-export interface ChatRoom {
-  allowSendGifs: boolean;
-  allowShareUrls: boolean;
+export interface ChatRoom extends LiveChatChannel {
   chatAutoOpen: boolean;
   chatClosedIsEnabled: boolean;
-  chatPreModerationIsEnabled: boolean;
   chatPreviewEnabled: boolean;
-  chatRequestModeratorIsEnabled: boolean;
   createdAt: number;
-  _id: string;
   lang: string;
   language: string;
-  name: string;
   presenceId: string;
   profanityFilterType?: string;
-  qnaId?: string;
-  qnaIsEnabled?: boolean;
-  reactionsEnabled: boolean;
   showOnlineUsersNumber: boolean;
   signUpRequired: boolean;
   signUpSettings: SignUpSettings;
   siteId: string;
   slug: string;
   standalone: boolean;
+  numChannels: number;
+  mainChannel: LiveChatChannel;
+}
+
+export interface LiveChatChannel {
+  _id: string;
+  allowSendGifs: boolean;
+  allowShareUrls: boolean;
+  chatColor: string;
+  chatPreModerationIsEnabled: boolean;
+  chatRequestModeratorIsEnabled: boolean;
+  dataPath: string;
+  hasPolls: boolean;
+  name: string;
+  qnaId?: string;
+  qnaIsEnabled?: boolean;
+  reactionsEnabled: boolean;
+  showEmojiButton: boolean;
+  unreadCount: number;
 }
 
 interface SignUpSettings {
