@@ -271,6 +271,29 @@ export class GraphQLAPI {
   }
 
   /**
+   * Mark the group channel as read
+   *
+   * @param openChannelId GroupChannel id
+   */
+  public async markOpenChannelRead(openChannelId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation markRead($input: MarkReadInput!) {
+        markRead(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { openChannelId } });
+
+    const result = data.markRead as boolean;
+
+    if (!result) {
+      throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  /**
    * Delete a private message on a group channel
    *
    * @param groupChannelId GroupChannel id
@@ -484,7 +507,7 @@ export class GraphQLAPI {
 
   public async sendMessaToChannel(input: ChatMessage): Promise<string> {
     const mutation = gql`
-      mutation sendMessage($input: PollVoteInput!) {
+      mutation sendMessage($input: SendMessageInput!) {
         sendMessage(input: $input)
       }
     `;

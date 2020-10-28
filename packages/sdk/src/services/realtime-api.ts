@@ -172,14 +172,14 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): () => void {
+  public listenToChatConfigChanges(channelId: string, callback: (chatRoom: ChatRoom) => void): () => void {
     if (!this.dataPath) {
       throw new Error('failed');
     }
 
     const unsubscribe = listenToDocumentChange(
       {
-        path: this.dataPath,
+        path: `${this.dataPath}/channels/${channelId}`,
       },
       (data) => {
         const chatRoom: ChatRoom = data as ChatRoom;

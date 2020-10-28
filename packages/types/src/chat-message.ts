@@ -33,10 +33,12 @@ export interface ChatMessageSender {
   anonymousId?: string;
   label?: string;
   uid?: string;
-  displayName: string;
-  photoURL: string;
+  displayName?: string;
+  photoURL?: string;
   isPublisher?: boolean;
   _id?: string;
+  name?: string;
+  image?: string;
 }
 
 export interface ChatMessageContent {

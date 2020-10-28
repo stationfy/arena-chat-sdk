@@ -6,10 +6,14 @@
   version "0.0.0"
   uid ""
 
-"@arena-im/chat-types@1.3.0-beta.1":
-  version "1.3.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-1.3.0-beta.1.tgz#9076496d600b52ed26cd236630ccae440a08c19b"
-  integrity sha512-egT5dfvvww3tDosV8Cyv9Mp6zzzULSFeeRqQ0iaYCUplzMpTGtg++HhTbBIsfxUYV4OEzLN1qjlzFsKNIz/Nlw==
+"@arena-im/chat-types@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-1.2.1.tgz#9bab4c7906e14d8027ee47b3bf99e4224ca61fbf"
+  integrity sha512-lil6CSuFa2/6Hs2K9W1Py2lddMrmuts6D8LhPXBeMjKJOKk+VqNw4QWp8o9rlUp+LIny1h4/7mIxkLbY+sJK5A==
+
+"@arena-im/chat-types@link:../../../types":
+  version "0.0.0"
+  uid ""
 
 "@babel/code-frame@7.8.3", "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.8.3":
   version "7.8.3"

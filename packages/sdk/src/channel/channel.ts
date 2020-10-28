@@ -13,6 +13,7 @@ import {
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
+import { debounce } from '../utils/misc';
 
 export class Channel {
   private graphQLAPI: GraphQLAPI;
@@ -22,6 +23,7 @@ export class Channel {
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
+  private markReadDebounced: () => void;
   public polls: BasePolls | null = null;
 
   public constructor(public channel: LiveChatChannel, private sdk: ArenaChat) {
@@ -33,9 +35,24 @@ export class Channel {
 
     this.realtimeAPI = new RealtimeAPI(channel._id, channel.dataPath);
 
-    this.watchChatConfigChanges();
+    this.watchChatConfigChanges(channel._id);
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+
+    this.markReadDebounced = debounce(this.markRead, 10000);
+  }
+
+  /**
+   * Mark all messages on this channel as read.
+   */
+  public async markRead(): Promise<boolean> {
+    try {
+      const result = await this.graphQLAPI.markOpenChannelRead(this.channel._id);
+
+      return result;
+    } catch (e) {
+      throw new Error('Cannot set group channel read.');
+    }
   }
 
   public async getPollsIntance(userId: string): Promise<BasePolls> {
@@ -166,9 +183,9 @@ export class Channel {
       },
       openChannelId: this.channel._id,
       sender: {
-        photoURL: this.sdk.user.image,
-        displayName: this.sdk.user.name,
-        uid: this.sdk.user.id,
+        image: this.sdk.user.image,
+        name: this.sdk.user.name,
+        _id: this.sdk.user.id,
       },
       tempId,
       replyTo,
@@ -183,6 +200,7 @@ export class Channel {
 
       return response;
     } catch (e) {
+      console.log({ e });
       throw new Error(`Cannot send this message: "${text}". Contact the Arena support team.`);
     }
   }
@@ -279,6 +297,8 @@ export class Channel {
 
       this.updateCacheCurrentMessages(messages);
 
+      this.markReadDebounced();
+
       return messages;
     } catch (e) {
       throw new Error(`Cannot load messages on "${this.channel._id}" channel.`);
@@ -367,6 +387,10 @@ export class Channel {
         const messages = [...this.cacheCurrentMessages, newMessage];
 
         this.updateCacheCurrentMessages(messages);
+
+        if (this.sdk.user?.id !== newMessage.sender._id) {
+          this.markReadDebounced();
+        }
 
         callback(newMessage);
       }, MessageChangeType.ADDED);
@@ -482,9 +506,9 @@ export class Channel {
    * Watch chat config changes
    *
    */
-  private watchChatConfigChanges() {
+  private watchChatConfigChanges(channelId: string) {
     try {
-      this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
+      this.realtimeAPI.listenToChatConfigChanges(channelId, (nextChatRoom) => {
         this.channel = nextChatRoom;
       });
     } catch (e) {
