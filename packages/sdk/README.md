@@ -156,6 +156,187 @@ channel.banUser(message.sender);
 
 To verify if the user was banned, check the property `isBanned` in the user object.
 
+### Q&A
+
+If the "Q&A" feature is enabled for your chat plan and activate for the current chat, you can implement it using this module. 
+
+First you'll need to get the `qnaProps` with your `chatId` 
+
+```typescript
+import Qna from '@/qna/qna.ts'
+
+// get qna props
+const qnaProps: QnaProps = await Qna.getQnaProps(chatId)
+```
+
+With props in hands, pass it to Qna constructor along with the `qnaId`, the `site` wich is defined in (../types)[types] and the previous defined `arenaChat`
+
+```typescript
+// get instance of Qna
+const qna = new Qna(qnaProps, qnaId, site, arenaChat)
+```
+
+Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the QnaQuestionFilter, wich is also defined in (../types)[types]. Both parameters are optional
+
+```typescript
+const questions: [QnaQuestion] = await qna.loadQuestions(50, QnaQuestionFilter.RECENT)
+```
+
+Start adding new questions just by passing its contents
+
+```typescript
+await qna.addQuestion("Which team shall win tonight?")
+```
+
+It's also possible to easily awnser a question by calling the following method
+
+```typescript
+const isQuestionAwnsered: Boolean = await qna.awnserQuestion(questions[0], "Lakers should win!")
+```
+
+Now there are some event listeners that should be noticed
+
+- onChange: This will watch for Q&A props changes coming from dashboard and then call the passed callback with the Qna instance updating it properties
+```typescript
+onChange(callback: (instance: BaseQna) => void): void
+```
+
+- onQuestionReceived: Watchs for new questions updating the question cache and calls the passed callback with the new question
+```typescript
+onQuestionReceived(callback: (question: QnaQuestion) => void): void
+```
+
+### Direct Messages 
+
+By having the "Private Messages" option enabled in your chat, it's possible to create private dialogs between two or more users.
+
+To create a private channel with a user start calling the following method with the given options ( see [types]('../types') )
+
+```typescript
+import PrivateChannel from '@/channel/private-channel.ts'
+
+const peterChannel: BasePrivateChannel = await PrivateChannel.createUserChannel({
+  user: new ExternalUser(userParams),
+  userId: "id0",
+  site: new Site(siteOptions),
+  firstMessage: new ChatMessageContent(messageContent); //optional
+})
+
+```
+To list all private channels for the current user you can do like
+
+```typescript
+const userChannels: BasePrivateChannel[] = await PrivateChannel.getUserChannels(currentUser, currentSite)
+```
+
+To allow your users to block another users inside a private channel context use 
+
+```typescript
+const userBlocked: Boolean = await PrivateChannel.blockPrivateUser(currentUser, currentSite, targetUserId)
+```
+
+The same is valid to unblock another blocked user
+
+```typescript
+const userUnblocked: Boolean = await PrivateChannel.unblockPrivateUser(currentUser, currentSite, targetUserId)
+```
+
+To send a private message on a specific channel you can call the following method
+
+```typescript
+await peterChannel.sendMessage(
+  new ChatMessageContent(messageOptions)
+  replyMessageId, // optional
+  "temporaryId" 
+)
+```
+
+It's also possible to obtain an already created private channel directly throught the sdk by passing the `channelId`
+
+```typescript
+const aliceChannel: BasePrivateChannel = await arenaChat.getPrivateChannel("alice-channel")
+```
+
+In the same way we can list only the private channels that are not group channels for the current user
+
+```typescript
+const userPrivateChannels: BasePrivateChannel[] = await arenaChat.getUserPrivateChannel()
+```
+
+Also, it's possible to create a channel via `ArenaChat` instance or return an existing one for a userId
+
+```typescript
+const bobChannel: BasePrivateChannel = await arenaChat.createUserPrivateChannel(
+  "bobUserId",
+  new ChatMessageContent(messageParams) // optional
+)
+```
+
+About the event listeners this one deserves attention, types are defined here [types]('../types')
+
+- onUnreadMessagesCountChanged : Watchs for unread messages within a private channel so you can display it for the user in real time, callback will hold the unread count
+
+```typescript
+onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): () => void 
+```
+
+- offUnreadMessagesCountChanged : From the sdk you can unsubscribe the a previous setted listener for `onUnreadMessagesCountChanged`
+
+```typescript
+arenaChat.offUnreadMessagesCountChanged()
+```
+
+### Polls
+
+Adding polls to engage the user experience is quite simple since it's enabled by your chat
+
+To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, refers to [types](../types)
+
+```typescript
+import Polls from '@/polls/polls.ts'
+
+const polls: BasePolls = new Polls(chatRoom, arenaChat)
+```
+
+Once you get a polls instance it's possible to start loading the existing polls
+
+```typescript
+const pollsList: [Poll] = await polls.loadPolls(
+  PollFilter.RECENT, // optional
+  50 // optional
+)
+```
+
+To register a vote in a option for a poll you need to inform the `pollId` the `optionId` that is a number starting in 0 and optionaly an `anonymousId`
+
+```typescript
+await polls.pollVote(
+  pollsList[0].pollId,
+  5, // option 5
+  "anonUser00023"
+)
+```
+
+Within a channel context is possible to receive the polls manager so it can be presented to the current user
+
+```typescript
+const polls: BasePolls = await channel.getPollsInstance(userId)
+```
+
+About the event listeners the following one is interesting
+
+- onPollReceived: Allows you to watch for new polls in real time to notify or display to users. The same signature works for  `onPollModified` and `onPollDeleted`
+
+```typescript
+onPollReceived(callback: (poll: Poll) => void): void
+```
+
+- offPollReceived : Unregister a previous registered listener for `onPollReceived`, the same is valid for `offPollModified` and `offPollDeleted`
+
+```typescript
+polls.offPollReceived()
+```
+
 ### API Documentation
 
 Documentation for this JavaScript client are available at the [Arena website](https://arena.im)
