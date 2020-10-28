@@ -169,14 +169,14 @@ import Qna from '@/qna/qna.ts'
 const qnaProps: QnaProps = await Qna.getQnaProps(chatId)
 ```
 
-With props in hands, pass it to Qna constructor along with the `qnaId`, the `site` wich is defined in (../types)[types] and the previous defined `arenaChat`
+With props in hands, pass it to Qna constructor along with the `qnaId`, the `site` wich is defined in (https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types)[types] and the previous defined `arenaChat`
 
 ```typescript
 // get instance of Qna
 const qna = new Qna(qnaProps, qnaId, site, arenaChat)
 ```
 
-Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the QnaQuestionFilter, wich is also defined in (../types)[types]. Both parameters are optional
+Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the QnaQuestionFilter, wich is also defined in (https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types)[types]. Both parameters are optional
 
 ```typescript
 const questions: [QnaQuestion] = await qna.loadQuestions(50, QnaQuestionFilter.RECENT)
@@ -210,7 +210,7 @@ onQuestionReceived(callback: (question: QnaQuestion) => void): void
 
 By having the "Private Messages" option enabled in your chat, it's possible to create private dialogs between two or more users.
 
-To create a private channel with a user start calling the following method with the given options ( see [types]('../types') )
+To create a private channel with a user start calling the following method with the given options ( see [types]('https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types') )
 
 ```typescript
 import PrivateChannel from '@/channel/private-channel.ts'
@@ -272,7 +272,7 @@ const bobChannel: BasePrivateChannel = await arenaChat.createUserPrivateChannel(
 )
 ```
 
-About the event listeners this one deserves attention, types are defined here [types]('../types')
+About the event listeners this one deserves attention, types are defined here [types]('https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types')
 
 - onUnreadMessagesCountChanged : Watchs for unread messages within a private channel so you can display it for the user in real time, callback will hold the unread count
 
@@ -290,7 +290,7 @@ arenaChat.offUnreadMessagesCountChanged()
 
 Adding polls to engage the user experience is quite simple since it's enabled by your chat
 
-To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, refers to [types](../types)
+To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, refers to [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types)
 
 ```typescript
 import Polls from '@/polls/polls.ts'
