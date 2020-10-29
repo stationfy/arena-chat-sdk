@@ -215,6 +215,7 @@ export class Channel {
 
     if (this.polls) {
       this.polls.watchUserPollsReactions(user.id);
+      this.polls.onUserChanged(user);
     }
 
     if (this.sdk.site) {

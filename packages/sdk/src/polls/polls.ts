@@ -1,4 +1,4 @@
-import { BasePolls, Poll, PollFilter, ServerReaction, LiveChatChannel } from '@arena-im/chat-types';
+import { BasePolls, Poll, PollFilter, ServerReaction, LiveChatChannel, ExternalUser } from '@arena-im/chat-types';
 import { ArenaChat } from '../sdk';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
@@ -28,6 +28,12 @@ export class Polls implements BasePolls {
       return this.cacheCurrentPolls;
     } catch (e) {
       throw new Error(`Cannot load polls on "${this.channel._id}" chat channel.`);
+    }
+  }
+
+  public onUserChanged(user: ExternalUser): void {
+    if (this.sdk.site) {
+      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user);
     }
   }
 

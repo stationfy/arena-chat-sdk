@@ -66,7 +66,7 @@ export class RealtimeAPI implements BaseRealtime {
     let orderBy: OrderBy;
     const where: Where[] = [
       {
-        fieldPath: 'chatRoomId',
+        fieldPath: 'channelId',
         opStr: '==',
         value: this.channel,
       },
@@ -359,7 +359,7 @@ export class RealtimeAPI implements BaseRealtime {
         path: `polls`,
         where: [
           {
-            fieldPath: 'chatRoomId',
+            fieldPath: 'channelId',
             opStr: '==',
             value: this.channel,
           },
@@ -448,7 +448,7 @@ export class RealtimeAPI implements BaseRealtime {
             value: userId,
           },
           {
-            fieldPath: 'eventId',
+            fieldPath: 'channelId',
             opStr: '==',
             value: this.channel,
           },

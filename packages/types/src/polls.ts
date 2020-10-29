@@ -1,3 +1,5 @@
+import { ExternalUser } from './user';
+
 export interface BasePolls {
   loadPolls(filter?: PollFilter, limit?: number): Promise<Poll[]>;
   pollVote(pollId: string, optionId: number, anonymousId?: string): Promise<boolean>;
@@ -9,6 +11,7 @@ export interface BasePolls {
   onPollDeleted(callback: (poll: Poll) => void): void;
   offAllListeners(): void;
   watchUserPollsReactions(userId: string): void;
+  onUserChanged(user: ExternalUser): void;
 }
 
 export interface Poll {

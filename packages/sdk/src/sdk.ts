@@ -351,6 +351,7 @@ export class ArenaChat {
 
     this.user = {
       ...user,
+      id: result.id,
       token: result.token,
       isModerator: result.isModerator,
       isBanned: result.isBanned,

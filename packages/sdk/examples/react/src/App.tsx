@@ -47,9 +47,9 @@ function App() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat(YOUR_SITE_SLUG);
+        arenaChat.current = new ArenaChat('globoesporte');
 
-        liveChat.current = await arenaChat.current.getLiveChat(YOUR_CHAT_SLUG);
+        liveChat.current = await arenaChat.current.getLiveChat('twf1');
 
         channel.current = liveChat.current.getMainChannel();
 
