@@ -201,7 +201,7 @@ To listen to changes to questions in real-time, some listeners can be used:
 onChange(callback: (instance: BaseQna) => void): void
 ```
 
-- onQuestionReceived: Watchs for new questions updating the question cache and calls the passed callback with the new question
+- onQuestionReceived: Watches for new questions updating the question cache and calls the passed callback with the new question
 ```typescript
 onQuestionReceived(callback: (question: QnaQuestion) => void): void
 ```
