@@ -323,7 +323,7 @@ Within a channel context is possible to receive the polls manager so it can be p
 const polls: BasePolls = await channel.getPollsInstance(userId)
 ```
 
-About the event listeners the following one is interesting
+Event listeners are exposed to watch for changes in real-time:
 
 - onPollReceived: Allows you to watch for new polls in real time to notify or display to users. The same signature works for  `onPollModified` and `onPollDeleted`
 
