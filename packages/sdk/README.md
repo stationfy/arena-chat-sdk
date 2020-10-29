@@ -191,7 +191,7 @@ await qna.addQuestion("Which team shall win tonight?")
 It's also possible to easily awnser a question by calling the following method
 
 ```typescript
-const isQuestionAwnsered: Boolean = await qna.awnserQuestion(questions[0], "Lakers should win!")
+const isQuestionAwnsered: Boolean = await qna.awnserQuestion(questionId, "Lakers should win!")
 ```
 
 Now there are some event listeners that should be noticed
