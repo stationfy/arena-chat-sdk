@@ -290,7 +290,7 @@ arenaChat.offUnreadMessagesCountChanged()
 
 Adding polls to engage the user experience is quite simple since it's enabled by default in all chats
 
-To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, refers to [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types)
+To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, please refer to [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types)
 
 ```typescript
 import Polls from '@/polls/polls.ts'
