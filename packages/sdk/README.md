@@ -194,7 +194,7 @@ It's also possible to easily awnser a question by calling the following method
 const isQuestionAwnsered: Boolean = await qna.awnserQuestion(questionId, "Lakers should win!")
 ```
 
-Now there are some event listeners that should be noticed
+To listen to changes to questions in real-time, some listeners can be used:
 
 - onChange: This will watch for Q&A props changes coming from dashboard and then call the passed callback with the Qna instance updating it properties
 ```typescript
