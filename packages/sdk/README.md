@@ -158,7 +158,7 @@ To verify if the user was banned, check the property `isBanned` in the user obje
 
 ### Q&A
 
-If the "Q&A" feature is enabled for your chat plan and activate for the current chat, you can implement it using this module. 
+When a Q&A session is enabled for the Chat Room, you can implement the basic Q&A functionality using this module. 
 
 First you'll need to get the `qnaProps` with your `chatId` 
 
@@ -191,6 +191,7 @@ await qna.addQuestion("Which team shall win tonight?")
 It's also possible to easily awnser a question by calling the following method
 
 ```typescript
+const questionId = questions[0].key
 const isQuestionAwnsered: Boolean = await qna.awnserQuestion(questionId, "Lakers should win!")
 ```
 
@@ -208,7 +209,7 @@ onQuestionReceived(callback: (question: QnaQuestion) => void): void
 
 ### Direct Messages 
 
-By having the "Private Messages" option enabled in your chat, it's possible to create private dialogs between two or more users.
+When you enable the "Private Messages" option in you chat, members can chat directly with each other.
 
 To create a private channel with a user start calling the following method with the given options. See [types]('https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types') 
 
@@ -299,6 +300,15 @@ const polls: BasePolls = new Polls(chatRoom, arenaChat)
 ```
 
 Once you get a polls instance it's possible to start loading the existing polls
+The enum `PollFilter` defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types) can be used to filter the list of polls to be loaded.
+```typescript
+export enum PollFilter {
+  POPULAR = 'popular', // The most voted polls
+  RECENT = 'recent', // The recent polls by date
+  ACTIVE = 'active', // All active polls
+  ENDED = 'ended', // The already finished polls
+}
+```
 
 ```typescript
 const pollsList: [Poll] = await polls.loadPolls(
@@ -310,8 +320,9 @@ const pollsList: [Poll] = await polls.loadPolls(
 To register a vote in a option for a poll you need to inform the `pollId` the `optionId` that is a number starting in 0 and optionaly an `anonymousId`
 
 ```typescript
+const pollId = pollsList[0].pollId
 await polls.pollVote(
-  pollsList[0].pollId,
+  pollId,
   5, // option 5
   "anonUser00023"
 )
