@@ -1,6 +1,5 @@
 import {
   ChatMessage,
-  ChatRoom,
   ServerReaction,
   ExternalUser,
   GroupChannel,
@@ -12,6 +11,7 @@ import {
   Where,
   QnaQuestion,
   QnaQuestionFilter,
+  LiveChatChannel,
 } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
@@ -172,19 +172,19 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatConfigChanges(channelId: string, callback: (chatRoom: ChatRoom) => void): () => void {
+  public listenToChatConfigChanges(callback: (channel: LiveChatChannel) => void): () => void {
     if (!this.dataPath) {
       throw new Error('failed');
     }
 
     const unsubscribe = listenToDocumentChange(
       {
-        path: `${this.dataPath}/channels/${channelId}`,
+        path: this.dataPath,
       },
       (data) => {
-        const chatRoom: ChatRoom = data as ChatRoom;
+        const channel: LiveChatChannel = data as LiveChatChannel;
 
-        callback(chatRoom);
+        callback(channel);
       },
     );
     this.unsbscribeFunctions.push(unsubscribe);

@@ -1,6 +1,5 @@
 import {
   BaseQna,
-  Site,
   QnaQuestionFilter,
   QnaQuestion,
   DocumentChangeType,
@@ -30,9 +29,10 @@ export class Qna implements BaseQna {
   public createdBy: string;
   public name: string;
 
-  public constructor(props: QnaProps, private qnaId: string, private site: Site, private sdk: ArenaChat) {
+  public constructor(props: QnaProps, private qnaId: string, private sdk: ArenaChat) {
     this.realtimeAPI = new RealtimeAPI(qnaId);
-    this.graphQLAPI = new GraphQLAPI(site, this.sdk.user || undefined);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
 
@@ -101,10 +101,14 @@ export class Qna implements BaseQna {
    * @param {ExternalUser} user external user
    */
   private watchUserChanged(user: ExternalUser) {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot watch the user change without a site.');
+    }
+
     this.cleanQuestionsReaction();
     this.watchUserReactions(user);
 
-    this.graphQLAPI = new GraphQLAPI(this.site, user || undefined);
+    this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
   }
 
   public async loadQuestions(limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]> {

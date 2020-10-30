@@ -7,6 +7,7 @@ import {
   QnaQuestionFilter,
   PollFilter,
   Poll,
+  LiveChatChannel,
 } from '@arena-im/chat-types';
 import {
   listenToCollectionChange,
@@ -15,7 +16,7 @@ import {
   listenToCollectionItemChange,
   addItem,
 } from '@services/firestore-api';
-import { ChatRoom } from '@arena-im/chat-types';
+
 import {
   exampleChatMessage,
   exampleChatRoom,
@@ -106,8 +107,8 @@ describe('RealtimeAPI', () => {
         callback(exampleChatRoom);
       });
 
-      realtimeAPI.listenToChatConfigChanges((chatRoom: ChatRoom) => {
-        expect(chatRoom._id).toEqual('new-chatroom');
+      realtimeAPI.listenToChatConfigChanges('new-chatroom', (channel: LiveChatChannel) => {
+        expect(channel._id).toEqual('new-chatroom');
         done();
       });
     });

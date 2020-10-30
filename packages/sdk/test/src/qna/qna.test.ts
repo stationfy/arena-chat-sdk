@@ -540,7 +540,7 @@ describe('Qna', () => {
   describe('offChange()', () => {
     it('should call the unsubscribe function', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToQnaProps: (qnaId: string, callback: (instance: BaseQna) => void) => {
+        listenToQnaProps: (_: string, callback: (instance: BaseQna) => void) => {
           callback(new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK));
 
           // eslint-disable-next-line @typescript-eslint/no-empty-function

@@ -1,10 +1,19 @@
-import { ChatRoom, ExternalUser, LiveChatChannel, PublicUser, Site, Status } from '@arena-im/chat-types';
+import {
+  ChatRoom,
+  ExternalUser,
+  LiveChatChannel,
+  PublicUser,
+  Site,
+  Status,
+  BaseLiveChat,
+  BaseChannel,
+} from '@arena-im/chat-types';
 import { GraphQLAPI } from '../services/graphql-api';
 import { ArenaChat } from '../sdk';
 import { Channel } from '../channel/channel';
 import { ArenaHub } from '../services/arena-hub';
 
-export class LiveChat {
+export class LiveChat implements BaseLiveChat {
   private arenaHub: ArenaHub;
   private graphQLAPI: GraphQLAPI;
 
@@ -69,12 +78,28 @@ export class LiveChat {
     }
   }
 
+  public async getChannelData(channelId: string): Promise<LiveChatChannel> {
+    try {
+      const channel = await this.graphQLAPI.fetchChannel(channelId);
+
+      return channel;
+    } catch (e) {
+      let erroMessage = 'Internal Server Error. Contact the Arena support team.';
+
+      if (e.message === Status.Invalid) {
+        erroMessage = `Invalid channel (${channelId}) id.`;
+      }
+
+      throw new Error(erroMessage);
+    }
+  }
+
   /**
    * Get an specific channel by id
    *
    * @param channelId
    */
-  public async getChannel(channelId: string): Promise<Channel> {
+  public async getChannel(channelId: string): Promise<BaseChannel> {
     try {
       const channel = await this.graphQLAPI.fetchChannel(channelId);
 

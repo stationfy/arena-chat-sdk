@@ -9,13 +9,15 @@ import {
   BasePolls,
   LiveChatChannel,
   Moderation,
+  BaseChannel,
+  BaseQna,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
 
-export class Channel {
+export class Channel implements BaseChannel {
   private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
@@ -35,7 +37,7 @@ export class Channel {
 
     this.realtimeAPI = new RealtimeAPI(channel._id, channel.dataPath);
 
-    this.watchChatConfigChanges(channel._id);
+    this.watchChatConfigChanges();
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
 
@@ -53,6 +55,20 @@ export class Channel {
     } catch (e) {
       throw new Error('Cannot set group channel read.');
     }
+  }
+
+  public async getChatQnaInstance(): Promise<BaseQna> {
+    if (typeof this.channel.qnaId === 'undefined') {
+      throw new Error(`Cannot get the Q&A for this channel: "${this.channel._id}"`);
+    }
+
+    const { Qna } = await import('../qna/qna');
+
+    const qnaProps = await Qna.getQnaProps(this.channel.qnaId);
+
+    const qnaI = new Qna(qnaProps, this.channel.qnaId, this.sdk);
+
+    return qnaI;
   }
 
   public async getPollsIntance(userId: string): Promise<BasePolls> {
@@ -200,7 +216,6 @@ export class Channel {
 
       return response;
     } catch (e) {
-      console.log({ e });
       throw new Error(`Cannot send this message: "${text}". Contact the Arena support team.`);
     }
   }
@@ -507,9 +522,9 @@ export class Channel {
    * Watch chat config changes
    *
    */
-  private watchChatConfigChanges(channelId: string) {
+  private watchChatConfigChanges() {
     try {
-      this.realtimeAPI.listenToChatConfigChanges(channelId, (nextChatRoom) => {
+      this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
         this.channel = nextChatRoom;
       });
     } catch (e) {

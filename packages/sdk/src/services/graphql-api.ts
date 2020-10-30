@@ -264,7 +264,7 @@ export class GraphQLAPI {
     const result = data.markRead as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -287,7 +287,7 @@ export class GraphQLAPI {
     const result = data.markRead as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -311,7 +311,7 @@ export class GraphQLAPI {
     const result = data.deleteMessage as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -334,7 +334,7 @@ export class GraphQLAPI {
     const result = data.removeGroupChannel as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -357,7 +357,7 @@ export class GraphQLAPI {
     const result = data.blockUser as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -380,7 +380,7 @@ export class GraphQLAPI {
     const result = data.unblockUser as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -398,7 +398,7 @@ export class GraphQLAPI {
     const result = data.addQuestion as string;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -416,7 +416,7 @@ export class GraphQLAPI {
     const result = data.answerQuestion as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -434,7 +434,7 @@ export class GraphQLAPI {
     const result = data.deleteQuestion as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -452,7 +452,7 @@ export class GraphQLAPI {
     const result = data.upvoteQuestion as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -460,7 +460,7 @@ export class GraphQLAPI {
 
   public async banUser({ anonymousId, userId }: { anonymousId?: string; userId?: string }): Promise<boolean> {
     if (!anonymousId && !userId) {
-      throw new Error('failed');
+      throw new Error(Status.Invalid);
     }
 
     const mutation = gql`
@@ -474,7 +474,7 @@ export class GraphQLAPI {
     const result = data.banUser as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -499,7 +499,7 @@ export class GraphQLAPI {
     const result = data.pollVote as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -517,7 +517,7 @@ export class GraphQLAPI {
     const result = data.sendMessage as string;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -535,7 +535,7 @@ export class GraphQLAPI {
     const result = data.deleteMessage as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -548,12 +548,6 @@ export class GraphQLAPI {
           channels {
             _id
             name
-            dataPath
-            unreadCount
-            qnaId
-            qnaIsEnabled
-            reactionsEnabled
-            showEmojiButton
             unreadCount
           }
         }
@@ -575,7 +569,7 @@ export class GraphQLAPI {
           allowSendGifs
           allowShareUrls
           chatColor
-          chatPreModerationsIsEnabled
+          chatPreModerationIsEnabled
           chatRequestModeratorIsEnabled
           dataPath
           hasPolls

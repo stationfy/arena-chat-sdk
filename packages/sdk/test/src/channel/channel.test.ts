@@ -1,5 +1,12 @@
 import { Channel } from '@channel/channel';
-import { ChatRoom, ExternalUser, UserChangedListener, Moderation, ModeratorStatus } from '@arena-im/chat-types';
+import {
+  ChatRoom,
+  ExternalUser,
+  UserChangedListener,
+  Moderation,
+  ModeratorStatus,
+  LiveChatChannel,
+} from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
 import * as GraphQLAPI from '@services/graphql-api';
@@ -9,7 +16,7 @@ import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaHub } from '@services/arena-hub';
 import { ArenaChat } from '../../../src/sdk';
 import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
-import { exampleChatMessage, exampleChatRoom, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
+import { exampleChatMessage, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
 
 jest.mock('@services/arena-hub', () => ({
   ArenaHub: jest.fn(),
@@ -262,13 +269,15 @@ describe('Channel', () => {
     });
 
     it('should receive an error when try to send a message', async () => {
+      const graphQLAPIInstanceMock = {
+        sendMessaToChannel: async () => {
+          return Promise.reject('failed');
+        },
+      };
+
       // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          sendMessage: () => {
-            return Promise.reject('failed');
-          },
-        };
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
       });
 
       const channel = new Channel(exampleLiveChatChannel, exampleSDK);
@@ -331,12 +340,12 @@ describe('Channel', () => {
 
     it('should apply the chat config changes', () => {
       const realtimeAPIInstanceMock = {
-        listenToChatConfigChanges: (callback: (chatRoom: ChatRoom) => void) => {
-          const nextChatRoom: ChatRoom = {
-            ...exampleChatRoom,
+        listenToChatConfigChanges: (_: string, callback: (channel: LiveChatChannel) => void) => {
+          const channel: LiveChatChannel = {
+            ...exampleLiveChatChannel,
             allowSendGifs: false,
           };
-          callback(nextChatRoom);
+          callback(channel);
         },
       };
 
