@@ -209,7 +209,7 @@ onQuestionReceived(callback: (question: QnaQuestion) => void): void
 
 ### Direct Messages 
 
-When you enable the "Private Messages" option in you chat, members can chat directly with each other.
+When you enable the "Private Messages" option in your chat, members can chat directly with each other.
 
 To create a private channel with a user start calling the following method with the given options. See [types]('https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types') 
 
