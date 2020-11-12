@@ -61,7 +61,7 @@ export class Qna implements BaseQna {
    *
    * @param callback
    */
-  public offChange(callback: (success: boolean) => void): void {
+  public offChange(callback?: (success: boolean) => void): void {
     this.propsChangeCallbacks = [];
 
     if (typeof this.propsChangeListener === 'function') {

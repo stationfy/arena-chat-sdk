@@ -3,7 +3,7 @@ import { PublicUser } from './user';
 export interface BaseQna extends QnaProps {
   loadQuestions(limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]>;
   onChange(callback: (instance: BaseQna) => void): void;
-  offChange(callback: (success: boolean) => void): void;
+  offChange(callback?: (success: boolean) => void): void;
   onQuestionReceived(callback: (question: QnaQuestion) => void): void;
   offQuestionReceived(): void;
   onQuestionModified(callback: (question: QnaQuestion) => void): void;

@@ -363,6 +363,11 @@ export class RealtimeAPI implements BaseRealtime {
             opStr: '==',
             value: this.channel,
           },
+          {
+            fieldPath: 'draft',
+            opStr: '==',
+            value: false,
+          },
         ],
       },
       (data) => {
@@ -418,7 +423,7 @@ export class RealtimeAPI implements BaseRealtime {
             value: user.id,
           },
           {
-            fieldPath: 'chatRoomId',
+            fieldPath: 'openChannelId',
             opStr: '==',
             value: this.channel,
           },

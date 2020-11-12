@@ -8,6 +8,7 @@ import {
   LiveChatChannel,
   ChatMessage,
   Status,
+  ChatMessageReportedBy,
 } from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
@@ -533,6 +534,30 @@ export class GraphQLAPI {
     const data = await this.graphQL.client.request(mutation, { input: { openChannelId, messageId } });
 
     const result = data.deleteMessage as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async reportOpenChannelMessage(
+    channelId: string,
+    messageId: string,
+    reportedBy: ChatMessageReportedBy,
+  ): Promise<boolean> {
+    const mutation = gql`
+      mutation reportChannelMessage($input: ReportMessageInput!) {
+        reportChannelMessage(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, {
+      input: { channelId, messageId, reportDoc: { reportedBy } },
+    });
+
+    const result = data.reportChannelMessage as boolean;
 
     if (!result) {
       throw new Error(Status.Failed);

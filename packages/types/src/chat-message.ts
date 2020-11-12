@@ -80,9 +80,11 @@ export interface ServerReaction {
   reaction: string;
   publisherId: string;
   itemId: string;
-  chatRoomId: string;
+  chatRoomId?: string;
   userId: string;
   key?: string;
+  openChannelId?: string;
+  chatRoomVersion?: string;
 }
 
 export interface MessageReaction {

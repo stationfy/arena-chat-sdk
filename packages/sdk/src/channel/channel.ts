@@ -11,6 +11,8 @@ import {
   Moderation,
   BaseChannel,
   BaseQna,
+  ChatMessageReportedBy,
+  ChatRoom,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
@@ -25,10 +27,10 @@ export class Channel implements BaseChannel {
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
-  private markReadDebounced: () => void;
+  public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
 
-  public constructor(public channel: LiveChatChannel, private sdk: ArenaChat) {
+  public constructor(public channel: LiveChatChannel, private chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
       throw new Error('Cannot create a channel without a site.');
     }
@@ -47,7 +49,7 @@ export class Channel implements BaseChannel {
   /**
    * Mark all messages on this channel as read.
    */
-  public async markRead(): Promise<boolean> {
+  private async markRead(): Promise<boolean> {
     try {
       const result = await this.graphQLAPI.markOpenChannelRead(this.channel._id);
 
@@ -80,7 +82,9 @@ export class Channel implements BaseChannel {
       userId = this.sdk.user.id;
     }
 
-    this.polls.watchUserPollsReactions(userId);
+    if (userId) {
+      this.polls.watchUserPollsReactions(userId);
+    }
 
     return this.polls;
   }
@@ -140,6 +144,31 @@ export class Channel implements BaseChannel {
     }
   }
 
+  public async reportMessage(message: ChatMessage, anonymousId?: string): Promise<boolean> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot request moderation without a site id');
+    }
+
+    if (typeof message === 'undefined' || !message.key) {
+      throw new Error('You have to inform a message');
+    }
+
+    if (!this.sdk.user && !anonymousId) {
+      throw new Error('Cannot report a message without a user');
+    }
+
+    const reportedBy: ChatMessageReportedBy = {
+      uid: this.sdk.user?.id || anonymousId,
+      reportedByType: this.sdk.user?.id && this.sdk.user?.token ? 'user' : 'anonymous',
+    };
+
+    try {
+      return this.graphQLAPI.reportOpenChannelMessage(this.channel._id, message.key, reportedBy);
+    } catch (e) {
+      throw new Error(`Cannot report this message: "${message.key}". Contact the Arena support team.`);
+    }
+  }
+
   /**
    * Request chat moderation for current user
    *
@@ -175,11 +204,13 @@ export class Channel implements BaseChannel {
     replyTo,
     mediaURL,
     tempId,
+    sender,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
     tempId?: string;
+    sender?: ChatMessageSender;
   }): Promise<string> {
     if (text?.trim() === '' && (!mediaURL || mediaURL?.trim() === '')) {
       throw new Error('Cannot send an empty message.');
@@ -198,7 +229,7 @@ export class Channel implements BaseChannel {
         text: text || '',
       },
       openChannelId: this.channel._id,
-      sender: {
+      sender: sender || {
         image: this.sdk.user.image,
         name: this.sdk.user.name,
         _id: this.sdk.user.id,
@@ -229,7 +260,12 @@ export class Channel implements BaseChannel {
     this.watchUserReactions(user);
 
     if (this.polls) {
-      this.polls.watchUserPollsReactions(user.id);
+      this.polls.offAllListeners();
+
+      if (user?.id) {
+        this.polls.watchUserPollsReactions(user.id);
+      }
+
       this.polls.onUserChanged(user);
     }
 
@@ -364,8 +400,10 @@ export class Channel implements BaseChannel {
         reaction: reaction.type,
         publisherId: this.sdk.site._id,
         itemId: reaction.messageID,
-        chatRoomId: this.channel._id,
         userId: this.sdk.user.id,
+        openChannelId: this.channel._id,
+        chatRoomId: this.chatRoom._id,
+        chatRoomVersion: this.chatRoom.version,
       };
 
       const result = await this.realtimeAPI.sendReaction(serverReaction);
@@ -525,7 +563,11 @@ export class Channel implements BaseChannel {
   private watchChatConfigChanges() {
     try {
       this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
-        this.channel = nextChatRoom;
+        this.channel = {
+          ...nextChatRoom,
+          _id: this.channel._id,
+          dataPath: this.channel.dataPath,
+        };
       });
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');
