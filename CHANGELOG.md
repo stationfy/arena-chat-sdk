@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.2.4 (2020-11-13)
+
+
+### Bug Fixes
+
+* update fibase and graphql versions ([264d08b](https://github.com/stationfy/arena-chat-sdk/commit/264d08b4f5330ddce8034c6621019fd33f06636e))
+
+
+
+
+
 ## 1.2.3 (2020-11-13)
 
 **Note:** Version bump only for package arena-chat-sdk
