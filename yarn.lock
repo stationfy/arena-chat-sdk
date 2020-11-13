@@ -3654,7 +3654,7 @@ find-versions@^3.2.0:
   dependencies:
     semver-regex "^2.0.0"
 
-firebase@^7.14.6:
+firebase@^7.24.0:
   version "7.24.0"
   resolved "https://registry.yarnpkg.com/firebase/-/firebase-7.24.0.tgz#dab53b9c0f1c9538d2d6f4f51769897b0b6d60d8"
   integrity sha512-j6jIyGFFBlwWAmrlUg9HyQ/x+YpsPkc/TTkbTyeLwwAJrpAmmEHNPT6O9xtAnMV4g7d3RqLL/u9//aZlbY4rQA==
@@ -4061,7 +4061,7 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.4.tgz#2256bde14d3632958c465ebc96dc467ca07a29fb"
   integrity sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw==
 
-graphql-request@^3.0.0:
+graphql-request@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-3.3.0.tgz#1b9003f34b73cd40d691803d2d422fde5c713af3"
   integrity sha512-NHj65WSIUh8j7TBYgzWU0fqvLfxrqFDrLG8nZUh+IREZw50ljR6JXlXRkr52/fL/46wpItiQNLDrG+UZI+KmzA==
