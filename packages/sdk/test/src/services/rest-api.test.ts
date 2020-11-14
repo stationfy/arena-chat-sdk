@@ -4,6 +4,7 @@ import { Site } from '@arena-im/chat-types';
 import { BanUser, ProviderUser } from '@arena-im/chat-types';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@arena-im/chat-types';
 import { XHRTransport } from '@services/xhr-transport';
+import { exampleSite } from '../../fixtures/examples';
 
 jest.mock('@services/xhr-transport', () => ({
   XHRTransport: jest.fn(),
@@ -39,10 +40,7 @@ describe('RestAPI', () => {
       standalone: true,
     };
 
-    site = {
-      _id: '1234',
-      displayName: 'hey1',
-    };
+    site = exampleSite;
 
     // @ts-ignore
     XHRTransport.mockClear();
@@ -66,7 +64,7 @@ describe('RestAPI', () => {
       // @ts-ignore
       XHRTransport.mockImplementation(() => {
         return {
-          post: function <T>(path: string, payload: T) {
+          post: function <T>(_: string, payload: T) {
             return Promise.resolve(payload);
           },
           get: () => Promise.resolve(message),
@@ -141,7 +139,7 @@ describe('RestAPI', () => {
       // @ts-ignore
       XHRTransport.mockImplementation(() => {
         return {
-          post: function <T>(path: string, payload: T) {
+          post: function <T>(_: string, payload: T) {
             return Promise.resolve(payload);
           },
           get: () => Promise.resolve(message),
@@ -190,7 +188,7 @@ describe('RestAPI', () => {
 
       expect(mockPost).toHaveBeenCalledWith('/data/moderation/request-mod-status', {
         chatRoomId: '1234',
-        siteId: '1234',
+        siteId: 'site-id',
       });
     });
   });
@@ -258,6 +256,7 @@ describe('RestAPI', () => {
       const mockPost = jest.fn(() => {
         const data: SSOExchangeResult = {
           data: {
+            // @ts-ignore
             user: {
               thumbnails: {
                 raw: 'https://www.google.com',

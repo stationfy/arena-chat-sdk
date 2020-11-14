@@ -2,7 +2,7 @@ import { Qna } from '@qna/qna';
 import { exampleQnaProps, exampleQnaQuestion, exampleSDK, exampleSite } from '../../fixtures/examples';
 import * as GraphQLAPI from '@services/graphql-api';
 import * as RealtimeAPI from '@services/realtime-api';
-import { QnaQuestion } from '@arena-im/chat-types';
+import { BaseQna, QnaQuestion } from '@arena-im/chat-types';
 import { ArenaChat } from '../../../src/sdk';
 
 jest.mock('@services/graphql-api', () => ({
@@ -180,6 +180,27 @@ describe('Qna', () => {
         expect(question.changeType).toEqual('modified');
         done();
       });
+    });
+  });
+
+  describe('getQnaProps()', () => {
+    it('should get Q&A props from firestore', async () => {
+      const realtimeAPIInstanceMock = {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        listenToQnaUserReactions: () => {},
+        fetchQnaProps: async () => {
+          return exampleQnaProps;
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const result = await Qna.getQnaProps('fake-qna-id');
+
+      expect(result).toEqual(exampleQnaProps);
     });
   });
 
@@ -511,6 +532,43 @@ describe('Qna', () => {
 
       qna.banUser({}).catch((error) => {
         expect(error.message).toEqual('Cannot ban user without anonymoud id or user id.');
+        done();
+      });
+    });
+  });
+
+  describe('offChange()', () => {
+    it('should call the unsubscribe function', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToQnaProps: (_: string, callback: (instance: BaseQna) => void) => {
+          callback(new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK));
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      qna.onChange(() => {});
+
+      qna.offChange((success) => {
+        expect(success).toBe(true);
+        done();
+      });
+    });
+
+    it('should not call the unsubscribe function when there is any listener', (done) => {
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+
+      qna.offChange((success) => {
+        expect(success).toBe(false);
         done();
       });
     });

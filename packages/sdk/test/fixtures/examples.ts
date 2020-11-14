@@ -7,14 +7,34 @@ import {
   ExternalUser,
   QnaQuestion,
   ChatRoom,
+  Poll,
   QnaProps,
+  LiveChatChannel,
 } from '@arena-im/chat-types';
 import { ArenaChat } from '../../src/sdk';
+
+export const exampleLiveChatChannel: LiveChatChannel = {
+  _id: 'fake-main-channel',
+  allowSendGifs: true,
+  allowShareUrls: true,
+  chatColor: '#FFFFFF',
+  chatPreModerationIsEnabled: true,
+  chatRequestModeratorIsEnabled: true,
+  dataPath: '/chat-room/fake-main-channel',
+  hasPolls: true,
+  name: 'Fake Main Channel',
+  qnaId: 'fake-qna',
+  qnaIsEnabled: true,
+  reactionsEnabled: true,
+  showEmojiButton: true,
+  unreadCount: 0,
+};
 
 export const exampleChatRoom: ChatRoom = {
   allowSendGifs: true,
   allowShareUrls: true,
   chatAutoOpen: false,
+  chatColor: '#FFFFFF',
   chatClosedIsEnabled: false,
   chatPreModerationIsEnabled: false,
   chatPreviewEnabled: true,
@@ -35,6 +55,12 @@ export const exampleChatRoom: ChatRoom = {
   siteId: 'site-id',
   slug: 'crsl',
   standalone: false,
+  dataPath: '/chat-room/fake-main-channel',
+  hasPolls: true,
+  numChannels: 1,
+  mainChannel: exampleLiveChatChannel,
+  showEmojiButton: true,
+  unreadCount: 0,
 };
 
 export const exampleSite: Site = {
@@ -114,6 +140,7 @@ export const exampleUser: ExternalUser = {
 export const exampleSDK = new ArenaChat('my-api-key');
 exampleSDK.site = exampleSite;
 exampleSDK.user = exampleUser;
+exampleSDK.mainChatRoom = exampleChatRoom;
 
 export const exampleQnaQuestion: QnaQuestion = {
   createdAt: 1111111111,
@@ -123,18 +150,44 @@ export const exampleQnaQuestion: QnaQuestion = {
   text: 'what are you doing?',
   upvotes: 5,
   answer: {
-    text: 'fake answer',
+    text: 'hey!',
     sender: examplePublicUser,
   },
-  userVoted: false,
+  userVoted: true,
+};
+
+export const examplePoll: Poll = {
+  _id: 'fake-poll',
+  chatRoomId: 'new-chatroom',
+  createdAt: 111111,
+  createBy: 'fake-user',
+  draft: false,
+  duration: 900000,
+  options: [
+    {
+      name: 'op 1',
+      total: 10,
+    },
+    {
+      name: 'op 2',
+      total: 25,
+    },
+  ],
+  publishedAt: 111111,
+  question: 'what are you doing?',
+  showVotes: true,
+  siteId: 'site-id',
+  total: 35,
+  updatedAt: 1111111,
+  expireAt: 2222222,
 };
 
 export const exampleQnaProps: QnaProps = {
-  preModeration: true,
+  preModeration: false,
   language: 'en-us',
-  status: 'OK',
-  updatedAt: 11111,
-  createdAt: 11111,
+  status: 'ENABLED',
+  updatedAt: 1111,
+  createdAt: 1111,
   createdBy: 'fake-user',
-  name: 'Fake Q&A',
+  name: 'fake qna',
 };

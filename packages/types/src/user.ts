@@ -24,8 +24,8 @@ export interface ExternalUser {
 
 export interface BanUser {
   anonymousId?: string;
-  image: string;
-  name: string;
+  image?: string;
+  name?: string;
   siteId: string;
   userId?: string;
 }
