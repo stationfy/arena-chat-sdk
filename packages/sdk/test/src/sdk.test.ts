@@ -308,62 +308,6 @@ describe('SDK', () => {
     });
   });
 
-  describe('getChatQna', () => {
-    it('should get a chat Q&A', async () => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          loadChatRoom: () => {
-            return Promise.resolve({ chatRoom: { ...exampleChatRoom, qnaId: 'fake-qna-id' }, site: exampleSite });
-          },
-        };
-      });
-      // @ts-ignore
-      Qna.mockImplementation(() => {
-        return {
-          addQuestion: jest.fn(),
-          getQnaProps: async () => {
-            return exampleQnaProps;
-          },
-        };
-      });
-
-      Qna.getQnaProps = async () => {
-        return exampleQnaProps;
-      };
-
-      const sdk = new ArenaChat('my-api-key');
-
-      const nextQna = await sdk.getChatQna('my-channel');
-
-      expect(typeof nextQna.addQuestion).toEqual('function');
-    });
-
-    it('should return an exception', (done) => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          loadChatRoom: () => {
-            return Promise.resolve({ chatRoom: { ...exampleChatRoom }, site: exampleSite });
-          },
-        };
-      });
-      // @ts-ignore
-      Qna.mockImplementation(() => {
-        return {
-          addQuestion: jest.fn(),
-        };
-      });
-
-      const sdk = new ArenaChat('my-api-key');
-
-      sdk.getChatQna('my-channel').catch((error) => {
-        expect(error.message).toEqual('Cannot get the Q&A for this chat: "my-channel"');
-        done();
-      });
-    });
-  });
-
   describe('onUnreadPrivateMessagesCountChanged()', () => {
     it('should return an error if there is no current user', (done) => {
       const sdk = new ArenaChat('my-api-key');

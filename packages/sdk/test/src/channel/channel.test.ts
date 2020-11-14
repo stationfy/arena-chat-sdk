@@ -16,7 +16,7 @@ import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaHub } from '@services/arena-hub';
 import { ArenaChat } from '../../../src/sdk';
 import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
-import { exampleChatMessage, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
+import { exampleChatMessage, exampleChatRoom, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
 
 jest.mock('@services/arena-hub', () => ({
   ArenaHub: jest.fn(),
@@ -102,7 +102,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(exampleLiveChatChannel, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 
       const user: ChatMessageSender = {
         photoURL: 'https://www.google.com',
@@ -121,7 +121,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       const user: ChatMessageSender = {
         photoURL: 'https://www.google.com',
@@ -156,7 +156,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(exampleLiveChatChannel, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 
       const moderation = await channel.requestModeration();
 
@@ -174,7 +174,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       channel.requestModeration().catch((e) => {
         expect(e.message).toBe(
@@ -198,7 +198,7 @@ describe('Channel', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       const message: ChatMessage = {
         createdAt: 1592342151026,
@@ -226,7 +226,7 @@ describe('Channel', () => {
         },
       };
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       const message: ChatMessage = {
         createdAt: 1592342151026,
@@ -261,7 +261,7 @@ describe('Channel', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       const sentMessage = await channel.sendMessage({ text: 'hey!' });
 
@@ -280,7 +280,7 @@ describe('Channel', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       try {
         await channel.sendMessage({ text: 'hey!' });
@@ -300,7 +300,7 @@ describe('Channel', () => {
         };
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       try {
         const message = await channel.sendMessage({ text: '' });
@@ -314,7 +314,7 @@ describe('Channel', () => {
   it('should create an instance of realtime api with chatroom id', () => {
     const spy = jest.spyOn(RealtimeAPI, 'RealtimeAPI');
 
-    new Channel(exampleLiveChatChannel, exampleSDK);
+    new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
@@ -333,14 +333,14 @@ describe('Channel', () => {
 
       const spy = jest.spyOn(realtimeAPIInstanceMock, 'listenToChatConfigChanges');
 
-      new Channel(exampleLiveChatChannel, exampleSDK);
+      new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('should apply the chat config changes', () => {
       const realtimeAPIInstanceMock = {
-        listenToChatConfigChanges: (_: string, callback: (channel: LiveChatChannel) => void) => {
+        listenToChatConfigChanges: (callback: (channel: LiveChatChannel) => void) => {
           const channel: LiveChatChannel = {
             ...exampleLiveChatChannel,
             allowSendGifs: false,
@@ -354,7 +354,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channelI = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       expect(channelI.channel.allowSendGifs).toBeFalsy();
     });
@@ -374,7 +374,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       const messages = await channel.loadRecentMessages(10);
 
@@ -409,7 +409,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       const messages = await channel.loadRecentMessages(10);
 
@@ -429,7 +429,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channelI = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       try {
         await channelI.loadRecentMessages(10);
@@ -486,7 +486,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       await channel.loadRecentMessages(5);
 
@@ -524,7 +524,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const handleMessageModified = () => {};
@@ -563,7 +563,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       channel.onMessageModified((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -601,7 +601,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       channel.onMessageReceived(() => {});
@@ -637,7 +637,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       channel.onMessageReceived((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -658,7 +658,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channelI = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       try {
         channelI.onMessageReceived((message: ChatMessage) => {
@@ -698,7 +698,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       channel.onMessageDeleted(() => {});
@@ -734,7 +734,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       channel.onMessageDeleted((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -756,7 +756,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channelI = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channelI = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       try {
         channelI.onMessageDeleted((message: ChatMessage) => {
@@ -770,7 +770,7 @@ describe('Channel', () => {
 
   describe('offAllListeners()', () => {
     it("should off all channel's listeners", () => {
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       channel.offAllListeners();
     });
@@ -794,7 +794,7 @@ describe('Channel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const channel = new Channel(exampleLiveChatChannel, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
       const reaction: MessageReaction = {
         messageID: 'fake-message',
@@ -871,7 +871,7 @@ describe('Channel', () => {
         localCallback = callback;
       };
 
-      const channel = new Channel(exampleLiveChatChannel, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 
       await channel.loadRecentMessages(10);
 
@@ -897,7 +897,7 @@ describe('Channel', () => {
         localCallback = callback;
       };
 
-      const channel = new Channel(exampleLiveChatChannel, sdk);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 
       channel.onMessageModified((message: ChatMessage) => {
         expect(message?.currentUserReactions?.love).toBeTruthy();

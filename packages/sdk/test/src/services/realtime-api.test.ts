@@ -107,7 +107,7 @@ describe('RealtimeAPI', () => {
         callback(exampleChatRoom);
       });
 
-      realtimeAPI.listenToChatConfigChanges('new-chatroom', (channel: LiveChatChannel) => {
+      realtimeAPI.listenToChatConfigChanges((channel: LiveChatChannel) => {
         expect(channel._id).toEqual('new-chatroom');
         done();
       });
