@@ -313,6 +313,9 @@ export class RealtimeAPI implements BaseRealtime {
     return messages as ChatMessage[];
   }
 
+  /**
+   * @inheritdoc
+   */
   public listenToQuestionReceived(callback: (message: QnaQuestion) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
