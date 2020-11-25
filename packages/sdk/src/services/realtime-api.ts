@@ -179,7 +179,7 @@ export class RealtimeAPI implements BaseRealtime {
 
     const unsubscribe = listenToDocumentChange(
       {
-        path: this.dataPath,
+        path: `${this.dataPath}/channels/${this.channel}`,
       },
       (data) => {
         const channel: LiveChatChannel = data as LiveChatChannel;
