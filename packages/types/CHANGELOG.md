@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 2.0.0 (2020-11-14)
+
+
+### Features
+
+* provide channels functionality ([21dc129](https://github.com/stationfy/arena-chat-sdk/commit/21dc129338abcc53b7b7b60b245d2799cd6fdb57))
+
+
+### BREAKING CHANGES
+
+* add channels feature
+
+
+
+
+
 ## 1.2.4 (2020-11-13)
 
 
