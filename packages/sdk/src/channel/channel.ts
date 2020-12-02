@@ -434,7 +434,7 @@ export class Channel implements BaseChannel {
 
       const graphQLAPI = new GraphQLAPI(this.sdk.site, this.sdk.user);
 
-      const pinMessage = await graphQLAPI.fetchPinMessage({ channelId: this.chatRoom._id });
+      const pinMessage = await graphQLAPI.fetchPinMessage({ channelId: this.channel._id });
 
       return pinMessage;
     } catch (e) {
