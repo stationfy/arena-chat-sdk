@@ -5,6 +5,7 @@ import {
   GroupChannel,
   Site,
   ChatMessageContent,
+  LiveChatChannel,
   ChatMessage,
   Status,
   ChatMessageReportedBy,
