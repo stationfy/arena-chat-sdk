@@ -329,6 +329,30 @@ export class Channel {
   }
 
   /**
+  * Fetch Pin Messages for current channel
+  *
+  */
+  public async fetchPinMessage(): Promise<ChatMessage> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot fetch pinned message without a site id');
+    }
+    if (this.sdk.user === null) {
+      throw new Error('Cannot fetch pinned message without a user');
+    }
+    try {
+      const { GraphQLAPI } = await import('../services/graphql-api');
+
+      const graphQLAPI = new GraphQLAPI(this.sdk.site, this.sdk.user);
+
+      const pinMessage = await graphQLAPI.fetchPinMessage({ channelId: this.chatRoom._id });
+
+      return pinMessage;
+    } catch (e) {
+      throw new Error(`Cannot fetch pin messages on "${this.chatRoom.slug}" channel.`);
+    }
+  }
+
+  /**
    * Remove message modified listener
    *
    */

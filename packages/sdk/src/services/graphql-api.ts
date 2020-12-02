@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request';
-import { ExternalUser, PublicUser, GroupChannel, Site, ChatMessageContent } from '@arena-im/chat-types';
+import { ExternalUser, PublicUser, GroupChannel, Site, ChatMessageContent, ChatMessage } from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
 import { PrivateMessageInput } from '@arena-im/chat-types/dist/private-chat';
@@ -443,6 +443,51 @@ export class GraphQLAPI {
 
     if (!result) {
       throw new Error('failed');
+    }
+
+    return result;
+  }
+
+  /**
+   * Fetch a pinned message for a channel
+   *
+   * @param channelId the id of a chahnnel that the current user wants to fetch the pin message
+   */
+  public async fetchPinMessage({ channelId } : { channelId: string }): Promise<ChatMessage> {
+    const query = gql`
+      query listPinnedMessage($id: ID!) {
+        openChannel(id: $id) {
+          pinnedMessage {
+            key 
+            message {
+              media {
+                title
+                thumbnailUrl
+                type
+                url
+                description
+              }
+              text
+            }
+            sender {
+              anonymousId
+              displayName
+              label
+              moderator
+              name
+              photoURL
+              uid
+            }
+          }        
+        }
+      }
+    `;
+    const data = await this.graphQL.client.request(query, { input: { channelId } });
+
+    const result = data.openChannel as ChatMessage;
+
+    if (!result) {
+      throw Error('failed');
     }
 
     return result;
