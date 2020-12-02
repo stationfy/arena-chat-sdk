@@ -7,11 +7,10 @@ import {
   ChatRoom,
   ChatMessageContent,
   BasePrivateChannel,
-  BaseQna,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
-import { Channel } from './channel/channel';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
+import { LiveChat } from './live-chat/live-chat';
 
 /**
  * Chat SDK Client
@@ -37,9 +36,9 @@ export class ArenaChat {
   public mainChatRoom: ChatRoom | null = null;
   public restAPI: RestAPI;
   private defaultAuthToken = DEFAULT_AUTH_TOKEN;
-  private currentChannels: Channel[] = [];
   private userChangedListeners: UserChangedListener[] = [];
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
+  private liveChat: LiveChat | null = null;
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
@@ -80,13 +79,13 @@ export class ArenaChat {
   }
 
   /**
-   * Watch unread preivate messages on the current site for the current user
+   * Watch unread private messages on the current site for the current user
    *
    * @param callback
    */
-  public async onUnreadMessagesCountChanged(callback: (total: number) => void): Promise<void> {
+  public async onUnreadPrivateMessagesCountChanged(callback: (total: number) => void): Promise<void> {
     if (this.user === null) {
-      throw new Error('Cannot block a user without a current user.');
+      throw new Error('Cannot listen to unread private messages without a current user.');
     }
 
     const site = await this.fetchAndSetSite();
@@ -103,9 +102,13 @@ export class ArenaChat {
   /**
    * Unlisten to onUnreadMessagesCountChanged listener
    */
-  public offUnreadMessagesCountChanged(): void {
+  public offUnreadMessagesCountChanged(callback?: (result: boolean) => void): void {
     if (this.unsubscribeOnUnreadMessagesCountChanged) {
       this.unsubscribeOnUnreadMessagesCountChanged();
+
+      if (typeof callback === 'function') callback(true);
+    } else {
+      if (typeof callback === 'function') callback(false);
     }
   }
 
@@ -116,7 +119,7 @@ export class ArenaChat {
    */
   public async getPrivateChannel(channelId: string): Promise<BasePrivateChannel> {
     if (this.user === null) {
-      throw new Error('Cannot get a private channel without a user.');
+      throw new Error('Cannot get a private channel without a current user.');
     }
 
     const site = await this.fetchAndSetSite();
@@ -133,7 +136,7 @@ export class ArenaChat {
    */
   public async getUserPrivateChannels(): Promise<GroupChannel[]> {
     if (this.user === null) {
-      throw new Error('Cannot get a private channel without a user.');
+      throw new Error('Cannot get the list of private channels without a current user.');
     }
 
     const site = await this.fetchAndSetSite();
@@ -154,7 +157,7 @@ export class ArenaChat {
     firstMessage?: ChatMessageContent,
   ): Promise<BasePrivateChannel> {
     if (this.user === null) {
-      throw new Error('Cannot create a private channel without a user.');
+      throw new Error('Cannot create a private channel without a current user.');
     }
 
     const site = await this.fetchAndSetSite();
@@ -165,45 +168,28 @@ export class ArenaChat {
   }
 
   /**
-   * Get a Arena Chat Q&A
+   * Get live chat by slug
    *
-   * @param chatSlug
+   * @param slug
    */
-  public async getChatQna(chatSlug: string): Promise<BaseQna> {
-    const { chatRoom, site } = await this.fetchAndSetChatRoomAndSite(chatSlug);
-
-    if (typeof chatRoom.qnaId === 'undefined') {
-      throw new Error(`Cannot get the Q&A for this chat: "${chatSlug}"`);
+  public async getLiveChat(slug: string): Promise<LiveChat> {
+    if (this.liveChat) {
+      return this.liveChat;
     }
 
-    const { Qna } = await import('./qna/qna');
-
-    const qnaProps = await Qna.getQnaProps(chatRoom.qnaId);
-
-    const qnaI = new Qna(qnaProps, chatRoom.qnaId, site, this);
-
-    return qnaI;
-  }
-
-  /**
-   * Get a Arena Chat Channel
-   *
-   * @param channel Chat slug
-   */
-  public async getChannel(channel: string): Promise<Channel> {
     try {
-      const { chatRoom } = await this.fetchAndSetChatRoomAndSite(channel);
+      const { chatRoom, site } = await this.fetchAndSetChatRoomAndSite(slug);
 
-      const channelI = new Channel(chatRoom, this);
+      const liveChatI = new LiveChat(chatRoom, site, this);
 
-      this.currentChannels.push(channelI);
+      this.liveChat = liveChatI;
 
-      return channelI;
+      return liveChatI;
     } catch (e) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
       if (e === Status.Invalid) {
-        erroMessage = `Invalid site (${this.apiKey}) or channel (${channel}) slugs.`;
+        erroMessage = `Invalid site (${this.apiKey}) or live chat (${slug}) slugs.`;
       }
 
       throw new Error(erroMessage);
@@ -343,6 +329,7 @@ export class ArenaChat {
 
     this.user = {
       ...user,
+      id: result.id,
       token: result.token,
       isModerator: result.isModerator,
       isBanned: result.isBanned,

@@ -33,3 +33,45 @@ export function isNodeEnv(): boolean {
 export function getRequestURL(baseURL: string, path: string): string {
   return `${baseURL}${path.startsWith('/') ? '' : '/'}${path}`;
 }
+
+/**
+ * Returns a function, that, as long as it continues to be invoked, will not
+ * be triggered. The function will be called after it stops being called for
+ * `wait` milliseconds.
+ */
+type Procedure = (...args: any[]) => void;
+
+export type Options = {
+  isImmediate: boolean;
+};
+
+export function debounce<F extends Procedure>(
+  func: F,
+  waitMilliseconds = 50,
+  options: Options = {
+    isImmediate: false,
+  },
+): (this: ThisParameterType<F>, ...args: Parameters<F>) => void {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  return function (this: ThisParameterType<F>, ...args: Parameters<F>) {
+    const doLater = () => {
+      timeoutId = undefined;
+      if (!options.isImmediate) {
+        func.apply(this, args);
+      }
+    };
+
+    const shouldCallNow = options.isImmediate && timeoutId === undefined;
+
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(doLater, waitMilliseconds);
+
+    if (shouldCallNow) {
+      func.apply(this, args);
+    }
+  };
+}

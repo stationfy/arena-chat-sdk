@@ -1,14 +1,18 @@
 import {
   ChatMessage,
-  ChatRoom,
   ServerReaction,
   ExternalUser,
   GroupChannel,
   ListenChangeConfig,
   OrderBy,
   QnaProps,
+  PollFilter,
+  Poll,
+  Where,
+  QnaQuestion,
+  QnaQuestionFilter,
+  LiveChatChannel,
 } from '@arena-im/chat-types';
-import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
 import {
   listenToCollectionChange,
@@ -24,7 +28,7 @@ export class RealtimeAPI implements BaseRealtime {
   /** Unsubscribe functions */
   private unsbscribeFunctions: (() => void)[] = [];
 
-  public constructor(private channel?: string) {}
+  public constructor(private channel?: string, private dataPath?: string) {}
 
   /**
    * @inheritDoc
@@ -53,6 +57,70 @@ export class RealtimeAPI implements BaseRealtime {
     const questions = await fetchCollectionItems(config);
 
     return questions as QnaQuestion[];
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public async fetchAllPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {
+    let orderBy: OrderBy;
+    const where: Where[] = [
+      {
+        fieldPath: 'channelId',
+        opStr: '==',
+        value: this.channel,
+      },
+      {
+        fieldPath: 'draft',
+        opStr: '==',
+        value: false,
+      },
+    ];
+
+    if (filter === PollFilter.POPULAR) {
+      orderBy = {
+        field: 'total',
+        desc: true,
+      };
+    } else if (filter === PollFilter.ACTIVE) {
+      orderBy = {
+        field: 'expireAt',
+        desc: true,
+      };
+
+      where.push({
+        fieldPath: 'expireAt',
+        opStr: '>=',
+        value: +new Date(),
+      });
+    } else if (filter === PollFilter.ENDED) {
+      orderBy = {
+        field: 'expireAt',
+        desc: true,
+      };
+
+      where.push({
+        fieldPath: 'expireAt',
+        opStr: '<',
+        value: +new Date(),
+      });
+    } else {
+      orderBy = {
+        field: 'createdAt',
+        desc: true,
+      };
+    }
+
+    const config: ListenChangeConfig = {
+      path: 'polls',
+      orderBy: [orderBy],
+      limit,
+      where,
+    };
+
+    const polls = await fetchCollectionItems(config);
+
+    return polls as Poll[];
   }
 
   /**
@@ -104,15 +172,19 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): () => void {
+  public listenToChatConfigChanges(callback: (channel: LiveChatChannel) => void): () => void {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     const unsubscribe = listenToDocumentChange(
       {
-        path: `chat-rooms/${this.channel}`,
+        path: `${this.dataPath}/channels/${this.channel}`,
       },
       (data) => {
-        const chatRoom: ChatRoom = data as ChatRoom;
+        const channel: LiveChatChannel = data as LiveChatChannel;
 
-        callback(chatRoom);
+        callback(channel);
       },
     );
     this.unsbscribeFunctions.push(unsubscribe);
@@ -129,8 +201,12 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     const config: ListenChangeConfig = {
-      path: `chat-rooms/${this.channel}/messages`,
+      path: `${this.dataPath}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -173,12 +249,16 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]> {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     if (limit) {
       limit = limit + 1;
     }
 
     const messages = await fetchCollectionItems({
-      path: `chat-rooms/${this.channel}/messages`,
+      path: `${this.dataPath}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -233,6 +313,9 @@ export class RealtimeAPI implements BaseRealtime {
     return messages as ChatMessage[];
   }
 
+  /**
+   * @inheritdoc
+   */
   public listenToQuestionReceived(callback: (message: QnaQuestion) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
@@ -252,12 +335,46 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToMessageReceived(callback: (message: ChatMessage) => void): () => void {
+    if (!this.dataPath) {
+      throw new Error('failed');
+    }
+
     const unsubscribe = listenToCollectionItemChange(
       {
-        path: `chat-rooms/${this.channel}/messages`,
+        path: `${this.dataPath}/messages`,
       },
       (data) => {
         callback(data as ChatMessage);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToPollReceived(callback: (poll: Poll) => void): () => void {
+    const unsubscribe = listenToCollectionItemChange(
+      {
+        path: `polls`,
+        where: [
+          {
+            fieldPath: 'channelId',
+            opStr: '==',
+            value: this.channel,
+          },
+          {
+            fieldPath: 'draft',
+            opStr: '==',
+            value: false,
+          },
+        ],
+      },
+      (data) => {
+        callback(data as Poll);
       },
     );
 
@@ -309,9 +426,44 @@ export class RealtimeAPI implements BaseRealtime {
             value: user.id,
           },
           {
-            fieldPath: 'chatRoomId',
+            fieldPath: 'openChannelId',
             opStr: '==',
             value: this.channel,
+          },
+        ],
+      },
+      (response) => {
+        callback(response as ServerReaction[]);
+      },
+    );
+
+    this.unsbscribeFunctions.push(unsubscribe);
+
+    return unsubscribe;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public listenToUserChatPollsReactions(userId: string, callback: (reactions: ServerReaction[]) => void): () => void {
+    const unsubscribe = listenToCollectionChange(
+      {
+        path: 'reactions',
+        where: [
+          {
+            fieldPath: 'userId',
+            opStr: '==',
+            value: userId,
+          },
+          {
+            fieldPath: 'channelId',
+            opStr: '==',
+            value: this.channel,
+          },
+          {
+            fieldPath: 'itemType',
+            opStr: '==',
+            value: 'poll',
           },
         ],
       },

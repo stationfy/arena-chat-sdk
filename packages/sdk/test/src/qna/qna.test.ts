@@ -2,7 +2,7 @@ import { Qna } from '@qna/qna';
 import { exampleQnaProps, exampleQnaQuestion, exampleSDK, exampleSite } from '../../fixtures/examples';
 import * as GraphQLAPI from '@services/graphql-api';
 import * as RealtimeAPI from '@services/realtime-api';
-import { QnaQuestion } from '@arena-im/chat-types';
+import { BaseQna, QnaQuestion } from '@arena-im/chat-types';
 import { ArenaChat } from '../../../src/sdk';
 
 jest.mock('@services/graphql-api', () => ({
@@ -30,7 +30,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const questions = await qna.loadQuestions(10);
 
@@ -54,7 +54,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const questions = await qna.loadQuestions(10);
 
@@ -73,7 +73,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       try {
         await qna.loadQuestions(10);
@@ -99,7 +99,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.onQuestionReceived((question: QnaQuestion) => {
         expect(question.key).toEqual('fake-qna-question');
@@ -119,7 +119,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       try {
         qna.onQuestionReceived((question: QnaQuestion) => {
@@ -147,7 +147,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       qna.onQuestionReceived(() => {});
@@ -173,13 +173,34 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.onQuestionModified((question: QnaQuestion) => {
         expect(question.key).toEqual('fake-qna-question');
         expect(question.changeType).toEqual('modified');
         done();
       });
+    });
+  });
+
+  describe('getQnaProps()', () => {
+    it('should get Q&A props from firestore', async () => {
+      const realtimeAPIInstanceMock = {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        listenToQnaUserReactions: () => {},
+        fetchQnaProps: async () => {
+          return exampleQnaProps;
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const result = await Qna.getQnaProps('fake-qna-id');
+
+      expect(result).toEqual(exampleQnaProps);
     });
   });
 
@@ -201,7 +222,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const handleQuestionModified = () => {};
@@ -228,7 +249,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.onQuestionDeleted((question: QnaQuestion) => {
         expect(question.key).toEqual('fake-qna-question');
@@ -249,7 +270,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       try {
         qna.onQuestionDeleted((question: QnaQuestion) => {
@@ -277,7 +298,7 @@ describe('Qna', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       qna.onQuestionDeleted(() => {});
@@ -298,7 +319,7 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const result = await qna.answerQuestion(exampleQnaQuestion, 'hey?');
 
@@ -317,7 +338,7 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.answerQuestion(exampleQnaQuestion, 'hey?').catch((error) => {
         expect(error.message).toEqual('Cannot add answer the "fake-qna-question" question.');
@@ -339,7 +360,7 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const result = await qna.deleteQuestion(exampleQnaQuestion);
 
@@ -358,7 +379,7 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.deleteQuestion(exampleQnaQuestion).catch((error) => {
         expect(error.message).toEqual('Cannot delete the "fake-qna-question" question.');
@@ -380,7 +401,7 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const result = await qna.upvoteQuestion(exampleQnaQuestion);
 
@@ -402,7 +423,7 @@ describe('Qna', () => {
       const exampleSDK = new ArenaChat('my-api-key');
       exampleSDK.site = exampleSite;
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const result = await qna.upvoteQuestion(exampleQnaQuestion, 'fake-anonymous-user');
 
@@ -424,7 +445,7 @@ describe('Qna', () => {
       const exampleSDK = new ArenaChat('my-api-key');
       exampleSDK.site = exampleSite;
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.upvoteQuestion(exampleQnaQuestion).catch((error) => {
         expect(error.message).toEqual('Cannot ban user without anonymoud id or user id.');
@@ -447,7 +468,7 @@ describe('Qna', () => {
       const exampleSDK = new ArenaChat('my-api-key');
       exampleSDK.site = exampleSite;
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.upvoteQuestion(exampleQnaQuestion, 'fake-anonymous-user').catch((error) => {
         expect(error.message).toEqual('Cannot upvote to the "fake-qna-question" question.');
@@ -469,7 +490,7 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const result = await qna.banUser({ anonymousId: 'fake-anonymous-user' });
 
@@ -488,7 +509,7 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       const result = await qna.banUser({ userId: 'fake-user' });
 
@@ -507,10 +528,47 @@ describe('Qna', () => {
         return graphQLAPIInstanceMock;
       });
 
-      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSite, exampleSDK);
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
 
       qna.banUser({}).catch((error) => {
         expect(error.message).toEqual('Cannot ban user without anonymoud id or user id.');
+        done();
+      });
+    });
+  });
+
+  describe('offChange()', () => {
+    it('should call the unsubscribe function', (done) => {
+      const realtimeAPIInstanceMock = {
+        listenToQnaProps: (_: string, callback: (instance: BaseQna) => void) => {
+          callback(new Qna(exampleQnaProps, 'fake-qna', exampleSDK));
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
+
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      qna.onChange(() => {});
+
+      qna.offChange((success) => {
+        expect(success).toBe(true);
+        done();
+      });
+    });
+
+    it('should not call the unsubscribe function when there is any listener', (done) => {
+      const qna = new Qna(exampleQnaProps, 'fake-qna', exampleSDK);
+
+      qna.offChange((success) => {
+        expect(success).toBe(false);
         done();
       });
     });

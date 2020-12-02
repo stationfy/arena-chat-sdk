@@ -1,4 +1,4 @@
-import { ChatMessage, ChatRoom, ExternalUser, ServerReaction, GroupChannel } from '@arena-im/chat-types';
+import { ChatMessage, ExternalUser, ServerReaction, GroupChannel, LiveChatChannel } from '@arena-im/chat-types';
 import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types/dist/qna';
 
 /** Realtime used to listen to realtime events */
@@ -15,7 +15,7 @@ export interface BaseRealtime {
    *
    * @param callback Callback function
    */
-  listenToChatConfigChanges(callback: (chatRoom: ChatRoom) => void): void;
+  listenToChatConfigChanges(callback: (channel: LiveChatChannel) => void): () => void;
 
   /**
    * Listen to banned users

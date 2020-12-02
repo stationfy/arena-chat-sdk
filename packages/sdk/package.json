@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/chat-sdk",
-  "version": "1.2.0",
+  "version": "2.0.1",
   "description": "arena-chat-sdk is the official JavaScript client for Arena Chat, a service for building chat applications.",
   "author": "Arena",
   "license": "ISC",
@@ -18,10 +18,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^1.2.0",
-    "firebase": "^7.14.6",
+    "@arena-im/chat-types": "^2.0.1",
+    "firebase": "^7.24.0",
     "graphql": "^15.3.0",
-    "graphql-request": "^3.0.0",
+    "graphql-request": "^3.3.0",
     "rollup-plugin-json": "^4.0.0"
   },
   "devDependencies": {
@@ -43,7 +43,7 @@
     "rollup": "2.10.5",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-terser": "5.3.0",
+    "rollup-plugin-terser": "^7.0.2",
     "rollup-plugin-typescript2": "0.27.1",
     "ts-jest": "^26.1.0",
     "typescript": "3.9.5"

@@ -3,6 +3,65 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.1 (2020-11-25)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+# 2.0.0 (2020-11-14)
+
+
+### Features
+
+* provide channels functionality ([21dc129](https://github.com/stationfy/arena-chat-sdk/commit/21dc129338abcc53b7b7b60b245d2799cd6fdb57))
+
+
+### BREAKING CHANGES
+
+* add channels feature
+
+
+
+
+
+## 1.2.4 (2020-11-13)
+
+
+### Bug Fixes
+
+* update fibase and graphql versions ([264d08b](https://github.com/stationfy/arena-chat-sdk/commit/264d08b4f5330ddce8034c6621019fd33f06636e))
+
+
+
+
+
+## 1.2.3 (2020-11-13)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+## 1.2.2 (2020-11-08)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+## 1.2.1 (2020-10-20)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
 # [1.2.0](https://github.com/stationfy/arena-chat-sdk/compare/v1.1.1...v1.2.0) (2020-10-20)
 
 

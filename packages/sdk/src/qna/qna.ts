@@ -1,6 +1,5 @@
 import {
   BaseQna,
-  Site,
   QnaQuestionFilter,
   QnaQuestion,
   DocumentChangeType,
@@ -30,9 +29,10 @@ export class Qna implements BaseQna {
   public createdBy: string;
   public name: string;
 
-  public constructor(props: QnaProps, private qnaId: string, private site: Site, private sdk: ArenaChat) {
+  public constructor(props: QnaProps, private qnaId: string, private sdk: ArenaChat) {
     this.realtimeAPI = new RealtimeAPI(qnaId);
-    this.graphQLAPI = new GraphQLAPI(site, this.sdk.user || undefined);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
 
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
 
@@ -45,20 +45,39 @@ export class Qna implements BaseQna {
     this.name = props.name;
   }
 
+  /**
+   * Get the Q&A props from firestore
+   *
+   * @param qnaId
+   */
   static getQnaProps(qnaId: string): Promise<QnaProps> {
     const realtimeAPI = new RealtimeAPI(qnaId);
 
     return realtimeAPI.fetchQnaProps(qnaId);
   }
 
-  public offChange(): void {
+  /**
+   * Remove change listener
+   *
+   * @param callback
+   */
+  public offChange(callback?: (success: boolean) => void): void {
     this.propsChangeCallbacks = [];
 
     if (typeof this.propsChangeListener === 'function') {
       this.propsChangeListener();
+
+      if (typeof callback === 'function') callback(true);
+    } else {
+      if (typeof callback === 'function') callback(false);
     }
   }
 
+  /**
+   * Watch the Q&A properties change
+   *
+   * @param callback
+   */
   public onChange(callback: (instance: BaseQna) => void): void {
     try {
       this.registerPropsChangeCallback((props) => {
@@ -69,7 +88,6 @@ export class Qna implements BaseQna {
         this.createdAt = props.createdAt;
         this.createdBy = props.createdBy;
         this.name = props.name;
-
         callback(this);
       });
     } catch (e) {
@@ -83,10 +101,14 @@ export class Qna implements BaseQna {
    * @param {ExternalUser} user external user
    */
   private watchUserChanged(user: ExternalUser) {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot watch the user change without a site.');
+    }
+
     this.cleanQuestionsReaction();
     this.watchUserReactions(user);
 
-    this.graphQLAPI = new GraphQLAPI(this.site, user || undefined);
+    this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
   }
 
   public async loadQuestions(limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]> {

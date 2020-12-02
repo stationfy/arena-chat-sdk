@@ -3,7 +3,7 @@ import { PublicUser } from './user';
 export interface BaseQna extends QnaProps {
   loadQuestions(limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]>;
   onChange(callback: (instance: BaseQna) => void): void;
-  offChange(): void;
+  offChange(callback?: (success: boolean) => void): void;
   onQuestionReceived(callback: (question: QnaQuestion) => void): void;
   offQuestionReceived(): void;
   onQuestionModified(callback: (question: QnaQuestion) => void): void;
@@ -45,10 +45,4 @@ export interface QnaQuestion {
     text: string;
   };
   userVoted: boolean;
-}
-
-export enum DocumentChangeType {
-  ADDED = 'added',
-  REMOVED = 'removed',
-  MODIFIED = 'modified',
 }

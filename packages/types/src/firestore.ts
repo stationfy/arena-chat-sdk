@@ -17,3 +17,9 @@ export interface ListenChangeConfig {
   where?: Where[];
   endAt?: any[];
 }
+
+export enum DocumentChangeType {
+  ADDED = 'added',
+  REMOVED = 'removed',
+  MODIFIED = 'modified',
+}

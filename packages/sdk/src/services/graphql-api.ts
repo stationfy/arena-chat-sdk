@@ -1,5 +1,14 @@
 import { gql } from 'graphql-request';
-import { ExternalUser, PublicUser, GroupChannel, Site, ChatMessageContent, ChatMessage } from '@arena-im/chat-types';
+import {
+  ExternalUser,
+  PublicUser,
+  GroupChannel,
+  Site,
+  ChatMessageContent,
+  ChatMessage,
+  Status,
+  ChatMessageReportedBy,
+} from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
 import { PrivateMessageInput } from '@arena-im/chat-types/dist/private-chat';
@@ -255,7 +264,30 @@ export class GraphQLAPI {
     const result = data.markRead as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  /**
+   * Mark the group channel as read
+   *
+   * @param openChannelId GroupChannel id
+   */
+  public async markOpenChannelRead(openChannelId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation markRead($input: MarkReadInput!) {
+        markRead(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { openChannelId } });
+
+    const result = data.markRead as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -279,7 +311,7 @@ export class GraphQLAPI {
     const result = data.deleteMessage as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -302,7 +334,7 @@ export class GraphQLAPI {
     const result = data.removeGroupChannel as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -325,7 +357,7 @@ export class GraphQLAPI {
     const result = data.blockUser as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -348,7 +380,7 @@ export class GraphQLAPI {
     const result = data.unblockUser as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -366,7 +398,7 @@ export class GraphQLAPI {
     const result = data.addQuestion as string;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -384,7 +416,7 @@ export class GraphQLAPI {
     const result = data.answerQuestion as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -402,7 +434,7 @@ export class GraphQLAPI {
     const result = data.deleteQuestion as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -420,7 +452,7 @@ export class GraphQLAPI {
     const result = data.upvoteQuestion as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -428,7 +460,7 @@ export class GraphQLAPI {
 
   public async banUser({ anonymousId, userId }: { anonymousId?: string; userId?: string }): Promise<boolean> {
     if (!anonymousId && !userId) {
-      throw new Error('failed');
+      throw new Error(Status.Invalid);
     }
 
     const mutation = gql`
@@ -442,7 +474,92 @@ export class GraphQLAPI {
     const result = data.banUser as boolean;
 
     if (!result) {
-      throw new Error('failed');
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async pollVote({
+    pollId,
+    userId,
+    optionId,
+  }: {
+    pollId: string;
+    userId: string;
+    optionId: number;
+  }): Promise<boolean> {
+    const mutation = gql`
+      mutation pollVote($input: PollVoteInput!) {
+        pollVote(input: $input)
+      }
+    `;
+    const data = await this.graphQL.client.request(mutation, { input: { pollId, userId, optionId } });
+
+    const result = data.pollVote as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async sendMessaToChannel(input: ChatMessage): Promise<string> {
+    const mutation = gql`
+      mutation sendMessage($input: SendMessageInput!) {
+        sendMessage(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input });
+
+    const result = data.sendMessage as string;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async deleteOpenChannelMessage(openChannelId: string, messageId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation deleteMessage($input: DeleteMessageInput!) {
+        deleteMessage(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { openChannelId, messageId } });
+
+    const result = data.deleteMessage as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async reportOpenChannelMessage(
+    channelId: string,
+    messageId: string,
+    reportedBy: ChatMessageReportedBy,
+  ): Promise<boolean> {
+    const mutation = gql`
+      mutation reportChannelMessage($input: ReportMessageInput!) {
+        reportChannelMessage(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, {
+      input: { channelId, messageId, reportDoc: { reportedBy } },
+    });
+
+    const result = data.reportChannelMessage as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
     }
 
     return result;
@@ -491,5 +608,58 @@ export class GraphQLAPI {
     }
 
     return result;
+  }
+
+  public async listChannels(chatId: string): Promise<LiveChatChannel[]> {
+    const query = gql`
+      query chatRoom($id: ID!) {
+        chatRoom(id: $id) {
+          channels {
+            _id
+            name
+            unreadCount
+          }
+        }
+      }
+    `;
+
+    const data = await this.graphQL.client.request(query, { id: chatId });
+
+    const channels = data.chatRoom.channels as LiveChatChannel[];
+
+    return channels;
+  }
+
+  public async fetchChannel(channelId: string): Promise<LiveChatChannel> {
+    const query = gql`
+      query openChannel($id: ID!) {
+        openChannel(id: $id) {
+          _id
+          allowSendGifs
+          allowShareUrls
+          chatColor
+          chatPreModerationIsEnabled
+          chatRequestModeratorIsEnabled
+          dataPath
+          hasPolls
+          name
+          qnaIsEnabled
+          qnaId
+          reactionsEnabled
+          showEmojiButton
+          unreadCount
+        }
+      }
+    `;
+
+    const data = await this.graphQL.client.request(query, { id: channelId });
+
+    const channel = data.openChannel as LiveChatChannel;
+
+    if (!channel) {
+      throw new Error(Status.Invalid);
+    }
+
+    return channel;
   }
 }

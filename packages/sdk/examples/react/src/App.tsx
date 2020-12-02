@@ -4,6 +4,7 @@ import { ExternalUser, ChatMessage } from '@arena-im/chat-types';
 import './App.css';
 import Message from './components/Message';
 import { Channel } from '../../../dist/channel/channel';
+import { LiveChat } from '../../../dist/live-chat/live-chat';
 
 function App() {
   const [sending, setSending] = useState(false);
@@ -18,6 +19,7 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const preventFetchPrevious = useRef(false);
   const previousScrollHeight = useRef(0);
+  const liveChat = useRef<LiveChat | null>(null);
   const channel = useRef<Channel | null>(null);
   const arenaChat = useRef<ArenaChat | null>(null);
 
@@ -45,9 +47,11 @@ function App() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat(YOUR_SITE_SLUG);
+        arenaChat.current = new ArenaChat('globoesporte');
 
-        channel.current = await arenaChat.current.getChannel(YOUR_CHAT_SLUG);
+        liveChat.current = await arenaChat.current.getLiveChat('twf1');
+
+        channel.current = liveChat.current.getMainChannel();
 
         const messages = await channel.current.loadRecentMessages(20);
 
@@ -64,6 +68,7 @@ function App() {
     }
 
     initializeChat();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -104,7 +109,7 @@ function App() {
     setSending(true);
 
     try {
-      await channel.current.sendMessage(text);
+      await channel.current.sendMessage({ text });
       setText('');
     } catch (e) {
       setError(e.message);
@@ -181,7 +186,7 @@ function App() {
             </figure>
           </div>
           {error && <div className="chat-error">{error}</div>}
-          {user && !isModerator &&(
+          {user && !isModerator && (
             <button className="request-moderation-button" onClick={requestModeration}>
               Request Moderation
             </button>
