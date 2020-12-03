@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.2 (2020-12-03)
+
+
+### Bug Fixes
+
+* listen to chat config changes ([7e8ee3c](https://github.com/stationfy/arena-chat-sdk/commit/7e8ee3cebc93b19fa691afb72e042d27c0629bc1))
+
+
+
+
+
 ## 2.0.1 (2020-11-25)
 
 **Note:** Version bump only for package @arena-im/chat-sdk
