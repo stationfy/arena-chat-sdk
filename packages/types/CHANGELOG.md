@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.3 (2020-12-04)
+
+
+### Bug Fixes
+
+* change channel prop listener ([00b8d1d](https://github.com/stationfy/arena-chat-sdk/commit/00b8d1d7ada42a2c2e39dfb83ad3373c401aa5d7))
+
+
+
+
+
 ## 2.0.2 (2020-12-03)
 
 
