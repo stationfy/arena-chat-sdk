@@ -340,7 +340,7 @@ describe('Channel', () => {
 
     it('should apply the chat config changes', () => {
       const realtimeAPIInstanceMock = {
-        listenToChatConfigChanges: (callback: (channel: LiveChatChannel) => void) => {
+        listenToChatConfigChanges: (_: string, callback: (channel: LiveChatChannel) => void) => {
           const channel: LiveChatChannel = {
             ...exampleLiveChatChannel,
             allowSendGifs: false,
