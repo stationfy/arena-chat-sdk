@@ -1093,4 +1093,78 @@ describe('GraphQLAPI', () => {
       });
     });
   });
+
+  describe('fetchPinMessage({ channelId } : { channelId: string })', () => {
+    it('should fetch pinned message for a site', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              fetchPinMessage: true,
+            };
+          },
+        }
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.fetchPinMessage({ channelId: 'fake-channel-id' });
+
+      expect(result).toEqual(true);
+    });
+
+    it('should return an error when channelId is not present', done => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              fetchPinMessage: false,
+            };
+          },
+        }
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      // @ts-ignore
+      graphqlAPI.fetchPinMessage({}).catch((e) => {
+        expect(e.message).toEqual('Can\'t fetch pin message without a channel id');
+        done();
+      });
+    });
+
+    it('should return invalid error when there is no response', done => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              fetchPinMessage: false,
+            };
+          },
+        }
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.fetchPinMessage({ channelId: 'fake-channel-id' }).catch((e) => {
+        expect(e.message).toEqual(Status.Failed);
+        done();
+      });
+    })
+  })
 });

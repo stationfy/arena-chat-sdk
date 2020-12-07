@@ -572,6 +572,9 @@ export class GraphQLAPI {
    * @param channelId the id of a chahnnel that the current user wants to fetch the pin message
    */
   public async fetchPinMessage({ channelId } : { channelId: string }): Promise<ChatMessage> {
+    if (!channelId) {
+      throw new Error('Can\'t fetch pin message without a channel id')
+    }
     const query = gql`
       query listPinnedMessage($id: ID!) {
         openChannel(id: $id) {
@@ -605,7 +608,7 @@ export class GraphQLAPI {
     const result = data.openChannel as ChatMessage;
 
     if (!result) {
-      throw Error('failed');
+      throw new Error(Status.Failed);
     }
 
     return result;
