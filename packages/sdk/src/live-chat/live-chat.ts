@@ -29,7 +29,20 @@ export class LiveChat implements BaseLiveChat {
     this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
 
     this.arenaHub = new ArenaHub(chatRoom, sdk);
-    this.arenaHub.track('page');
+
+    if (!this.detectWidgetsPresence()) {
+      this.arenaHub.track('page');
+    }
+  }
+
+  private detectWidgetsPresence() {
+    const arenaLive = document.querySelector('#arena-live');
+    const arenaChat = document.querySelector('#arena-chat');
+    const arenaLiveClass = document.querySelector('.arena-liveblog');
+    const arenaChatClass = document.querySelector('.arena-chat');
+    const arenaWidgetClass = document.querySelector('.arena-embed-widget');
+
+    return !!arenaLive || !!arenaChat || !!arenaLiveClass || !!arenaChatClass || !!arenaWidgetClass;
   }
 
   /**
