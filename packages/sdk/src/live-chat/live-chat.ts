@@ -41,8 +41,18 @@ export class LiveChat implements BaseLiveChat {
     const arenaLiveClass = document.querySelector('.arena-liveblog');
     const arenaChatClass = document.querySelector('.arena-chat');
     const arenaWidgetClass = document.querySelector('.arena-embed-widget');
+    const arenaPreviewWidgetClass = document.querySelector('.arena-home-app');
+    const arenaEmbedFrameWidgetClass = document.querySelector('.arena-embed-frame');
 
-    return !!arenaLive || !!arenaChat || !!arenaLiveClass || !!arenaChatClass || !!arenaWidgetClass;
+    return (
+      !!arenaLive ||
+      !!arenaChat ||
+      !!arenaLiveClass ||
+      !!arenaChatClass ||
+      !!arenaWidgetClass ||
+      !!arenaPreviewWidgetClass ||
+      !!arenaEmbedFrameWidgetClass
+    );
   }
 
   /**
