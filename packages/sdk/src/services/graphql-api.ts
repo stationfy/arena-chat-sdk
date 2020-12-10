@@ -618,4 +618,33 @@ export class GraphQLAPI {
 
     return channel;
   }
+
+  public async fetchUserProfile(userId: string): Promise<PublicUser> {
+    const query = gql`
+      query user($id: ID!) {
+        user(id: $id) {
+          _id
+          name
+          image
+          defaultImage
+          isModerator
+          bio
+          socialLinks
+          isBlocked
+          userName
+          location
+        }
+      }
+    `;
+
+    const data = await this.graphQL.client.request(query, { id: userId });
+
+    const user = data.user as PublicUser;
+
+    if (!user) {
+      throw new Error(Status.Invalid);
+    }
+
+    return user;
+  }
 }

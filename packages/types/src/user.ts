@@ -107,4 +107,8 @@ export interface PublicUser {
   modLabel?: string;
   isBanned?: boolean;
   isBlocked?: boolean;
+  bio?: string;
+  socialLinks?: string[];
+  userName?: string;
+  location?: string;
 }

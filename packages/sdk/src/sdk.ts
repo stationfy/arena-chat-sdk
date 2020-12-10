@@ -7,6 +7,8 @@ import {
   ChatRoom,
   ChatMessageContent,
   BasePrivateChannel,
+  BaseUserProfile,
+  PublicUser,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
@@ -39,9 +41,38 @@ export class ArenaChat {
   private userChangedListeners: UserChangedListener[] = [];
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private liveChat: LiveChat | null = null;
+  private userProfileI: BaseUserProfile | null = null;
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+  }
+
+  public async getMeProfile(): Promise<PublicUser> {
+    if (this.user === null) {
+      throw new Error('You have to set a user before get the current user profile.');
+    }
+
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.getMeProfile();
+  }
+
+  public async getUserProfile(userId: string): Promise<PublicUser> {
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.getUserProfile(userId);
   }
 
   /**

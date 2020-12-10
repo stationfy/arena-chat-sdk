@@ -21,3 +21,4 @@ export { BasePrivateChannel } from './base-private-channel';
 export { BaseQna, QnaQuestion, QnaQuestionFilter, QnaProps } from './qna';
 export { BasePolls, Poll, PollFilter } from './polls';
 export { TrackPayload, TrackContext, TrackPageInfo } from './arena-hub';
+export { BaseUserProfile } from './user-profile';
