@@ -71,7 +71,7 @@ export class RealtimeAPI implements BaseRealtime {
       limit
     };
 
-    if (where.value.length > 0) {
+    if (where.fieldPath.length > 0) {
       config.where = [where]
     }
 
