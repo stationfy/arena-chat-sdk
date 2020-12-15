@@ -560,14 +560,19 @@ export class Channel implements BaseChannel {
    * Watch chat config changes
    *
    */
-  private watchChatConfigChanges() {
+  public watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void {
     try {
-      this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
+      const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
+      return this.realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
         this.channel = {
           ...nextChatRoom,
           _id: this.channel._id,
           dataPath: this.channel.dataPath,
         };
+
+        if (callback) {
+          callback(this.channel);
+        }
       });
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');

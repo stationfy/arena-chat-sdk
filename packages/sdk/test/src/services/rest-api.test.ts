@@ -14,6 +14,7 @@ let chatRoom: ChatRoom;
 let site: Site;
 describe('RestAPI', () => {
   beforeEach(() => {
+    // @ts-ignore
     chatRoom = {
       allowSendGifs: true,
       allowShareUrls: true,

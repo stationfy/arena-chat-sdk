@@ -3,6 +3,74 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.5 (2020-12-10)
+
+
+### Bug Fixes
+
+* track page views ([cbd3bdc](https://github.com/stationfy/arena-chat-sdk/commit/cbd3bdc41cbee86f25be403275f9e8b4e47b8e15))
+
+
+
+
+
+## 2.0.4 (2020-12-10)
+
+
+### Bug Fixes
+
+* test runner ([191b529](https://github.com/stationfy/arena-chat-sdk/commit/191b5295d8cf03d1a07df0abdcd1721e1fe6131a))
+
+
+
+
+
+## 2.0.3 (2020-12-04)
+
+
+### Bug Fixes
+
+* change channel prop listener ([00b8d1d](https://github.com/stationfy/arena-chat-sdk/commit/00b8d1d7ada42a2c2e39dfb83ad3373c401aa5d7))
+
+
+
+
+
+## 2.0.2 (2020-12-03)
+
+
+### Bug Fixes
+
+* listen to chat config changes ([7e8ee3c](https://github.com/stationfy/arena-chat-sdk/commit/7e8ee3cebc93b19fa691afb72e042d27c0629bc1))
+
+
+
+
+
+## 2.0.1 (2020-11-25)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+# 2.0.0 (2020-11-14)
+
+
+### Features
+
+* provide channels functionality ([21dc129](https://github.com/stationfy/arena-chat-sdk/commit/21dc129338abcc53b7b7b60b245d2799cd6fdb57))
+
+
+### BREAKING CHANGES
+
+* add channels feature
+
+
+
+
+
 ## 1.2.4 (2020-11-13)
 
 

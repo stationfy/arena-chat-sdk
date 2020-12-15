@@ -61,6 +61,7 @@ export const exampleChatRoom: ChatRoom = {
   mainChannel: exampleLiveChatChannel,
   showEmojiButton: true,
   unreadCount: 0,
+  version: '2',
 };
 
 export const exampleSite: Site = {

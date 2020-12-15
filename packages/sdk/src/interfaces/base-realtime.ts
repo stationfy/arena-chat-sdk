@@ -15,7 +15,7 @@ export interface BaseRealtime {
    *
    * @param callback Callback function
    */
-  listenToChatConfigChanges(callback: (channel: LiveChatChannel) => void): () => void;
+  listenToChatConfigChanges(path: string, callback: (channel: LiveChatChannel) => void): () => void;
 
   /**
    * Listen to banned users
