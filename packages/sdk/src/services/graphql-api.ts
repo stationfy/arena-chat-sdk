@@ -9,6 +9,7 @@ import {
   ChatMessage,
   Status,
   ChatMessageReportedBy,
+  PublicUserInput,
 } from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
@@ -629,10 +630,14 @@ export class GraphQLAPI {
           defaultImage
           isModerator
           bio
-          socialLinks
+          socialLinks {
+            url
+            provider
+          }
           isBlocked
           userName
           location
+          slug
         }
       }
     `;
@@ -646,5 +651,68 @@ export class GraphQLAPI {
     }
 
     return user;
+  }
+
+  public async updateUser(user: PublicUserInput): Promise<PublicUser> {
+    const mutation = gql`
+      mutation updateUser($input: PublicUserInput!) {
+        updateUser(input: $input) {
+          _id
+          name
+          image
+          defaultImage
+          isModerator
+          bio
+          socialLinks {
+            url
+            provider
+          }
+          isBlocked
+          userName
+          location
+          slug
+        }
+      }
+    `;
+
+    const input: PublicUserInput = {};
+
+    if (typeof user.bio !== 'undefined') {
+      input.bio = user.bio;
+      input.socialLinks = user.socialLinks;
+    }
+    if (typeof user.location !== 'undefined') {
+      input.location = user.location;
+    }
+
+    if (typeof user.name !== 'undefined') {
+      input.name = user.name;
+    }
+
+    if (typeof user.socialLinks !== 'undefined') {
+      input.socialLinks = user.socialLinks;
+    }
+
+    if (typeof user.image !== 'undefined') {
+      input.image = user.image;
+    }
+
+    if (typeof user.useDefaultImage !== 'undefined') {
+      input.useDefaultImage = user.useDefaultImage;
+    }
+
+    if (typeof user.password !== 'undefined') {
+      input.password = user.password;
+    }
+
+    const data = await this.graphQL.client.request(mutation, { input });
+
+    const result = data.updateUser as PublicUser;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
   }
 }

@@ -9,6 +9,7 @@ import {
   BasePrivateChannel,
   BaseUserProfile,
   PublicUser,
+  PublicUserInput,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
@@ -73,6 +74,22 @@ export class ArenaChat {
     }
 
     return this.userProfileI.getUserProfile(userId);
+  }
+
+  public async updateUserProfile(user: PublicUserInput): Promise<PublicUser> {
+    if (this.user === null) {
+      throw new Error('You have to set a user before update the user profile.');
+    }
+
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.updateUserProfile(user);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { BaseUserProfile, ExternalUser, PublicUser, Site, Status } from '@arena-im/chat-types';
+import { BaseUserProfile, ExternalUser, PublicUser, PublicUserInput, Site, Status } from '@arena-im/chat-types';
 
 import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
@@ -61,6 +61,22 @@ export class UserProfile implements BaseUserProfile {
 
       if (e.message === Status.Invalid) {
         erroMessage = `Invalid user (${userId}) id.`;
+      }
+
+      throw new Error(erroMessage);
+    }
+  }
+
+  public async updateUserProfile(user: PublicUserInput): Promise<PublicUser> {
+    try {
+      const updatedUser = await this.graphQLAPI.updateUser(user);
+
+      return updatedUser;
+    } catch (e) {
+      let erroMessage = 'Internal Server Error. Contact the Arena support team.';
+
+      if (e.message === Status.Invalid) {
+        erroMessage = `Invalid user to update.`;
       }
 
       throw new Error(erroMessage);

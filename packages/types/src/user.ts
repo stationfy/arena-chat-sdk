@@ -108,7 +108,25 @@ export interface PublicUser {
   isBanned?: boolean;
   isBlocked?: boolean;
   bio?: string;
-  socialLinks?: string[];
+  socialLinks?: {
+    url: string;
+    provider: string;
+  }[];
+  slug?: string;
   userName?: string;
   location?: string;
+}
+
+export interface PublicUserInput {
+  bio?: string;
+  image?: {
+    imageBase64: string;
+    imageMimeType: string;
+  };
+  location?: string;
+  name?: string;
+  password?: string;
+  slug?: string;
+  socialLinks?: string[];
+  useDefaultImage?: boolean;
 }
