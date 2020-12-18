@@ -48,6 +48,9 @@ export class ArenaChat {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
   }
 
+  /**
+   * Get the current user profile
+   */
   public async getMeProfile(): Promise<PublicUser> {
     if (this.user === null) {
       throw new Error('You have to set a user before get the current user profile.');
@@ -64,6 +67,11 @@ export class ArenaChat {
     return this.userProfileI.getMeProfile();
   }
 
+  /**
+   * Get the user profile by a user id
+   *
+   * @param userId
+   */
   public async getUserProfile(userId: string): Promise<PublicUser> {
     if (this.userProfileI === null) {
       const site = await this.fetchAndSetSite();

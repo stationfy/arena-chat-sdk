@@ -102,7 +102,7 @@ export interface PublicUser {
   image?: string;
   isModerator?: boolean;
   name: string;
-  status: PublicUserStatus;
+  status?: PublicUserStatus;
   totalGroupChannelUnreadCount?: number;
   modLabel?: string;
   isBanned?: boolean;
