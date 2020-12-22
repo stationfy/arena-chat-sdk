@@ -30,6 +30,8 @@ export interface QnaProps {
 export enum QnaQuestionFilter {
   POPULAR = 'popular',
   RECENT = 'recent',
+  ANSWERED = 'answered',
+  NOT_ANSWERED = 'not_answered'
 }
 
 export interface QnaQuestion {
