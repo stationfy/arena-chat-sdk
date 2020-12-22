@@ -39,6 +39,10 @@ export class ArenaChat {
   private userChangedListeners: UserChangedListener[] = [];
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private liveChat: LiveChat | null = null;
+  private promiseFetchAndSetChatRoomAndSite: Promise<{
+    chatRoom: ChatRoom;
+    site: Site;
+  }> | null = null;
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
@@ -178,7 +182,11 @@ export class ArenaChat {
     }
 
     try {
-      const { chatRoom, site } = await this.fetchAndSetChatRoomAndSite(slug);
+      if (this.promiseFetchAndSetChatRoomAndSite === null) {
+        this.promiseFetchAndSetChatRoomAndSite = this.fetchAndSetChatRoomAndSite(slug);
+      }
+
+      const { chatRoom, site } = await this.promiseFetchAndSetChatRoomAndSite;
 
       const liveChatI = new LiveChat(chatRoom, site, this);
 
