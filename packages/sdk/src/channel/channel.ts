@@ -23,7 +23,7 @@ export class Channel implements BaseChannel {
   private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
-  private cacheUserReactions: { [key: string]: ServerReaction } = {};
+  private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
@@ -289,7 +289,11 @@ export class Channel implements BaseChannel {
 
       this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(user, (reactions) => {
         reactions.forEach((reaction) => {
-          this.cacheUserReactions[reaction.itemId] = reaction;
+          if (!this.cacheUserReactions[reaction.itemId]) {
+            this.cacheUserReactions[reaction.itemId] = [];
+          }
+
+          this.cacheUserReactions[reaction.itemId].push(reaction);
         });
 
         this.notifyUserReactionsVerification();
@@ -308,16 +312,16 @@ export class Channel implements BaseChannel {
         return;
       }
 
-      const reaction = this.cacheUserReactions[message.key];
-      if (
-        reaction &&
-        (typeof message.currentUserReactions === 'undefined' || !message.currentUserReactions[reaction.reaction])
-      ) {
-        if (typeof message.currentUserReactions === 'undefined') {
-          message.currentUserReactions = {};
-        }
+      const reactions = this.cacheUserReactions[message.key];
 
-        message.currentUserReactions[reaction.reaction] = true;
+      if (reactions && this.shouldCurrentUserReactionToNotify(message, reactions)) {
+        reactions.forEach((reaction) => {
+          if (typeof message.currentUserReactions === 'undefined') {
+            message.currentUserReactions = {};
+          }
+
+          message.currentUserReactions[reaction.reaction] = true;
+        });
 
         const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
         if (typeof modifiedCallbacks !== 'undefined') {
@@ -325,6 +329,23 @@ export class Channel implements BaseChannel {
         }
       }
     });
+  }
+
+  private shouldCurrentUserReactionToNotify(message: ChatMessage, serverReactions: ServerReaction[]) {
+    const currentUserReactions = message.currentUserReactions;
+
+    if (typeof currentUserReactions === 'undefined') {
+      return true;
+    }
+
+    for (let i = 0; i < serverReactions.length; i++) {
+      const reactionName = serverReactions[i].reaction;
+      if (!currentUserReactions[reactionName]) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
