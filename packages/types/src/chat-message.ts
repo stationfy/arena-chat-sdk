@@ -69,6 +69,8 @@ export interface ChatMessageReport {
 export interface ChatMessageReportedBy {
   reportedByType: string;
   uid?: string;
+  displayName?: string;
+  image?: string;
 }
 
 export interface DeleteChatMessageRequest {
