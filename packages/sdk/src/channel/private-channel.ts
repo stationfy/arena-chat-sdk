@@ -301,7 +301,7 @@ export class PrivateChannel implements BasePrivateChannel {
 
         this.updateCacheCurrentMessages(messages);
 
-        if (this.user.id !== newMessage.sender._id) {
+        if (this.user.id !== newMessage.sender?._id) {
           this.markRead();
         }
 

@@ -31,9 +31,9 @@ export class Polls implements BasePolls {
     }
   }
 
-  public onUserChanged(user: ExternalUser): void {
+  public onUserChanged(user: ExternalUser | null): void {
     if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
     }
   }
 

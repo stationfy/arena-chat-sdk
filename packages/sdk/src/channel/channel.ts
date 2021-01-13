@@ -41,7 +41,7 @@ export class Channel implements BaseChannel {
 
     this.watchChatConfigChanges();
 
-    this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.markReadDebounced = debounce(this.markRead, 10000);
   }
@@ -220,7 +220,7 @@ export class Channel implements BaseChannel {
       throw new Error('Cannot send message without a site id');
     }
 
-    if (this.sdk.user === null) {
+    if (this.sdk.user === null && !sender) {
       throw new Error('Cannot send message without a user');
     }
 
@@ -229,11 +229,7 @@ export class Channel implements BaseChannel {
         text: text || '',
       },
       openChannelId: this.channel._id,
-      sender: sender || {
-        image: this.sdk.user.image,
-        name: this.sdk.user.name,
-        _id: this.sdk.user.id,
-      },
+      sender,
       tempId,
       replyTo,
     };
@@ -256,8 +252,14 @@ export class Channel implements BaseChannel {
    *
    * @param {ExternalUser} user external user
    */
-  private watchUserChanged(user: ExternalUser) {
-    this.watchUserReactions(user);
+  private watchUserChanged(user: ExternalUser | null) {
+    if (user !== null) {
+      this.watchUserReactions(user);
+    } else {
+      if (this.userReactionsSubscription !== null) {
+        this.userReactionsSubscription();
+      }
+    }
 
     if (this.polls) {
       this.polls.offAllListeners();
@@ -270,7 +272,7 @@ export class Channel implements BaseChannel {
     }
 
     if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
     }
   }
 
@@ -463,7 +465,7 @@ export class Channel implements BaseChannel {
 
         this.updateCacheCurrentMessages(messages);
 
-        if (this.sdk.user?.id !== newMessage.sender._id) {
+        if (this.sdk.user?.id !== newMessage.sender?._id) {
           this.markReadDebounced();
         }
 

@@ -294,7 +294,7 @@ export class ArenaChat {
    *
    * @param user created user
    */
-  private callChangedUserListeners(user: ExternalUser): void {
+  private callChangedUserListeners(user: ExternalUser | null): void {
     this.userChangedListeners.forEach((listener) => {
       listener(user);
     });
@@ -307,6 +307,7 @@ export class ArenaChat {
   private unsetUser(): void {
     this.user = null;
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+    this.callChangedUserListeners(null);
   }
 
   /**

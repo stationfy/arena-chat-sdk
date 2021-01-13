@@ -69,11 +69,13 @@ export interface BaseChannel {
     replyTo,
     mediaURL,
     tempId,
+    sender,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
     tempId?: string;
+    sender?: ChatMessageSender;
   }): Promise<string>;
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
