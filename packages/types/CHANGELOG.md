@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.10 (2021-01-13)
+
+
+### Bug Fixes
+
+* set anonymous user ([01c943c](https://github.com/stationfy/arena-chat-sdk/commit/01c943cc1b23b803fa964ea8f859f08a3791db15))
+
+
+
+
+
 ## 2.0.9 (2021-01-07)
 
 
