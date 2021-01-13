@@ -159,6 +159,8 @@ export class Channel implements BaseChannel {
 
     const reportedBy: ChatMessageReportedBy = {
       uid: this.sdk.user?.id || anonymousId,
+      displayName: this.sdk.user?.name || 'Anonymous User',
+      image: this.sdk.user?.image,
       reportedByType: this.sdk.user?.id && this.sdk.user?.token ? 'user' : 'anonymous',
     };
 
