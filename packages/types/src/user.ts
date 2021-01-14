@@ -56,7 +56,7 @@ export interface ProviderUser {
   };
 }
 
-export type UserChangedListener = (user: ExternalUser) => void;
+export type UserChangedListener = (user: ExternalUser | null) => void;
 
 export interface SSOExchangeResult {
   data: {

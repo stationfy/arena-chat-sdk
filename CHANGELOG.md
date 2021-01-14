@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.9 (2021-01-07)
+
+
+### Bug Fixes
+
+* load all user reactions ([a3bcd2c](https://github.com/stationfy/arena-chat-sdk/commit/a3bcd2c185969e6e30f09b35e37539818a1d94fd))
+
+
+
+
+
+## 2.0.8 (2020-12-22)
+
+**Note:** Version bump only for package arena-chat-sdk
+
+
+
+
+
+## 2.0.7 (2020-12-18)
+
+
+### Bug Fixes
+
+* add replying to a message example ([170bfd1](https://github.com/stationfy/arena-chat-sdk/commit/170bfd19ec9f0032146b2546ce05c4cacbc12f1f))
+
+
+
+
+
+## 2.0.6 (2020-12-18)
+
+
+### Bug Fixes
+
+* update the sdk doc ([5433cb4](https://github.com/stationfy/arena-chat-sdk/commit/5433cb4b972ba633ada1c3844f74d0e77e10c66c))
+
+
+
+
+
 ## 2.0.5 (2020-12-10)
 
 

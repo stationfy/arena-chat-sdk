@@ -26,7 +26,7 @@ export class LiveChat implements BaseLiveChat {
 
     this.graphQLAPI = new GraphQLAPI(site, currentUser);
 
-    this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.arenaHub = new ArenaHub(chatRoom, sdk);
 
@@ -60,9 +60,9 @@ export class LiveChat implements BaseLiveChat {
    *
    * @param {ExternalUser} user external user
    */
-  private watchUserChanged(user: ExternalUser) {
+  private watchUserChanged(user: ExternalUser | null) {
     if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
     }
   }
 

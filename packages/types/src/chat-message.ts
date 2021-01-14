@@ -5,7 +5,7 @@ export interface ChatMessage {
   publisherId?: string;
   referer?: string;
   replyMessage?: ChatMessage;
-  sender: ChatMessageSender;
+  sender?: ChatMessageSender;
   changeType?: string;
   reactions?: ChatMessageReaction;
   currentUserReactions?: ChatMessageCurrentUserReactions;

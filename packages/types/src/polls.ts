@@ -11,7 +11,7 @@ export interface BasePolls {
   onPollDeleted(callback: (poll: Poll) => void): void;
   offAllListeners(): void;
   watchUserPollsReactions(userId: string): void;
-  onUserChanged(user: ExternalUser): void;
+  onUserChanged(user: ExternalUser | null): void;
 }
 
 export interface Poll {

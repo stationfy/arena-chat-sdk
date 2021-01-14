@@ -30,13 +30,44 @@ import ArenaChat from '@arena-im/chat-sdk';
 const arenaChat = new ArenaChat('my-site-slug');
 ```
 
-### Get Channel
-
-To get a channel, use the exported functions of `arenaChat`.
+### Get Live Chat
+A Live Chat is the main Chat Room that holds the channels. To get a Live Chat, use the exported methods of `arenaChat`. It will return a `LiveChat` instance.
 
 ```javascript
-// get a channel with chat slug
-const channel = await arenaChat.getChannel(YOUR_CHAT_SLUG);
+// get a Live Chat with chat slug
+const liveChatI = await arenaChat.getLiveChat(YOUR_CHAT_SLUG);
+```
+
+### Get a Live Chat Channel Instance
+
+To get the main Live Chat Channel, use the exported methods of `liveChat`. It will return a `Channel` instance.
+
+```javascript
+// get the main channel
+const channelI = await liveChatI.getMainChannel();
+```
+
+You can use a channel ID to retrieve a `Channel` object.
+```javascript
+// get a channel by id
+const channelI = await liveChatI.getChannel(YOUR_CHANNEL_ID);
+```
+
+### List all Live Chat's Channels
+
+You can get the list of all channels data in your Live Chat using the export methods of `liveChat`. It will return a list of `LiveChatChannel` object.
+
+```javascript
+const channels = await liveChatI.getChannels()
+```
+
+### Get Live Chat's Members
+
+To get the members of a Live Chat, use the export methods of `liveChat`. It will return a list of `PublicUser` object.
+
+```javascript
+// array of PublicUser
+const members = await liveChatI.getMembers();
 ```
 
 ### Set User
@@ -60,11 +91,69 @@ await arenaChat.setUser({
 
 ### Send Message
 
-To send a message, you need to have a channel and a set user.
+To send a simple text message, you need to have a channel and a set user.
 
 ```javascript
 // send message
-await channel.sendMessage('Hello World!');
+await channelI.sendMessage({text: 'Hello World!'});
+```
+
+You can send a message with a media URL attached to it.
+
+```javascript
+// send message
+await channelI.sendMessage({mediaURL: 'https://ps.w.org/arena-liveblog-and-chat-tool/assets/icon-256x256.png'});
+```
+
+### Replying to a Message
+
+To reply a message, you will inform the message ID you want to reply.
+
+```javascript
+// replying to a message
+await channelI.sendMessage({text: 'My reply', replyTo: MESSAGE_ID});
+```
+
+#### Example:
+
+If you want to reply to a message with `message.key = "Y1D7o00QbXDaapcjoBDH"` you have to call:
+
+```javascript
+await channelI.sendMessage({text: 'My reply', replyTo: 'Y1D7o00QbXDaapcjoBDH'});
+```
+
+And then you will receive in the `onMessageReceived` listener the following message with a `replyMessage` property:
+
+```json
+{
+  "message": {
+    "text": "My reply"
+  },
+  "createdAt": 1608311250874,
+  "key": "ogdccUkf7D3utKuOf9mG",
+  "referer": "http://localhost:3000/",
+  "sender": {
+    "uid": "5ef364fe3bd61c000887ddc5",
+    "photoURL": "https://stationfy.imgix.net/cache/1593009406128-1.jpg",
+    "moderator": true,
+    "label": "MOD",
+    "displayName": "Naomi Carter"
+  },
+  "replyMessage": {
+    "createdAt": 1608211110985,
+    "sender": {
+      "displayName": "test",
+      "anonymousId": "-MOkqMjr_eH5SJRSNJrn",
+      "photoURL": "http://localhost:3000/public/imgs/icon-avatar-anonymous.svg"
+    },
+    "key": "Y1D7o00QbXDaapcjoBDH",
+    "message": {
+      "text": "test"
+    },
+    "referer": "http://localhost:8080/"
+  },
+  "changeType": "added"
+}
 ```
 
 ### Events
@@ -73,23 +162,23 @@ To fetch recent messages, load previous messages, or listen to channel events, u
 
 ```javascript
 // receive the last 20 messages
-const messages = await channel.loadRecentMessages(20);
+const messages = await channelI.loadRecentMessages(20);
 
 // receive the 5 previous messages
-const previousMessages = await channel.loadPreviousMessages(5);
+const previousMessages = await channelI.loadPreviousMessages(5);
 
 // watch new messages
-channel.onMessageReceived((message) => {
+channelI.onMessageReceived((message) => {
   // add message to the UI
 });
 
 // watch deleted messages
-channel.onMessageDeleted((message) => {
+channelI.onMessageDeleted((message) => {
   // remove message from the UI
 });
 
 // watch modified messages
-channel.onMessageModified((message) => {
+channelI.onMessageModified((message) => {
   // update message on the UI
 })
 ```
@@ -98,16 +187,16 @@ channel.onMessageModified((message) => {
 
 ```javascript
 // remove all listeners for new messages on the channel
-channel.offMessageReceived();
+channelI.offMessageReceived();
 
 // remove all listeners for deleted messages on the channel
-channel.offMessageDeleted();
+channelI.offMessageDeleted();
 
 // remove all listeners for modified message on the channel
-channel.offMessageModified();
+channelI.offMessageModified();
 
 // remove all listeners on the channel
-channel.offAllListeners();
+channelI.offAllListeners();
 ```
 
 ### Reactions
@@ -123,7 +212,7 @@ const reaction: MessageReaction = {
   messageID: message.key,
 };
 
-channel.sendReaction(reaction);
+channelI.sendReaction(reaction);
 ```
 
 In the messages, you will have the number of reactions and whether the current user has reacted to these messages.
@@ -137,30 +226,34 @@ const currentUserReacted: boolean = message.currentUserReactions[reactionType]
 
 ### Moderation
 
-If the "Request Moderator" is enabled for your chat, users may request to be moderators of messages sent by other users on your site.
+If the "Request Moderator" option is enabled for your chat, users will be able to request to be moderators.
 
-You can "Request Moderator" calling this function (it will request moderation for the logged-in user):
+To understand how this flow works on the embedded chat room you can refer to this [article](https://help.arena.im/en/articles/4092833-how-to-turn-on-a-volunteer-moderator-request-on-a-live-chat).
+
+You can "Request Moderator" by calling this function (it will request moderation for the logged-in user):
 ```typescript
-channel.requestModeration();
+channelI.requestModeration();
 ```
 
-When moderation is granted to the user (via Dashboard), the user object will contain the `isModerator` property. From there the current user can delete a message or ban a user.
+When moderation is granted to the user (via Dashboard or API), the user object will contain the `isModerator` property set to `true`. The current user, who's now a moderator, will be able to delete messages or ban users.
+
+Note: The `isModerator` property will only be `true` after the next page refresh.
 
 ```typescript
 // delete a ChatMessage
-channel.deleteMessage(message);
+channelI.deleteMessage(message);
 
 // ban a message sender ChatMessageSender
-channel.banUser(message.sender);
+channelI.banUser(message.sender);
 ```
 
-To verify if the user was banned, check the property `isBanned` in the user object.
+To verify if the current user was banned, check the property `isBanned` in the user object.
 
 ### Q&A
 
-When a Q&A session is enabled for the Chat Room, you can implement the basic Q&A functionality using this module. 
+When a Q&A session is enabled for the Chat Room, you can implement the basic Q&A functionality using this module.
 
-First you'll need to get the `qnaProps` with your `chatId` 
+First you'll need to get the `qnaProps` with your `chatId`
 
 ```typescript
 import Qna from '@/qna/qna.ts'
@@ -169,14 +262,14 @@ import Qna from '@/qna/qna.ts'
 const qnaProps: QnaProps = await Qna.getQnaProps(chatId)
 ```
 
-With props in hands, pass it to Qna constructor along with the `qnaId`, the `site` wich is defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types) and the previous defined `arenaChat`
+With props in hands, pass it to Qna constructor along with the `qnaId`, the `site` wich is defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) and the previous defined `arenaChat`
 
 ```typescript
 // get instance of Qna
 const qna = new Qna(qnaProps, qnaId, site, arenaChat)
 ```
 
-Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the QnaQuestionFilter, wich is also defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types). Both parameters are optional
+Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the QnaQuestionFilter, wich is also defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types). Both parameters are optional
 
 ```typescript
 const questions: [QnaQuestion] = await qna.loadQuestions(50, QnaQuestionFilter.RECENT)
@@ -207,11 +300,11 @@ onChange(callback: (instance: BaseQna) => void): void
 onQuestionReceived(callback: (question: QnaQuestion) => void): void
 ```
 
-### Direct Messages 
+### Direct Messages
 
 When you enable the "Private Messages" option in your chat, members can chat directly with each other.
 
-To create a private channel with a user start calling the following method with the given options. See [types]('https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types') 
+To create a private channel with a user start calling the following method with the given options. See [types]('https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types')
 
 ```typescript
 import PrivateChannel from '@/channel/private-channel.ts'
@@ -230,7 +323,7 @@ To list all private channels for the current user you can do like
 const userChannels: BasePrivateChannel[] = await PrivateChannel.getUserChannels(currentUser, currentSite)
 ```
 
-To allow your users to block another users inside a private channel context use 
+To allow your users to block another users inside a private channel context use
 
 ```typescript
 const userBlocked: Boolean = await PrivateChannel.blockPrivateUser(currentUser, currentSite, targetUserId)
@@ -248,7 +341,7 @@ To send a private message on a specific channel you can call the following metho
 await peterChannel.sendMessage(
   new ChatMessageContent(messageOptions)
   replyMessageId, // optional
-  "temporaryId" 
+  "temporaryId"
 )
 ```
 
@@ -273,12 +366,12 @@ const bobChannel: BasePrivateChannel = await arenaChat.createUserPrivateChannel(
 )
 ```
 
-About the event listeners this one deserves attention, types are defined here [types]('https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types')
+About the event listeners this one deserves attention, types are defined here [types]('https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types')
 
 - onUnreadMessagesCountChanged : Watchs for unread messages within a private channel so you can display it for the user in real time, callback will hold the unread count
 
 ```typescript
-onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): () => void 
+onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): () => void
 ```
 
 - offUnreadMessagesCountChanged : From the sdk you can unsubscribe the a previous setted listener for `onUnreadMessagesCountChanged`
@@ -291,7 +384,7 @@ arenaChat.offUnreadMessagesCountChanged()
 
 Adding polls to engage the user experience is quite simple since it's enabled by default in all chats
 
-To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, please refer to [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types)
+To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, please refer to [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types)
 
 ```typescript
 import Polls from '@/polls/polls.ts'
@@ -300,7 +393,7 @@ const polls: BasePolls = new Polls(chatRoom, arenaChat)
 ```
 
 Once you get a polls instance it's possible to start loading the existing polls
-The enum `PollFilter` defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/feature/sprint95-update-chat-sdk-doc/packages/types) can be used to filter the list of polls to be loaded.
+The enum `PollFilter` defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) can be used to filter the list of polls to be loaded.
 ```typescript
 export enum PollFilter {
   POPULAR = 'popular', // The most voted polls
@@ -331,7 +424,7 @@ await polls.pollVote(
 Within a channel context is possible to receive the polls manager so it can be presented to the current user
 
 ```typescript
-const polls: BasePolls = await channel.getPollsInstance(userId)
+const polls: BasePolls = await channelI.getPollsInstance(userId)
 ```
 
 Event listeners are exposed to watch for changes in real-time:
@@ -346,7 +439,6 @@ onPollReceived(callback: (poll: Poll) => void): void
 
 ```typescript
 polls.offPollReceived()
-```
 
 ### API Documentation
 

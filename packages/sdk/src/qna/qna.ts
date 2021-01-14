@@ -34,7 +34,7 @@ export class Qna implements BaseQna {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
 
-    this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.preModeration = props.preModeration;
     this.language = props.language;
@@ -100,7 +100,7 @@ export class Qna implements BaseQna {
    *
    * @param {ExternalUser} user external user
    */
-  private watchUserChanged(user: ExternalUser) {
+  private watchUserChanged(user: ExternalUser | null) {
     if (this.sdk.site === null) {
       throw new Error('Cannot watch the user change without a site.');
     }
