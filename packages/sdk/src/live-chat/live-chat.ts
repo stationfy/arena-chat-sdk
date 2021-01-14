@@ -26,10 +26,33 @@ export class LiveChat implements BaseLiveChat {
 
     this.graphQLAPI = new GraphQLAPI(site, currentUser);
 
-    this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.arenaHub = new ArenaHub(chatRoom, sdk);
-    this.arenaHub.track('page');
+
+    if (!this.detectWidgetsPresence()) {
+      this.arenaHub.track('page');
+    }
+  }
+
+  private detectWidgetsPresence() {
+    const arenaLive = document.querySelector('#arena-live');
+    const arenaChat = document.querySelector('#arena-chat');
+    const arenaLiveClass = document.querySelector('.arena-liveblog');
+    const arenaChatClass = document.querySelector('.arena-chat');
+    const arenaWidgetClass = document.querySelector('.arena-embed-widget');
+    const arenaPreviewWidgetClass = document.querySelector('.arena-home-app');
+    const arenaEmbedFrameWidgetClass = document.querySelector('.arena-embed-frame');
+
+    return (
+      !!arenaLive ||
+      !!arenaChat ||
+      !!arenaLiveClass ||
+      !!arenaChatClass ||
+      !!arenaWidgetClass ||
+      !!arenaPreviewWidgetClass ||
+      !!arenaEmbedFrameWidgetClass
+    );
   }
 
   /**
@@ -37,9 +60,9 @@ export class LiveChat implements BaseLiveChat {
    *
    * @param {ExternalUser} user external user
    */
-  private watchUserChanged(user: ExternalUser) {
+  private watchUserChanged(user: ExternalUser | null) {
     if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
     }
   }
 

@@ -2,9 +2,8 @@ import { RestAPI } from '@services/rest-api';
 import { Channel } from '@channel/channel';
 import { ArenaChat } from '../../src/sdk';
 import { PrivateChannel } from '@channel/private-channel';
-import { exampleUser, exampleSite, exampleGroupChannel, exampleChatRoom, exampleQnaProps } from '../fixtures/examples';
-import { Qna } from '@qna/qna';
-import { ChatRoom, ExternalUser, Site } from '@arena-im/chat-types';
+import { exampleUser, exampleSite, exampleGroupChannel, exampleChatRoom } from '../fixtures/examples';
+import { ExternalUser } from '@arena-im/chat-types';
 import { LiveChat } from '@live-chat/live-chat';
 
 jest.mock('@services/rest-api', () => ({

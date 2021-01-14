@@ -23,7 +23,7 @@ export class Channel implements BaseChannel {
   private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
-  private cacheUserReactions: { [key: string]: ServerReaction } = {};
+  private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
@@ -41,7 +41,7 @@ export class Channel implements BaseChannel {
 
     this.watchChatConfigChanges();
 
-    this.sdk.onUserChanged((user: ExternalUser) => this.watchUserChanged(user));
+    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.markReadDebounced = debounce(this.markRead, 10000);
   }
@@ -220,7 +220,7 @@ export class Channel implements BaseChannel {
       throw new Error('Cannot send message without a site id');
     }
 
-    if (this.sdk.user === null) {
+    if (this.sdk.user === null && !sender) {
       throw new Error('Cannot send message without a user');
     }
 
@@ -229,11 +229,7 @@ export class Channel implements BaseChannel {
         text: text || '',
       },
       openChannelId: this.channel._id,
-      sender: sender || {
-        image: this.sdk.user.image,
-        name: this.sdk.user.name,
-        _id: this.sdk.user.id,
-      },
+      sender,
       tempId,
       replyTo,
     };
@@ -256,8 +252,14 @@ export class Channel implements BaseChannel {
    *
    * @param {ExternalUser} user external user
    */
-  private watchUserChanged(user: ExternalUser) {
-    this.watchUserReactions(user);
+  private watchUserChanged(user: ExternalUser | null) {
+    if (user !== null) {
+      this.watchUserReactions(user);
+    } else {
+      if (this.userReactionsSubscription !== null) {
+        this.userReactionsSubscription();
+      }
+    }
 
     if (this.polls) {
       this.polls.offAllListeners();
@@ -270,7 +272,7 @@ export class Channel implements BaseChannel {
     }
 
     if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
     }
   }
 
@@ -289,7 +291,11 @@ export class Channel implements BaseChannel {
 
       this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(user, (reactions) => {
         reactions.forEach((reaction) => {
-          this.cacheUserReactions[reaction.itemId] = reaction;
+          if (!this.cacheUserReactions[reaction.itemId]) {
+            this.cacheUserReactions[reaction.itemId] = [];
+          }
+
+          this.cacheUserReactions[reaction.itemId].push(reaction);
         });
 
         this.notifyUserReactionsVerification();
@@ -308,16 +314,16 @@ export class Channel implements BaseChannel {
         return;
       }
 
-      const reaction = this.cacheUserReactions[message.key];
-      if (
-        reaction &&
-        (typeof message.currentUserReactions === 'undefined' || !message.currentUserReactions[reaction.reaction])
-      ) {
-        if (typeof message.currentUserReactions === 'undefined') {
-          message.currentUserReactions = {};
-        }
+      const reactions = this.cacheUserReactions[message.key];
 
-        message.currentUserReactions[reaction.reaction] = true;
+      if (reactions && this.shouldCurrentUserReactionToNotify(message, reactions)) {
+        reactions.forEach((reaction) => {
+          if (typeof message.currentUserReactions === 'undefined') {
+            message.currentUserReactions = {};
+          }
+
+          message.currentUserReactions[reaction.reaction] = true;
+        });
 
         const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
         if (typeof modifiedCallbacks !== 'undefined') {
@@ -325,6 +331,23 @@ export class Channel implements BaseChannel {
         }
       }
     });
+  }
+
+  private shouldCurrentUserReactionToNotify(message: ChatMessage, serverReactions: ServerReaction[]) {
+    const currentUserReactions = message.currentUserReactions;
+
+    if (typeof currentUserReactions === 'undefined') {
+      return true;
+    }
+
+    for (let i = 0; i < serverReactions.length; i++) {
+      const reactionName = serverReactions[i].reaction;
+      if (!currentUserReactions[reactionName]) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -466,7 +489,7 @@ export class Channel implements BaseChannel {
 
         this.updateCacheCurrentMessages(messages);
 
-        if (this.sdk.user?.id !== newMessage.sender._id) {
+        if (this.sdk.user?.id !== newMessage.sender?._id) {
           this.markReadDebounced();
         }
 
@@ -584,14 +607,19 @@ export class Channel implements BaseChannel {
    * Watch chat config changes
    *
    */
-  private watchChatConfigChanges() {
+  public watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void {
     try {
-      this.realtimeAPI.listenToChatConfigChanges((nextChatRoom) => {
+      const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
+      return this.realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
         this.channel = {
           ...nextChatRoom,
           _id: this.channel._id,
           dataPath: this.channel.dataPath,
         };
+
+        if (callback) {
+          callback(this.channel);
+        }
       });
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');

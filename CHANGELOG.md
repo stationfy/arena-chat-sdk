@@ -3,6 +3,91 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.9 (2021-01-07)
+
+
+### Bug Fixes
+
+* load all user reactions ([a3bcd2c](https://github.com/stationfy/arena-chat-sdk/commit/a3bcd2c185969e6e30f09b35e37539818a1d94fd))
+
+
+
+
+
+## 2.0.8 (2020-12-22)
+
+**Note:** Version bump only for package arena-chat-sdk
+
+
+
+
+
+## 2.0.7 (2020-12-18)
+
+
+### Bug Fixes
+
+* add replying to a message example ([170bfd1](https://github.com/stationfy/arena-chat-sdk/commit/170bfd19ec9f0032146b2546ce05c4cacbc12f1f))
+
+
+
+
+
+## 2.0.6 (2020-12-18)
+
+
+### Bug Fixes
+
+* update the sdk doc ([5433cb4](https://github.com/stationfy/arena-chat-sdk/commit/5433cb4b972ba633ada1c3844f74d0e77e10c66c))
+
+
+
+
+
+## 2.0.5 (2020-12-10)
+
+
+### Bug Fixes
+
+* track page views ([cbd3bdc](https://github.com/stationfy/arena-chat-sdk/commit/cbd3bdc41cbee86f25be403275f9e8b4e47b8e15))
+
+
+
+
+
+## 2.0.4 (2020-12-10)
+
+
+### Bug Fixes
+
+* test runner ([191b529](https://github.com/stationfy/arena-chat-sdk/commit/191b5295d8cf03d1a07df0abdcd1721e1fe6131a))
+
+
+
+
+
+## 2.0.3 (2020-12-04)
+
+
+### Bug Fixes
+
+* change channel prop listener ([00b8d1d](https://github.com/stationfy/arena-chat-sdk/commit/00b8d1d7ada42a2c2e39dfb83ad3373c401aa5d7))
+
+
+
+
+
+## 2.0.2 (2020-12-03)
+
+
+### Bug Fixes
+
+* listen to chat config changes ([7e8ee3c](https://github.com/stationfy/arena-chat-sdk/commit/7e8ee3cebc93b19fa691afb72e042d27c0629bc1))
+
+
+
+
+
 ## 2.0.1 (2020-11-25)
 
 **Note:** Version bump only for package arena-chat-sdk

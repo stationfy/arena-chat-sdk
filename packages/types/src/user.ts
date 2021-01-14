@@ -56,7 +56,7 @@ export interface ProviderUser {
   };
 }
 
-export type UserChangedListener = (user: ExternalUser) => void;
+export type UserChangedListener = (user: ExternalUser | null) => void;
 
 export interface SSOExchangeResult {
   data: {
@@ -102,9 +102,31 @@ export interface PublicUser {
   image?: string;
   isModerator?: boolean;
   name: string;
-  status: PublicUserStatus;
+  status?: PublicUserStatus;
   totalGroupChannelUnreadCount?: number;
   modLabel?: string;
   isBanned?: boolean;
   isBlocked?: boolean;
+  bio?: string;
+  socialLinks?: {
+    url: string;
+    provider: string;
+  }[];
+  slug?: string;
+  userName?: string;
+  location?: string;
+}
+
+export interface PublicUserInput {
+  bio?: string;
+  image?: {
+    imageBase64: string;
+    imageMimeType: string;
+  };
+  location?: string;
+  name?: string;
+  password?: string;
+  slug?: string;
+  socialLinks?: string[];
+  useDefaultImage?: boolean;
 }

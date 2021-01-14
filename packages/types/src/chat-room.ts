@@ -69,11 +69,13 @@ export interface BaseChannel {
     replyTo,
     mediaURL,
     tempId,
+    sender,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
     tempId?: string;
+    sender?: ChatMessageSender;
   }): Promise<string>;
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
@@ -87,4 +89,5 @@ export interface BaseChannel {
   offAllListeners(): void;
   getChatQnaInstance(): Promise<BaseQna>;
   reportMessage(message: ChatMessage, anonymousId?: string): Promise<boolean>;
+  watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void;
 }

@@ -7,6 +7,9 @@ import {
   ChatRoom,
   ChatMessageContent,
   BasePrivateChannel,
+  BaseUserProfile,
+  PublicUser,
+  PublicUserInput,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
@@ -39,9 +42,66 @@ export class ArenaChat {
   private userChangedListeners: UserChangedListener[] = [];
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private liveChat: LiveChat | null = null;
+  private userProfileI: BaseUserProfile | null = null;
+  private promiseFetchAndSetChatRoomAndSite: Promise<{
+    chatRoom: ChatRoom;
+    site: Site;
+  }> | null = null;
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+  }
+
+  /**
+   * Get the current user profile
+   */
+  public async getMeProfile(): Promise<PublicUser> {
+    if (this.user === null) {
+      throw new Error('You have to set a user before get the current user profile.');
+    }
+
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.getMeProfile();
+  }
+
+  /**
+   * Get the user profile by a user id
+   *
+   * @param userId
+   */
+  public async getUserProfile(userId: string): Promise<PublicUser> {
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.getUserProfile(userId);
+  }
+
+  public async updateUserProfile(user: PublicUserInput): Promise<PublicUser> {
+    if (this.user === null) {
+      throw new Error('You have to set a user before update the user profile.');
+    }
+
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.updateUserProfile(user);
   }
 
   /**
@@ -178,7 +238,11 @@ export class ArenaChat {
     }
 
     try {
-      const { chatRoom, site } = await this.fetchAndSetChatRoomAndSite(slug);
+      if (this.promiseFetchAndSetChatRoomAndSite === null) {
+        this.promiseFetchAndSetChatRoomAndSite = this.fetchAndSetChatRoomAndSite(slug);
+      }
+
+      const { chatRoom, site } = await this.promiseFetchAndSetChatRoomAndSite;
 
       const liveChatI = new LiveChat(chatRoom, site, this);
 
@@ -286,7 +350,7 @@ export class ArenaChat {
    *
    * @param user created user
    */
-  private callChangedUserListeners(user: ExternalUser): void {
+  private callChangedUserListeners(user: ExternalUser | null): void {
     this.userChangedListeners.forEach((listener) => {
       listener(user);
     });
@@ -299,6 +363,7 @@ export class ArenaChat {
   private unsetUser(): void {
     this.user = null;
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+    this.callChangedUserListeners(null);
   }
 
   /**
