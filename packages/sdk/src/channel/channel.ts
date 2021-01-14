@@ -442,9 +442,9 @@ export class Channel implements BaseChannel {
   }
 
   /**
-  * Fetch Pin Messages for current channel
-  *
-  */
+   * Fetch Pin Messages for current channel
+   *
+   */
   public async fetchPinMessage(): Promise<ChatMessage> {
     if (this.sdk.site === null) {
       throw new Error('Cannot fetch pinned message without a site id');
@@ -461,6 +461,7 @@ export class Channel implements BaseChannel {
 
       return pinMessage;
     } catch (e) {
+      console.log(e);
       throw new Error(`Cannot fetch pin messages on "${this.chatRoom.slug}" channel.`);
     }
   }

@@ -579,15 +579,15 @@ export class GraphQLAPI {
    *
    * @param channelId the id of a chahnnel that the current user wants to fetch the pin message
    */
-  public async fetchPinMessage({ channelId } : { channelId: string }): Promise<ChatMessage> {
+  public async fetchPinMessage({ channelId }: { channelId: string }): Promise<ChatMessage> {
     if (!channelId) {
-      throw new Error('Can\'t fetch pin message without a channel id')
+      throw new Error("Can't fetch pin message without a channel id");
     }
     const query = gql`
       query listPinnedMessage($id: ID!) {
         openChannel(id: $id) {
           pinnedMessage {
-            key 
+            key
             message {
               media {
                 title
@@ -607,11 +607,11 @@ export class GraphQLAPI {
               photoURL
               uid
             }
-          }        
+          }
         }
       }
     `;
-    const data = await this.graphQL.client.request(query, { input: { channelId } });
+    const data = await this.graphQL.client.request(query, { id: channelId });
 
     const result = data.openChannel as ChatMessage;
 
