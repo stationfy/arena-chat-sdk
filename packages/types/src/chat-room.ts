@@ -78,7 +78,7 @@ export interface BaseChannel {
     sender?: ChatMessageSender;
   }): Promise<string>;
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;
-  fetchPinMessage(): Promise<ChatMessage[]>;
+  fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
   sendReaction(reaction: MessageReaction): Promise<MessageReaction>;
   offMessageReceived(): void;

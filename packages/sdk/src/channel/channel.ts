@@ -449,15 +449,9 @@ export class Channel implements BaseChannel {
     if (this.sdk.site === null) {
       throw new Error('Cannot fetch pinned message without a site id');
     }
-    if (this.sdk.user === null) {
-      throw new Error('Cannot fetch pinned message without a user');
-    }
+
     try {
-      const { GraphQLAPI } = await import('../services/graphql-api');
-
-      const graphQLAPI = new GraphQLAPI(this.sdk.site, this.sdk.user);
-
-      const pinMessage = await graphQLAPI.fetchPinMessage({ channelId: this.channel._id });
+      const pinMessage = await this.graphQLAPI.fetchPinMessage({ channelId: this.channel._id });
 
       return pinMessage;
     } catch (e) {
