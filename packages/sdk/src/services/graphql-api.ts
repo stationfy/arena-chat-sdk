@@ -574,6 +574,54 @@ export class GraphQLAPI {
     return result;
   }
 
+  /**
+   * Fetch a pinned message for a channel
+   *
+   * @param channelId the id of a chahnnel that the current user wants to fetch the pin message
+   */
+  public async fetchPinMessage({ channelId }: { channelId: string }): Promise<ChatMessage> {
+    if (!channelId) {
+      throw new Error("Can't fetch pin message without a channel id");
+    }
+    const query = gql`
+      query listPinnedMessage($id: ID!) {
+        openChannel(id: $id) {
+          pinnedMessage {
+            key
+            message {
+              media {
+                title
+                thumbnailUrl
+                type
+                url
+                description
+              }
+              text
+            }
+            sender {
+              anonymousId
+              displayName
+              label
+              moderator
+              name
+              photoURL
+              uid
+            }
+          }
+        }
+      }
+    `;
+    const data = await this.graphQL.client.request(query, { id: channelId });
+
+    const result = data.openChannel as ChatMessage;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
   public async listChannels(chatId: string): Promise<LiveChatChannel[]> {
     const query = gql`
       query chatRoom($id: ID!) {

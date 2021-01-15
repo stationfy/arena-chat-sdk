@@ -443,7 +443,26 @@ export class Channel implements BaseChannel {
   }
 
   /**
-   * Remove message received listener
+   * Fetch Pin Messages for current channel
+   *
+   */
+  public async fetchPinMessage(): Promise<ChatMessage> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot fetch pinned message without a site id');
+    }
+
+    try {
+      const pinMessage = await this.graphQLAPI.fetchPinMessage({ channelId: this.channel._id });
+
+      return pinMessage;
+    } catch (e) {
+      console.log(e);
+      throw new Error(`Cannot fetch pin messages on "${this.chatRoom.slug}" channel.`);
+    }
+  }
+
+  /**
+   * Remove message modified listener
    *
    */
   public offMessageReceived(): void {

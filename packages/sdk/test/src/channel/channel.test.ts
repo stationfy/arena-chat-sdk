@@ -911,4 +911,54 @@ describe('Channel', () => {
       localCallback.call(channel, user);
     });
   });
+
+  describe('fetchPinMessage({ channelId } : { channelId: string })', () => {
+    it('should fetch pinned message for a channel', done => {
+      // @ts-ignore
+      const sdk: ArenaChat = { ...exampleSDK };
+     
+      // @ts-ignore
+      sdk.site = {
+        _id: 'site-id',
+        displayName: 'First Site',
+      };
+      sdk.user = {
+        image: 'https://randomuser.me/api/portraits/women/12.jpg',
+        name: 'Kristin Mckinney',
+        id: '123456',
+      };
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
+
+      // @ts-ignore
+      channel.fetchPinMessage = () => {
+        return Promise.resolve()
+      }
+      channel.fetchPinMessage().then(done);
+    });
+
+    it('should return an error when failed to fetch the pin message ', done => {
+      // @ts-ignore
+      const sdk: ArenaChat = { ...exampleSDK };
+     
+      // @ts-ignore
+      sdk.site = {
+        _id: 'site-id',
+        displayName: 'First Site',
+      };
+      sdk.user = {
+        image: 'https://randomuser.me/api/portraits/women/12.jpg',
+        name: 'Kristin Mckinney',
+        id: '123456',
+      };
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
+
+      // @ts-ignore
+      channel.fetchPinMessage = () => {
+        return Promise.reject()
+      }
+      channel.fetchPinMessage().then(done);
+    });
+  })
 });
