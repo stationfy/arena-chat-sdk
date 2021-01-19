@@ -913,52 +913,44 @@ describe('Channel', () => {
   });
 
   describe('fetchPinMessage({ channelId } : { channelId: string })', () => {
-    it('should fetch pinned message for a channel', done => {
-      // @ts-ignore
-      const sdk: ArenaChat = { ...exampleSDK };
-     
-      // @ts-ignore
-      sdk.site = {
-        _id: 'site-id',
-        displayName: 'First Site',
-      };
-      sdk.user = {
-        image: 'https://randomuser.me/api/portraits/women/12.jpg',
-        name: 'Kristin Mckinney',
-        id: '123456',
+    it('should fetch pinned message for a channel', async () => {
+      const graphQLAPIInstanceMock = {
+        fetchPinMessage: async () => {
+          return exampleChatMessage;
+        },
       };
 
-      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
-
       // @ts-ignore
-      channel.fetchPinMessage = () => {
-        return Promise.resolve()
-      }
-      channel.fetchPinMessage().then(done);
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      const pinnedMessage = await channel.fetchPinMessage();
+
+      expect(pinnedMessage).toEqual(exampleChatMessage);
     });
 
-    it('should return an error when failed to fetch the pin message ', done => {
-      // @ts-ignore
-      const sdk: ArenaChat = { ...exampleSDK };
-     
-      // @ts-ignore
-      sdk.site = {
-        _id: 'site-id',
-        displayName: 'First Site',
-      };
-      sdk.user = {
-        image: 'https://randomuser.me/api/portraits/women/12.jpg',
-        name: 'Kristin Mckinney',
-        id: '123456',
+    it('should return an error when failed to fetch the pin message ', async () => {
+      const graphQLAPIInstanceMock = {
+        sendMessaToChannel: async () => {
+          return Promise.reject('failed');
+        },
       };
 
-      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
-
       // @ts-ignore
-      channel.fetchPinMessage = () => {
-        return Promise.reject()
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      try {
+        await channel.fetchPinMessage();
+      } catch (e) {
+        expect(e.message).toBe(`Cannot fetch pin messages on "${exampleChatRoom.slug}" channel.`);
       }
-      channel.fetchPinMessage().then(done);
     });
   })
 });

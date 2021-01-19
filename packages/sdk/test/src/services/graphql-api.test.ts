@@ -5,7 +5,7 @@ import {
   exampleGroupChannel,
   exampleChatMessage,
   examplePublicUser,
-  exampleLiveChatChannel,
+  exampleLiveChatChannel
 } from '../../fixtures/examples';
 import { RequestDocument } from 'graphql-request/dist/types';
 import { ChatMessageContent, Status } from '@arena-im/chat-types';
@@ -1100,7 +1100,11 @@ describe('GraphQLAPI', () => {
         client: {
           request: async () => {
             return {
-              fetchPinMessage: true,
+              openChannel: {
+                fetchPinMessage: {
+                  exampleChatMessage
+                }
+              }
             };
           },
         }
@@ -1115,7 +1119,7 @@ describe('GraphQLAPI', () => {
 
       const result = await graphqlAPI.fetchPinMessage({ channelId: 'fake-channel-id' });
 
-      expect(result).toEqual(true);
+      expect(result).toEqual({ fetchPinMessage: { exampleChatMessage } });
     });
 
     it('should return an error when channelId is not present', done => {
@@ -1123,7 +1127,11 @@ describe('GraphQLAPI', () => {
         client: {
           request: async () => {
             return {
-              fetchPinMessage: false,
+              openChannel: {
+                fetchPinMessage: {
+                  exampleChatMessage
+                }
+              }
             };
           },
         }

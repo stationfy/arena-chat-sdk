@@ -456,7 +456,6 @@ export class Channel implements BaseChannel {
 
       return pinMessage;
     } catch (e) {
-      console.log(e);
       throw new Error(`Cannot fetch pin messages on "${this.chatRoom.slug}" channel.`);
     }
   }
