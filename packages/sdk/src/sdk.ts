@@ -7,6 +7,9 @@ import {
   ChatRoom,
   ChatMessageContent,
   BasePrivateChannel,
+  BaseUserProfile,
+  PublicUser,
+  PublicUserInput,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
@@ -39,6 +42,7 @@ export class ArenaChat {
   private userChangedListeners: UserChangedListener[] = [];
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private liveChat: LiveChat | null = null;
+  private userProfileI: BaseUserProfile | null = null;
   private promiseFetchAndSetChatRoomAndSite: Promise<{
     chatRoom: ChatRoom;
     site: Site;
@@ -46,6 +50,58 @@ export class ArenaChat {
 
   public constructor(private apiKey: string) {
     this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+  }
+
+  /**
+   * Get the current user profile
+   */
+  public async getMeProfile(): Promise<PublicUser> {
+    if (this.user === null) {
+      throw new Error('You have to set a user before get the current user profile.');
+    }
+
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.getMeProfile();
+  }
+
+  /**
+   * Get the user profile by a user id
+   *
+   * @param userId
+   */
+  public async getUserProfile(userId: string): Promise<PublicUser> {
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.getUserProfile(userId);
+  }
+
+  public async updateUserProfile(user: PublicUserInput): Promise<PublicUser> {
+    if (this.user === null) {
+      throw new Error('You have to set a user before update the user profile.');
+    }
+
+    if (this.userProfileI === null) {
+      const site = await this.fetchAndSetSite();
+
+      const { UserProfile } = await import('./user-profile/user-profile');
+
+      this.userProfileI = new UserProfile(site, this);
+    }
+
+    return this.userProfileI.updateUserProfile(user);
   }
 
   /**

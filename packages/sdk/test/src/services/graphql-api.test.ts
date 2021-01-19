@@ -5,7 +5,7 @@ import {
   exampleGroupChannel,
   exampleChatMessage,
   examplePublicUser,
-  exampleLiveChatChannel,
+  exampleLiveChatChannel
 } from '../../fixtures/examples';
 import { RequestDocument } from 'graphql-request/dist/types';
 import { ChatMessageContent, Status } from '@arena-im/chat-types';
@@ -1093,4 +1093,86 @@ describe('GraphQLAPI', () => {
       });
     });
   });
+
+  describe('fetchPinMessage({ channelId } : { channelId: string })', () => {
+    it('should fetch pinned message for a site', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              openChannel: {
+                fetchPinMessage: {
+                  exampleChatMessage
+                }
+              }
+            };
+          },
+        }
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.fetchPinMessage({ channelId: 'fake-channel-id' });
+
+      expect(result).toEqual({ fetchPinMessage: { exampleChatMessage } });
+    });
+
+    it('should return an error when channelId is not present', done => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              openChannel: {
+                fetchPinMessage: {
+                  exampleChatMessage
+                }
+              }
+            };
+          },
+        }
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      // @ts-ignore
+      graphqlAPI.fetchPinMessage({}).catch((e) => {
+        expect(e.message).toEqual('Can\'t fetch pin message without a channel id');
+        done();
+      });
+    });
+
+    it('should return invalid error when there is no response', done => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              fetchPinMessage: false,
+            };
+          },
+        }
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.fetchPinMessage({ channelId: 'fake-channel-id' }).catch((e) => {
+        expect(e.message).toEqual(Status.Failed);
+        done();
+      });
+    })
+  })
 });

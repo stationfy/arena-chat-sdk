@@ -911,4 +911,46 @@ describe('Channel', () => {
       localCallback.call(channel, user);
     });
   });
+
+  describe('fetchPinMessage({ channelId } : { channelId: string })', () => {
+    it('should fetch pinned message for a channel', async () => {
+      const graphQLAPIInstanceMock = {
+        fetchPinMessage: async () => {
+          return exampleChatMessage;
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      const pinnedMessage = await channel.fetchPinMessage();
+
+      expect(pinnedMessage).toEqual(exampleChatMessage);
+    });
+
+    it('should return an error when failed to fetch the pin message ', async () => {
+      const graphQLAPIInstanceMock = {
+        sendMessaToChannel: async () => {
+          return Promise.reject('failed');
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      try {
+        await channel.fetchPinMessage();
+      } catch (e) {
+        expect(e.message).toBe(`Cannot fetch pin messages on "${exampleChatRoom.slug}" channel.`);
+      }
+    });
+  })
 });

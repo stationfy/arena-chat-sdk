@@ -406,14 +406,15 @@ export class Channel implements BaseChannel {
   /**
    * Send a like reaction
    *
-   * @param message chat message
    */
-  public async sendReaction(reaction: MessageReaction): Promise<MessageReaction> {
+  public async sendReaction(reaction: MessageReaction, anonymousId?: string): Promise<MessageReaction> {
     if (this.sdk.site === null) {
       throw new Error('Cannot react to a message without a site id');
     }
 
-    if (this.sdk.user === null) {
+    const userId = this.sdk.user?.id || anonymousId;
+
+    if (typeof userId === 'undefined') {
       throw new Error('Cannot react to a message without a user');
     }
 
@@ -423,7 +424,7 @@ export class Channel implements BaseChannel {
         reaction: reaction.type,
         publisherId: this.sdk.site._id,
         itemId: reaction.messageID,
-        userId: this.sdk.user.id,
+        userId,
         openChannelId: this.channel._id,
         chatRoomId: this.chatRoom._id,
         chatRoomVersion: this.chatRoom.version,
@@ -442,7 +443,25 @@ export class Channel implements BaseChannel {
   }
 
   /**
-   * Remove message received listener
+   * Fetch Pin Messages for current channel
+   *
+   */
+  public async fetchPinMessage(): Promise<ChatMessage> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot fetch pinned message without a site id');
+    }
+
+    try {
+      const pinMessage = await this.graphQLAPI.fetchPinMessage({ channelId: this.channel._id });
+
+      return pinMessage;
+    } catch (e) {
+      throw new Error(`Cannot fetch pin messages on "${this.chatRoom.slug}" channel.`);
+    }
+  }
+
+  /**
+   * Remove message modified listener
    *
    */
   public offMessageReceived(): void {
