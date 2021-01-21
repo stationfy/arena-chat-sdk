@@ -443,6 +443,31 @@ export class Channel implements BaseChannel {
   }
 
   /**
+   * Remove a reaction
+   *
+   */
+
+  public async deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot react to a message without a site id');
+    }
+
+    const userId = this.sdk.user?.id || anonymousId;
+
+    if (typeof userId === 'undefined') {
+      throw new Error('Cannot react to a message without a user');
+    }
+
+    try {
+      const result = await this.graphQLAPI.deleteReaction(userId, reaction.messageID, reaction.type);
+
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot delete reaction from message "${reaction.messageID}"`);
+    }
+  }
+
+  /**
    * Fetch Pin Messages for current channel
    *
    */
