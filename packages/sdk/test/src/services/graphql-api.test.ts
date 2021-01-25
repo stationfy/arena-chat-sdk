@@ -5,7 +5,8 @@ import {
   exampleGroupChannel,
   exampleChatMessage,
   examplePublicUser,
-  exampleLiveChatChannel
+  exampleLiveChatChannel,
+  exampleUser,
 } from '../../fixtures/examples';
 import { RequestDocument } from 'graphql-request/dist/types';
 import { ChatMessageContent, Status } from '@arena-im/chat-types';
@@ -399,6 +400,157 @@ describe('GraphQLAPI', () => {
       const graphqlAPI = new GraphQLAPI(exampleSite);
 
       graphqlAPI.deleteOpenChannelMessage('fake-channel', 'fake-message').catch((error) => {
+        expect(error.message).toEqual(Status.Failed);
+        done();
+      });
+    });
+  });
+
+  describe('fetchReminderSubscribe()', () => {
+    it('should fetch if user is subscribed or not', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              me: {
+                isSubscribedToReminder: true,
+              },
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite, exampleUser);
+
+      const result = await graphqlAPI.fetchReminderSubscribe('fake-reminder-id');
+
+      expect(result).toBe(true);
+    });
+
+    it('should throw an exception when return false from server', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              me: {
+                isSubscribedToReminder: null,
+              },
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite, exampleUser);
+
+      graphqlAPI.fetchReminderSubscribe('fake-reminder-id').catch((error) => {
+        expect(error.message).toEqual(Status.Failed);
+        done();
+      });
+    });
+  });
+
+  describe('subscribeRemindMe()', () => {
+    it('should subscribe user', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              subscribeReminder: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite, exampleUser);
+
+      const result = await graphqlAPI.subscribeRemindMe('fake-reminder-id');
+
+      expect(result).toBe(true);
+    });
+
+    it('should throw an exception when return false from server', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              subscribeReminder: null,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite, exampleUser);
+
+      graphqlAPI.subscribeRemindMe('fake-reminder-id').catch((error) => {
+        expect(error.message).toEqual(Status.Failed);
+        done();
+      });
+    });
+  });
+
+  describe('unsubscribeRemindMe()', () => {
+    it('should unsubscribe user', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              unsubscribeReminder: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite, exampleUser);
+
+      const result = await graphqlAPI.unsubscribeRemindMe('fake-reminder-id');
+
+      expect(result).toBe(true);
+    });
+
+    it('should throw an exception when return false from server', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              unsubscribeReminder: null,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite, exampleUser);
+
+      graphqlAPI.unsubscribeRemindMe('fake-reminder-id').catch((error) => {
         expect(error.message).toEqual(Status.Failed);
         done();
       });
@@ -1102,12 +1254,12 @@ describe('GraphQLAPI', () => {
             return {
               openChannel: {
                 fetchPinMessage: {
-                  exampleChatMessage
-                }
-              }
+                  exampleChatMessage,
+                },
+              },
             };
           },
-        }
+        },
       };
 
       // @ts-ignore
@@ -1122,19 +1274,19 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual({ fetchPinMessage: { exampleChatMessage } });
     });
 
-    it('should return an error when channelId is not present', done => {
+    it('should return an error when channelId is not present', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
             return {
               openChannel: {
                 fetchPinMessage: {
-                  exampleChatMessage
-                }
-              }
+                  exampleChatMessage,
+                },
+              },
             };
           },
-        }
+        },
       };
 
       // @ts-ignore
@@ -1146,12 +1298,12 @@ describe('GraphQLAPI', () => {
 
       // @ts-ignore
       graphqlAPI.fetchPinMessage({}).catch((e) => {
-        expect(e.message).toEqual('Can\'t fetch pin message without a channel id');
+        expect(e.message).toEqual("Can't fetch pin message without a channel id");
         done();
       });
     });
 
-    it('should return invalid error when there is no response', done => {
+    it('should return invalid error when there is no response', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1159,7 +1311,7 @@ describe('GraphQLAPI', () => {
               fetchPinMessage: false,
             };
           },
-        }
+        },
       };
 
       // @ts-ignore
@@ -1173,6 +1325,6 @@ describe('GraphQLAPI', () => {
         expect(e.message).toEqual(Status.Failed);
         done();
       });
-    })
-  })
+    });
+  });
 });

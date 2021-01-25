@@ -10,6 +10,7 @@ import {
   BaseUserProfile,
   PublicUser,
   PublicUserInput,
+  BaseRemindMe,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
@@ -43,6 +44,7 @@ export class ArenaChat {
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private liveChat: LiveChat | null = null;
   private userProfileI: BaseUserProfile | null = null;
+  private remindeMeI: BaseRemindMe | null = null;
   private promiseFetchAndSetChatRoomAndSite: Promise<{
     chatRoom: ChatRoom;
     site: Site;
@@ -102,6 +104,63 @@ export class ArenaChat {
     }
 
     return this.userProfileI.updateUserProfile(user);
+  }
+
+  /**
+   * Get the remind me by reminder id
+   *
+   * @param reminderId
+   */
+  public async fetchReminderSubscribe(reminderId: string): Promise<boolean> {
+    if (this.user === null) {
+      throw new Error('Cannot get a reminder subscription without a current user.');
+    }
+
+    const site = await this.fetchAndSetSite();
+
+    const { RemindMe } = await import('./remind-me/remind-me');
+
+    this.remindeMeI = new RemindMe(site, this.user);
+
+    return this.remindeMeI.fetchReminderSubscribe(reminderId);
+  }
+
+  /**
+   * Get the remind me by reminder id
+   *
+   * @param reminderId
+   */
+  public async subscribeRemindMe(reminderId: string): Promise<boolean> {
+    if (this.user === null) {
+      throw new Error('Cannot get a reminder subscription without a current user.');
+    }
+
+    const site = await this.fetchAndSetSite();
+
+    const { RemindMe } = await import('./remind-me/remind-me');
+
+    this.remindeMeI = new RemindMe(site, this.user);
+
+    return this.remindeMeI.subscribeRemindMe(reminderId);
+  }
+
+  /**
+   * Get the remind me by reminder id
+   *
+   * @param reminderId
+   */
+  public async unsubscribeRemindMe(reminderId: string): Promise<boolean> {
+    if (this.user === null) {
+      throw new Error('Cannot get a reminder subscription without a current user.');
+    }
+
+    const site = await this.fetchAndSetSite();
+
+    const { RemindMe } = await import('./remind-me/remind-me');
+
+    this.remindeMeI = new RemindMe(site, this.user);
+
+    return this.remindeMeI.unsubscribeRemindMe(reminderId);
   }
 
   /**

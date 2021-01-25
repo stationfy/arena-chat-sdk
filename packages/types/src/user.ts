@@ -115,6 +115,7 @@ export interface PublicUser {
   slug?: string;
   userName?: string;
   location?: string;
+  isSubscribedToReminder?: boolean;
 }
 
 export interface PublicUserInput {

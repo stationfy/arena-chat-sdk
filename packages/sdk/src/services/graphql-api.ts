@@ -80,6 +80,76 @@ export class GraphQLAPI {
   }
 
   /**
+   * Fetch reminder subscribe
+   *
+   * @param reminderId reminder id
+   */
+
+  public async fetchReminderSubscribe(reminderId: string): Promise<boolean> {
+    const query = gql`
+      query fetchReminderSubscribe($id: ID!) {
+        me {
+          isSubscribedToReminder(id: $id)
+        }
+      }
+    `;
+
+    const data = await this.graphQL.client.request(query, { id: reminderId });
+
+    const me = data.me;
+
+    return me.isSubscribedToReminder;
+  }
+
+  /**
+   * Fetch reminder subscribe
+   *
+   * @param reminderId remindMe id
+   */
+
+  public async subscribeRemindMe(reminderId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation subscribe($input: SubscribeReminderInput!) {
+        subscribeReminder(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { reminderId } });
+
+    const result = data.subscribeReminder as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  /**
+   * Fetch reminder subscribe
+   *
+   * @param reminderId remindMe id
+   */
+
+  public async unsubscribeRemindMe(reminderId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation subscribe($input: SubscribeReminderInput!) {
+        unsubscribeReminder(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { reminderId } });
+
+    const result = data.unsubscribeReminder as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  /**
    * Fetch the total of unread messages on a group channel
    *
    * @param user current logged user
