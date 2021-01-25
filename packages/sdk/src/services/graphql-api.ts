@@ -98,6 +98,10 @@ export class GraphQLAPI {
 
     const me = data.me;
 
+    if (!me.isSubscribedToReminder) {
+      return false;
+    }
+
     return me.isSubscribedToReminder;
   }
 

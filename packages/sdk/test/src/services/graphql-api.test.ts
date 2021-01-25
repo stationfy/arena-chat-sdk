@@ -432,7 +432,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBe(true);
     });
 
-    it('should throw an exception when return false from server', (done) => {
+    it('should return false when return falsy value from server', async () => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -452,10 +452,9 @@ describe('GraphQLAPI', () => {
 
       const graphqlAPI = new GraphQLAPI(exampleSite, exampleUser);
 
-      graphqlAPI.fetchReminderSubscribe('fake-reminder-id').catch((error) => {
-        expect(error.message).toEqual(Status.Failed);
-        done();
-      });
+      const result = await graphqlAPI.fetchReminderSubscribe('fake-reminder-id');
+
+      expect(result).toBe(false);
     });
   });
 
