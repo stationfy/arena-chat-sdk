@@ -17,7 +17,7 @@ import {
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
-import { debounce } from '../utils/misc';
+import { debounce, handleUserReaction } from '../utils/misc';
 
 export class Channel implements BaseChannel {
   private graphQLAPI: GraphQLAPI;
@@ -287,9 +287,9 @@ export class Channel implements BaseChannel {
     }
 
     try {
-      this.cacheUserReactions = {};
-
       this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(user, (reactions) => {
+        this.cacheUserReactions = {};
+
         reactions.forEach((reaction) => {
           if (!this.cacheUserReactions[reaction.itemId]) {
             this.cacheUserReactions[reaction.itemId] = [];
@@ -537,7 +537,7 @@ export class Channel implements BaseChannel {
     try {
       this.registerMessageModificationCallback((modifiedMessage) => {
         const messages = this.cacheCurrentMessages.map((message) => {
-          if (message.key === modifiedMessage.key) {
+          if (message.key === modifiedMessage.key && handleUserReaction(message.reactions, modifiedMessage.reactions)) {
             modifiedMessage.currentUserReactions = message.currentUserReactions;
             return modifiedMessage;
           }

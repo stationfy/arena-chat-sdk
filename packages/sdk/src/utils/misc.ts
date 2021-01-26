@@ -75,3 +75,26 @@ export function debounce<F extends Procedure>(
     }
   };
 }
+
+/**
+ *
+ * @param messageReactions reactions from message before modification
+ * @param modifiedMessageReactions reactions from message after modification
+ *
+ * @returns boolean
+ */
+
+export function handleUserReaction(
+  messageReactions?: { [type: string]: number },
+  modifiedMessageReactions?: { [type: string]: number },
+): boolean {
+  if (messageReactions && modifiedMessageReactions) {
+    return Object.keys(modifiedMessageReactions).every(
+      (key) =>
+        Object.prototype.hasOwnProperty.call(messageReactions, key) &&
+        messageReactions[key] <= modifiedMessageReactions[key],
+    );
+  }
+
+  return false;
+}

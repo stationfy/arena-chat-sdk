@@ -331,16 +331,16 @@ export class GraphQLAPI {
    *
    * @param userId User id
    * @param itemId ChatMessage id
-   * @param reactionType reaction type
+   * @param reaction reaction type
    */
-  public async deleteReaction(userId: string, itemId: string, reactionType: string): Promise<boolean> {
+  public async deleteReaction(userId: string, itemId: string, reaction: string): Promise<boolean> {
     const mutation = gql`
-      deleteReaction($input: DeleteReactionInput!) {
+      mutation deleteReaction($input: DeleteReactionInput!) {
         deleteReaction(input: $input)
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { userId, itemId, reactionType } });
+    const data = await this.graphQL.client.request(mutation, { input: { userId, itemId, reaction } });
 
     const result = data.deleteReaction as boolean;
 

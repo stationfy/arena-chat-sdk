@@ -41,38 +41,36 @@ export class RealtimeAPI implements BaseRealtime {
     let where: Where = {
       fieldPath: '',
       opStr: '',
-      value: ''
+      value: '',
     };
-    
-    if (filter === QnaQuestionFilter.POPULAR) { 
+
+    if (filter === QnaQuestionFilter.POPULAR) {
       orderBy = {
         field: 'upvotes',
         desc: true,
-      }
-    }
-    else if (filter === QnaQuestionFilter.ANSWERED) {
+      };
+    } else if (filter === QnaQuestionFilter.ANSWERED) {
       where = {
         fieldPath: 'isAnswered',
         opStr: '==',
-        value: true
-      }
-    }
-    else if (filter === QnaQuestionFilter.NOT_ANSWERED) { 
+        value: true,
+      };
+    } else if (filter === QnaQuestionFilter.NOT_ANSWERED) {
       where = {
         fieldPath: 'isAnswered',
         opStr: '==',
-        value: false
-      }
+        value: false,
+      };
     }
-    
+
     const config: ListenChangeConfig = {
       path: `qnas/${qnaId}/questions`,
       orderBy: [orderBy],
-      limit
+      limit,
     };
 
     if (where.fieldPath.length > 0) {
-      config.where = [where]
+      config.where = [where];
     }
 
     const questions = await fetchCollectionItems(config);
