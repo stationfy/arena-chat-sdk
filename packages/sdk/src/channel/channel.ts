@@ -18,6 +18,7 @@ import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
+import { Reaction } from '../reaction/reaction';
 
 export class Channel implements BaseChannel {
   private graphQLAPI: GraphQLAPI;
@@ -533,9 +534,7 @@ export class Channel implements BaseChannel {
    *
    * @param callback
    */
-  public async onMessageModified(callback: (message: ChatMessage) => void): Promise<void> {
-    const { Reaction } = await import('../reaction/reaction');
-
+  public onMessageModified(callback: (message: ChatMessage) => void): void {
     try {
       this.registerMessageModificationCallback((modifiedMessage) => {
         const messages = this.cacheCurrentMessages.map((message) => {
