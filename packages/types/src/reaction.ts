@@ -1,3 +1,5 @@
+import { PublicUser } from './user'
+
 export interface BaseReaction {
   fetchReactions(messageId: string): Promise<ChannelMessageReactions>;
 }
@@ -7,12 +9,7 @@ export interface ChannelMessageReactions {
   total: number;
   items: {
     key: string;
-    user: {
-      _id: string;
-      name: string;
-      bio: string;
-      image: string;
-    }
+    user: PublicUser
     reaction: string;
   }[]
 }

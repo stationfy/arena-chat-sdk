@@ -10,8 +10,6 @@ import {
   BaseUserProfile,
   PublicUser,
   PublicUserInput,
-  ChannelMessageReactions,
-  BaseReaction,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
 import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
@@ -45,7 +43,6 @@ export class ArenaChat {
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private liveChat: LiveChat | null = null;
   private userProfileI: BaseUserProfile | null = null;
-  private reactionI: BaseReaction | null = null;
   private promiseFetchAndSetChatRoomAndSite: Promise<{
     chatRoom: ChatRoom;
     site: Site;
@@ -105,24 +102,6 @@ export class ArenaChat {
     }
 
     return this.userProfileI.updateUserProfile(user);
-  }
-
-  /**
-   * Get the user profile by a user id
-   *
-   * @param channelId Channel id
-   * @param messageId Message id
-   */
-  public async fetchReactions(channelId: string, messageId: string): Promise<ChannelMessageReactions> {
-    if (this.reactionI === null) {
-      const { Reaction } = await import('./reaction/reaction');
-
-      this.reactionI = new Reaction(channelId, this);
-
-      return this.reactionI.fetchReactions(messageId);
-    }
-
-    return this.reactionI.fetchReactions(messageId);
   }
 
   /**
