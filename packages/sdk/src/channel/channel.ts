@@ -203,12 +203,14 @@ export class Channel implements BaseChannel {
     text,
     replyTo,
     mediaURL,
+    isGif,
     tempId,
     sender,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
+    isGif?: boolean;
     tempId?: string;
     sender?: ChatMessageSender;
   }): Promise<string> {
@@ -235,7 +237,13 @@ export class Channel implements BaseChannel {
     };
 
     if (mediaURL) {
-      chatMessage.message.media = { url: mediaURL };
+      chatMessage.message.media = {
+        url: mediaURL,
+      };
+
+      if (isGif) {
+        chatMessage.message.media.isGif = isGif;
+      }
     }
 
     try {
