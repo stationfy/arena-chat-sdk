@@ -66,14 +66,13 @@ export class Channel implements BaseChannel {
   /**
    * Get the user profile by a user id
    *
-   * @param channelId Channel id
    * @param messageId Message id
    */
-  public async fetchReactions(channelId: string, messageId: string): Promise<ChannelMessageReactions> {
+  public async fetchReactions(messageId: string): Promise<ChannelMessageReactions> {
     if (this.reactionI === null) {
       const { Reaction } = await import('../reaction/reaction');
 
-      this.reactionI = new Reaction(channelId, this.sdk);
+      this.reactionI = new Reaction(this.channel._id, this.sdk);
 
       return this.reactionI.fetchReactions(messageId);
     }
