@@ -590,11 +590,18 @@ export class GraphQLAPI {
             key
             message {
               media {
-                title
+                authorImage
+                authorName
+                authorUrl
+                description
+                html
+                providerName
+                providerUrl
                 thumbnailUrl
+                title
                 type
                 url
-                description
+                videoUrl
               }
               text
             }
