@@ -327,6 +327,31 @@ export class GraphQLAPI {
   }
 
   /**
+   * Remove a message reaction
+   *
+   * @param userId User id
+   * @param itemId ChatMessage id
+   * @param reaction reaction type
+   */
+  public async deleteReaction(userId: string, itemId: string, reaction: string): Promise<boolean> {
+    const mutation = gql`
+      mutation deleteReaction($input: DeleteReactionInput!) {
+        deleteReaction(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { userId, itemId, reaction } });
+
+    const result = data.deleteReaction as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  /**
    * Remove all messages of a group channel for a user
    *
    * @param groupChannelId GroupChannel id

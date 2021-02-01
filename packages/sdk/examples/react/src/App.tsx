@@ -32,7 +32,6 @@ function App() {
   }, []);
 
   const modifiedMessagesCallback = useCallback((modifiedMessage: ChatMessage) => {
-    console.log({ modifiedMessage });
     setMessages((messages) => {
       return messages.map((message) => {
         if (message.key === modifiedMessage.key) {
@@ -47,9 +46,9 @@ function App() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat('globoesporte');
+        arenaChat.current = new ArenaChat('tests');
 
-        liveChat.current = await arenaChat.current.getLiveChat('twf1');
+        liveChat.current = await arenaChat.current.getLiveChat('qks0');
 
         channel.current = liveChat.current.getMainChannel();
 

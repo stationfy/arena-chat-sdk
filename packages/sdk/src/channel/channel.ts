@@ -18,6 +18,7 @@ import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
+import { Reaction } from '../reaction/reaction';
 
 export class Channel implements BaseChannel {
   private graphQLAPI: GraphQLAPI;
@@ -289,9 +290,9 @@ export class Channel implements BaseChannel {
     }
 
     try {
-      this.cacheUserReactions = {};
-
       this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(user, (reactions) => {
+        this.cacheUserReactions = {};
+
         reactions.forEach((reaction) => {
           if (!this.cacheUserReactions[reaction.itemId]) {
             this.cacheUserReactions[reaction.itemId] = [];
@@ -445,6 +446,31 @@ export class Channel implements BaseChannel {
   }
 
   /**
+   * Remove a reaction
+   *
+   */
+
+  public async deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot react to a message without a site id');
+    }
+
+    const userId = this.sdk.user?.id || anonymousId;
+
+    if (typeof userId === 'undefined') {
+      throw new Error('Cannot react to a message without a user');
+    }
+
+    try {
+      const result = await this.graphQLAPI.deleteReaction(userId, reaction.messageID, reaction.type);
+
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot delete reaction from message "${reaction.messageID}"`);
+    }
+  }
+
+  /**
    * Fetch Pin Messages for current channel
    *
    */
@@ -514,7 +540,10 @@ export class Channel implements BaseChannel {
     try {
       this.registerMessageModificationCallback((modifiedMessage) => {
         const messages = this.cacheCurrentMessages.map((message) => {
-          if (message.key === modifiedMessage.key) {
+          if (
+            message.key === modifiedMessage.key &&
+            Reaction.hasBeenModified(message.reactions, modifiedMessage.reactions)
+          ) {
             modifiedMessage.currentUserReactions = message.currentUserReactions;
             return modifiedMessage;
           }

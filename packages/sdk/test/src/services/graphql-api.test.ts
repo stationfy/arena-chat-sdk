@@ -356,6 +356,56 @@ describe('GraphQLAPI', () => {
     });
   });
 
+  describe('deleteReaction()', () => {
+    it('should delete a message reaction', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              deleteReaction: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.deleteReaction('fake-user', 'fake-message', 'like');
+
+      expect(result).toBe(true);
+    });
+
+    it('should throw an exception when return false from server', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              deleteReaction: null,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      try {
+        await graphqlAPI.deleteReaction('fake-user', 'fake-message', 'like')
+      } catch (error) {
+        expect(error.message).toEqual(Status.Failed);
+      }
+    });
+  });
+
   describe('deleteOpenChannelMessage()', () => {
     it('should delete an open channel message', async () => {
       const graphQLTransportInstanceMock = {
