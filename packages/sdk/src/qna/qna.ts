@@ -30,7 +30,8 @@ export class Qna implements BaseQna {
   public name: string;
 
   public constructor(props: QnaProps, private qnaId: string, private sdk: ArenaChat) {
-    this.realtimeAPI = new RealtimeAPI(qnaId);
+    this.realtimeAPI = RealtimeAPI.getInstance();
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
 
@@ -51,7 +52,7 @@ export class Qna implements BaseQna {
    * @param qnaId
    */
   static getQnaProps(qnaId: string): Promise<QnaProps> {
-    const realtimeAPI = new RealtimeAPI(qnaId);
+    const realtimeAPI = RealtimeAPI.getInstance();
 
     return realtimeAPI.fetchQnaProps(qnaId);
   }
@@ -358,7 +359,7 @@ export class Qna implements BaseQna {
       return;
     }
 
-    this.questionModificationListener = this.realtimeAPI.listenToQuestionReceived((question) => {
+    this.questionModificationListener = this.realtimeAPI.listenToQuestionReceived(this.qnaId, (question) => {
       if (question.changeType === undefined || !this.questionModificationCallbacks[question.changeType]) {
         return;
       }

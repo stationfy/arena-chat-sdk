@@ -37,7 +37,7 @@ export class Channel implements BaseChannel {
 
     this.graphQLAPI = new GraphQLAPI(this.sdk.site, this.sdk.user || undefined);
 
-    this.realtimeAPI = new RealtimeAPI(channel._id, channel.dataPath);
+    this.realtimeAPI = RealtimeAPI.getInstance();
 
     this.watchChatConfigChanges();
 
@@ -289,7 +289,7 @@ export class Channel implements BaseChannel {
     try {
       this.cacheUserReactions = {};
 
-      this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(user, (reactions) => {
+      this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(this.channel._id, user, (reactions) => {
         reactions.forEach((reaction) => {
           if (!this.cacheUserReactions[reaction.itemId]) {
             this.cacheUserReactions[reaction.itemId] = [];
@@ -368,7 +368,7 @@ export class Channel implements BaseChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      const messages = await this.realtimeAPI.fetchRecentMessages(limit);
+      const messages = await this.realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);
 
       this.updateCacheCurrentMessages(messages);
 
@@ -393,7 +393,7 @@ export class Channel implements BaseChannel {
     try {
       const firstMessage = this.cacheCurrentMessages[0];
 
-      const messages = await this.realtimeAPI.fetchPreviousMessages(firstMessage, limit);
+      const messages = await this.realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
 
       this.updateCacheCurrentMessages([...messages, ...this.cacheCurrentMessages]);
 
@@ -589,7 +589,7 @@ export class Channel implements BaseChannel {
       return;
     }
 
-    this.messageModificationListener = this.realtimeAPI.listenToMessageReceived((message) => {
+    this.messageModificationListener = this.realtimeAPI.listenToMessageReceived(this.channel.dataPath, (message) => {
       if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
         return;
       }

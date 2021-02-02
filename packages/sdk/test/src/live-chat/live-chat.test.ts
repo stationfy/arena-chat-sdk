@@ -86,7 +86,7 @@ describe('LiveChat', () => {
   describe('getMainChannel()', () => {
     beforeEach(() => {
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return {
           listenToChatConfigChanges: jest.fn(),
         };

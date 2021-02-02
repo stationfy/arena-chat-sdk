@@ -14,14 +14,14 @@ export class Polls implements BasePolls {
   private pollModificationCallbacks: { [type: string]: ((poll: Poll) => void)[] } = {};
 
   public constructor(private channel: LiveChatChannel, private sdk: ArenaChat) {
-    this.realtimeAPI = new RealtimeAPI(channel._id);
+    this.realtimeAPI = RealtimeAPI.getInstance();
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
   }
 
   public async loadPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {
     try {
-      const polls = await this.realtimeAPI.fetchAllPolls(filter, limit);
+      const polls = await this.realtimeAPI.fetchAllPolls(this.channel._id, filter, limit);
 
       this.updateCacheCurrentPolls(polls);
 
@@ -172,13 +172,17 @@ export class Polls implements BasePolls {
     try {
       this.cacheUserPollsReactions = {};
 
-      this.userReactionsPollSubscription = this.realtimeAPI.listenToUserChatPollsReactions(userId, (reactions) => {
-        reactions.forEach((reaction) => {
-          this.cacheUserPollsReactions[reaction.itemId] = reaction;
-        });
+      this.userReactionsPollSubscription = this.realtimeAPI.listenToUserChatPollsReactions(
+        this.channel._id,
+        userId,
+        (reactions) => {
+          reactions.forEach((reaction) => {
+            this.cacheUserPollsReactions[reaction.itemId] = reaction;
+          });
 
-        this.notifyUserReactionsVerification();
-      });
+          this.notifyUserReactionsVerification();
+        },
+      );
     } catch (e) {
       throw new Error('Cannot listen to user reactions');
     }
@@ -228,7 +232,7 @@ export class Polls implements BasePolls {
       return;
     }
 
-    this.pollModificationListener = this.realtimeAPI.listenToPollReceived((poll) => {
+    this.pollModificationListener = this.realtimeAPI.listenToPollReceived(this.channel._id, (poll) => {
       if (poll.changeType === undefined || !this.pollModificationCallbacks[poll.changeType]) {
         return;
       }

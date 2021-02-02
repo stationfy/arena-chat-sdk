@@ -25,10 +25,18 @@ import {
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {
+  private static instance: RealtimeAPI;
+
   /** Unsubscribe functions */
   private unsbscribeFunctions: (() => void)[] = [];
 
-  public constructor(private channel?: string, private dataPath?: string) {}
+  public static getInstance(): RealtimeAPI {
+    if (!RealtimeAPI.instance) {
+      RealtimeAPI.instance = new RealtimeAPI();
+    }
+
+    return RealtimeAPI.instance;
+  }
 
   /**
    * @inheritDoc
@@ -41,38 +49,36 @@ export class RealtimeAPI implements BaseRealtime {
     let where: Where = {
       fieldPath: '',
       opStr: '',
-      value: ''
+      value: '',
     };
-    
-    if (filter === QnaQuestionFilter.POPULAR) { 
+
+    if (filter === QnaQuestionFilter.POPULAR) {
       orderBy = {
         field: 'upvotes',
         desc: true,
-      }
-    }
-    else if (filter === QnaQuestionFilter.ANSWERED) {
+      };
+    } else if (filter === QnaQuestionFilter.ANSWERED) {
       where = {
         fieldPath: 'isAnswered',
         opStr: '==',
-        value: true
-      }
-    }
-    else if (filter === QnaQuestionFilter.NOT_ANSWERED) { 
+        value: true,
+      };
+    } else if (filter === QnaQuestionFilter.NOT_ANSWERED) {
       where = {
         fieldPath: 'isAnswered',
         opStr: '==',
-        value: false
-      }
+        value: false,
+      };
     }
-    
+
     const config: ListenChangeConfig = {
       path: `qnas/${qnaId}/questions`,
       orderBy: [orderBy],
-      limit
+      limit,
     };
 
     if (where.fieldPath.length > 0) {
-      config.where = [where]
+      config.where = [where];
     }
 
     const questions = await fetchCollectionItems(config);
@@ -83,13 +89,13 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public async fetchAllPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {
+  public async fetchAllPolls(channelId: string, filter?: PollFilter, limit?: number): Promise<Poll[]> {
     let orderBy: OrderBy;
     const where: Where[] = [
       {
         fieldPath: 'channelId',
         opStr: '==',
-        value: this.channel,
+        value: channelId,
       },
       {
         fieldPath: 'draft',
@@ -147,10 +153,10 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritDoc
    */
-  public listenToMessage(callback: (messages: ChatMessage[]) => void, limit?: number): void {
+  public listenToMessage(channelId: string, callback: (messages: ChatMessage[]) => void, limit?: number): void {
     const unsubscribe = listenToCollectionChange(
       {
-        path: `chat-rooms/${this.channel}/messages`,
+        path: `chat-rooms/${channelId}/messages`,
         limit,
       },
       (response) => {
@@ -194,10 +200,6 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToChatConfigChanges(path: string, callback: (channel: LiveChatChannel) => void): () => void {
-    if (!this.dataPath) {
-      throw new Error('failed');
-    }
-
     const unsubscribe = listenToDocumentChange(
       {
         path,
@@ -221,13 +223,13 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
-    if (!this.dataPath) {
+  public async fetchRecentMessages(dataPath: string, limit?: number): Promise<ChatMessage[]> {
+    if (!dataPath) {
       throw new Error('failed');
     }
 
     const config: ListenChangeConfig = {
-      path: `${this.dataPath}/messages`,
+      path: `${dataPath}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -245,9 +247,13 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public async fetchGroupRecentMessages(limit?: number, lastClearedTimestamp?: number): Promise<ChatMessage[]> {
+  public async fetchGroupRecentMessages(
+    channelId: string,
+    limit?: number,
+    lastClearedTimestamp?: number,
+  ): Promise<ChatMessage[]> {
     const config: ListenChangeConfig = {
-      path: `group-channels/${this.channel}/messages`,
+      path: `group-channels/${channelId}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -269,8 +275,12 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public async fetchPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]> {
-    if (!this.dataPath) {
+  public async fetchPreviousMessages(
+    dataPath: string,
+    firstMessage: ChatMessage,
+    limit?: number,
+  ): Promise<ChatMessage[]> {
+    if (!dataPath) {
       throw new Error('failed');
     }
 
@@ -279,7 +289,7 @@ export class RealtimeAPI implements BaseRealtime {
     }
 
     const messages = await fetchCollectionItems({
-      path: `${this.dataPath}/messages`,
+      path: `${dataPath}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -301,6 +311,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchGroupPreviousMessages(
+    channelId: string,
     firstMessage: ChatMessage,
     lastClearedTimestamp?: number,
     limit?: number,
@@ -310,7 +321,7 @@ export class RealtimeAPI implements BaseRealtime {
     }
 
     const config: ListenChangeConfig = {
-      path: `group-channels/${this.channel}/messages`,
+      path: `group-channels/${channelId}/messages`,
       orderBy: [
         {
           field: 'createdAt',
@@ -334,10 +345,10 @@ export class RealtimeAPI implements BaseRealtime {
     return messages as ChatMessage[];
   }
 
-  public listenToQuestionReceived(callback: (message: QnaQuestion) => void): () => void {
+  public listenToQuestionReceived(channelId: string, callback: (message: QnaQuestion) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
-        path: `qnas/${this.channel}/questions`,
+        path: `qnas/${channelId}/questions`,
       },
       (data) => {
         callback(data as QnaQuestion);
@@ -352,14 +363,14 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToMessageReceived(callback: (message: ChatMessage) => void): () => void {
-    if (!this.dataPath) {
+  public listenToMessageReceived(dataPath: string, callback: (message: ChatMessage) => void): () => void {
+    if (!dataPath) {
       throw new Error('failed');
     }
 
     const unsubscribe = listenToCollectionItemChange(
       {
-        path: `${this.dataPath}/messages`,
+        path: `${dataPath}/messages`,
       },
       (data) => {
         callback(data as ChatMessage);
@@ -374,7 +385,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToPollReceived(callback: (poll: Poll) => void): () => void {
+  public listenToPollReceived(channelId: string, callback: (poll: Poll) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
         path: `polls`,
@@ -382,7 +393,7 @@ export class RealtimeAPI implements BaseRealtime {
           {
             fieldPath: 'channelId',
             opStr: '==',
-            value: this.channel,
+            value: channelId,
           },
           {
             fieldPath: 'draft',
@@ -404,10 +415,10 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToGroupMessageReceived(callback: (message: ChatMessage) => void): () => void {
+  public listenToGroupMessageReceived(channelId: string, callback: (message: ChatMessage) => void): () => void {
     const unsubscribe = listenToCollectionItemChange(
       {
-        path: `group-channels/${this.channel}/messages`,
+        path: `group-channels/${channelId}/messages`,
       },
       (data) => {
         callback(data as ChatMessage);
@@ -433,7 +444,11 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToUserReactions(user: ExternalUser, callback: (reactions: ServerReaction[]) => void): () => void {
+  public listenToUserReactions(
+    channelId: string,
+    user: ExternalUser,
+    callback: (reactions: ServerReaction[]) => void,
+  ): () => void {
     const unsubscribe = listenToCollectionChange(
       {
         path: 'reactions',
@@ -446,7 +461,7 @@ export class RealtimeAPI implements BaseRealtime {
           {
             fieldPath: 'openChannelId',
             opStr: '==',
-            value: this.channel,
+            value: channelId,
           },
         ],
       },
@@ -463,7 +478,11 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToUserChatPollsReactions(userId: string, callback: (reactions: ServerReaction[]) => void): () => void {
+  public listenToUserChatPollsReactions(
+    channelId: string,
+    userId: string,
+    callback: (reactions: ServerReaction[]) => void,
+  ): () => void {
     const unsubscribe = listenToCollectionChange(
       {
         path: 'reactions',
@@ -476,7 +495,7 @@ export class RealtimeAPI implements BaseRealtime {
           {
             fieldPath: 'channelId',
             opStr: '==',
-            value: this.channel,
+            value: channelId,
           },
           {
             fieldPath: 'itemType',
