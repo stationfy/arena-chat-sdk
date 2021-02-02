@@ -50,6 +50,7 @@ export interface ChatMessageContentMedia {
   url: string;
   description?: string;
   html?: string;
+  isGif?: boolean;
   providerName?: string;
   providerUrl?: string;
   thumbnailHeight?: number;
