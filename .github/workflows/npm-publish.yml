@@ -68,6 +68,8 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build:dev
+      - name: Link
+        run: yarn link:yarn
       - name: Setup Node ${{ matrix.node_version }}
         uses: actions/setup-node@v1
         with:
