@@ -13,6 +13,8 @@ import {
   BaseQna,
   ChatMessageReportedBy,
   ChatRoom,
+  ChannelMessageReactions,
+  BaseReaction,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
@@ -30,6 +32,7 @@ export class Channel implements BaseChannel {
   private userReactionsSubscription: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
+  private reactionI: BaseReaction | null = null;
 
   public constructor(public channel: LiveChatChannel, private chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -58,6 +61,23 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot set group channel read.');
     }
+  }
+
+  /**
+   * Get the user profile by a user id
+   *
+   * @param messageId Message id
+   */
+  public async fetchReactions(messageId: string): Promise<ChannelMessageReactions> {
+    if (this.reactionI === null) {
+      const { Reaction } = await import('../reaction/reaction');
+
+      this.reactionI = new Reaction(this.channel._id, this.sdk);
+
+      return this.reactionI.fetchReactions(messageId);
+    }
+
+    return this.reactionI.fetchReactions(messageId);
   }
 
   public async getChatQnaInstance(): Promise<BaseQna> {

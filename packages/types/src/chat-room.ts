@@ -3,6 +3,7 @@ import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
 import { PublicUser } from './user';
+import { ChannelMessageReactions } from './reaction';
 
 export interface ChatRoom extends LiveChatChannel {
   chatAutoOpen: boolean;
@@ -31,6 +32,10 @@ export interface LiveChatChannel {
   chatColor: string;
   chatPreModerationIsEnabled: boolean;
   chatRequestModeratorIsEnabled: boolean;
+  message: {
+    key: string;
+    reactions: ChannelMessageReactions
+  }
   dataPath: string;
   hasPolls: boolean;
   name: string;
