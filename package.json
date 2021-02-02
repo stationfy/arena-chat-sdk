@@ -46,7 +46,7 @@
     "ts-jest": "^26.1.0",
     "typescript": "3.9.5",
     "tslib": "^2.0.0",
-    "lerna": "3.13.4"
+    "lerna": "3.22.1"
   },
   "resolutions": {
     "**/agent-base": "5"
