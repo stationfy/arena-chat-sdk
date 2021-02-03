@@ -6,6 +6,9 @@ import {
   Moderation,
   ModeratorStatus,
   LiveChatChannel,
+  MessageReaction,
+  ServerReaction,
+  ChatMessageSender,
 } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
@@ -15,7 +18,6 @@ import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaHub } from '@services/arena-hub';
 import { ArenaChat } from '../../../src/sdk';
-import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
 import { exampleChatMessage, exampleChatRoom, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
 
 jest.mock('@services/arena-hub', () => ({

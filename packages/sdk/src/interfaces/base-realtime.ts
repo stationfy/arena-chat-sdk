@@ -6,8 +6,10 @@ import {
   LiveChatChannel,
   PollFilter,
   Poll,
+  QnaProps,
+  QnaQuestion,
+  QnaQuestionFilter,
 } from '@arena-im/chat-types';
-import { QnaProps, QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types/dist/qna';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {

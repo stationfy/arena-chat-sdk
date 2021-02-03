@@ -10,10 +10,10 @@ import {
   Status,
   ChatMessageReportedBy,
   PublicUserInput,
+  PrivateMessageInput,
 } from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
-import { PrivateMessageInput } from '@arena-im/chat-types/dist/private-chat';
 
 export class GraphQLAPI {
   private graphQL: GraphQLTransport;

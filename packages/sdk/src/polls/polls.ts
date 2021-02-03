@@ -1,8 +1,15 @@
-import { BasePolls, Poll, PollFilter, ServerReaction, LiveChatChannel, ExternalUser } from '@arena-im/chat-types';
+import {
+  BasePolls,
+  Poll,
+  PollFilter,
+  ServerReaction,
+  LiveChatChannel,
+  ExternalUser,
+  DocumentChangeType,
+} from '@arena-im/chat-types';
 import { ArenaChat } from '../sdk';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
-import { DocumentChangeType } from '@arena-im/chat-types/dist/firestore';
 
 export class Polls implements BasePolls {
   private realtimeAPI: RealtimeAPI;

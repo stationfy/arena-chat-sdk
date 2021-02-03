@@ -25,7 +25,7 @@ export {
   PublicUserInput,
 } from './user';
 export { Moderation, ModeratorStatus } from './moderation';
-export { PublicUserStatus, GroupChannel } from './private-chat';
+export { PublicUserStatus, GroupChannel, PrivateMessageInput } from './private-chat';
 export { BasePrivateChannel } from './base-private-channel';
 export { BaseQna, QnaQuestion, QnaQuestionFilter, QnaProps } from './qna';
 export { BasePolls, Poll, PollFilter } from './polls';
