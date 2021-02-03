@@ -12,7 +12,7 @@
     "lint": "lerna run --stream --concurrency 1 lint",
     "lint:json": "lerna run --stream --concurrency 1 lint:tslint:json",
     "publish:all": "lerna publish",
-    "publish:beta": "lerna publish --ignore-prepublish --ignore-scripts --preid beta --dist-tag beta --registry=https://registry.npmjs.org",
+    "publish:beta": "lerna publish --ignore-prepublish --ignore-scripts --canary --preid beta --dist-tag beta",
     "test": "lerna run --stream --concurrency 1 --sort test"
   },
   "volta": {
