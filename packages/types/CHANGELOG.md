@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.1.1 (2021-02-03)
+
+**Note:** Version bump only for package @arena-im/chat-types
+
+
+
+
+
 # [2.1.0](https://github.com/stationfy/arena-chat-sdk/compare/v2.0.9...v2.1.0) (2021-02-03)
 
 
