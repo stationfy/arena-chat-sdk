@@ -23,7 +23,7 @@ describe('Polls', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -42,7 +42,7 @@ describe('Polls', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -60,7 +60,7 @@ describe('Polls', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -129,13 +129,13 @@ describe('Polls', () => {
   describe('offPollReceived()', () => {
     it('should stop listening poll received', () => {
       const realtimeAPIInstanceMock = {
-        listenToPollReceived: (callback: (poll: Poll) => void) => {
+        listenToPollReceived: (_: string, callback: (poll: Poll) => void) => {
           callback(examplePoll);
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -150,13 +150,13 @@ describe('Polls', () => {
   describe('onPollReceived()', () => {
     it('should receive a message', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToPollReceived: (callback: (poll: Poll) => void) => {
+        listenToPollReceived: (_: string, callback: (poll: Poll) => void) => {
           callback({ ...examplePoll, changeType: 'added' });
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -176,7 +176,7 @@ describe('Polls', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -195,13 +195,13 @@ describe('Polls', () => {
   describe('offPollDeleted()', () => {
     it('should receive a poll deleted', () => {
       const realtimeAPIInstanceMock = {
-        listenToPollReceived: (callback: (poll: Poll) => void) => {
+        listenToPollReceived: (_: string, callback: (poll: Poll) => void) => {
           callback({ ...examplePoll, changeType: 'removed' });
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -216,13 +216,13 @@ describe('Polls', () => {
   describe('onPollDeleted()', () => {
     it('should receive a poll deleted', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToPollReceived: (callback: (poll: Poll) => void) => {
+        listenToPollReceived: (_: string, callback: (poll: Poll) => void) => {
           callback({ ...examplePoll, changeType: 'removed' });
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -243,7 +243,7 @@ describe('Polls', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -262,13 +262,13 @@ describe('Polls', () => {
   describe('watchUserPollsReactions()', () => {
     it('should receive user reactions', () => {
       const realtimeAPIInstanceMock = {
-        listenToUserChatPollsReactions: (_: string, callback: (reactions: ServerReaction[]) => void) => {
+        listenToUserChatPollsReactions: (_: string, __: string, callback: (reactions: ServerReaction[]) => void) => {
           callback([]);
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -281,13 +281,13 @@ describe('Polls', () => {
   describe('offPollModified()', () => {
     it('should receive a poll modified', () => {
       const realtimeAPIInstanceMock = {
-        listenToPollReceived: (callback: (poll: Poll) => void) => {
+        listenToPollReceived: (_: string, callback: (poll: Poll) => void) => {
           callback({ ...examplePoll, changeType: 'modified' });
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -302,13 +302,13 @@ describe('Polls', () => {
   describe('onPollModified()', () => {
     it('should receive a poll modified', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToPollReceived: (callback: (poll: Poll) => void) => {
+        listenToPollReceived: (_: string, callback: (poll: Poll) => void) => {
           callback({ ...examplePoll, changeType: 'modified' });
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -329,7 +329,7 @@ describe('Polls', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -348,13 +348,13 @@ describe('Polls', () => {
   describe('offAllListeners()', () => {
     it('should receive a poll modified', () => {
       const realtimeAPIInstanceMock = {
-        listenToPollReceived: (callback: (poll: Poll) => void) => {
+        listenToPollReceived: (_: string, callback: (poll: Poll) => void) => {
           callback({ ...examplePoll, changeType: 'modified' });
         },
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 

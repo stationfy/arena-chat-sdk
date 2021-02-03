@@ -26,7 +26,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -50,7 +50,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -69,7 +69,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -86,7 +86,7 @@ describe('Qna', () => {
   describe('onQuestionReceived()', () => {
     it('should receive a question', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
+        listenToQuestionReceived: (_: string, callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,
             changeType: 'added',
@@ -95,7 +95,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -115,7 +115,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -134,7 +134,7 @@ describe('Qna', () => {
   describe('offQuestionReceived()', () => {
     it('should stop listening question received', () => {
       const realtimeAPIInstanceMock = {
-        listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
+        listenToQuestionReceived: (_: string, callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,
             changeType: 'added',
@@ -143,7 +143,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -160,7 +160,7 @@ describe('Qna', () => {
       const realtimeAPIInstanceMock = {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         listenToQnaUserReactions: () => {},
-        listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
+        listenToQuestionReceived: (_: string, callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,
             changeType: 'modified',
@@ -169,7 +169,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -194,7 +194,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -209,7 +209,7 @@ describe('Qna', () => {
       const realtimeAPIInstanceMock = {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         listenToQnaUserReactions: () => {},
-        listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
+        listenToQuestionReceived: (_: string, callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,
             changeType: 'modified',
@@ -218,7 +218,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -236,7 +236,7 @@ describe('Qna', () => {
   describe('onQuestionDeleted()', () => {
     it('should receive a question deleted', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
+        listenToQuestionReceived: (_: string, callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,
             changeType: 'removed',
@@ -245,7 +245,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -266,7 +266,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -285,7 +285,7 @@ describe('Qna', () => {
   describe('offQuestionDeleted()', () => {
     it('should receive a question deleted', () => {
       const realtimeAPIInstanceMock = {
-        listenToQuestionReceived: (callback: (question: QnaQuestion) => void) => {
+        listenToQuestionReceived: (_: string, callback: (question: QnaQuestion) => void) => {
           callback({
             ...exampleQnaQuestion,
             changeType: 'removed',
@@ -294,7 +294,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -549,7 +549,7 @@ describe('Qna', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
