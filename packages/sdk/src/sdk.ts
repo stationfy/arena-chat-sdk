@@ -19,7 +19,7 @@ import { LiveChat } from './live-chat/live-chat';
  * Chat SDK Client
  *
  * To use this SDK, call the {@link ArenaChat} function as early as possible when
- * loading the web page.
+ * loading the web page
  *
  * @example
  *
