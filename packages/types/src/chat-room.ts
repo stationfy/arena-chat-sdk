@@ -3,6 +3,7 @@ import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
 import { PublicUser } from './user';
+import { ChannelMessageReactions } from './reaction';
 
 export interface ChatRoom extends LiveChatChannel {
   chatAutoOpen: boolean;
@@ -31,6 +32,10 @@ export interface LiveChatChannel {
   chatColor: string;
   chatPreModerationIsEnabled: boolean;
   chatRequestModeratorIsEnabled: boolean;
+  message: {
+    key: string;
+    reactions: ChannelMessageReactions
+  }
   dataPath: string;
   hasPolls: boolean;
   name: string;
@@ -81,6 +86,7 @@ export interface BaseChannel {
   fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
   sendReaction(reaction: MessageReaction, anonymousId?: string): Promise<MessageReaction>;
+  deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean>;
   offMessageReceived(): void;
   onMessageReceived(callback: (message: ChatMessage) => void): void;
   offMessageModified(): void;

@@ -11,6 +11,7 @@ import {
   ChatMessageReportedBy,
   PublicUserInput,
   PrivateMessageInput,
+  ChannelMessageReactions,
 } from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
@@ -327,6 +328,76 @@ export class GraphQLAPI {
   }
 
   /**
+   * Remove a message reaction
+   *
+   * @param userId User id
+   * @param itemId ChatMessage id
+   * @param reaction reaction type
+   */
+  public async deleteReaction(userId: string, itemId: string, reaction: string): Promise<boolean> {
+    const mutation = gql`
+      mutation deleteReaction($input: DeleteReactionInput!) {
+        deleteReaction(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input: { userId, itemId, reaction } });
+
+    const result = data.deleteReaction as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  /**
+   * Fetch message reactions
+   *
+   * @param channelId Channel id
+   * @param messageId Message id
+   */
+  public async fetchReactions(channelId: string, messageId: string): Promise<ChannelMessageReactions> {
+    const query = gql`
+      query openChannel($id: ID!, $_id: ID!) {
+        openChannel(id: $id) {
+          _id
+          message(_id: $_id) {
+            key
+            reactions {
+              anonymousCount
+              total
+              items {
+                key
+                user {
+                  _id
+                  name
+                  bio
+                  image
+                }
+                reaction
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const data = await this.graphQL.client.request(query, { id: channelId, _id: messageId });
+
+    const channel = data.openChannel as LiveChatChannel;
+
+    if (!channel) {
+      throw new Error(Status.Failed);
+    }
+
+    const reactions = channel.message.reactions;
+
+    return reactions;
+  }
+
+  /**
    * Remove all messages of a group channel for a user
    *
    * @param groupChannelId GroupChannel id
@@ -590,11 +661,18 @@ export class GraphQLAPI {
             key
             message {
               media {
-                title
+                authorImage
+                authorName
+                authorUrl
+                description
+                html
+                providerName
+                providerUrl
                 thumbnailUrl
+                title
                 type
                 url
-                description
+                videoUrl
               }
               text
             }

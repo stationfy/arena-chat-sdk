@@ -50,6 +50,7 @@ export interface ChatMessageContentMedia {
   url: string;
   description?: string;
   html?: string;
+  isGif?: boolean;
   providerName?: string;
   providerUrl?: string;
   thumbnailHeight?: number;
@@ -69,6 +70,8 @@ export interface ChatMessageReport {
 export interface ChatMessageReportedBy {
   reportedByType: string;
   uid?: string;
+  displayName?: string;
+  image?: string;
 }
 
 export interface DeleteChatMessageRequest {

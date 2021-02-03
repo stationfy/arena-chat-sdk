@@ -5,7 +5,7 @@ import {
   exampleGroupChannel,
   exampleChatMessage,
   examplePublicUser,
-  exampleLiveChatChannel
+  exampleLiveChatChannel,
 } from '../../fixtures/examples';
 import { RequestDocument } from 'graphql-request/dist/types';
 import { ChatMessageContent, Status } from '@arena-im/chat-types';
@@ -353,6 +353,56 @@ describe('GraphQLAPI', () => {
       const channels = await graphqlAPI.listChannels('fake-chat');
 
       expect(channels.length).toEqual(1);
+    });
+  });
+
+  describe('deleteReaction()', () => {
+    it('should delete a message reaction', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              deleteReaction: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.deleteReaction('fake-user', 'fake-message', 'like');
+
+      expect(result).toBe(true);
+    });
+
+    it('should throw an exception when return false from server', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              deleteReaction: null,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      try {
+        await graphqlAPI.deleteReaction('fake-user', 'fake-message', 'like');
+      } catch (error) {
+        expect(error.message).toEqual(Status.Failed);
+      }
     });
   });
 
@@ -1102,12 +1152,12 @@ describe('GraphQLAPI', () => {
             return {
               openChannel: {
                 fetchPinMessage: {
-                  exampleChatMessage
-                }
-              }
+                  exampleChatMessage,
+                },
+              },
             };
           },
-        }
+        },
       };
 
       // @ts-ignore
@@ -1122,19 +1172,19 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual({ fetchPinMessage: { exampleChatMessage } });
     });
 
-    it('should return an error when channelId is not present', done => {
+    it('should return an error when channelId is not present', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
             return {
               openChannel: {
                 fetchPinMessage: {
-                  exampleChatMessage
-                }
-              }
+                  exampleChatMessage,
+                },
+              },
             };
           },
-        }
+        },
       };
 
       // @ts-ignore
@@ -1146,12 +1196,12 @@ describe('GraphQLAPI', () => {
 
       // @ts-ignore
       graphqlAPI.fetchPinMessage({}).catch((e) => {
-        expect(e.message).toEqual('Can\'t fetch pin message without a channel id');
+        expect(e.message).toEqual("Can't fetch pin message without a channel id");
         done();
       });
     });
 
-    it('should return invalid error when there is no response', done => {
+    it('should return invalid error when there is no response', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1159,7 +1209,7 @@ describe('GraphQLAPI', () => {
               fetchPinMessage: false,
             };
           },
-        }
+        },
       };
 
       // @ts-ignore
@@ -1173,6 +1223,75 @@ describe('GraphQLAPI', () => {
         expect(e.message).toEqual(Status.Failed);
         done();
       });
-    })
-  })
+    });
+  });
+
+  describe('fetchReactions()', () => {
+    it('should fetch reactions from message', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              openChannel: {
+                message: {
+                  reactions: {
+                    anonymousCount: 41,
+                    total: 42,
+                    user: {
+                      _id: 42,
+                      name: 'Tralala',
+                      bio: 'Bio test',
+                    },
+                  },
+                },
+              },
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      const result = await graphqlAPI.fetchReactions('fake-channel-id', 'fake-message-id');
+
+      expect(result).toEqual({
+        anonymousCount: 41,
+        total: 42,
+        user: {
+          _id: 42,
+          name: 'Tralala',
+          bio: 'Bio test',
+        },
+      });
+    });
+
+    it('should return invalid error when there is no response', (done) => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              openChannel: false,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = new GraphQLAPI(exampleSite);
+
+      graphqlAPI.fetchReactions('fake-channel-id', 'fake-message-id').catch((e) => {
+        expect(e.message).toEqual(Status.Failed);
+        done();
+      });
+    });
+  });
 });

@@ -811,6 +811,58 @@ describe('Channel', () => {
     });
   });
 
+  describe('deleteReaction()', () => {
+    it('should delete a message reaction', async () => {
+      const graphQLAPIInstanceMock = {
+        deleteReaction: async () => {
+          return true;
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      const reaction: MessageReaction = {
+        messageID: 'fake-message',
+        type: 'like',
+      };
+
+      const result = await channel.deleteReaction(reaction);
+
+      expect(result).toEqual(true);
+    });
+
+    it('should receive an error when delete a message', async () => {
+      const graphQLAPIInstanceMock = {
+        deleteReaction: async () => {
+          return Promise.reject('failed');
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      const reaction: MessageReaction = {
+        messageID: 'fake-message',
+        type: 'like',
+      };
+
+      try {
+        await channel.deleteReaction(reaction);
+      } catch (e) {
+        expect(e.message).toBe(`Cannot delete reaction from message "${reaction.messageID}"`);
+      }
+    });
+  });
+
   describe('watchUserChanged()', () => {
     beforeEach(() => {
       const realtimeAPIInstanceMock = {

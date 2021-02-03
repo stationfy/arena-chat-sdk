@@ -15,7 +15,7 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
       return false;
     }
 
-    return currentUser.id === message.sender.uid;
+    return currentUser.id === message?.sender?.uid;
   }, [message, currentUser]);
 
   const likes = useMemo(() => {
@@ -64,7 +64,11 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
     };
 
     try {
-      currentChannel?.sendReaction(reaction);
+      if (userReacted) {
+        currentChannel?.deleteReaction(reaction);
+      } else {
+        currentChannel?.sendReaction(reaction);
+      }
     } catch (e) {
       setError(e.message);
     }
@@ -75,6 +79,7 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
   }
 
   function handleBanUser() {
+    // @ts-ignore
     currentChannel?.banUser(message.sender);
   }
 
@@ -82,7 +87,11 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
     <div className={`message new${isCurrentUser ? ' message-personal' : ''}`}>
       {!isCurrentUser && (
         <figure className="avatar">
-          <img src={message.sender.photoURL} alt="avatar" />
+          <img
+            // @ts-ignore
+            src={message.sender.photoURL}
+            alt="avatar"
+          />
         </figure>
       )}
       <div className="message-text">{message.message ? message.message.text : ''}</div>
@@ -105,6 +114,7 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
       <div className="timestamp">
         <div>{getTimestamp()}</div>
         <div>{' | '}</div>
+        {/*@ts-ignore*/}
         <div>{isCurrentUser ? '' : message.sender.displayName}</div>
       </div>
     </div>

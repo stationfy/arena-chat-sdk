@@ -26,6 +26,36 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * add user profile ([74754df](https://github.com/stationfy/arena-chat-sdk/commit/74754df95dde783fa92907f0ea80e62e801a476c))
 * add user profile ([0b8090f](https://github.com/stationfy/arena-chat-sdk/commit/0b8090f5d43ecf9b47271521f6b11f6bc1bc9bfe))
+## 2.0.13 (2021-02-01)
+
+**Note:** Version bump only for package @arena-im/chat-types
+
+
+
+
+
+## 2.0.12 (2021-01-22)
+
+**Note:** Version bump only for package @arena-im/chat-types
+
+
+
+
+
+## 2.0.11 (2021-01-19)
+
+**Note:** Version bump only for package @arena-im/chat-types
+
+
+
+
+
+## 2.0.10 (2021-01-13)
+
+
+### Bug Fixes
+
+* set anonymous user ([01c943c](https://github.com/stationfy/arena-chat-sdk/commit/01c943cc1b23b803fa964ea8f859f08a3791db15))
 
 
 

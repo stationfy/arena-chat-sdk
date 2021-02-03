@@ -13,11 +13,14 @@ import {
   BaseQna,
   ChatMessageReportedBy,
   ChatRoom,
+  ChannelMessageReactions,
+  BaseReaction,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
+import { Reaction } from '../reaction/reaction';
 
 export class Channel implements BaseChannel {
   private graphQLAPI: GraphQLAPI;
@@ -29,6 +32,7 @@ export class Channel implements BaseChannel {
   private userReactionsSubscription: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
+  private reactionI: BaseReaction | null = null;
 
   public constructor(public channel: LiveChatChannel, private chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -57,6 +61,23 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot set group channel read.');
     }
+  }
+
+  /**
+   * Get the user profile by a user id
+   *
+   * @param messageId Message id
+   */
+  public async fetchReactions(messageId: string): Promise<ChannelMessageReactions> {
+    if (this.reactionI === null) {
+      const { Reaction } = await import('../reaction/reaction');
+
+      this.reactionI = new Reaction(this.channel._id, this.sdk);
+
+      return this.reactionI.fetchReactions(messageId);
+    }
+
+    return this.reactionI.fetchReactions(messageId);
   }
 
   public async getChatQnaInstance(): Promise<BaseQna> {
@@ -159,6 +180,8 @@ export class Channel implements BaseChannel {
 
     const reportedBy: ChatMessageReportedBy = {
       uid: this.sdk.user?.id || anonymousId,
+      displayName: this.sdk.user?.name || 'Anonymous User',
+      image: this.sdk.user?.image,
       reportedByType: this.sdk.user?.id && this.sdk.user?.token ? 'user' : 'anonymous',
     };
 
@@ -203,12 +226,14 @@ export class Channel implements BaseChannel {
     text,
     replyTo,
     mediaURL,
+    isGif,
     tempId,
     sender,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
+    isGif?: boolean;
     tempId?: string;
     sender?: ChatMessageSender;
   }): Promise<string> {
@@ -235,7 +260,13 @@ export class Channel implements BaseChannel {
     };
 
     if (mediaURL) {
-      chatMessage.message.media = { url: mediaURL };
+      chatMessage.message.media = {
+        url: mediaURL,
+      };
+
+      if (isGif) {
+        chatMessage.message.media.isGif = isGif;
+      }
     }
 
     try {
@@ -287,9 +318,9 @@ export class Channel implements BaseChannel {
     }
 
     try {
-      this.cacheUserReactions = {};
-
       this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(this.channel._id, user, (reactions) => {
+        this.cacheUserReactions = {};
+
         reactions.forEach((reaction) => {
           if (!this.cacheUserReactions[reaction.itemId]) {
             this.cacheUserReactions[reaction.itemId] = [];
@@ -443,6 +474,31 @@ export class Channel implements BaseChannel {
   }
 
   /**
+   * Remove a reaction
+   *
+   */
+
+  public async deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot react to a message without a site id');
+    }
+
+    const userId = this.sdk.user?.id || anonymousId;
+
+    if (typeof userId === 'undefined') {
+      throw new Error('Cannot react to a message without a user');
+    }
+
+    try {
+      const result = await this.graphQLAPI.deleteReaction(userId, reaction.messageID, reaction.type);
+
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot delete reaction from message "${reaction.messageID}"`);
+    }
+  }
+
+  /**
    * Fetch Pin Messages for current channel
    *
    */
@@ -512,7 +568,10 @@ export class Channel implements BaseChannel {
     try {
       this.registerMessageModificationCallback((modifiedMessage) => {
         const messages = this.cacheCurrentMessages.map((message) => {
-          if (message.key === modifiedMessage.key) {
+          if (
+            message.key === modifiedMessage.key &&
+            Reaction.hasBeenModified(message.reactions, modifiedMessage.reactions)
+          ) {
             modifiedMessage.currentUserReactions = message.currentUserReactions;
             return modifiedMessage;
           }

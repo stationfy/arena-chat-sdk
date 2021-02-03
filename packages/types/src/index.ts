@@ -31,3 +31,4 @@ export { BaseQna, QnaQuestion, QnaQuestionFilter, QnaProps } from './qna';
 export { BasePolls, Poll, PollFilter } from './polls';
 export { TrackPayload, TrackContext, TrackPageInfo } from './arena-hub';
 export { BaseUserProfile } from './user-profile';
+export { BaseReaction, MessageReactions, ChannelMessageReactions } from './reaction';
