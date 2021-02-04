@@ -16,6 +16,8 @@ export class Reaction {
           Object.prototype.hasOwnProperty.call(messageReactions, key) &&
           messageReactions[key] <= modifiedMessageReactions[key],
       );
+    } else if (messageReactions === undefined && modifiedMessageReactions === undefined) {
+      return true;
     }
 
     return false;
