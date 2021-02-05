@@ -11,7 +11,7 @@ export class Reaction {
 
   static hasBeenModified(messageReactions?: MessageReactions, modifiedMessageReactions?: MessageReactions): boolean {
     if (messageReactions && modifiedMessageReactions) {
-      return Object.keys(modifiedMessageReactions).every(
+      return Object.keys(modifiedMessageReactions).some(
         (key) =>
           Object.prototype.hasOwnProperty.call(messageReactions, key) &&
           messageReactions[key] <= modifiedMessageReactions[key],
