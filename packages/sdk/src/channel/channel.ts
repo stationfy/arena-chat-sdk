@@ -13,6 +13,8 @@ import {
   BaseQna,
   ChatMessageReportedBy,
   ChatRoom,
+  ChannelMessageReactions,
+  BaseReaction,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { ArenaChat } from '../sdk';
@@ -30,6 +32,7 @@ export class Channel implements BaseChannel {
   private userReactionsSubscription: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
+  private reactionI: BaseReaction | null = null;
 
   public constructor(public channel: LiveChatChannel, private chatRoom: ChatRoom, private sdk: ArenaChat) {
     if (this.sdk.site === null) {
@@ -38,7 +41,7 @@ export class Channel implements BaseChannel {
 
     this.graphQLAPI = new GraphQLAPI(this.sdk.site, this.sdk.user || undefined);
 
-    this.realtimeAPI = new RealtimeAPI(channel._id, channel.dataPath);
+    this.realtimeAPI = RealtimeAPI.getInstance();
 
     this.watchChatConfigChanges();
 
@@ -58,6 +61,23 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot set group channel read.');
     }
+  }
+
+  /**
+   * Get the user profile by a user id
+   *
+   * @param messageId Message id
+   */
+  public async fetchReactions(messageId: string): Promise<ChannelMessageReactions> {
+    if (this.reactionI === null) {
+      const { Reaction } = await import('../reaction/reaction');
+
+      this.reactionI = new Reaction(this.channel._id, this.sdk);
+
+      return this.reactionI.fetchReactions(messageId);
+    }
+
+    return this.reactionI.fetchReactions(messageId);
   }
 
   public async getChatQnaInstance(): Promise<BaseQna> {
@@ -206,12 +226,14 @@ export class Channel implements BaseChannel {
     text,
     replyTo,
     mediaURL,
+    isGif,
     tempId,
     sender,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
+    isGif?: boolean;
     tempId?: string;
     sender?: ChatMessageSender;
   }): Promise<string> {
@@ -238,7 +260,13 @@ export class Channel implements BaseChannel {
     };
 
     if (mediaURL) {
-      chatMessage.message.media = { url: mediaURL };
+      chatMessage.message.media = {
+        url: mediaURL,
+      };
+
+      if (isGif) {
+        chatMessage.message.media.isGif = isGif;
+      }
     }
 
     try {
@@ -290,7 +318,7 @@ export class Channel implements BaseChannel {
     }
 
     try {
-      this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(user, (reactions) => {
+      this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(this.channel._id, user, (reactions) => {
         this.cacheUserReactions = {};
 
         reactions.forEach((reaction) => {
@@ -371,7 +399,7 @@ export class Channel implements BaseChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      const messages = await this.realtimeAPI.fetchRecentMessages(limit);
+      const messages = await this.realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);
 
       this.updateCacheCurrentMessages(messages);
 
@@ -396,7 +424,7 @@ export class Channel implements BaseChannel {
     try {
       const firstMessage = this.cacheCurrentMessages[0];
 
-      const messages = await this.realtimeAPI.fetchPreviousMessages(firstMessage, limit);
+      const messages = await this.realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
 
       this.updateCacheCurrentMessages([...messages, ...this.cacheCurrentMessages]);
 
@@ -620,7 +648,7 @@ export class Channel implements BaseChannel {
       return;
     }
 
-    this.messageModificationListener = this.realtimeAPI.listenToMessageReceived((message) => {
+    this.messageModificationListener = this.realtimeAPI.listenToMessageReceived(this.channel.dataPath, (message) => {
       if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
         return;
       }

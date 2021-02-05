@@ -6,6 +6,9 @@ import {
   Moderation,
   ModeratorStatus,
   LiveChatChannel,
+  MessageReaction,
+  ServerReaction,
+  ChatMessageSender,
 } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
@@ -15,7 +18,6 @@ import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaHub } from '@services/arena-hub';
 import { ArenaChat } from '../../../src/sdk';
-import { MessageReaction, ServerReaction, ChatMessageSender } from '@arena-im/chat-types/dist/chat-message';
 import { exampleChatMessage, exampleChatRoom, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
 
 jest.mock('@services/arena-hub', () => ({
@@ -74,7 +76,7 @@ describe('Channel', () => {
     };
 
     // @ts-ignore
-    RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+    RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
       return {
         listenToChatConfigChanges: jest.fn(),
       };
@@ -312,12 +314,12 @@ describe('Channel', () => {
   });
 
   it('should create an instance of realtime api with chatroom id', () => {
-    const spy = jest.spyOn(RealtimeAPI, 'RealtimeAPI');
+    const spy = jest.spyOn(RealtimeAPI.RealtimeAPI, 'getInstance');
 
     new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
     expect(spy).toHaveBeenCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
+    expect(spy).toHaveBeenCalledWith();
   });
 
   describe('listenToChatConfigChanges()', () => {
@@ -327,7 +329,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -350,7 +352,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -370,7 +372,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -405,7 +407,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -425,7 +427,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -482,7 +484,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -500,7 +502,7 @@ describe('Channel', () => {
     it('should stop listening message modified', () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -520,7 +522,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -539,7 +541,7 @@ describe('Channel', () => {
     it('should receive a message modified', (done) => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -559,7 +561,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -577,7 +579,7 @@ describe('Channel', () => {
     it('should stop listening message received', () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -597,7 +599,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -613,7 +615,7 @@ describe('Channel', () => {
     it('should receive a message', (done) => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -633,7 +635,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -654,7 +656,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -674,7 +676,7 @@ describe('Channel', () => {
     it('should receive a message deleted', () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -694,7 +696,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -710,7 +712,7 @@ describe('Channel', () => {
     it('should receive a message deleted', (done) => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -730,7 +732,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -752,7 +754,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -790,7 +792,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -853,7 +855,6 @@ describe('Channel', () => {
         type: 'like',
       };
 
-
       try {
         await channel.deleteReaction(reaction);
       } catch (e) {
@@ -867,7 +868,7 @@ describe('Channel', () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
         listenToMessageReceived: jest.fn(),
-        listenToUserReactions: (_: ExternalUser, callback: (reactions: ServerReaction[]) => void) => {
+        listenToUserReactions: (__: string, _: ExternalUser, callback: (reactions: ServerReaction[]) => void) => {
           const reaction: ServerReaction = {
             itemType: 'chatMessage',
             reaction: 'love',
@@ -902,7 +903,7 @@ describe('Channel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
     });
@@ -1005,5 +1006,5 @@ describe('Channel', () => {
         expect(e.message).toBe(`Cannot fetch pin messages on "${exampleChatRoom.slug}" channel.`);
       }
     });
-  })
+  });
 });

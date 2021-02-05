@@ -25,10 +25,10 @@ export {
   PublicUserInput,
 } from './user';
 export { Moderation, ModeratorStatus } from './moderation';
-export { PublicUserStatus, GroupChannel } from './private-chat';
+export { PublicUserStatus, GroupChannel, PrivateMessageInput } from './private-chat';
 export { BasePrivateChannel } from './base-private-channel';
 export { BaseQna, QnaQuestion, QnaQuestionFilter, QnaProps } from './qna';
 export { BasePolls, Poll, PollFilter } from './polls';
 export { TrackPayload, TrackContext, TrackPageInfo } from './arena-hub';
 export { BaseUserProfile } from './user-profile';
-export { MessageReactions } from './reaction';
+export { BaseReaction, MessageReactions, ChannelMessageReactions } from './reaction';

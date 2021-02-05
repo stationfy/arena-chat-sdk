@@ -19,7 +19,7 @@ export class PrivateChannel implements BasePrivateChannel {
   private loadRecentMessagesCalled = false;
 
   public constructor(private groupChannel: GroupChannel, private site: Site, private user: ExternalUser) {
-    this.realtimeAPI = new RealtimeAPI(groupChannel._id);
+    this.realtimeAPI = RealtimeAPI.getInstance();
     this.graphQLAPI = new GraphQLAPI(site, user);
   }
 
@@ -104,7 +104,7 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   static onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): () => void {
     try {
-      const realtimeAPI = new RealtimeAPI();
+      const realtimeAPI = RealtimeAPI.getInstance();
       const unsubscribe = realtimeAPI.listenToUserGroupChannels(user, async () => {
         const graphQLAPI = new GraphQLAPI(site, user);
 
@@ -232,7 +232,11 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      const messages = await this.realtimeAPI.fetchGroupRecentMessages(limit, this.groupChannel.lastClearedTimestamp);
+      const messages = await this.realtimeAPI.fetchGroupRecentMessages(
+        this.groupChannel._id,
+        limit,
+        this.groupChannel.lastClearedTimestamp,
+      );
 
       this.updateCacheCurrentMessages(messages);
 
@@ -264,6 +268,7 @@ export class PrivateChannel implements BasePrivateChannel {
       const firstMessage = this.cacheCurrentMessages[0];
 
       const messages = await this.realtimeAPI.fetchGroupPreviousMessages(
+        this.groupChannel._id,
         firstMessage,
         this.groupChannel.lastClearedTimestamp,
         limit,
@@ -396,13 +401,16 @@ export class PrivateChannel implements BasePrivateChannel {
       return;
     }
 
-    this.messageModificationListener = this.realtimeAPI.listenToGroupMessageReceived((message) => {
-      if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
-        return;
-      }
+    this.messageModificationListener = this.realtimeAPI.listenToGroupMessageReceived(
+      this.groupChannel._id,
+      (message) => {
+        if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
+          return;
+        }
 
-      this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
-    });
+        this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
+      },
+    );
   }
 
   /**

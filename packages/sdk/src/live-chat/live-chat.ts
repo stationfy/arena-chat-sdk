@@ -11,10 +11,8 @@ import {
 import { GraphQLAPI } from '../services/graphql-api';
 import { ArenaChat } from '../sdk';
 import { Channel } from '../channel/channel';
-import { ArenaHub } from '../services/arena-hub';
 
 export class LiveChat implements BaseLiveChat {
-  private arenaHub: ArenaHub;
   private graphQLAPI: GraphQLAPI;
 
   public constructor(private chatRoom: ChatRoom, site: Site, private sdk: ArenaChat) {
@@ -28,13 +26,22 @@ export class LiveChat implements BaseLiveChat {
 
     this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
-    this.arenaHub = new ArenaHub(chatRoom, sdk);
-
-    if (!this.detectWidgetsPresence()) {
-      this.arenaHub.track('page');
-    }
+    this.trackPageView();
   }
 
+  private async trackPageView() {
+    if (this.detectWidgetsPresence()) {
+      return;
+    }
+
+    const { ArenaHub } = await import('../services/arena-hub');
+    const arenaHub = new ArenaHub(this.chatRoom, this.sdk);
+    arenaHub.track('page');
+  }
+
+  /**
+   * Verify if there are some Arena widgets
+   */
   private detectWidgetsPresence() {
     const arenaLive = document.querySelector('#arena-live');
     const arenaChat = document.querySelector('#arena-chat');

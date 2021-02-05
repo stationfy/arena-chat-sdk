@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## 2.0.14 (2021-02-02)
+## 2.1.1 (2021-02-03)
 
 **Note:** Version bump only for package @arena-im/chat-sdk
 
@@ -11,36 +11,22 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## 2.0.13 (2021-02-01)
-
-**Note:** Version bump only for package @arena-im/chat-sdk
-
-
-
-
-
-## 2.0.12 (2021-01-22)
-
-**Note:** Version bump only for package @arena-im/chat-sdk
-
-
-
-
-
-## 2.0.11 (2021-01-19)
-
-**Note:** Version bump only for package @arena-im/chat-sdk
-
-
-
-
-
-## 2.0.10 (2021-01-13)
+# [2.1.0](https://github.com/stationfy/arena-chat-sdk/compare/v2.0.9...v2.1.0) (2021-02-03)
 
 
 ### Bug Fixes
 
+* CU-5pbce9 adjust fetch pinMessage ([f6d607f](https://github.com/stationfy/arena-chat-sdk/commit/f6d607f3a3144a20faedc78a705916529e322cd8))
+* send reaction as anonymous ([d129bd5](https://github.com/stationfy/arena-chat-sdk/commit/d129bd522a1ea4e3dc10cfd558020d4909a13853))
 * set anonymous user ([01c943c](https://github.com/stationfy/arena-chat-sdk/commit/01c943cc1b23b803fa964ea8f859f08a3791db15))
+* set anonymous user ([703c1c3](https://github.com/stationfy/arena-chat-sdk/commit/703c1c33760660b669ee21e2250bb61768d491a6))
+* user profile user changed ([48bacb3](https://github.com/stationfy/arena-chat-sdk/commit/48bacb3d4dab52f1aa543cdb1ced13ccc17d0af8))
+
+
+### Features
+
+* add user profile ([74754df](https://github.com/stationfy/arena-chat-sdk/commit/74754df95dde783fa92907f0ea80e62e801a476c))
+* add user profile ([0b8090f](https://github.com/stationfy/arena-chat-sdk/commit/0b8090f5d43ecf9b47271521f6b11f6bc1bc9bfe))
 
 
 
