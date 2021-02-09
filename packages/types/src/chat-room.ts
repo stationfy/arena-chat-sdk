@@ -27,6 +27,7 @@ export interface ChatRoom extends LiveChatChannel {
 
 export interface LiveChatChannel {
   _id: string;
+  externalId?: string;
   allowSendGifs: boolean;
   allowShareUrls: boolean;
   chatColor: string;
@@ -34,8 +35,8 @@ export interface LiveChatChannel {
   chatRequestModeratorIsEnabled: boolean;
   message: {
     key: string;
-    reactions: ChannelMessageReactions
-  }
+    reactions: ChannelMessageReactions;
+  };
   dataPath: string;
   hasPolls: boolean;
   name: string;

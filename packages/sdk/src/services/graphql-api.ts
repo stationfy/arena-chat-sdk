@@ -708,6 +708,7 @@ export class GraphQLAPI {
             _id
             name
             unreadCount
+            externalId
           }
         }
       }
@@ -731,6 +732,7 @@ export class GraphQLAPI {
           chatPreModerationIsEnabled
           chatRequestModeratorIsEnabled
           dataPath
+          externalId
           hasPolls
           name
           qnaIsEnabled
