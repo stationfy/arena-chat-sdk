@@ -36,7 +36,7 @@ jest.mock('@services/firestore-api', () => ({
 describe('RealtimeAPI', () => {
   describe('listenToMessage()', () => {
     it('should call the callback function with a list of chat message', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       listenToCollectionChange.mockImplementation((_, callback) => {
@@ -57,16 +57,20 @@ describe('RealtimeAPI', () => {
         callback(messages);
       });
 
-      realtimeAPI.listenToMessage((messages: ChatMessage[]) => {
-        expect(messages.length).toEqual(20);
-        done();
-      }, 20);
+      realtimeAPI.listenToMessage(
+        'my-channel',
+        (messages: ChatMessage[]) => {
+          expect(messages.length).toEqual(20);
+          done();
+        },
+        20,
+      );
     });
   });
 
   describe('listenToUserReactions()', () => {
     it('should call the callback function with a list of reactions', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       listenToCollectionChange.mockImplementation((_, callback) => {
@@ -90,7 +94,7 @@ describe('RealtimeAPI', () => {
         image: 'https://www.google.com',
       };
 
-      realtimeAPI.listenToUserReactions(user, (reactions: ServerReaction[]) => {
+      realtimeAPI.listenToUserReactions('my-channel', user, (reactions: ServerReaction[]) => {
         expect(reactions.length).toBe(20);
 
         done();
@@ -100,7 +104,7 @@ describe('RealtimeAPI', () => {
 
   describe('listenToChatConfigChanges()', () => {
     it('should call the callback function with the chat config', (done) => {
-      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       listenToDocumentChange.mockImplementation((_, callback) => {
@@ -119,7 +123,7 @@ describe('RealtimeAPI', () => {
 
   describe('fetchRecentMessages()', () => {
     it('should fetch recent messages', async () => {
-      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -140,7 +144,7 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchRecentMessages(10);
+      const messages = await realtimeAPI.fetchRecentMessages(exampleLiveChatChannel.dataPath, 10);
 
       expect(messages.length).toBe(10);
     });
@@ -148,7 +152,7 @@ describe('RealtimeAPI', () => {
 
   describe('fetchGroupRecentMessages()', () => {
     it('should featch group channel recent messages', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -158,13 +162,13 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchGroupRecentMessages(10);
+      const messages = await realtimeAPI.fetchGroupRecentMessages(exampleLiveChatChannel._id, 10);
 
       expect(messages.length).toBe(10);
     });
 
     it('should featch group channel recent messages from the last cleared timestamp', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -174,7 +178,7 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchGroupRecentMessages(10, +new Date());
+      const messages = await realtimeAPI.fetchGroupRecentMessages(exampleLiveChatChannel._id, 10, +new Date());
 
       expect(messages.length).toBe(10);
     });
@@ -182,14 +186,14 @@ describe('RealtimeAPI', () => {
 
   describe('listenToMessageReceived()', () => {
     it('should receive a added message', (done) => {
-      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
         callback(exampleChatMessage);
       });
 
-      realtimeAPI.listenToMessageReceived((message: ChatMessage) => {
+      realtimeAPI.listenToMessageReceived(exampleLiveChatChannel.dataPath, (message: ChatMessage) => {
         expect(message.key).toEqual('fake-message');
 
         done();
@@ -199,7 +203,7 @@ describe('RealtimeAPI', () => {
 
   describe('fetchGroupPreviousMessages', () => {
     it('f', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -225,7 +229,12 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchGroupPreviousMessages(exampleChatMessage, +new Date(), 3);
+      const messages = await realtimeAPI.fetchGroupPreviousMessages(
+        exampleLiveChatChannel._id,
+        exampleChatMessage,
+        +new Date(),
+        3,
+      );
 
       expect(messages).toEqual([
         {
@@ -246,14 +255,14 @@ describe('RealtimeAPI', () => {
 
   describe('listenToPollReceived()', () => {
     it('should receive a added poll', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       listenToCollectionItemChange.mockImplementation((_, callback: (poll: Poll) => void) => {
         callback(examplePoll);
       });
 
-      realtimeAPI.listenToPollReceived((poll: Poll) => {
+      realtimeAPI.listenToPollReceived(exampleLiveChatChannel._id, (poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
 
         done();
@@ -263,14 +272,14 @@ describe('RealtimeAPI', () => {
 
   describe('listenToGroupMessageReceived()', () => {
     it('should receive a added group message', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
         callback(exampleChatMessage);
       });
 
-      realtimeAPI.listenToGroupMessageReceived((message: ChatMessage) => {
+      realtimeAPI.listenToGroupMessageReceived(exampleLiveChatChannel._id, (message: ChatMessage) => {
         expect(message.key).toEqual('fake-message');
 
         done();
@@ -280,7 +289,7 @@ describe('RealtimeAPI', () => {
 
   describe('fetchPreviousMessages()', () => {
     it('should fetch previous messages', async () => {
-      const realtimeAPI = new RealtimeAPI(exampleLiveChatChannel._id, exampleLiveChatChannel.dataPath);
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -306,7 +315,7 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchPreviousMessages(exampleChatMessage, 3);
+      const messages = await realtimeAPI.fetchPreviousMessages(exampleLiveChatChannel.dataPath, exampleChatMessage, 3);
 
       expect(messages).toEqual([
         {
@@ -327,7 +336,7 @@ describe('RealtimeAPI', () => {
 
   describe('sendReaction()', () => {
     it('should react to a message', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       const reaction: ServerReaction = {
         itemType: 'chatMessage',
@@ -349,7 +358,7 @@ describe('RealtimeAPI', () => {
     });
 
     it('should handle a react error', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       const reaction: ServerReaction = {
         itemType: 'chatMessage',
@@ -374,7 +383,7 @@ describe('RealtimeAPI', () => {
 
   describe('fetchAllQnaQuestions()', () => {
     it('should fetch qna questions', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -389,7 +398,7 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch popular qna questions', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -406,7 +415,7 @@ describe('RealtimeAPI', () => {
 
   describe('fetchAllPolls()', () => {
     it('should fetch chat polls', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -422,7 +431,7 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch all active chat polls', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -438,7 +447,7 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch all ended chat polls', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -454,7 +463,7 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch all recent chat polls', async () => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       fetchCollectionItems.mockImplementation(async () => {
@@ -472,14 +481,14 @@ describe('RealtimeAPI', () => {
 
   describe('listenToQuestionReceived()', () => {
     it('should receive a added question', (done) => {
-      const realtimeAPI = new RealtimeAPI('my-channel');
+      const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
       listenToCollectionItemChange.mockImplementation((_, callback: (question: QnaQuestion) => void) => {
         callback({ ...exampleQnaQuestion, changeType: 'added' });
       });
 
-      realtimeAPI.listenToQuestionReceived((question: QnaQuestion) => {
+      realtimeAPI.listenToQuestionReceived('my-channel', (question: QnaQuestion) => {
         expect(question.key).toEqual('fake-qna-question');
 
         done();

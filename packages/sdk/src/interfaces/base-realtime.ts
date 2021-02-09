@@ -1,5 +1,15 @@
-import { ChatMessage, ExternalUser, ServerReaction, GroupChannel, LiveChatChannel } from '@arena-im/chat-types';
-import { QnaQuestion, QnaQuestionFilter } from '@arena-im/chat-types/dist/qna';
+import {
+  ChatMessage,
+  ExternalUser,
+  ServerReaction,
+  GroupChannel,
+  LiveChatChannel,
+  PollFilter,
+  Poll,
+  QnaProps,
+  QnaQuestion,
+  QnaQuestionFilter,
+} from '@arena-im/chat-types';
 
 /** Realtime used to listen to realtime events */
 export interface BaseRealtime {
@@ -8,7 +18,7 @@ export interface BaseRealtime {
    *
    * @param callback Callback function
    */
-  listenToMessage(callback: (messages: ChatMessage[]) => void, limit?: number): void;
+  listenToMessage(channelId: string, callback: (messages: ChatMessage[]) => void, limit?: number): void;
 
   /**
    * Listen to chat config changes
@@ -29,21 +39,21 @@ export interface BaseRealtime {
    *
    * @param limit maximum number of messages
    */
-  fetchRecentMessages(limit?: number): Promise<ChatMessage[]>;
+  fetchRecentMessages(dataPath: string, limit?: number): Promise<ChatMessage[]>;
 
   /**
    * Fetch previous chat messages
    *
    * @param callback maximum number of messages
    */
-  fetchPreviousMessages(firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]>;
+  fetchPreviousMessages(dataPath: string, firstMessage: ChatMessage, limit?: number): Promise<ChatMessage[]>;
 
   /**
    * Listen to chat new message
    *
    * @param callback callback that expect a chat message
    */
-  listenToMessageReceived(callback: (message: ChatMessage) => void): () => void;
+  listenToMessageReceived(dataPath: string, callback: (message: ChatMessage) => void): () => void;
 
   /**
    * Send a reaction on a message
@@ -58,7 +68,11 @@ export interface BaseRealtime {
    * @param user external user
    * @param callback callback that will receive the reactions
    */
-  listenToUserReactions(user: ExternalUser, callback: (reaction: ServerReaction[]) => void): () => void;
+  listenToUserReactions(
+    channelId: string,
+    user: ExternalUser,
+    callback: (reactions: ServerReaction[]) => void,
+  ): () => void;
 
   /**
    * Listen to Q&A user reactions
@@ -92,4 +106,94 @@ export interface BaseRealtime {
    * @param qnaId
    */
   fetchQnaUserReactions(userId: string, qnaId: string): Promise<ServerReaction[]>;
+
+  /**
+   * Feach all chat polls
+   *
+   * @param channelId
+   * @param filter filter by category: POPULAR, ACTIVE, ENDED
+   * @param limit
+   */
+  fetchAllPolls(channelId: string, filter?: PollFilter, limit?: number): Promise<Poll[]>;
+
+  /**
+   * Unsubscribe to all listener
+   */
+  unsubscribeAll(): void;
+
+  /**
+   * Fetch recent messages on chat group
+   *
+   * @param channelId
+   * @param limit
+   * @param lastClearedTimestamp
+   */
+  fetchGroupRecentMessages(channelId: string, limit?: number, lastClearedTimestamp?: number): Promise<ChatMessage[]>;
+
+  /**
+   * Fetch previous messages on chat group
+   *
+   * @param channelId
+   * @param firstMessage
+   * @param lastClearedTimestamp
+   * @param limit
+   */
+  fetchGroupPreviousMessages(
+    channelId: string,
+    firstMessage: ChatMessage,
+    lastClearedTimestamp?: number,
+    limit?: number,
+  ): Promise<ChatMessage[]>;
+
+  /**
+   * Listen to Q&A questions
+   *
+   * @param channelId
+   * @param callback
+   */
+  listenToQuestionReceived(channelId: string, callback: (message: QnaQuestion) => void): () => void;
+
+  /**
+   * Listen to polls on channel
+   *
+   * @param channelId
+   * @param callback
+   */
+  listenToPollReceived(channelId: string, callback: (poll: Poll) => void): () => void;
+
+  /**
+   * Listen to group chat messages
+   *
+   * @param channelId
+   * @param callback
+   */
+  listenToGroupMessageReceived(channelId: string, callback: (message: ChatMessage) => void): () => void;
+
+  /**
+   * Listen to user reactions on polls
+   *
+   * @param channelId
+   * @param userId
+   * @param callback
+   */
+  listenToUserChatPollsReactions(
+    channelId: string,
+    userId: string,
+    callback: (reactions: ServerReaction[]) => void,
+  ): () => void;
+
+  /**
+   * Fetch Q&A propperties
+   *
+   * @param qnaId
+   */
+  fetchQnaProps(qnaId: string): Promise<QnaProps>;
+
+  /**
+   * Listen to modified Q&A properties
+   *
+   * @param qnaId
+   * @param callback
+   */
+  listenToQnaProps(qnaId: string, callback: (props: QnaProps) => void): () => void;
 }

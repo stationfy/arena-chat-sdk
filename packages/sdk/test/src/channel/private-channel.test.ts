@@ -181,7 +181,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -210,7 +210,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -471,7 +471,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -516,7 +516,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -546,7 +546,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -602,7 +602,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -638,7 +638,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -662,7 +662,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -679,7 +679,7 @@ describe('PrivateChannel', () => {
   describe('offMessageReceived()', () => {
     it('should stop listening message received', () => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -699,7 +699,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -717,7 +717,7 @@ describe('PrivateChannel', () => {
     });
     it('should receive a message', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -737,7 +737,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -751,7 +751,7 @@ describe('PrivateChannel', () => {
 
     it('should call markRead method for other users message', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -772,7 +772,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -788,7 +788,7 @@ describe('PrivateChannel', () => {
 
     it('should not call markRead method for current user message', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -809,7 +809,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -831,7 +831,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -850,7 +850,7 @@ describe('PrivateChannel', () => {
   describe('offMessageDeleted()', () => {
     it('should receive a message deleted', () => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -870,7 +870,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -885,7 +885,7 @@ describe('PrivateChannel', () => {
   describe('onMessageDeleted()', () => {
     it('should receive a message deleted', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -905,7 +905,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -926,7 +926,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -945,7 +945,7 @@ describe('PrivateChannel', () => {
   describe('offMessageModified()', () => {
     it('should stop listening message modified', () => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -965,7 +965,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 
@@ -983,7 +983,7 @@ describe('PrivateChannel', () => {
   describe('onMessageModified()', () => {
     it('should receive a message modified', (done) => {
       const realtimeAPIInstanceMock = {
-        listenToGroupMessageReceived: (callback: (message: ChatMessage) => void) => {
+        listenToGroupMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -1003,7 +1003,7 @@ describe('PrivateChannel', () => {
       };
 
       // @ts-ignore
-      RealtimeAPI.RealtimeAPI.mockImplementation(() => {
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return realtimeAPIInstanceMock;
       });
 

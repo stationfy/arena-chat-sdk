@@ -2,6 +2,7 @@
   "private": true,
   "scripts": {
     "build": "lerna run --stream --concurrency 1 --sort build",
+    "build:dev": "lerna run --stream --concurrency 1 --sort build:dev",
     "build:es5": "lerna run --stream --concurrency 1 --sort build:es5",
     "build:esm": "lerna run --stream --concurrency 1 --sort build:esm",
     "build:watch": "lerna run build:watch --stream --no-sort --concurrency 9999",
@@ -11,6 +12,7 @@
     "lint": "lerna run --stream --concurrency 1 lint",
     "lint:json": "lerna run --stream --concurrency 1 lint:tslint:json",
     "publish:all": "lerna publish",
+    "publish:beta": "lerna publish --ignore-prepublish --ignore-scripts --canary --preid beta --dist-tag beta",
     "test": "lerna run --stream --concurrency 1 --sort test"
   },
   "volta": {
@@ -44,7 +46,7 @@
     "ts-jest": "^26.1.0",
     "typescript": "3.9.5",
     "tslib": "^2.0.0",
-    "lerna": "3.13.4"
+    "lerna": "3.22.1"
   },
   "resolutions": {
     "**/agent-base": "5"
