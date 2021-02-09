@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.16 (2021-02-09)
+
+
+### Bug Fixes
+
+* add get channel by external id ([80d32ee](https://github.com/stationfy/arena-chat-sdk/commit/80d32eeae05881d6294c34cdfb07908f784f3956))
+
+
+
+
+
 ## 2.0.15 (2021-02-05)
 
 **Note:** Version bump only for package @arena-im/chat-types
