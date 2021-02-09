@@ -53,6 +53,8 @@ You can use a channel ID to retrieve a `Channel` object.
 const channelI = await liveChatI.getChannel(YOUR_CHANNEL_ID);
 ```
 
+The channel ID can be either, the Arena Channel ID or the External ID that you set when you are creating the Channel over the Arena API.
+
 ### List all Live Chat's Channels
 
 You can get the list of all channels data in your Live Chat using the export methods of `liveChat`. It will return a list of `LiveChatChannel` object.
