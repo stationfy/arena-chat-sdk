@@ -438,7 +438,11 @@ export class Channel implements BaseChannel {
    * Send a like reaction
    *
    */
-  public async sendReaction(reaction: MessageReaction, anonymousId?: string): Promise<MessageReaction> {
+  public async sendReaction(
+    reaction: MessageReaction,
+    anonymousId?: string,
+    isDashboardUser?: boolean,
+  ): Promise<MessageReaction> {
     if (this.sdk.site === null) {
       throw new Error('Cannot react to a message without a site id');
     }
@@ -459,6 +463,7 @@ export class Channel implements BaseChannel {
         openChannelId: this.channel._id,
         chatRoomId: this.chatRoom._id,
         chatRoomVersion: this.chatRoom.version,
+        isDashboardUser,
       };
 
       const result = await this.realtimeAPI.sendReaction(serverReaction);
