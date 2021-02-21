@@ -441,7 +441,7 @@ export class Channel implements BaseChannel {
   public async sendReaction(
     reaction: MessageReaction,
     anonymousId?: string,
-    isDashboardUser?: boolean,
+    isDashboardUser = false,
   ): Promise<MessageReaction> {
     if (this.sdk.site === null) {
       throw new Error('Cannot react to a message without a site id');
