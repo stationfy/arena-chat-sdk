@@ -23,7 +23,7 @@ import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 
 export class Channel implements BaseChannel {
-  private static instances: { [key: string]: Channel };
+  private static instances: { [key: string]: Channel } = {};
   private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
