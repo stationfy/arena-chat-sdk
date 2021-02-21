@@ -23,6 +23,7 @@ import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 
 export class Channel implements BaseChannel {
+  private static instances: { [key: string]: Channel };
   private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
@@ -48,6 +49,14 @@ export class Channel implements BaseChannel {
     this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.markReadDebounced = debounce(this.markRead, 10000);
+  }
+
+  public static getInstance(channel: LiveChatChannel, chatRoom: ChatRoom, sdk: ArenaChat): Channel {
+    if (!Channel.instances[channel._id]) {
+      Channel.instances[channel._id] = new Channel(channel, chatRoom, sdk);
+    }
+
+    return Channel.instances[channel._id];
   }
 
   /**
