@@ -603,6 +603,24 @@ export class GraphQLAPI {
     return result;
   }
 
+  public async sendMonetizationMessageToChannel(input: ChatMessage): Promise<string> {
+    const mutation = gql`
+      mutation sendMessage($input: MonetizationMessageInput!) {
+        sendMonetizationMessage(input: $input)
+      }
+    `;
+
+    const data = await this.graphQL.client.request(mutation, { input });
+
+    const result = data.sendMonetizationMessage as string;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
   public async deleteOpenChannelMessage(openChannelId: string, messageId: string): Promise<boolean> {
     const mutation = gql`
       mutation deleteMessage($input: DeleteMessageInput!) {

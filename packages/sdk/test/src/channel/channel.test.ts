@@ -313,6 +313,48 @@ describe('Channel', () => {
     });
   });
 
+  describe('sendMonetizationMessage()', () => {
+    it('should send message on a channel', async () => {
+      const graphQLAPIInstanceMock = {
+        sendMessaToChannel: async () => {
+          return exampleChatMessage.key;
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      const sentMessage = await channel.sendMonetizationMessage({ text: 'donated' });
+
+      expect(sentMessage).toEqual(exampleChatMessage.key);
+    });
+
+    it('should receive an error when try to send a message', async () => {
+      const graphQLAPIInstanceMock = {
+        sendMessaToChannel: async () => {
+          return Promise.reject('failed');
+        },
+      };
+
+      // @ts-ignore
+      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
+        return graphQLAPIInstanceMock;
+      });
+
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+
+      try {
+        await channel.sendMonetizationMessage({ text: 'donated' });
+      } catch (e) {
+        expect(e.message).toBe('Cannot send this message: "donated". Contact the Arena support team.');
+      }
+    });
+  });
+
   it('should create an instance of realtime api with chatroom id', () => {
     const spy = jest.spyOn(RealtimeAPI.RealtimeAPI, 'getInstance');
 
