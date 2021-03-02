@@ -10,6 +10,7 @@ import {
   Poll,
   QnaProps,
   LiveChatChannel,
+  ServerReaction,
 } from '@arena-im/chat-types';
 import { ArenaChat } from '../../src/sdk';
 
@@ -191,4 +192,16 @@ export const exampleQnaProps: QnaProps = {
   createdAt: 1111,
   createdBy: 'fake-user',
   name: 'fake qna',
+};
+
+export const exampleServerReaction: ServerReaction = {
+  itemType: 'chatMessage',
+  reaction: 'love',
+  publisherId: 'fake-publisher-id',
+  itemId: 'fake-message-id',
+  userId: 'fake-uid',
+  openChannelId: 'fake-channel-id',
+  chatRoomId: 'fake-chat-room-id',
+  chatRoomVersion: 'V2',
+  isDashboardUser: false,
 };

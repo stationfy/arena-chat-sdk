@@ -1,10 +1,10 @@
 import { RestAPI } from '@services/rest-api';
-import { ChatRoom, ExternalUser, SSOExchangeResult } from '@arena-im/chat-types';
+import { ChatRoom, ExternalUser, SendReactionResult, SSOExchangeResult } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 import { BanUser, ProviderUser } from '@arena-im/chat-types';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@arena-im/chat-types';
 import { XHRTransport } from '@services/xhr-transport';
-import { exampleSite } from '../../fixtures/examples';
+import { exampleServerReaction, exampleSite } from '../../fixtures/examples';
 
 jest.mock('@services/xhr-transport', () => ({
   XHRTransport: jest.fn(),
@@ -320,6 +320,32 @@ describe('RestAPI', () => {
       const externalUser: ExternalUser = await restAPI.getArenaUser(providerUser);
 
       expect(externalUser.token).toEqual('user-token-1234');
+    });
+  });
+
+  describe('sendReaction()', () => {
+    it('should send reaction and receive the reaction id', async () => {
+      const mockPost = jest.fn(() => {
+        const data: SendReactionResult = {
+          result: 'fake-reaction-id',
+        };
+        return Promise.resolve(data);
+      });
+
+      // @ts-ignore
+      XHRTransport.mockImplementation(() => {
+        return {
+          post: mockPost,
+        };
+      });
+
+      const restAPI = new RestAPI();
+
+      const reaction = exampleServerReaction;
+
+      const reactionId = await restAPI.sendReaction(reaction);
+
+      expect(reactionId).toEqual('fake-reaction-id');
     });
   });
 });

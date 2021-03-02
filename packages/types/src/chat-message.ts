@@ -96,3 +96,7 @@ export interface MessageReaction {
   messageID: string;
   type: string;
 }
+
+export interface SendReactionResult {
+  result: string;
+}

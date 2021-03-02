@@ -6,10 +6,10 @@
   version "0.0.0"
   uid ""
 
-"@arena-im/chat-types@^2.0.9":
-  version "2.0.12"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.12.tgz#4f1971a6f04f30c188d0667727d44f35c544f71d"
-  integrity sha512-29xrKfH8nYJzol3q2gMRAN481b9fvWkt1NkD1iQ8hjxFlkii2p/3lNDpgABqAv3O7NIJLC88fLmFTED2lvCpow==
+"@arena-im/chat-types@^2.0.16":
+  version "2.0.16"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.16.tgz#114535677136da159a0928c522db4e09080e2a11"
+  integrity sha512-WXiic3oHUVxymSNPgwgDU5vAsVg+lna8fuddNFcLck0wph3sub4z8IJcHQsHwZ2Uu+8+aGEb3kkJN9pwhJTqTg==
 
 "@arena-im/chat-types@link:../../../types":
   version "0.0.0"

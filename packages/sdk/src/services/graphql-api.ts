@@ -358,7 +358,7 @@ export class GraphQLAPI {
    * @param channelId Channel id
    * @param messageId Message id
    */
-  public async fetchReactions(channelId: string, messageId: string): Promise<ChannelMessageReactions> {
+  public async fetchReactions(channelId: string, messageId: string): Promise<ChannelMessageReactions | null> {
     const query = gql`
       query openChannel($id: ID!, $_id: ID!) {
         openChannel(id: $id) {
@@ -392,9 +392,9 @@ export class GraphQLAPI {
       throw new Error(Status.Failed);
     }
 
-    const reactions = channel.message.reactions;
+    const reactions = channel.message?.reactions;
 
-    return reactions;
+    return reactions || null;
   }
 
   /**

@@ -33,7 +33,7 @@ export interface LiveChatChannel {
   chatColor: string;
   chatPreModerationIsEnabled: boolean;
   chatRequestModeratorIsEnabled: boolean;
-  message: {
+  message?: {
     key: string;
     reactions: ChannelMessageReactions;
   };

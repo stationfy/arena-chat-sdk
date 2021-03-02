@@ -475,12 +475,12 @@ export class Channel implements BaseChannel {
         isDashboardUser,
       };
 
-      const result = await this.realtimeAPI.sendReaction(serverReaction);
+      const result = await this.sdk.restAPI.sendReaction(serverReaction);
 
       return {
-        id: result.key,
-        type: result.reaction,
-        messageID: result.itemId,
+        id: result,
+        type: serverReaction.reaction,
+        messageID: serverReaction.itemId,
       };
     } catch (e) {
       throw new Error(`Cannot react to the message "${reaction.messageID}"`);
