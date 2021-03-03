@@ -20,6 +20,10 @@ export class Reaction implements BaseReaction {
     try {
       const reactions = await graphQLAPI.fetchReactions(this.channelId, messageId);
 
+      if (reactions === null) {
+        throw new Error(`Cannot fetch users reactions on message: "${messageId}"`);
+      }
+
       return reactions;
     } catch (e) {
       throw new Error(`Cannot fetch users reactions on message: "${messageId}"`);
