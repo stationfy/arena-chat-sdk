@@ -88,10 +88,15 @@ export interface ServerReaction {
   key?: string;
   openChannelId?: string;
   chatRoomVersion?: string;
+  isDashboardUser?: boolean;
 }
 
 export interface MessageReaction {
   id?: string;
   messageID: string;
   type: string;
+}
+
+export interface SendReactionResult {
+  result: string;
 }

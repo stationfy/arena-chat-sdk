@@ -12,6 +12,8 @@ import {
   SSOExchangeResult,
   EmbedSettings,
   TrackPayload,
+  ServerReaction,
+  SendReactionResult,
 } from '@arena-im/chat-types';
 import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
 import { supportsFetch } from '../utils/supports';
@@ -143,6 +145,15 @@ export class RestAPI implements BaseRest {
       };
 
       return externalUser;
+    });
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public sendReaction(reaction: ServerReaction): PromiseLike<string> {
+    return this.transport.post<SendReactionResult, ServerReaction>('/data/reactions', reaction).then((data) => {
+      return data.result;
     });
   }
 }

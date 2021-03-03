@@ -9,6 +9,7 @@ export {
   DeleteChatMessageRequest,
   ServerReaction,
   MessageReaction,
+  SendReactionResult,
 } from './chat-message';
 export { ChatRoom, ChatModerationRequest, LiveChatChannel, BaseLiveChat, BaseChannel } from './chat-room';
 export { DocumentChangeType, ListenChangeConfig, Where, OrderBy } from './firestore';

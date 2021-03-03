@@ -33,7 +33,7 @@ export interface LiveChatChannel {
   chatColor: string;
   chatPreModerationIsEnabled: boolean;
   chatRequestModeratorIsEnabled: boolean;
-  message: {
+  message?: {
     key: string;
     reactions: ChannelMessageReactions;
   };
@@ -86,7 +86,7 @@ export interface BaseChannel {
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;
   fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
-  sendReaction(reaction: MessageReaction, anonymousId?: string): Promise<MessageReaction>;
+  sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<MessageReaction>;
   deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean>;
   offMessageReceived(): void;
   onMessageReceived(callback: (message: ChatMessage) => void): void;
