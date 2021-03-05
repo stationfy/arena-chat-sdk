@@ -22,6 +22,9 @@ if (firebase.apps.length) {
 }
 
 const firestore = app.firestore();
+app.firestore().settings({
+  experimentalAutoDetectLongPolling: true,
+});
 
 /**
  * Listen to a collection on firestore
