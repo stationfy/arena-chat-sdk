@@ -15,7 +15,7 @@ The SDKs are organized inside the `@arena-im/` namespace. It can be used conveni
 
 ## Table of contents
 
-  1. [Instalation](#instalation)
+  1. [Installation](#installation)
   1. [Usage](#usage)
       1. [Initialize](#initialize)
       1. [Get Live Chat](#get-live-chat)
@@ -32,7 +32,7 @@ The SDKs are organized inside the `@arena-im/` namespace. It can be used conveni
       1. [Direct Messages](#direct-messages)
       1. [Polls](#polls)
   1. [Other Packages](#other-packages)
-  
+
 ## Installation
 
 To install the SDK, simply add it to your project:
@@ -493,6 +493,6 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ## Changelogs
 
-### v2.0.19(Mar 8, 2021)
+### v2.0.20(Mar 8, 2021)
 
 - Bug fix: Kaspersky antivirus was breaking the real-time feature. 
