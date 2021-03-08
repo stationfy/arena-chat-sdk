@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.19 (2021-03-08)
+
+
+### Bug Fixes
+
+* Kaspersky antivirus was breaking the real-time feature ([a076968](https://github.com/stationfy/arena-chat-sdk/commit/a0769687ee2eb15771a9233be0eedb20d70577ae))
+
+
+
+
+
 ## 2.0.18 (2021-03-03)
 
 
