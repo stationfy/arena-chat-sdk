@@ -13,6 +13,26 @@ Arena provides a ready-to-use live group chat widget that doesn't require any de
 
 The SDKs are organized inside the `@arena-im/` namespace. It can be used conveniently integrated with any Javascript framework and environment.
 
+## Table of contents
+
+  1. [Instalation](#instalation)
+  1. [Usage](#usage)
+      1. [Initialize](#initialize)
+      1. [Get Live Chat](#get-live-chat)
+      1. [Get a Live Chat Channel Instance](#get-a-live-chat-channel-instance)
+      1. [List all Live Chat's Channels](#list-all-live-chats-channels)
+      1. [Get Live Chat's Members](#get-live-chats-members)
+      1. [Set User](#set-user)
+      1. [Send Message](#send-message)
+      1. [Replying to a Message](#replying-to-a-message)
+      1. [Events](#events)
+      1. [Reactions](#reactions)
+      1. [Moderation](#moderation)
+      1. [Q&A](#qa)
+      1. [Direct Messages](#direct-messages)
+      1. [Polls](#polls)
+  1. [Other Packages](#other-packages)
+  
 ## Installation
 
 To install the SDK, simply add it to your project:
@@ -470,3 +490,9 @@ Besides the high-level SDKs, this repository contains shared packages, helpers a
 development. If you're using TypeScript, take a look at the resources below:
 
 - [`@arena-im/types`](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types): Types used in all packages.
+
+## Changelogs
+
+### v2.0.19(Mar 8, 2021)
+
+- Bug fix: Kaspersky antivirus was breaking the real-time feature. 
