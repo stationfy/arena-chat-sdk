@@ -76,12 +76,14 @@ export interface BaseChannel {
     mediaURL,
     tempId,
     sender,
+    slowMode,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
     tempId?: string;
     sender?: ChatMessageSender;
+    slowMode?: boolean;
   }): Promise<string>;
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;
   fetchPinMessage(): Promise<ChatMessage>;

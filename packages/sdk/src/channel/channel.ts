@@ -238,6 +238,7 @@ export class Channel implements BaseChannel {
     isGif,
     tempId,
     sender,
+    slowMode,
   }: {
     text?: string;
     replyTo?: string;
@@ -245,6 +246,7 @@ export class Channel implements BaseChannel {
     isGif?: boolean;
     tempId?: string;
     sender?: ChatMessageSender;
+    slowMode?: boolean;
   }): Promise<string> {
     if (text?.trim() === '' && (!mediaURL || mediaURL?.trim() === '')) {
       throw new Error('Cannot send an empty message.');
@@ -276,6 +278,10 @@ export class Channel implements BaseChannel {
       if (isGif) {
         chatMessage.message.media.isGif = isGif;
       }
+    }
+
+    if (typeof slowMode !== 'undefined') {
+      chatMessage.slowMode = slowMode;
     }
 
     try {
