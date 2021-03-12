@@ -316,7 +316,7 @@ describe('Channel', () => {
   describe('sendMonetizationMessage()', () => {
     it('should send message on a channel', async () => {
       const graphQLAPIInstanceMock = {
-        sendMessaToChannel: async () => {
+        sendMonetizationMessageToChannel: async () => {
           return exampleChatMessage.key;
         },
       };
@@ -335,7 +335,7 @@ describe('Channel', () => {
 
     it('should receive an error when try to send a message', async () => {
       const graphQLAPIInstanceMock = {
-        sendMessaToChannel: async () => {
+        sendMonetizationMessageToChannel: async () => {
           return Promise.reject('failed');
         },
       };
