@@ -85,6 +85,15 @@ export interface BaseChannel {
     sender?: ChatMessageSender;
     slowMode?: boolean;
   }): Promise<string>;
+  sendMonetizationMessage({
+    text,
+    amount,
+    sender,
+  }: {
+    text?: string;
+    amount?: number;
+    sender?: ChatMessageSender;
+  }): Promise<string>;
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;
   fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
