@@ -822,23 +822,16 @@ describe('Channel', () => {
 
   describe('sendReaction()', () => {
     it('should send a reaction', async () => {
-      const realtimeAPIInstanceMock = {
-        listenToChatConfigChanges: jest.fn(),
-        sendReaction: async () => {
-          return {
-            key: 'new-reaction-key',
-            reaction: 'like',
-            itemId: 'fake-message',
-          };
+      // @ts-ignore
+      const sdk: ArenaChat = { ...exampleSDK };
+      // @ts-ignore
+      sdk.restAPI = {
+        sendReaction: () => {
+          return Promise.resolve('new-reaction-key');
         },
       };
 
-      // @ts-ignore
-      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
-        return realtimeAPIInstanceMock;
-      });
-
-      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
+      const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 
       const reaction: MessageReaction = {
         messageID: 'fake-message',

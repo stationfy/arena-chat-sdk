@@ -23,6 +23,7 @@ import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 
 export class Channel implements BaseChannel {
+  private static instances: { [key: string]: Channel } = {};
   private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
@@ -48,6 +49,14 @@ export class Channel implements BaseChannel {
     this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.markReadDebounced = debounce(this.markRead, 10000);
+  }
+
+  public static getInstance(channel: LiveChatChannel, chatRoom: ChatRoom, sdk: ArenaChat): Channel {
+    if (!Channel.instances[channel._id]) {
+      Channel.instances[channel._id] = new Channel(channel, chatRoom, sdk);
+    }
+
+    return Channel.instances[channel._id];
   }
 
   /**
@@ -229,6 +238,7 @@ export class Channel implements BaseChannel {
     isGif,
     tempId,
     sender,
+    slowMode,
   }: {
     text?: string;
     replyTo?: string;
@@ -236,6 +246,7 @@ export class Channel implements BaseChannel {
     isGif?: boolean;
     tempId?: string;
     sender?: ChatMessageSender;
+    slowMode?: boolean;
   }): Promise<string> {
     if (text?.trim() === '' && (!mediaURL || mediaURL?.trim() === '')) {
       throw new Error('Cannot send an empty message.');
@@ -267,6 +278,10 @@ export class Channel implements BaseChannel {
       if (isGif) {
         chatMessage.message.media.isGif = isGif;
       }
+    }
+
+    if (typeof slowMode !== 'undefined') {
+      chatMessage.slowMode = slowMode;
     }
 
     try {
@@ -484,7 +499,7 @@ export class Channel implements BaseChannel {
   public async sendReaction(
     reaction: MessageReaction,
     anonymousId?: string,
-    isDashboardUser?: boolean,
+    isDashboardUser = false,
   ): Promise<MessageReaction> {
     if (this.sdk.site === null) {
       throw new Error('Cannot react to a message without a site id');
@@ -509,12 +524,12 @@ export class Channel implements BaseChannel {
         isDashboardUser,
       };
 
-      const result = await this.realtimeAPI.sendReaction(serverReaction);
+      const result = await this.sdk.restAPI.sendReaction(serverReaction);
 
       return {
-        id: result.key,
-        type: result.reaction,
-        messageID: result.itemId,
+        id: result,
+        type: serverReaction.reaction,
+        messageID: serverReaction.itemId,
       };
     } catch (e) {
       throw new Error(`Cannot react to the message "${reaction.messageID}"`);

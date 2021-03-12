@@ -9,6 +9,7 @@ import {
   ExternalUser,
   EmbedSettings,
   TrackPayload,
+  ServerReaction,
 } from '@arena-im/chat-types';
 
 /** Rest api used to consume the rest services */
@@ -76,6 +77,12 @@ export interface BaseRest {
    * @param trackObj
    */
   collect(trackObj: TrackPayload): PromiseLike<{ success: boolean }>;
+
+  /**
+   * Send chat reactions
+   * @param reaction 
+   */
+  sendReaction(reaction: ServerReaction): PromiseLike<string>;
 }
 
 export interface BaseRestOptions {

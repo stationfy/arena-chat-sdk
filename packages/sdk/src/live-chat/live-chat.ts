@@ -94,7 +94,7 @@ export class LiveChat implements BaseLiveChat {
 
       const channel = this.chatRoom.mainChannel;
 
-      const channelI = new Channel(channel, this.chatRoom, this.sdk);
+      const channelI = Channel.getInstance(channel, this.chatRoom, this.sdk);
 
       return channelI;
     } catch (e) {
@@ -133,7 +133,7 @@ export class LiveChat implements BaseLiveChat {
     try {
       const channel = await this.graphQLAPI.fetchChannel(channelId);
 
-      const channelI = new Channel(channel, this.chatRoom, this.sdk);
+      const channelI = Channel.getInstance(channel, this.chatRoom, this.sdk);
 
       return channelI;
     } catch (e) {

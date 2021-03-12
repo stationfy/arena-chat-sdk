@@ -33,7 +33,7 @@ export interface LiveChatChannel {
   chatColor: string;
   chatPreModerationIsEnabled: boolean;
   chatRequestModeratorIsEnabled: boolean;
-  message: {
+  message?: {
     key: string;
     reactions: ChannelMessageReactions;
   };
@@ -76,12 +76,14 @@ export interface BaseChannel {
     mediaURL,
     tempId,
     sender,
+    slowMode,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
     tempId?: string;
     sender?: ChatMessageSender;
+    slowMode?: boolean;
   }): Promise<string>;
   sendMonetizationMessage({
     text,
