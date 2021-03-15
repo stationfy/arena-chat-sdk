@@ -32,6 +32,7 @@ The SDKs are organized inside the `@arena-im/` namespace. It can be used conveni
       1. [Direct Messages](#direct-messages)
       1. [Polls](#polls)
   1. [Other Packages](#other-packages)
+  1. [Changelogs](#changelogs)
 
 ## Installation
 
@@ -304,7 +305,7 @@ First you'll need to get the Q&A instance using a channel instance.
 const qnaI = await channelI.getChatQnaInstance()
 ```
 
-Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the QnaQuestionFilter, wich is also defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types). Both parameters are optional
+Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the `QnaQuestionFilter`, wich is also defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types). Both parameters are optional.
 
 ```typescript
 const questions: [QnaQuestion] = await qnaI.loadQuestions(50, QnaQuestionFilter.RECENT)
@@ -316,10 +317,10 @@ Start adding new questions just by passing its contents
 await qnaI.addQuestion("Which team shall win tonight?")
 ```
 
-It's also possible to easily awnser a question by calling the following method
+It's also possible to easily awnser a question by calling the following method with the question (`QnaQuestion`) and the answer (`string`).
 
 ```typescript
-const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(questionId, "Lakers should win!")
+const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(question, "Lakers should win!")
 ```
 
 To listen to changes to questions in real-time, some listeners can be used:
@@ -336,7 +337,7 @@ qnaI.onQuestionReceived(callback: (question: QnaQuestion) => void): void
 
 - onQuestionModified: Watches for the questions updated
 ```typescript
-qnaI.onQuestionReceived(callback: (question: QnaQuestion) => void): void
+qnaI.onQuestionModified(callback: (question: QnaQuestion) => void): void
 ```
 
 - onQuestionDeleted: Watches for the questions deleted
@@ -444,6 +445,7 @@ const pollsI = await channelI.getPollsIntance()
 
 Once you get a polls instance it's possible to start loading the existing polls
 The enum `PollFilter` defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) can be used to filter the list of polls to be loaded.
+
 ```typescript
 export enum PollFilter {
   POPULAR = 'popular', // The most voted polls
@@ -455,18 +457,18 @@ export enum PollFilter {
 
 ```typescript
 const pollsList: [Poll] = await pollsI.loadPolls(
-  PollFilter.RECENT, // optional
+  PollFilter.RECENT,
   50 // optional
 )
 ```
 
-To register a vote in a option for a poll you need to inform the `pollId` the `optionId` that is a number starting in 0 and optionaly an `anonymousId`
+To register a vote in a option for a poll you need to inform the `pollId` the `optionIndex` that is a number starting in 0 and optionaly an `anonymousId`
 
 ```typescript
 await pollsI.pollVote(
   pollId,
-  5, // option 5
-  "anonUser00023"
+  5, // option index
+  anonymousUserId // optional. Only provide this information if it's an anonymous vote.
 )
 ```
 
@@ -492,6 +494,10 @@ development. If you're using TypeScript, take a look at the resources below:
 - [`@arena-im/types`](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types): Types used in all packages.
 
 ## Changelogs
+
+### v2.0.21(Mar 15, 2021)
+
+- Minor adjustments to Polls and Q&A docs
 
 ### v2.0.20(Mar 8, 2021)
 
