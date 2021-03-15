@@ -3,6 +3,69 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.20 (2021-03-08)
+
+
+### Bug Fixes
+
+* add readme table of contents ([5b361a1](https://github.com/stationfy/arena-chat-sdk/commit/5b361a13d2d0014ddd00386b7a5d4de1947a34ba))
+
+
+
+
+
+## 2.0.19 (2021-03-08)
+
+
+### Bug Fixes
+
+* Kaspersky antivirus was breaking the real-time feature ([a076968](https://github.com/stationfy/arena-chat-sdk/commit/a0769687ee2eb15771a9233be0eedb20d70577ae))
+
+
+
+
+
+## 2.0.18 (2021-03-03)
+
+
+### Bug Fixes
+
+* chat reactions ([69a244f](https://github.com/stationfy/arena-chat-sdk/commit/69a244f35f414d29b0503a52101c3ed97deb8160))
+
+
+
+
+
+## 2.0.17 (2021-03-02)
+
+
+### Bug Fixes
+
+* documentation ([f0addfe](https://github.com/stationfy/arena-chat-sdk/commit/f0addfe37c2dd9d92ef03ac6656442f993835417))
+
+
+
+
+
+## 2.0.16 (2021-02-09)
+
+
+### Bug Fixes
+
+* add get channel by external id ([80d32ee](https://github.com/stationfy/arena-chat-sdk/commit/80d32eeae05881d6294c34cdfb07908f784f3956))
+
+
+
+
+
+## 2.0.15 (2021-02-05)
+
+**Note:** Version bump only for package arena-chat-sdk
+
+
+
+
+
 ## 2.0.14 (2021-02-02)
 
 **Note:** Version bump only for package arena-chat-sdk
