@@ -3,17 +3,21 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.0.0"
-  uid ""
+  version "2.0.22"
+  dependencies:
+    "@arena-im/chat-types" "^2.0.22"
+    firebase "^7.24.0"
+    graphql "^15.3.0"
+    graphql-request "^3.3.0"
+    rollup-plugin-json "^4.0.0"
 
-"@arena-im/chat-types@^2.0.16":
-  version "2.0.16"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.16.tgz#114535677136da159a0928c522db4e09080e2a11"
-  integrity sha512-WXiic3oHUVxymSNPgwgDU5vAsVg+lna8fuddNFcLck0wph3sub4z8IJcHQsHwZ2Uu+8+aGEb3kkJN9pwhJTqTg==
+"@arena-im/chat-types@^2.0.22":
+  version "2.0.22"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.22.tgz#4990acf8dd5464ea4364b43c72b42d7163f79955"
+  integrity sha512-hNNfWoWt7iyljO6/txh7j4g05rgaqHX9F4hGVr8HDD7ZBLQnkCwIkyPPdw3tHYEALZ2WT3kYWwTmMvzwsa2Ryw==
 
 "@arena-im/chat-types@link:../../../types":
-  version "0.0.0"
-  uid ""
+  version "2.0.22"
 
 "@babel/code-frame@7.10.4", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.5.5":
   version "7.10.4"
@@ -12379,9 +12383,9 @@ xtend@^4.0.0, xtend@~4.0.1:
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
 
 y18n@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/y18n/-/y18n-4.0.0.tgz#95ef94f85ecc81d007c264e190a120f0a3c8566b"
-  integrity sha512-r9S/ZyXu/Xu9q1tYlpsLIsa3EeLXXk0VwlxqTcFRfg9EhMW+17kbt9G0NrgCmhGb5vT2hyhJZLfDGx+7+5Uj/w==
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/y18n/-/y18n-4.0.1.tgz#8db2b83c31c5d75099bb890b23f3094891e247d4"
+  integrity sha512-wNcy4NvjMYL8gogWWYAO7ZFWFfHcbdbE57tZO8e4cbpj8tfUcwrwqSl3ad8HxpYWCdXcJUCeKKZS62Av1affwQ==
 
 yallist@^3.0.2:
   version "3.1.1"
