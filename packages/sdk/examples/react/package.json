@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@arena-im/chat-sdk": "link:../..",
+    "@arena-im/chat-types": "link:../../../types",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -10,11 +12,12 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
-    "@arena-im/chat-sdk": "link:../..",
-    "@arena-im/chat-types": "link:../../../types",
+    "@types/styled-components": "^5.1.9",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "^4.0.0",
+    "styled-components": "^5.2.3",
+    "styled-normalize": "^8.0.7",
     "typescript": "~4.0.5"
   },
   "scripts": {
