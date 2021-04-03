@@ -1,6 +1,5 @@
-export interface IActionButton {
+export interface IActionButton extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   iconUrl: string;
   size?: number;
-  action: () => void;
   hideOnMobile?: boolean;
 }

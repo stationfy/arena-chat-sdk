@@ -1,14 +1,15 @@
 import React from 'react';
 import { Home } from './Pages/Home';
 import { GlobalStyle } from './stylesheets/global';
-
-// import { Container } from './styles';
+import { ChatContextProvider } from 'contexts/chatContext/chatContext';
 
 const App: React.FC = () => {
   return (
     <>
       <GlobalStyle />
-      <Home />
+      <ChatContextProvider>
+        <Home />
+      </ChatContextProvider>
     </>
   );
 };

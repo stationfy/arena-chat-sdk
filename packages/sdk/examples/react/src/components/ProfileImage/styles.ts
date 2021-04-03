@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-const Container = styled.div<{ imageUrl: string }>`
-  height: 40px;
-  width: 40px;
+const Container = styled.div<{ imageUrl: string; size?: number }>`
+  height: ${({ size }) => (size ? size : 40)}px;
+  width: ${({ size }) => (size ? size : 40)}px;
   border-radius: 50%;
   background-image: url(${({ imageUrl }) => (imageUrl ? imageUrl : '')});
   background-position: center;

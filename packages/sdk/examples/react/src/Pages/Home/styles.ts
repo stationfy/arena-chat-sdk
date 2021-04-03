@@ -48,7 +48,6 @@ Header.Tabs = styled.div`
 Header.ProfileArea = styled.div`
   flex: 3;
   display: flex;
-
   align-items: center;
 
   h1 {
@@ -56,6 +55,44 @@ Header.ProfileArea = styled.div`
     margin-left: 12px;
     font-size: 1.3em;
     font-weight: 400;
+  }
+`;
+
+Header.LoginArea = styled.div`
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: ${theme.colors.mediumBlue};
+  border-radius: 21px;
+
+  button {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: ${theme.colors.white};
+    color: ${theme.colors.mediumBlue};
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:hover,
+    &:disabled {
+      background-color: ${theme.colors.lightGrey};
+    }
+  }
+
+  p {
+    color: ${theme.colors.white};
   }
 `;
 
