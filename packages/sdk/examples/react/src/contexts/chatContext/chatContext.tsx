@@ -1,8 +1,8 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 import ArenaChat from '@arena-im/chat-sdk';
-import { ChatMessage } from '@arena-im/chat-types';
+import { ChatMessage, ExternalUser } from '@arena-im/chat-types';
 
-import { CHAT_CHANNEL_ID, CHAT_SLUG } from 'config-chat';
+import { CHAT_CHANNEL_ID, CHAT_SLUG, USER_EMAIL, USER_ID, USER_IMAGE, USER_NAME } from 'config-chat';
 import { IChatContext } from './types';
 import { LiveChat } from '../../../../../dist/live-chat/live-chat';
 import { Channel } from '../../../../../dist/channel/channel';
@@ -13,7 +13,11 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [arenaChat, setArenaChat] = useState<ArenaChat | null>(null);
   const [liveChat, setLiveChat] = useState<LiveChat | null>(null);
   const [channel, setChannel] = useState<Channel | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[] | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [user, setUser] = useState<ExternalUser | null>(null);
+  const [loadingUser, setLoadingUser] = useState<boolean>(false);
+  const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
+  const [allMessagesLoaded, setAllMessagesLoaded] = useState<boolean>(false);
 
   const connectChat = useCallback(async () => {
     try {
@@ -29,24 +33,64 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  function handleLogin() {}
+  async function handleLogin() {
+    const newUser = {
+      id: USER_ID,
+      image: USER_IMAGE,
+      name: USER_NAME,
+      email: USER_EMAIL,
+    };
+
+    try {
+      setLoadingUser(true);
+      await arenaChat?.setUser(newUser);
+      setUser(newUser);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoadingUser(false);
+    }
+  }
+
+  function handleLogout() {
+    arenaChat?.setUser(null);
+
+    setUser(null);
+  }
+
+  async function handleLoadPrevMessages() {
+    if (!allMessagesLoaded) {
+      try {
+        setLoadingMessages(true);
+        const newMessages = (await channel?.loadPreviousMessages(5)) ?? [];
+        if (newMessages.length === 0) {
+          setAllMessagesLoaded(true);
+        } else setMessages((oldValues) => [...newMessages, ...oldValues]);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoadingMessages(false);
+      }
+    }
+  }
+
+  channel?.onMessageReceived((message) => {
+    setMessages((oldValues) => [...oldValues, message]);
+  });
 
   const loadMessages = useCallback(async () => {
     if (channel) {
-      const user = {
-        image: 'https://randomuser.me/api/portraits/women/56.jpg',
-        name: 'Naomi Carter',
-        id: 'tornado',
-        email: 'naomi.carter@example.com',
-      };
-
-      arenaChat?.setUser(user);
-      console.log(arenaChat);
-
-      const newMessages = await channel.loadRecentMessages(20);
-      setMessages(newMessages);
+      try {
+        setLoadingMessages(true);
+        const newMessages = await channel.loadRecentMessages(20);
+        setMessages(newMessages);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoadingMessages(false);
+      }
     }
-  }, [channel, arenaChat]);
+  }, [channel]);
 
   useEffect(() => {
     connectChat();
@@ -57,7 +101,21 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
   }, [loadMessages]);
 
   return (
-    <ChatContext.Provider value={{ arenaChat: arenaChat, liveChat: liveChat, messages: messages }}>
+    <ChatContext.Provider
+      value={{
+        arenaChat,
+        liveChat,
+        messages,
+        handleLogin,
+        handleLogout,
+        loadingUser,
+        user,
+        channel,
+        handleLoadPrevMessages,
+        loadingMessages,
+        allMessagesLoaded,
+      }}
+    >
       {children}
     </ChatContext.Provider>
   );

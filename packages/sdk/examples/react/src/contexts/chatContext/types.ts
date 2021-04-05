@@ -1,9 +1,18 @@
 import ArenaChat from '@arena-im/chat-sdk';
-import { ChatMessage } from '@arena-im/chat-types';
+import { ChatMessage, ExternalUser } from '@arena-im/chat-types';
+import { Channel } from '../../../../../dist/channel/channel';
 import { LiveChat } from '../../../../../dist/live-chat/live-chat';
 
 export interface IChatContext {
   arenaChat: ArenaChat | null;
   liveChat: LiveChat | null;
-  messages: ChatMessage[] | null;
+  messages: ChatMessage[];
+  user: ExternalUser | null;
+  channel: Channel | null;
+  loadingUser: boolean;
+  loadingMessages: boolean;
+  allMessagesLoaded: boolean;
+  handleLogin: () => void;
+  handleLogout: () => void;
+  handleLoadPrevMessages: (amount?: number) => void;
 }

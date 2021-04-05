@@ -105,7 +105,6 @@ Header.SettingsArea = styled.div`
 
 const List = styled.div`
   flex: 6;
-  padding-bottom: 10px;
   overflow-y: hidden;
 `;
 

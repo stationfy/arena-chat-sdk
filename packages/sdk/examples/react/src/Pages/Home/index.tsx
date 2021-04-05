@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import { ExternalUser } from '@arena-im/chat-types';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 import { InputMessage, ListMessages, ProfileImage, ActionButton, Tab, Loader } from 'components';
 import { Container, Header, Footer, List } from './styles';
@@ -9,34 +8,13 @@ import { ChatContext } from 'contexts/chatContext/chatContext';
 //TODO: remove external image url
 
 const Home: React.FC = () => {
-  const { arenaChat, liveChat, messages } = useContext(ChatContext);
+  const { channel, messages, handleLogin, handleLogout, loadingUser, user } = useContext(ChatContext);
 
-  const [user, setUser] = useState<ExternalUser | null>(null);
-  const [loadingUser, setLoadingUser] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState('');
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  async function handleLogin() {
-    const newUser = {
-      image: 'https://randomuser.me/api/portraits/women/56.jpg',
-      name: 'Naomi Carter',
-      id: 'tornado',
-      email: 'naomi.carter@example.com',
-    };
-
-    try {
-      setLoadingUser(true);
-      await arenaChat?.setUser(newUser);
-      setUser(newUser);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoadingUser(false);
-    }
-  }
-
-  function handleLogout() {
-    arenaChat?.setUser(null);
-
-    setUser(null);
+  function handleInput(e: any) {
+    setInputValue(e.currentTarget.innerText);
   }
 
   const getLoginArea = () => {
@@ -59,6 +37,18 @@ const Home: React.FC = () => {
     );
   };
 
+  async function handleSendMessage() {
+    if (inputValue.length > 0) {
+      await channel?.sendMessage({ text: inputValue });
+      setInputValue('');
+    }
+  }
+
+  useEffect(() => {
+    console.log(containerRef.current);
+    window.scrollTo(0, containerRef.current?.offsetTop ?? 100);
+  }, [containerRef]);
+
   return (
     <Container>
       <Header>
@@ -66,13 +56,7 @@ const Home: React.FC = () => {
           <Header.ProfileArea>{user ? getProfileArea() : getLoginArea()}</Header.ProfileArea>
           {user && (
             <Header.SettingsArea>
-              <ActionButton
-                iconUrl={sound}
-                onClick={() => {
-                  console.log('oi');
-                }}
-                size={15}
-              />
+              <ActionButton iconUrl={sound} onClick={() => {}} size={15} />
               <ActionButton iconUrl={logout} onClick={handleLogout} size={15} />
             </Header.SettingsArea>
           )}
@@ -86,14 +70,8 @@ const Home: React.FC = () => {
       </List>
       {user && (
         <Footer>
-          <InputMessage />
-          <ActionButton
-            iconUrl={send}
-            onClick={() => {
-              console.log('oi');
-            }}
-            hideOnMobile
-          />
+          <InputMessage onInput={handleInput} value={inputValue} />
+          <ActionButton iconUrl={send} onClick={handleSendMessage} hideOnMobile />
         </Footer>
       )}
     </Container>

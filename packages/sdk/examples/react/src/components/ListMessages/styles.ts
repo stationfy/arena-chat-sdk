@@ -3,8 +3,9 @@ import { theme } from 'stylesheets/theme';
 
 const Container = styled.div`
   height: 100%;
-  padding: 10px 20px;
+  padding: 0 20px;
   overflow-y: auto;
+  position: relative;
 `;
 
 const MessageItem: any = styled.div<{ owner?: boolean }>`
@@ -41,4 +42,23 @@ const FollowedMessage = styled.div`
   width: 50px;
 `;
 
-export { Container, MessageItem, FollowedMessage };
+const ScrollObservable = styled.div`
+  position: absolute;
+  height: 20px;
+  width: 10px;
+  z-index: 99;
+`;
+
+const LoadPreviousObservable = styled.div`
+  height: 10px;
+`;
+
+const LoadingArea = styled.div`
+  display: flex;
+  height: 50px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+`;
+
+export { Container, MessageItem, FollowedMessage, ScrollObservable, LoadPreviousObservable, LoadingArea };
