@@ -1,21 +1,34 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { InputMessage, ListMessages, ProfileImage, ActionButton, Tab, Loader } from 'components';
 import { Container, Header, Footer, List } from './styles';
 import { send, sound, logout } from 'assets/icons';
 import { ChatContext } from 'contexts/chatContext/chatContext';
 
-//TODO: remove external image url
-
 const Home: React.FC = () => {
   const { channel, messages, handleLogin, handleLogout, loadingUser, user } = useContext(ChatContext);
 
   const [inputValue, setInputValue] = useState('');
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [sendingMessage, setSendingMessage] = useState(false);
 
-  function handleInput(e: any) {
+  const handleInput = useCallback((e) => {
     setInputValue(e.currentTarget.innerText);
-  }
+  }, []);
+
+  const handleSendMessage = useCallback(async () => {
+    if (inputValue.length > 0) {
+      try {
+        setSendingMessage(true);
+        await channel?.sendMessage({ text: inputValue });
+        setInputValue('');
+      } catch (err) {
+        console.log(err);
+      } finally {
+        console.log('sai');
+        setSendingMessage(false);
+      }
+    }
+  }, [channel, inputValue]);
 
   const getLoginArea = () => {
     return (
@@ -36,18 +49,6 @@ const Home: React.FC = () => {
       </Header.ProfileArea>
     );
   };
-
-  async function handleSendMessage() {
-    if (inputValue.length > 0) {
-      await channel?.sendMessage({ text: inputValue });
-      setInputValue('');
-    }
-  }
-
-  useEffect(() => {
-    console.log(containerRef.current);
-    window.scrollTo(0, containerRef.current?.offsetTop ?? 100);
-  }, [containerRef]);
 
   return (
     <Container>
@@ -70,8 +71,8 @@ const Home: React.FC = () => {
       </List>
       {user && (
         <Footer>
-          <InputMessage onInput={handleInput} value={inputValue} />
-          <ActionButton iconUrl={send} onClick={handleSendMessage} hideOnMobile />
+          <InputMessage onInput={handleInput} value={inputValue} disabled={sendingMessage} />
+          {sendingMessage ? <Loader /> : <ActionButton iconUrl={send} onClick={handleSendMessage} hideOnMobile />}
         </Footer>
       )}
     </Container>

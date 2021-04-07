@@ -46,9 +46,9 @@ function AppOld() {
   useEffect(() => {
     async function initializeChat() {
       try {
-        arenaChat.current = new ArenaChat('tests');
+        arenaChat.current = new ArenaChat('lari');
 
-        liveChat.current = await arenaChat.current.getLiveChat('qks0');
+        liveChat.current = await arenaChat.current.getLiveChat('qr99');
 
         channel.current = liveChat.current.getMainChannel();
 
@@ -153,6 +153,7 @@ function AppOld() {
 
     const result = await arenaChat.current.setUser(user);
 
+    console.log(result);
     setLoginWait(false);
 
     setUser(result);

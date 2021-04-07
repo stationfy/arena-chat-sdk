@@ -1,3 +1,5 @@
+import { ChatMessage } from '@arena-im/chat-types';
+
 export interface IMessage {
-  owner?: boolean;
+  message: ChatMessage;
 }

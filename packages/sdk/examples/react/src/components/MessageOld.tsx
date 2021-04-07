@@ -15,6 +15,9 @@ function Message({ message, currentUser, currentChannel, setError }: Props) {
       return false;
     }
 
+    console.log(currentUser);
+    console.log(message?.sender);
+
     return currentUser.id === message?.sender?.uid;
   }, [message, currentUser]);
 

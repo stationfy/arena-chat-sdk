@@ -1,11 +1,12 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 import ArenaChat from '@arena-im/chat-sdk';
-import { ChatMessage, ExternalUser } from '@arena-im/chat-types';
+import { BasePolls, ChatMessage, ExternalUser, Poll } from '@arena-im/chat-types';
 
 import { CHAT_CHANNEL_ID, CHAT_SLUG, USER_EMAIL, USER_ID, USER_IMAGE, USER_NAME } from 'config-chat';
-import { IChatContext } from './types';
+import { IChatContext, IPollsVotedByUser } from './types';
 import { LiveChat } from '../../../../../dist/live-chat/live-chat';
 import { Channel } from '../../../../../dist/channel/channel';
+import { generateRandomString } from 'utils/generateRandomString';
 
 const ChatContext = createContext({} as IChatContext);
 
@@ -13,6 +14,8 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [arenaChat, setArenaChat] = useState<ArenaChat | null>(null);
   const [liveChat, setLiveChat] = useState<LiveChat | null>(null);
   const [channel, setChannel] = useState<Channel | null>(null);
+  const [polls, setPolls] = useState<BasePolls | null>(null);
+  // const [pollsVotedByUser, setPollsVotedByUser] = useState<IPollsVotedByUser>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [user, setUser] = useState<ExternalUser | null>(null);
   const [loadingUser, setLoadingUser] = useState<boolean>(false);
@@ -23,11 +26,11 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const arenaChatConnection = new ArenaChat(CHAT_SLUG);
       const liveChatConnection = await arenaChatConnection.getLiveChat(CHAT_CHANNEL_ID);
-      const channel = liveChatConnection.getMainChannel();
+      const channelConnection = liveChatConnection.getMainChannel();
 
       setArenaChat(arenaChatConnection);
       setLiveChat(liveChatConnection);
-      setChannel(channel);
+      setChannel(channelConnection);
     } catch (err) {
       console.log(err);
     }
@@ -43,8 +46,9 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       setLoadingUser(true);
-      await arenaChat?.setUser(newUser);
-      setUser(newUser);
+      const result = await arenaChat?.setUser(newUser);
+      setUser(result ?? null);
+      loadMessages();
     } catch (err) {
       console.log(err);
     } finally {
@@ -54,7 +58,6 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   function handleLogout() {
     arenaChat?.setUser(null);
-
     setUser(null);
   }
 
@@ -69,13 +72,30 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (err) {
         console.log(err);
       } finally {
-        setLoadingMessages(false);
+        setTimeout(() => setLoadingMessages(false), 1000);
       }
     }
   }
 
+  const getPollsInstance = useCallback(async () => {
+    if (channel) {
+      let anonymousId = '';
+      if (!user) anonymousId = generateRandomString(16);
+
+      const pollsConnection = await channel.getPollsIntance(anonymousId);
+
+      console.log('AQ', pollsConnection);
+      setPolls(pollsConnection);
+    }
+  }, [channel, user]);
+
   channel?.onMessageReceived((message) => {
     setMessages((oldValues) => [...oldValues, message]);
+  });
+
+  channel?.onMessageDeleted((message) => {
+    const filteredMessages = messages.filter((item) => message.key !== item.key);
+    setMessages(filteredMessages);
   });
 
   const loadMessages = useCallback(async () => {
@@ -100,6 +120,10 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
     loadMessages();
   }, [loadMessages]);
 
+  useEffect(() => {
+    getPollsInstance();
+  }, [getPollsInstance]);
+
   return (
     <ChatContext.Provider
       value={{
@@ -114,6 +138,7 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
         handleLoadPrevMessages,
         loadingMessages,
         allMessagesLoaded,
+        polls,
       }}
     >
       {children}

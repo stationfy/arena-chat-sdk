@@ -8,6 +8,8 @@ const Tab: React.FC = (props) => {
     <Container>
       <TabItem selected>Chat</TabItem>
       <TabItem>Channels</TabItem>
+      <TabItem>Polls</TabItem>
+      <TabItem>Q&A</TabItem>
     </Container>
   );
 };

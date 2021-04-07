@@ -4,7 +4,7 @@ import { Container } from './styles';
 import { IInputMessage } from './types';
 
 const InputMessage: React.FC<IInputMessage> = (props) => {
-  const { onInput, value } = props;
+  const { onInput, value, disabled } = props;
 
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -16,7 +16,7 @@ const InputMessage: React.FC<IInputMessage> = (props) => {
     }
   }, [value]);
 
-  return <Container tabIndex={1} onInput={onInput} contentEditable={true} ref={contentRef} />;
+  return <Container tabIndex={1} onInput={onInput} contentEditable={!disabled} ref={contentRef} />;
 };
 
 export { InputMessage };
