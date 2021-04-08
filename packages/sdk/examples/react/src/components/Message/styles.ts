@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { theme } from 'stylesheets/theme';
 
+import { heart, filledHeart } from 'assets/icons';
+
 const MessageItem: any = styled.div<{ owner?: boolean }>`
   display: flex;
   flex-direction: column;
@@ -38,6 +40,48 @@ MessageItem.Text = styled.div<{ owner?: boolean }>`
   margin-left: 10px;
   min-height: 20px;
   border-radius: 10px;
+  cursor: default;
+  position: relative;
+`;
+
+MessageItem.Reaction = styled.button<{ filled: boolean }>`
+  position: absolute;
+  background-color: transparent;
+  background-image: url(${({ filled }) => (filled ? filledHeart : heart)});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: none;
+  width: 12px;
+  height: 12px;
+  right: -2px;
+  bottom: -5px;
+  cursor: pointer;
+
+  :focus {
+    outline: none;
+  }
+`;
+
+MessageItem.ModeratorTag = styled.span`
+  height: 10px;
+  background: ${theme.colors.mediumBlue};
+  font-size: 0.5em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  margin-left: -1px;
+  margin-bottom: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  text-transform: uppercase;
+`;
+
+MessageItem.ModeratorActions = styled.div`
+  display: flex;
+  margin-bottom: 5px;
+  margin-top: -4px;
 `;
 
 const FollowedMessage = styled.div`

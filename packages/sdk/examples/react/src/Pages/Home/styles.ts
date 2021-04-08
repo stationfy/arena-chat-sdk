@@ -21,7 +21,6 @@ const Header: any = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px;
-
   border-radius: 5px 5px 10px 10px;
   background-color: ${theme.colors.darkBlue};
 
@@ -101,6 +100,11 @@ Header.SettingsArea = styled.div`
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+  position: relative;
+`;
+
+Header.ModeratorArea = styled.div`
+  padding: 10px 0 0 60px;
 `;
 
 const List = styled.div`
@@ -117,4 +121,53 @@ const Footer = styled.div`
   padding: 0 25px 5px 25px;
 `;
 
-export { Container, Header, Footer, List };
+const LoadingMessages = styled.div`
+  display: flex;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ModeratorButton = styled.button`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: -20px;
+  width: 170px;
+  height: 35px;
+  background-color: white;
+  right: -75px;
+  border: none;
+  box-shadow: 10px 10px 26px -11px rgba(0, 0, 0, 0.82);
+  border-radius: 30px;
+  color: ${theme.colors.mediumBlue};
+  font-size: 0.9em;
+  font-weight: 400;
+  cursor: pointer;
+
+  &:hover {
+    color: ${theme.colors.darkBlue};
+  }
+
+  &:focus {
+    outline: none;
+  }
+`;
+
+const ModeratorTag = styled.div`
+  height: 15px;
+  background: ${theme.colors.mediumBlue};
+  font-size: 0.8em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  margin-left: 10px;
+  padding: 4px;
+  border-radius: 7px;
+  text-transform: uppercase;
+`;
+
+export { Container, Header, Footer, List, LoadingMessages, ModeratorButton, ModeratorTag };

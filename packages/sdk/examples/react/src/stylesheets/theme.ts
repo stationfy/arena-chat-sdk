@@ -9,5 +9,8 @@ export const theme = {
     lightGrey: '#ececec',
     mediumGrey: '#ababab',
     darkGrey: '#9a9a9a',
+    alternativeGrey: '#656565',
+    pollColor: '#539e00',
+    qnaColor: '#dc4468',
   },
 };

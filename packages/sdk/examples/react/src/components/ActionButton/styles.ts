@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 const Container = styled.button<{ iconUrl: string; size?: number; hideOnMobile?: boolean }>`
+  position: relative;
   background-image: url(${({ iconUrl }) => (iconUrl ? iconUrl : '')});
   background-position: center;
   background-size: cover;

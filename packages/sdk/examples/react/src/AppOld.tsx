@@ -153,7 +153,7 @@ function AppOld() {
 
     const result = await arenaChat.current.setUser(user);
 
-    console.log(result);
+    result;
     setLoginWait(false);
 
     setUser(result);
@@ -167,7 +167,7 @@ function AppOld() {
   async function requestModeration() {
     const moderation = await channel.current?.requestModeration();
 
-    console.log(moderation);
+    moderation;
   }
 
   const isModerator = useMemo(() => {
