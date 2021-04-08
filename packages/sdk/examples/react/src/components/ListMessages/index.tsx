@@ -1,13 +1,14 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import { Message, Loader, PollChat as Poll, QnaChat as Qna } from 'components';
+import { Message, Loader, QnaChat as Qna } from 'components';
+// import { PollChat as Poll} from 'components';
 
 import { Container, LoadingArea, LoadPreviousObservable, ScrollObservable } from './styles';
 import { IListMessages, MessageType } from './types';
 import { ChatContext } from 'contexts/chatContext/chatContext';
 
 const ListMessages: React.FC<IListMessages> = (props) => {
-  const { messages, seeAllPoll, seeAllQna } = props;
+  const { messages, seeAllQna } = props;
   const {
     user,
     handleLoadPrevMessages,
@@ -26,8 +27,8 @@ const ListMessages: React.FC<IListMessages> = (props) => {
     if (message) {
       switch (message.type) {
         case MessageType.POLL:
-          return <Poll key={message.key} poll={message.poll} seeAllButton={seeAllPoll} />;
-
+          // return <Poll key={message.key} poll={message.poll} seeAllButton={seeAllPoll} />;
+          return null;
         case MessageType.QNA:
           return <Qna key={message.key} qna={message.question} seeAllButton={seeAllQna} />;
 
@@ -47,21 +48,6 @@ const ListMessages: React.FC<IListMessages> = (props) => {
     }
   }, []);
 
-  const loadPrevious = useCallback(
-    (entries) => {
-      const target = entries[0];
-
-      if (target.isIntersecting) {
-        handleLoadPrevMessages(5);
-        if (!allMessagesLoaded && !loadingPreviousMessages) {
-          setWatchMessagesScroll(false);
-          scrollMiddleRef.current?.scrollTo({ top: 80, behavior: 'smooth' });
-        }
-      }
-    },
-    [handleLoadPrevMessages, allMessagesLoaded, loadingPreviousMessages],
-  );
-
   useEffect(() => {
     if (messages.length > 0 && watchMessagesScroll) {
       scrollBottomRef.current?.scrollIntoView({ behavior: 'auto' });
@@ -78,13 +64,33 @@ const ListMessages: React.FC<IListMessages> = (props) => {
 
   useEffect(() => {
     if (messages.length > 0) {
-      const observer = new IntersectionObserver(loadPrevious);
+      const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 1.0,
+      };
+
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          handleLoadPrevMessages(5);
+
+          if (!allMessagesLoaded && !loadingPreviousMessages) {
+            setWatchMessagesScroll(false);
+            scrollMiddleRef.current?.scroll({ top: 90, behavior: 'smooth' });
+          }
+        }
+      }, options);
 
       if (loadPreviousRef && loadPreviousRef.current) {
         observer.observe(loadPreviousRef.current);
       }
+      if (loadingPreviousMessages) {
+        observer.disconnect();
+      }
+
+      return () => observer.disconnect();
     }
-  }, [loadPreviousRef, loadPrevious, messages]);
+  }, [loadPreviousRef, messages, handleLoadPrevMessages, loadingPreviousMessages, allMessagesLoaded]);
 
   return (
     <Container ref={scrollMiddleRef}>
@@ -97,6 +103,7 @@ const ListMessages: React.FC<IListMessages> = (props) => {
               <Loader />
             </LoadingArea>
           )}
+
           {messages.map((message: any) => renderMessage(message))}
         </>
       )}

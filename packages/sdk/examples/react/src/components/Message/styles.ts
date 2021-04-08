@@ -7,7 +7,7 @@ const MessageItem: any = styled.div<{ owner?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: ${({ owner }) => (owner ? 'flex-end' : 'flex-start')};
-  padding: 5px 10px;
+  padding: 15px 10px;
 `;
 
 MessageItem.Info = styled.div`

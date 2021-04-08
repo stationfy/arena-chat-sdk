@@ -1,6 +1,5 @@
 import styled, { keyframes } from 'styled-components';
 import { theme } from 'stylesheets/theme';
-import { ILoader } from './types';
 
 const spin = keyframes`
 from {

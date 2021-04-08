@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo } from 'react';
+import React, { memo, useContext } from 'react';
 
 // import { ITab, ITabItem } from "./types";
 import { ChatContext } from 'contexts/chatContext/chatContext';

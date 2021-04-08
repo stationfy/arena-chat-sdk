@@ -1,17 +1,9 @@
 import React, { createContext, useCallback, useEffect, useState } from 'react';
 import ArenaChat from '@arena-im/chat-sdk';
-import {
-  BaseChannel,
-  BasePolls,
-  ChatMessage,
-  ExternalUser,
-  LiveChatChannel,
-  Poll,
-  QnaQuestion,
-} from '@arena-im/chat-types';
+import { BasePolls, ChatMessage, ExternalUser, LiveChatChannel, Poll, QnaQuestion } from '@arena-im/chat-types';
 
 import { CHAT_CHANNEL_ID, CHAT_SLUG, USER_EMAIL, USER_ID, USER_IMAGE, USER_NAME } from 'config-chat';
-import { IChatContext, IPollsVotedByUser } from './types';
+import { IChatContext } from './types';
 import { LiveChat } from '../../../../../dist/live-chat/live-chat';
 import { Channel } from '../../../../../dist/channel/channel';
 import { generateRandomString } from 'utils/generateRandomString';
@@ -28,7 +20,6 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [pollsList, setPollsList] = useState<Poll[] | null>(null);
   const [questions, setQuestions] = useState<QnaQuestion[] | null>(null);
   const [qnaI, setQnaI] = useState<BaseQna | null>(null);
-  // const [pollsVotedByUser, setPollsVotedByUser] = useState<IPollsVotedByUser>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [user, setUser] = useState<ExternalUser | null>(null);
   const [loadingUser, setLoadingUser] = useState<boolean>(false);
@@ -48,8 +39,59 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
       setLiveChat(liveChatConnection);
       setCurrentChannel(channelConnection);
       setChannels(channelsList);
-    } catch (err) {}
+    } catch (err) {
+      alert('An error ocurred. See on console');
+      console.log('Error (ChatContext):', err);
+    }
   }, []);
+
+  const initializePollsListeners = useCallback(() => {
+    if (pollsI) {
+      pollsI?.onPollReceived((poll) => {
+        setPollsList((oldValues) => (oldValues ? [poll, ...oldValues] : [poll]));
+      });
+
+      pollsI?.onPollModified((poll) => {
+        setPollsList(
+          (oldValues) => oldValues?.map((item) => (item._id === poll._id ? { ...poll } : { ...item })) ?? [],
+        );
+      });
+
+      pollsI?.onPollDeleted((poll) => {
+        setPollsList((oldValues) => oldValues?.filter((item) => poll._id !== item._id) ?? []);
+      });
+    }
+  }, [pollsI]);
+
+  const initializeQnaListeners = useCallback(() => {
+    if (qnaI) {
+      qnaI?.onQuestionReceived((question) => {
+        setQuestions((oldValues) => (oldValues ? [question, ...oldValues] : [question]));
+      });
+
+      qnaI?.onQuestionModified((question) => {
+        setQuestions(
+          (oldValues) => oldValues?.map((item) => (item.key === question.key ? { ...question } : { ...item })) ?? [],
+        );
+      });
+
+      qnaI?.onQuestionDeleted((question) => {
+        setQuestions((oldValues) => oldValues?.filter((item) => item.key !== question.key) ?? []);
+      });
+    }
+  }, [qnaI]);
+
+  const initializeChannelListeners = useCallback(() => {
+    if (currentChannel) {
+      currentChannel?.onMessageReceived((message) => {
+        setMessages((oldValues) => [...oldValues, message]);
+      });
+
+      currentChannel?.onMessageDeleted((message) => {
+        setMessages((oldValues) => oldValues.filter((item) => message.key !== item.key));
+      });
+    }
+  }, [currentChannel]);
 
   const handleLoadQuestions = useCallback(async () => {
     if (currentChannel) {
@@ -67,6 +109,19 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentChannel]);
 
+  const handleLoadMessages = useCallback(async () => {
+    if (currentChannel) {
+      try {
+        setLoadingChannelMessages(true);
+        const newMessages = await currentChannel.loadRecentMessages(20);
+        setMessages(newMessages);
+      } catch (err) {
+      } finally {
+        setLoadingChannelMessages(false);
+      }
+    }
+  }, [currentChannel]);
+
   async function handleLogin() {
     const newUser = {
       id: USER_ID,
@@ -77,10 +132,14 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       setLoadingUser(true);
+
       const result = await arenaChat?.setUser(newUser);
+
       setUser(result ?? null);
-      loadMessages();
+      handleLoadMessages();
     } catch (err) {
+      alert('An error ocurred. See on console');
+      console.log('Error (ChatContext):', err);
     } finally {
       setLoadingUser(false);
     }
@@ -95,8 +154,18 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoadingChannelMessages(true);
       const newChannel = await liveChat?.getChannel(channelId);
-      if (newChannel) setCurrentChannel(newChannel as Channel);
+      if (newChannel) {
+        qnaI?.offQuestionDeleted();
+        qnaI?.offQuestionModified();
+        qnaI?.offQuestionReceived();
+        pollsI?.offAllListeners();
+        currentChannel?.offAllListeners();
+
+        setCurrentChannel(newChannel as Channel);
+      }
     } catch (err) {
+      alert('An error ocurred. See on console');
+      console.log('Error (ChatContext):', err);
       setLoadingChannelMessages(false);
     }
   }
@@ -110,6 +179,8 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
           setAllMessagesLoaded(true);
         } else setMessages((oldValues) => [...newMessages, ...oldValues]);
       } catch (err) {
+        alert('An error ocurred. See on console');
+        console.log('Error (ChatContext):', err);
       } finally {
         setTimeout(() => setLoadingPreviousMessages(false), 1000);
       }
@@ -128,59 +199,37 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
         setPollsI(pollsConnection);
         setPollsList(newPollsList);
       } catch (err) {
+        alert('An error ocurred. See on console');
+        console.log('Error (ChatContext):', err);
         setPollsI(null);
         setPollsList(null);
       }
     }
   }, [currentChannel, user]);
 
-  currentChannel?.onMessageReceived((message) => {
-    setMessages((oldValues) => [...oldValues, message]);
-  });
-
-  currentChannel?.onMessageDeleted((message) => {
-    const filteredMessages = messages.filter((item) => message.key !== item.key);
-    setMessages(filteredMessages);
-  });
-
-  qnaI?.onQuestionReceived((question) => {
-    setQuestions((oldValues) => (oldValues ? [question, ...oldValues] : [question]));
-  });
-
-  qnaI?.onQuestionModified((question) => {
-    const newQuestions = questions?.map((item) => (item.key === question.key ? { ...question } : { ...item }));
-    setQuestions(newQuestions ?? []);
-  });
-
-  qnaI?.onQuestionDeleted((question) => {
-    const newQuestions = questions?.filter((item) => item.key !== question.key);
-    setQuestions(newQuestions ?? []);
-  });
-
-  const loadMessages = useCallback(async () => {
-    if (currentChannel) {
-      try {
-        setLoadingChannelMessages(true);
-        const newMessages = await currentChannel.loadRecentMessages(20);
-        setMessages(newMessages);
-      } catch (err) {
-      } finally {
-        setLoadingChannelMessages(false);
-      }
-    }
-  }, [currentChannel]);
-
   useEffect(() => {
     connectChat();
   }, [connectChat]);
 
   useEffect(() => {
-    loadMessages();
-  }, [loadMessages]);
+    handleLoadMessages();
+  }, [handleLoadMessages]);
+
+  useEffect(() => {
+    initializeChannelListeners();
+  }, [initializeChannelListeners]);
+
+  useEffect(() => {
+    initializePollsListeners();
+  }, [initializePollsListeners]);
 
   useEffect(() => {
     handleLoadPolls();
   }, [handleLoadPolls]);
+
+  useEffect(() => {
+    initializeQnaListeners();
+  }, [initializeQnaListeners]);
 
   useEffect(() => {
     handleLoadQuestions();

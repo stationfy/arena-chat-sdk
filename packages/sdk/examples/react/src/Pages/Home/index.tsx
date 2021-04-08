@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 
 import {
   InputMessage,
@@ -62,6 +62,8 @@ const Home: React.FC = () => {
           await currentChannel?.sendMessage({ text: inputValue });
           setInputValue('');
         } catch (err) {
+          alert('An error ocurred. See on console');
+          console.log('Error (Home):', err);
         } finally {
           setSendingMessage(false);
         }
@@ -73,6 +75,8 @@ const Home: React.FC = () => {
           await qnaI?.addQuestion(inputValue);
           setInputValue('');
         } catch (err) {
+          alert('An error ocurred. See on console');
+          console.log('Error (Home):', err);
         } finally {
           setSendingMessage(false);
         }
@@ -137,6 +141,8 @@ const Home: React.FC = () => {
       try {
         await currentChannel?.requestModeration();
       } catch (err) {
+        alert('An error ocurred. See on console');
+        console.log('Error (Home):', err);
       } finally {
         setRequestingModeration(false);
         setShowModeratorButton(false);

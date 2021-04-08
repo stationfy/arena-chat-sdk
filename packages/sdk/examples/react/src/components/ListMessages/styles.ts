@@ -16,7 +16,7 @@ const ScrollObservable = styled.div`
 `;
 
 const LoadPreviousObservable = styled.div`
-  height: 10px;
+  height: 3px;
 `;
 
 const LoadingArea = styled.div`

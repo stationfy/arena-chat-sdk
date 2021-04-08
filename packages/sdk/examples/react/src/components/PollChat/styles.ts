@@ -1,6 +1,15 @@
 import styled from 'styled-components';
 import { theme } from 'stylesheets/theme';
 
+const getBackroundHover = (voted: boolean, votedOption: boolean) => {
+  if (voted && votedOption) {
+    return theme.colors.lightGrey;
+  } else if (voted) {
+    return theme.colors.white;
+  }
+  return theme.colors.lightGrey;
+};
+
 const Container: any = styled.div`
   width: 100%;
   display: flex;
@@ -16,22 +25,26 @@ Container.Question = styled.h1`
   padding: 11px;
 `;
 
-Container.AnswerOption = styled.button`
+Container.AnswerOption = styled.button<{ voted?: boolean; votedOption?: boolean }>`
   display: flex;
-  flex-direction: flex-start;
-  background-color: ${theme.colors.white};
+  justify-content: space-between;
+  background-color: ${({ votedOption }) => (votedOption ? theme.colors.lightGrey : theme.colors.white)};
   color: ${theme.colors.black};
   padding: 8px;
   border: 1px solid ${theme.colors.lightGrey};
   margin: 5px 10px;
-  cursor: pointer;
+  cursor: ${({ voted }) => (voted ? 'default' : 'pointer')};
 
   &:hover {
-    background-color: ${theme.colors.lightGrey};
+    background-color: ${({ voted = false, votedOption = false }) => getBackroundHover(voted, votedOption)};
   }
 
   &:focus {
     outline: none;
+  }
+
+  span {
+    color: ${theme.colors.darkGrey};
   }
 `;
 
