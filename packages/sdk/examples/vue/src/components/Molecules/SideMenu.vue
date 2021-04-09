@@ -2,31 +2,21 @@
   <div class="side-menu">
     <div class="header">
       <div class="user-photo" v-if="logged">
-        <img src="https://randomuser.me/api/portraits/women/21.jpg">
+        <img src="https://randomuser.me/api/portraits/women/21.jpg" />
       </div>
       <div class="menu">
         <font-awesome-icon icon="ellipsis-v" color="#676E95" />
       </div>
     </div>
-    <div class="rooms">
-      <!-- <div class="button" @click="setQnA">
-        Q&A        
-      </div>
-      <div class="button" @click="setPoll">
-        Polls       
-      </div> -->
-    </div>
+    <div class="rooms"></div>
     <div v-for="(channel, indexChannel) in channels" :key="channel + indexChannel">
-      <div class="button" @click="() => changeChannel(channel)">{{channel.name}}</div>
+      <div class="button" @click="() => changeChannel(channel)">{{ channel.name }}</div>
     </div>
-    <!-- <div>
-      <button @click="requestModeration">Request Moderation</button>
-    </div> -->
   </div>
 </template>
 
 <script>
-import { mapMutations, mapState, mapActions } from 'vuex'
+import { mapMutations, mapState, mapActions } from 'vuex';
 export default {
   computed: {
     ...mapState({
@@ -36,28 +26,28 @@ export default {
       channels: state => {
         return state?.channels;
       },
-    })
+    }),
   },
   methods: {
     ...mapActions(['getChannel', 'requestModeration']),
-    ...mapMutations(["setQnaActive", "setPollActive", "setMessages"]),
+    ...mapMutations(['setQnaActive', 'setPollActive', 'setMessages']),
     changeChannel(channel) {
-      this.setQnaActive(false)
-      this.setPollActive(false)
-      this.getChannel({id: channel._id})
+      this.setQnaActive(false);
+      this.setPollActive(false);
+      this.getChannel({ id: channel._id });
     },
     setQnA() {
       this.setMessages(undefined);
-      this.setPollActive(false)
-      this.setQnaActive(true)
+      this.setPollActive(false);
+      this.setQnaActive(true);
     },
     setPoll() {
       this.setMessages(undefined);
-      this.setQnaActive(false)
-      this.setPollActive(true)
+      this.setQnaActive(false);
+      this.setPollActive(true);
     },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -69,7 +59,7 @@ export default {
   height: 100%;
   background: #202331;
   border-radius: 8px 0px 0px 8px;
-  box-shadow: rgba(33, 35, 38, .10) 0px 10px 10px -10px;
+  box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
   justify-content: space-between;
 }
 .user-photo {
@@ -87,18 +77,18 @@ export default {
 }
 .button {
   height: 50px;
-  background: rgba(0,0,0, .2);
+  background: rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  color: #676E95;
+  color: #676e95;
   padding-left: 20px;
   font-weight: bold;
 }
 .button:hover {
-  background: #717CB470 !important;
-  color: #FFFFFF !important;
-  cursor: pointer
+  background: #717cb470 !important;
+  color: #ffffff !important;
+  cursor: pointer;
 }
 .menu {
   display: flex;
@@ -106,7 +96,7 @@ export default {
   margin-right: 20px;
 }
 .menu svg {
-  background: #676E95;
+  background: #676e95;
   padding: 5px;
   border-radius: 8px;
   color: #202331;

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
@@ -14,10 +14,10 @@
   width: 100vw;
   height: 100vh;
   position: absolute;
-  background: #A6ACCD;
+  background: #a6accd;
 }
 body {
-  margin: 0px
+  margin: 0px;
 }
 #nav {
   padding: 30px;

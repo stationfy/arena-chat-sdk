@@ -1,7 +1,7 @@
 <template>
   <div style="height: 100%">
-    <div  class="qna-content">
-      <div v-for="(qna, indexQna) in qnas" :key="qna+indexQna" class="question-wrapper">
+    <div class="qna-content">
+      <div v-for="(qna, indexQna) in qnas" :key="qna + indexQna" class="question-wrapper">
         <div class="question">
           <div v-html="qna.text" />
           <font-awesome-icon icon="reply" color="#676E95" />
@@ -10,7 +10,7 @@
     </div>
     <div class="qna-input">
       <input v-model="question" />
-      <button @click="sendQuestion"> 
+      <button @click="sendQuestion">
         <font-awesome-icon icon="paper-plane" color="#676E95" />
       </button>
     </div>
@@ -18,37 +18,37 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState } from 'vuex';
 export default {
   data() {
     return {
-      question: ''
-    }
+      question: '',
+    };
   },
   computed: {
     ...mapState({
       qnas: state => {
         return state.qnas;
-      }
-    })
+      },
+    }),
   },
   methods: {
-    ...mapActions(["addQuestion"]),
+    ...mapActions(['addQuestion']),
     sendQuestion() {
       this.addQuestion({
         question: this.question,
         success: () => {
-          this.question = ''
-        }
+          this.question = '';
+        },
       });
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>
 .qna-content {
-  background: #A6ACCD;
+  background: #a6accd;
   padding-top: 90px;
   height: Calc(100% - 190px);
   position: absolute;
@@ -89,12 +89,13 @@ export default {
   font-size: 16px;
   padding: 10px 15px;
   align-items: center;
-  background: #A6ACCD;
+  background: #a6accd;
   text-transform: uppercase;
-  color: #292D3E;
+  color: #292d3e;
   cursor: pointer;
 }
-.qna-input button:focus, .qna-input input:focus {
+.qna-input button:focus,
+.qna-input input:focus {
   outline: none;
 }
 .question-wrapper {
@@ -105,9 +106,9 @@ export default {
   margin-top: 1px;
   margin: 10px;
   position: relative;
-  background: #292D3E;
+  background: #292d3e;
   border-radius: 0px 8px 8px 8px;
-  color: #A6ACCD;
+  color: #a6accd;
   text-align: start;
   box-shadow: 2px 3px 2px 1px #292d3efa;
   display: flex;
@@ -121,5 +122,4 @@ export default {
   cursor: pointer;
 }
 </style>
-<style>
-</style>
+<style></style>

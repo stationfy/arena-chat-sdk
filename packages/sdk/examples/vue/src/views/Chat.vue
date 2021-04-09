@@ -2,17 +2,17 @@
   <div class="chat-wrapper">
     <div class="chat">
       <div class="side-menu-wrapper">
-       <SideMenu />
+        <SideMenu />
       </div>
       <div class="content-chat">
         <div class="menu-icon">
-          <font-awesome-icon icon="ellipsis-v" color="#676E95" @click="() => toggle()"/>
+          <font-awesome-icon icon="ellipsis-v" color="#676E95" @click="() => toggle()" />
           <div class="menu-channel" v-if="overlayActive">
             <div class="button" @click="setQnA">
-              Q&A        
+              Q&A
             </div>
             <div class="button" @click="setPoll">
-              Polls       
+              Polls
             </div>
           </div>
         </div>
@@ -26,11 +26,11 @@
 </template>
 
 <script>
-import Channel from '@/components/Channel.vue'
-import QnA from '@/components/QnA.vue'
-import Polls from '@/components/Organisms/Polls.vue'
-import SideMenu from '@/components/Molecules/SideMenu.vue'
-import { mapState, mapMutations } from 'vuex'
+import Channel from '@/components/Organisms/Channel.vue';
+import QnA from '@/components/Molecules/QnA.vue';
+import Polls from '@/components/Molecules/Polls.vue';
+import SideMenu from '@/components/Molecules/SideMenu.vue';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   name: 'Home',
@@ -38,12 +38,12 @@ export default {
     SideMenu,
     Channel,
     QnA,
-    Polls
+    Polls,
   },
   data() {
     return {
-      channelMenuActive: false
-    }
+      channelMenuActive: false,
+    };
   },
   computed: {
     ...mapState({
@@ -61,28 +61,28 @@ export default {
       },
       overlayActive: state => {
         return state.overlayActive;
-      }
-    })
+      },
+    }),
   },
   methods: {
-    ...mapMutations(["setQnaActive", "setPollActive", "setMessages", "toggleOverlay"]),
+    ...mapMutations(['setQnaActive', 'setPollActive', 'setMessages', 'toggleOverlay']),
     setQnA() {
       this.setMessages(undefined);
-      this.setPollActive(false)
-      this.setQnaActive(true)
+      this.setPollActive(false);
+      this.setQnaActive(true);
     },
     setPoll() {
       this.setMessages(undefined);
-      this.setQnaActive(false)
-      this.setPollActive(true)
+      this.setQnaActive(false);
+      this.setPollActive(true);
     },
     toggle() {
       this.toggleOverlay();
-    }
+    },
   },
-}
+};
 </script>
-<style >
+<style>
 .members-wrapper {
   display: flex;
   flex-direction: column;
@@ -107,7 +107,8 @@ export default {
   height: 100%;
   background: #444267;
   border-radius: 8px;
-  box-shadow: rgba(17, 17, 26, .10) 0px 4px 16px, rgba(17, 17, 26, .10) 0px 8px 24px, rgba(17, 17, 26, .10) 0px 16px 56px;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px,
+    rgba(17, 17, 26, 0.1) 0px 16px 56px;
 }
 .content-chat {
   position: relative;
@@ -138,7 +139,7 @@ export default {
   cursor: pointer;
 }
 .menu-channel {
-  background: #717CB4;
+  background: #717cb4;
   padding: 10px;
   position: absolute;
   bottom: -60px;
@@ -150,7 +151,7 @@ export default {
   background: #202331;
   padding: 5px;
   border-radius: 8px;
-  color: #717CB4;
+  color: #717cb4;
   text-align: inherit;
 }
 .overlay {

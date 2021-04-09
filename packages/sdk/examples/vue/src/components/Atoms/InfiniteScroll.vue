@@ -1,33 +1,37 @@
 <template>
   <div class="list-group" id="infinite-list">
-    <div 
-      
-      :style="replying ? 'transform: translate(0px, 0px);' : ''" 
+    <div
+      :style="replying ? 'transform: translate(0px, 0px);' : ''"
       v-for="(message, indexMessage) in messages"
       :key="message + indexMessage"
       class="list-group-item-wrapper"
-      :class="message.uid ? 'my-message-wrapper' : ''" 
-    > 
+      :class="message.uid ? 'my-message-wrapper' : ''"
+    >
       <div v-if="isModerator && message.uid === uid" class="mod-me">
         Mod
       </div>
       <div v-if="message.sender.moderator == true && message.uid !== uid" class="mod">
         Mod
       </div>
-      <div 
+      <div
         class="list-group-item"
-        :class="message.uid ? 'my-message' : ''" 
+        :class="message.uid ? 'my-message' : ''"
         v-if="!message.poll"
         @click="() => replyTo(message, true)"
       >
         <div v-if="message.replyMessage" class="replied-message-wrapper">
           <div class="replied-message">
-            <div class="from">{{message.replyMessage.sender.displayName}}</div> 
-            <div 
-              v-html="message.replyMessage.message.text ? message.replyMessage.message.text : message.replyMessage.message.media.html" 
-              @click="() => replyTo(message, true)" 
-              class="message" :class="message.replyMessage.message.media.html ? 'media-message' : ''">
-            </div>
+            <div class="from">{{ message.replyMessage.sender.displayName }}</div>
+            <div
+              v-html="
+                message.replyMessage.message.text
+                  ? message.replyMessage.message.text
+                  : message.replyMessage.message.media.html
+              "
+              @click="() => replyTo(message, true)"
+              class="message"
+              :class="message.replyMessage.message.media.html ? 'media-message' : ''"
+            ></div>
           </div>
         </div>
         <div class="like-own-message" v-if="message.uid" @click="() => like(message)">
@@ -36,31 +40,34 @@
         <div class="remove-own-message" v-if="isModerator && message.uid" @click="() => remove(message.message)">
           <font-awesome-icon icon="trash" color="darkgrey" />
         </div>
-        <div v-html="message.text" class="message" :class="message.isMedia ? 'media-message' : ''">
-        </div>
+        <div v-html="message.text" class="message" :class="message.isMedia ? 'media-message' : ''"></div>
         <div class="remove-message" v-if="!message.uid && isModerator" @click="() => remove(message.message)">
           <font-awesome-icon icon="trash" color="darkgrey" />
         </div>
         <div v-if="!message.uid" class="like-message" @click="() => like(message)">
           <font-awesome-icon icon="heart" :color="message.currentUserReactions ? 'red' : 'darkgrey'" />
         </div>
-      <div v-if="replyKey === message.key" :class="message.uid ? 'cancel-my-reply' : 'cancel-reply'" @click="() => replyTo(message, false)">Replying</div>
+        <div
+          v-if="replyKey === message.key"
+          :class="message.uid ? 'cancel-my-reply' : 'cancel-reply'"
+          @click="() => replyTo(message, false)"
+        >
+          Replying
+        </div>
       </div>
       <div class="question" v-else>
-          <div class="title">{{message.poll.question}}</div>
-            <div class="options-wrapper">
-              <div v-for="(option, indexOption) in message.poll.options" :key="option+indexOption">
-                <div 
-                  class="option" 
-                >
-                  <div>
-                    {{option.name}} 
-                  </div>
-                  <div>
-                    {{option.total}}
-                  </div> 
-                </div>
+        <div class="title">{{ message.poll.question }}</div>
+        <div class="options-wrapper">
+          <div v-for="(option, indexOption) in message.poll.options" :key="option + indexOption">
+            <div class="option">
+              <div>
+                {{ option.name }}
+              </div>
+              <div>
+                {{ option.total }}
+              </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -73,37 +80,37 @@ export default {
   data() {
     return {
       firstLoad: true,
-    }
+    };
   },
   computed: {
     ...mapState({
       messages: state => {
-        return state?.messages?.sort(function(a, b) {
-          return a.createdAt - b.createdAt; 
-        })
-        .map( message => {
-          let currentMessage = {};
-          if(message?.sender?.uid === state?.uid) {
-            currentMessage.uid = state?.uid;
-          }
-          if(message?.message?.media) {
-            currentMessage.text = message?.message?.media?.html;
-            currentMessage.isMedia = true;
-          } else {
-            currentMessage.text = message?.message?.text;
-            currentMessage.isMedia = false;
-          }
-          if(message?.poll) {
-            currentMessage.poll = message?.poll;
-
-          }
-          currentMessage.key = message.key;
-          currentMessage.message = message;
-          currentMessage.sender = message?.sender;
-          currentMessage.currentUserReactions = message.currentUserReactions;
-          currentMessage.replyMessage = message.replyMessage;
-          return currentMessage;
-        });
+        return state?.messages
+          ?.sort(function(a, b) {
+            return a.createdAt - b.createdAt;
+          })
+          .map(message => {
+            let currentMessage = {};
+            if (message?.sender?.uid === state?.uid) {
+              currentMessage.uid = state?.uid;
+            }
+            if (message?.message?.media) {
+              currentMessage.text = message?.message?.media?.html;
+              currentMessage.isMedia = true;
+            } else {
+              currentMessage.text = message?.message?.text;
+              currentMessage.isMedia = false;
+            }
+            if (message?.poll) {
+              currentMessage.poll = message?.poll;
+            }
+            currentMessage.key = message.key;
+            currentMessage.message = message;
+            currentMessage.sender = message?.sender;
+            currentMessage.currentUserReactions = message.currentUserReactions;
+            currentMessage.replyMessage = message.replyMessage;
+            return currentMessage;
+          });
       },
       uid: state => {
         return state?.uid;
@@ -116,23 +123,23 @@ export default {
       },
       replyKey: state => {
         return state?.replyKey;
-      }
-    })
+      },
+    }),
   },
   methods: {
-    ...mapMutations(["setReply", "setMessages"]),
-    ...mapActions(["sendReaction", "removeReaction","removeMessage", "loadPreviousMessages"]),
+    ...mapMutations(['setReply', 'setMessages']),
+    ...mapActions(['sendReaction', 'removeReaction', 'removeMessage', 'loadPreviousMessages']),
     load() {
       this.setMessages(null);
-      this.loadPreviousMessages({quantity: 10});
+      this.loadPreviousMessages({ quantity: 10 });
     },
-    loadMore () {
-      this.$emit("loading", true)
+    loadMore() {
+      this.$emit('loading', true);
       setTimeout(() => {
-        this.load()
-        this.$emit("loading", false)
+        this.load();
+        this.$emit('loading', false);
       }, 200);
-      if(!this.firstLoad) {
+      if (!this.firstLoad) {
         const listElm = document.querySelector('#infinite-list');
         listElm.scrollTop = 200;
       }
@@ -143,28 +150,28 @@ export default {
       // this.firstLoad = false
     },
     async replyTo(message, reply) {
-      this.setReply({key: message.key, replying: reply});
+      this.setReply({ key: message.key, replying: reply });
     },
     like(message) {
       const reaction = {
         type: 'like',
         messageID: message.key,
       };
-      if(message.currentUserReactions) {
-        this.removeReaction({reaction})
+      if (message.currentUserReactions) {
+        this.removeReaction({ reaction });
       } else {
-        this.sendReaction({reaction})
+        this.sendReaction({ reaction });
       }
     },
     remove(message) {
-      (message);
-      this.removeMessage({message})
-    }
+      message;
+      this.removeMessage({ message });
+    },
   },
-  mounted () {
+  mounted() {
     const listElm = document.querySelector('#infinite-list');
     listElm.addEventListener('scroll', () => {
-      if(listElm.scrollTop === 0) {
+      if (listElm.scrollTop === 0) {
         this.loadMore();
       }
     });
@@ -172,24 +179,24 @@ export default {
   },
   watch: {
     messages(val) {
-      if(val) {
+      if (val) {
         setTimeout(() => {
-          if(this.firstLoad) {
+          if (this.firstLoad) {
             this.scrollBottom();
           }
-        }, 200)
+        }, 200);
       }
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>
 .list-group {
   overflow: auto;
   border-radius: 0px 0px 8px 8px;
-  background: #A6ACCD;
-  border: 10px solid #A6ACCD;
+  background: #a6accd;
+  border: 10px solid #a6accd;
   height: Calc(100% - 20px);
   padding-top: 20px;
 }
@@ -201,15 +208,15 @@ export default {
   margin-top: 1px;
   margin: 10px;
   position: relative;
-  background: #292D3E;
+  background: #292d3e;
   border-radius: 0px 8px 8px 8px;
-  color: #A6ACCD;
+  color: #a6accd;
   text-align: start;
   box-shadow: 2px 3px 2px 1px #292d3efa;
   display: flex;
   justify-content: space-between;
 }
-.list-group-item>div {
+.list-group-item > div {
   padding: 5px 8px;
 }
 .my-message {
@@ -217,8 +224,8 @@ export default {
   border-radius: 8px 0px 8px 8px;
   display: flex;
   flex-direction: column;
-  background: #676E95;
-  color: #292D3E;
+  background: #676e95;
+  color: #292d3e;
   box-shadow: 2px 3px 2px 1px #676e95fa;
 }
 .my-message-wrapper {
@@ -264,7 +271,7 @@ export default {
   padding-right: 22px !important;
 }
 .replied-message-wrapper {
-  background: rgba(0,0,0,0.2);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 8px 0px 8px 8px;
   color: white;
 }
@@ -304,10 +311,10 @@ export default {
   left: 15px;
   cursor: pointer;
 }
-.my-message .message{
+.my-message .message {
   margin-left: auto;
 }
-.my-message .media-message{
+.my-message .media-message {
   width: 90% !important;
   margin-left: auto;
   margin-top: 5px;
@@ -323,11 +330,11 @@ export default {
   margin-right: 10px;
   text-transform: uppercase;
   padding: 5px;
-  background: #292D3E;
+  background: #292d3e;
   border-radius: 8px;
-  color: #A6ACCD;
+  color: #a6accd;
   font-weight: bold;
-  box-shadow: 2px 3px 2px 1px #292D3Efa;
+  box-shadow: 2px 3px 2px 1px #292d3efa;
   margin-bottom: -3px;
 }
 .mod {
@@ -336,20 +343,20 @@ export default {
   margin-left: 10px;
   text-transform: uppercase;
   padding: 5px;
-  background: #676E95;
+  background: #676e95;
   border-radius: 8px;
-  color: #292D3E;
+  color: #292d3e;
   font-weight: bold;
-  box-shadow: 2px 3px 2px 1px #676E95fa;
+  box-shadow: 2px 3px 2px 1px #676e95fa;
   margin-bottom: -3px;
 }
 .question {
   margin-top: 1px;
   margin: 10px;
   position: relative;
-  background: #292D3E;
+  background: #292d3e;
   border-radius: 0px 8px 8px 8px;
-  color: #A6ACCD;
+  color: #a6accd;
   text-align: start;
   box-shadow: 2px 3px 2px 1px #292d3efa;
   padding: 5px 8px;
@@ -374,7 +381,7 @@ export default {
 .active-option {
   background: rebeccapurple;
   border-radius: 8px;
-  cursor: pointer
+  cursor: pointer;
 }
 </style>
 <style>

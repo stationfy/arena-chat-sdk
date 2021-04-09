@@ -3,17 +3,15 @@
     <div class="container">
       <div class="list-group-wrapper">
         <transition name="fade">
-          <div class="loading" v-show="loading">
-            <span class="fa fa-spinner fa-spin"></span> Loading...
-          </div>
+          <div class="loading" v-show="loading"><span class="fa fa-spinner fa-spin"></span> Loading...</div>
         </transition>
         <InfiniteScroll @loading="setLoading"></InfiniteScroll>
         <div class="input-chat">
-          <div v-if="replying" class="reply-wrapper"> 
-            <div class="reply" @click="cancelReply">Cancel Reply</div> 
+          <div v-if="replying" class="reply-wrapper">
+            <div class="reply" @click="cancelReply">Cancel Reply</div>
           </div>
           <input v-model="myMessage" @input="changeMessage" />
-          <button @click="send"> 
+          <button @click="send">
             <font-awesome-icon icon="paper-plane" color="#676E95" />
           </button>
         </div>
@@ -24,16 +22,16 @@
 
 <script>
 import { mapActions, mapMutations, mapState } from 'vuex';
-import InfiniteScroll from './InfiniteScroll.vue';
+import InfiniteScroll from '../Atoms/InfiniteScroll';
 
 export default {
   components: { InfiniteScroll },
-  name: 'HelloWorld',
+  name: 'Channel',
   data() {
     return {
       loading: false,
-      myMessage: undefined
-    }
+      myMessage: undefined,
+    };
   },
   computed: {
     ...mapState({
@@ -51,22 +49,20 @@ export default {
       },
       replying: state => {
         return state?.replying;
-      }
-    })
+      },
+    }),
   },
   methods: {
-    ...mapActions(["getLiveChat", "loadMessages", "sendMessage"]),
-    ...mapMutations(["setMessage", "setReply"]),
+    ...mapActions(['getLiveChat', 'loadMessages', 'sendMessage']),
+    ...mapMutations(['setMessage', 'setReply']),
     async send() {
-      this.sendMessage(
-        {
-          message: this.myMessage, 
-          success: () => {
-            this.myMessage = ''
-            this.cancelReply();
-          }
-        }
-      );
+      this.sendMessage({
+        message: this.myMessage,
+        success: () => {
+          this.myMessage = '';
+          this.cancelReply();
+        },
+      });
     },
     changeMessage() {
       this.setMessage(this.myMessage);
@@ -75,13 +71,13 @@ export default {
       this.loading = val;
     },
     async cancelReply() {
-      this.setReply({key: undefined, replying: false});
+      this.setReply({ key: undefined, replying: false });
     },
   },
-  created () {
+  created() {
     this.getLiveChat();
   },
-}
+};
 </script>
 
 <style scoped>
@@ -111,18 +107,20 @@ export default {
   position: absolute;
   color: #fff;
   z-index: 9;
-  background: #676E95;
+  background: #676e95;
   padding: 8px 18px;
   border-radius: 8px;
   left: calc(50% - 45px);
   top: calc(50% - 18px);
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
-  opacity: 0
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
 }
 .input-chat {
   padding: 5px;
@@ -157,15 +155,16 @@ export default {
   font-size: 16px;
   padding: 10px 15px;
   align-items: center;
-  background: #A6ACCD;
+  background: #a6accd;
   text-transform: uppercase;
-  color: #292D3E;
+  color: #292d3e;
   cursor: pointer;
 }
-.input-chat button:focus, .input-chat input:focus {
+.input-chat button:focus,
+.input-chat input:focus {
   outline: none;
 }
-.reply-wrapper{
+.reply-wrapper {
   z-index: 2;
   position: absolute;
   top: -50px;
@@ -174,7 +173,7 @@ export default {
 }
 .reply {
   position: relative;
-  background: rgba(68,66,103,.5);
+  background: rgba(68, 66, 103, 0.5);
   padding: 8px;
   border-radius: 8px;
   margin: 0px 15px;

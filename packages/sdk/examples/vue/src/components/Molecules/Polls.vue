@@ -1,25 +1,21 @@
 <template>
   <div style="height: 100%">
-    <div  class="qna-content">
-      <div v-for="(poll, indexPoll) in polls" :key="poll+indexPoll" class="question-wrapper">
+    <div class="qna-content">
+      <div v-for="(poll, indexPoll) in polls" :key="poll + indexPoll" class="question-wrapper">
         <div class="question">
-          <div class="title">{{poll.question}}</div>
-            <div class="options-wrapper">
-              <div v-for="(option, indexOption) in poll.options" :key="option+indexOption">
-                <div 
-                  class="option" 
-                  :class="canVote(poll) ? 'active-option' : ''" 
-                  @click="() => vote(indexOption, poll)"
-                >
-                  <div>
-                    {{option.name}} 
-                  </div>
-                  <div>
-                    {{option.total}}
-                  </div> 
+          <div class="title">{{ poll.question }}</div>
+          <div class="options-wrapper">
+            <div v-for="(option, indexOption) in poll.options" :key="option + indexOption">
+              <div class="option" :class="canVote(poll) ? 'active-option' : ''" @click="() => vote(indexOption, poll)">
+                <div>
+                  {{ option.name }}
+                </div>
+                <div>
+                  {{ option.total }}
                 </div>
               </div>
             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -27,61 +23,58 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from 'vuex';
 export default {
   data() {
     return {
-      question: ''
-    }
+      question: '',
+    };
   },
   computed: {
     ...mapState({
       polls: state => {
-        state?.polls.map( poll => {
-          (poll)
-          if(typeof poll?.options == 'object'){
+        state?.polls.map(poll => {
+          poll;
+          if (typeof poll?.options == 'object') {
             let newOptions = [];
-            Object.entries(poll?.options).map((value) => {
+            Object.entries(poll?.options).map(value => {
               newOptions[value[0]] = value[1];
-            })
+            });
             poll.options = newOptions;
           }
-          return poll
-        })
+          return poll;
+        });
         return state?.polls;
       },
       pollInstance: state => {
         return state?.pollInstance;
-      }
+      },
     }),
   },
   methods: {
     async vote(index, poll) {
-      if(!poll.currentUserVote) {
-        await this.pollInstance.pollVote(
-          poll._id,
-          index
-        )
+      if (!poll.currentUserVote) {
+        await this.pollInstance.pollVote(poll._id, index);
       }
     },
     canVote(poll) {
       let canVote = true;
 
-      if(new Date() >= new Date(poll.expireAt)) {
-        canVote = false
+      if (new Date() >= new Date(poll.expireAt)) {
+        canVote = false;
       }
-      if(poll.currentUserVote != undefined) {
-        canVote = false        
+      if (poll.currentUserVote != undefined) {
+        canVote = false;
       }
       return canVote;
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>
 .qna-content {
-  background: #A6ACCD;
+  background: #a6accd;
   padding-top: 90px;
   height: Calc(100% - 190px);
   position: absolute;
@@ -122,12 +115,13 @@ export default {
   font-size: 16px;
   padding: 10px 15px;
   align-items: center;
-  background: #A6ACCD;
+  background: #a6accd;
   text-transform: uppercase;
-  color: #292D3E;
+  color: #292d3e;
   cursor: pointer;
 }
-.qna-input button:focus, .qna-input input:focus {
+.qna-input button:focus,
+.qna-input input:focus {
   outline: none;
 }
 .question-wrapper {
@@ -138,9 +132,9 @@ export default {
   margin-top: 1px;
   margin: 10px;
   position: relative;
-  background: #292D3E;
+  background: #292d3e;
   border-radius: 0px 8px 8px 8px;
-  color: #A6ACCD;
+  color: #a6accd;
   text-align: start;
   box-shadow: 2px 3px 2px 1px #292d3efa;
   padding: 5px 8px;
@@ -165,8 +159,7 @@ export default {
 .active-option {
   background: rebeccapurple;
   border-radius: 8px;
-  cursor: pointer
+  cursor: pointer;
 }
 </style>
-<style>
-</style>
+<style></style>
