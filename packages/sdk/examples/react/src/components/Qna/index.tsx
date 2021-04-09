@@ -1,20 +1,20 @@
-import React, { useContext, useMemo } from 'react';
+import React, { memo, useCallback, useContext } from 'react';
 import { format } from 'date-fns';
 
 import { Container, ProfileArea, QuestionArea, QuestionItem } from './styles';
 import { ChatContext } from 'contexts/chatContext/chatContext';
 import { ProfileImage } from 'components';
 
-const Qna: React.FC = () => {
+const QnaComponent: React.FC = () => {
   const { questions } = useContext(ChatContext);
 
-  const formatedData = (timestamp: number) => {
+  const formatedData = useCallback((timestamp: number) => {
     return format(timestamp ?? new Date(), 'MMM d, yyyy p');
-  };
+  }, []);
 
-  const qnaMap = useMemo(
-    () =>
-      questions?.map((question) => (
+  return (
+    <Container>
+      {questions?.map((question) => (
         <QuestionItem key={question.key}>
           <ProfileArea>
             <ProfileImage imageUrl={question.sender?.image ?? ''} />
@@ -31,11 +31,11 @@ const Qna: React.FC = () => {
             </QuestionArea.Answer>
           </QuestionArea>
         </QuestionItem>
-      )),
-    [questions],
+      ))}
+    </Container>
   );
-
-  return <Container>{qnaMap}</Container>;
 };
+
+const Qna = memo(QnaComponent);
 
 export { Qna };

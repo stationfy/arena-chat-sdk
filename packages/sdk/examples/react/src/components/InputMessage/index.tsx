@@ -1,12 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 import { Container } from './styles';
 import { IInputMessage } from './types';
 
 const InputMessage: React.FC<IInputMessage> = (props) => {
-  const { onInput, value, disabled } = props;
+  const { setValue, value, disabled } = props;
 
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const handleInput = useCallback(
+    (e) => {
+      setValue(e.currentTarget.innerText);
+    },
+    [setValue],
+  );
 
   useEffect(() => {
     if (value === '') {
@@ -16,7 +23,7 @@ const InputMessage: React.FC<IInputMessage> = (props) => {
     }
   }, [value]);
 
-  return <Container tabIndex={1} onInput={onInput} contentEditable={!disabled} ref={contentRef} />;
+  return <Container tabIndex={1} onInput={handleInput} contentEditable={!disabled} ref={contentRef} />;
 };
 
 export { InputMessage };

@@ -31,7 +31,7 @@ const Home: React.FC = () => {
     qnaI,
   } = useContext(ChatContext);
 
-  const [inputValue, setInputValue] = useState<string>('');
+  const [messageValue, setMessageValue] = useState<string>('');
   const [sendingMessage, setSendingMessage] = useState<boolean>(false);
   const [currentTabIndex, setCurrentTabIndex] = useState<CurrentTabIndex>(CurrentTabIndex.CHAT);
   const [showModeratorButton, setShowModeratorButton] = useState<boolean>(false);
@@ -50,82 +50,39 @@ const Home: React.FC = () => {
     setCurrentTabIndex(indexTab);
   }, []);
 
-  const handleInput = useCallback((e) => {
-    setInputValue(e.currentTarget.innerText);
+  const handleSetMessageValue = useCallback((value: string) => {
+    setMessageValue(value);
   }, []);
 
   const handleSendMessage = useCallback(async () => {
     if (currentTabIndex === CurrentTabIndex.CHAT) {
-      if (inputValue.length > 0) {
+      if (messageValue.length > 0) {
         try {
           setSendingMessage(true);
-          await currentChannel?.sendMessage({ text: inputValue });
-          setInputValue('');
+          await currentChannel?.sendMessage({ text: messageValue });
+          setMessageValue('');
         } catch (err) {
+          console.error('Error (Home):', err);
           alert('An error ocurred. See on console');
-          console.log('Error (Home):', err);
         } finally {
           setSendingMessage(false);
         }
       }
     } else if (currentTabIndex === CurrentTabIndex.QNA) {
-      if (inputValue.length > 0) {
+      if (messageValue.length > 0) {
         try {
           setSendingMessage(true);
-          await qnaI?.addQuestion(inputValue);
-          setInputValue('');
+          await qnaI?.addQuestion(messageValue);
+          setMessageValue('');
         } catch (err) {
+          console.error('Error (Home):', err);
           alert('An error ocurred. See on console');
-          console.log('Error (Home):', err);
         } finally {
           setSendingMessage(false);
         }
       }
     }
-  }, [currentChannel, inputValue, currentTabIndex, qnaI]);
-
-  const getLoginArea = () => {
-    return (
-      <Header.LoginArea>
-        <p>Sign in to send messages</p>
-        <button disabled={loadingUser} onClick={handleLogin}>
-          {loadingUser ? <Loader size={12} /> : 'sign in'}
-        </button>
-      </Header.LoginArea>
-    );
-  };
-
-  const getProfileArea = () => {
-    return (
-      <Header.ProfileArea>
-        <ProfileImage imageUrl={user?.image ?? ''} size={50} />
-        <h1>{user?.name ?? ''}</h1>
-        {user?.isModerator && <ModeratorTag>MOD</ModeratorTag>}
-      </Header.ProfileArea>
-    );
-  };
-
-  const getListMessagesArea = () => {
-    if (currentChannel) {
-      return loadingChannelMessages ? (
-        <LoadingArea>
-          <Loader />
-        </LoadingArea>
-      ) : (
-        <ListMessages
-          messages={messages ?? []}
-          seeAllQna={() => setCurrentTabIndex(CurrentTabIndex.QNA)}
-          seeAllPoll={() => setCurrentTabIndex(CurrentTabIndex.POLLS)}
-        />
-      );
-    } else {
-      return (
-        <LoadingArea>
-          <Loader />
-        </LoadingArea>
-      );
-    }
-  };
+  }, [currentChannel, messageValue, currentTabIndex, qnaI]);
 
   const handleToggleChannel = useCallback(
     (channelId: string) => {
@@ -154,7 +111,22 @@ const Home: React.FC = () => {
     <Container>
       <Header>
         <Header.Info>
-          <Header.ProfileArea>{user ? getProfileArea() : getLoginArea()}</Header.ProfileArea>
+          <Header.ProfileArea>
+            {user ? (
+              <Header.ProfileArea>
+                <ProfileImage imageUrl={user?.image ?? ''} size={50} />
+                <h1>{user?.name ?? ''}</h1>
+                {user?.isModerator && <ModeratorTag>MOD</ModeratorTag>}
+              </Header.ProfileArea>
+            ) : (
+              <Header.LoginArea>
+                <p>Sign in to send messages</p>
+                <button disabled={loadingUser} onClick={handleLogin}>
+                  {loadingUser ? <Loader size={12} /> : 'sign in'}
+                </button>
+              </Header.LoginArea>
+            )}
+          </Header.ProfileArea>
           {user && (
             <Header.SettingsArea>
               {!user.isModerator && <ActionButton iconUrl={add} onClick={handleRequestModerationButton} size={15} />}
@@ -173,14 +145,28 @@ const Home: React.FC = () => {
         </Header.Tabs>
       </Header>
       <List>
-        {currentTabIndex === CurrentTabIndex.CHAT && getListMessagesArea()}
-        {currentTabIndex === CurrentTabIndex.CHANNELS && <ChannelsList toggleChannel={handleToggleChannel} />}
-        {currentTabIndex === CurrentTabIndex.QNA && <Qna />}
-        {currentTabIndex === CurrentTabIndex.POLLS && <Poll />}
+        {!currentChannel || loadingChannelMessages ? (
+          <LoadingArea>
+            <Loader />
+          </LoadingArea>
+        ) : (
+          <>
+            {currentTabIndex === CurrentTabIndex.CHAT && (
+              <ListMessages
+                messages={messages ?? []}
+                seeAllQna={() => setCurrentTabIndex(CurrentTabIndex.QNA)}
+                seeAllPoll={() => setCurrentTabIndex(CurrentTabIndex.POLLS)}
+              />
+            )}
+            {currentTabIndex === CurrentTabIndex.CHANNELS && <ChannelsList toggleChannel={handleToggleChannel} />}
+            {currentTabIndex === CurrentTabIndex.QNA && <Qna />}
+            {currentTabIndex === CurrentTabIndex.POLLS && <Poll />}
+          </>
+        )}
       </List>
       {showFooter && (
         <Footer>
-          <InputMessage onInput={handleInput} value={inputValue} disabled={sendingMessage} />
+          <InputMessage setValue={handleSetMessageValue} value={messageValue} disabled={sendingMessage} />
           {sendingMessage ? <Loader /> : <ActionButton iconUrl={send} onClick={handleSendMessage} hideOnMobile />}
         </Footer>
       )}
