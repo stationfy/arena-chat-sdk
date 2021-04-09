@@ -76,11 +76,22 @@ export interface BaseChannel {
     mediaURL,
     tempId,
     sender,
+    slowMode,
   }: {
     text?: string;
     replyTo?: string;
     mediaURL?: string;
     tempId?: string;
+    sender?: ChatMessageSender;
+    slowMode?: boolean;
+  }): Promise<string>;
+  sendMonetizationMessage({
+    text,
+    amount,
+    sender,
+  }: {
+    text?: string;
+    amount?: number;
     sender?: ChatMessageSender;
   }): Promise<string>;
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;

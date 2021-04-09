@@ -238,6 +238,7 @@ export class Channel implements BaseChannel {
     isGif,
     tempId,
     sender,
+    slowMode,
   }: {
     text?: string;
     replyTo?: string;
@@ -245,6 +246,7 @@ export class Channel implements BaseChannel {
     isGif?: boolean;
     tempId?: string;
     sender?: ChatMessageSender;
+    slowMode?: boolean;
   }): Promise<string> {
     if (text?.trim() === '' && (!mediaURL || mediaURL?.trim() === '')) {
       throw new Error('Cannot send an empty message.');
@@ -278,8 +280,55 @@ export class Channel implements BaseChannel {
       }
     }
 
+    if (typeof slowMode !== 'undefined') {
+      chatMessage.slowMode = slowMode;
+    }
+
     try {
       const response = await this.graphQLAPI.sendMessaToChannel(chatMessage);
+
+      return response;
+    } catch (e) {
+      throw new Error(`Cannot send this message: "${text}". Contact the Arena support team.`);
+    }
+  }
+
+  /**
+   * Send message on the channel
+   *
+   * @param text
+   * @param amount
+   */
+  public async sendMonetizationMessage({
+    text,
+    amount,
+    sender
+  }: {
+    text?: string;
+    amount?: number;
+    sender?: ChatMessageSender;
+  }): Promise<string> {
+    if (this.sdk.site === null) {
+      throw new Error('Cannot send message without a site id');
+    }
+
+    if (this.sdk.user === null) {
+      throw new Error('Cannot send message without a user');
+    }
+
+    const chatMessage: any = {
+      messageInput: {
+        message: {
+          text
+        },
+        openChannelId: this.channel._id,
+        sender
+      },
+      amount,
+    };
+
+    try {
+      const response = await this.graphQLAPI.sendMonetizationMessageToChannel(chatMessage);
 
       return response;
     } catch (e) {

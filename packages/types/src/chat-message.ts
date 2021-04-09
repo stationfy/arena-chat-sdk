@@ -13,6 +13,7 @@ export interface ChatMessage {
   openChannelId?: string;
   tempId?: string;
   replyTo?: string;
+  slowMode?: boolean;
 }
 
 interface ChatMessageReaction {
