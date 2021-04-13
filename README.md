@@ -323,6 +323,29 @@ It's also possible to easily awnser a question by calling the following method w
 const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(question, "Lakers should win!")
 ```
 
+##### Upvote
+
+The current user can upvote a question by calling the following method with the question (`QnaQuestion`) and optionally an `anonymousId`:
+
+```typescript
+await qnaI.upvoteQuestion(
+  question,
+  anonymousId // optional. Only provide this information if it's an anonymous vote.
+)
+```
+
+In the questions, you will have the number of upvotes and whether the current user has upvoted to these questions.
+
+```typescript
+// total reactions in the question
+question.upvotes
+
+// whether the current user has upvoted to the message
+question.userVoted
+```
+
+##### Listeners
+
 To listen to changes to questions in real-time, some listeners can be used:
 
 - onChange: This will watch for Q&A props changes coming from dashboard and then call the passed callback with the Qna instance updating it properties
@@ -462,7 +485,7 @@ const pollsList: [Poll] = await pollsI.loadPolls(
 )
 ```
 
-To register a vote in a option for a poll you need to inform the `pollId` the `optionIndex` that is a number starting in 0 and optionaly an `anonymousId`
+To register a vote in a option for a poll you need to inform the `pollId` the `optionIndex` that is a number starting in 0 and optionally an `anonymousId`
 
 ```typescript
 await pollsI.pollVote(
@@ -494,6 +517,10 @@ development. If you're using TypeScript, take a look at the resources below:
 - [`@arena-im/types`](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types): Types used in all packages.
 
 ## Changelogs
+
+### v2.0.22(Mar 25, 2021)
+
+- Minor adjustments to the Q&A doc
 
 ### v2.0.21(Mar 15, 2021)
 
