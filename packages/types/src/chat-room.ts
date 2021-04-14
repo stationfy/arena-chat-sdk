@@ -52,6 +52,12 @@ interface SignUpSettings {
   type: string;
 }
 
+export interface PageRequest {
+  first?: number;
+  after?: string;
+  before?: string;
+}
+
 export interface ChatModerationRequest {
   siteId: string;
   chatRoomId: string;
@@ -61,7 +67,7 @@ export interface BaseLiveChat {
   getChannels(): Promise<LiveChatChannel[]>;
   getMainChannel(): BaseChannel;
   getChannel(channelId: string): Promise<BaseChannel>;
-  getMembers(): Promise<PublicUser[]>;
+  getMembers(page: PageRequest, searchTerm: string): Promise<PublicUser[]>;
 }
 
 export interface BaseChannel {

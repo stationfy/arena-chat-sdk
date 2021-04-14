@@ -189,7 +189,13 @@ describe('LiveChat', () => {
       // @ts-ignore
       const liveChat = new LiveChat(exampleChatRoom, exampleSite, { ...exampleSDK, user: null });
 
-      const members = await liveChat.getMembers();
+      const page = {
+        first: 25,
+      };
+
+      const searchTerm = '';
+
+      const members = await liveChat.getMembers(page, searchTerm);
 
       expect(members).toEqual([user]);
     });
@@ -218,7 +224,13 @@ describe('LiveChat', () => {
       // @ts-ignore
       const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
 
-      const members = await liveChat.getMembers();
+      const page = {
+        first: 25,
+      };
+
+      const searchTerm = '';
+
+      const members = await liveChat.getMembers(page, searchTerm);
 
       expect(members).toEqual([user]);
     });
@@ -237,7 +249,13 @@ describe('LiveChat', () => {
 
       const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
 
-      liveChat.getMembers().catch((e) => {
+      const page = {
+        first: 25,
+      };
+
+      const searchTerm = '';
+
+      liveChat.getMembers(page, searchTerm).catch((e) => {
         expect(e.message).toEqual(`Cannot fetch chat members messages on "${exampleChatRoom.slug}" channel.`);
         done();
       });
