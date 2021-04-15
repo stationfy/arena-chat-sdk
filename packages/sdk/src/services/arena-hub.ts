@@ -1,6 +1,7 @@
 import { ChatRoom, TrackContext, TrackPageInfo, TrackPayload } from '@arena-im/chat-types';
 import { getGlobalObject } from '../utils/misc';
 import { ArenaChat } from '../sdk';
+import { RestAPI } from './rest-api';
 
 export class ArenaHub {
   private global = getGlobalObject<Window>();
@@ -28,7 +29,8 @@ export class ArenaHub {
   }
 
   private async sendRequest(trackObj: TrackPayload): Promise<{ success: boolean }> {
-    return await this.sdk.restAPI.collect(trackObj);
+    const restAPI = RestAPI.getAPIInstance()
+    return await restAPI.collect(trackObj);
   }
 
   private getPageInfo(): TrackPageInfo {

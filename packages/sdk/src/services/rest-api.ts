@@ -20,10 +20,13 @@ import { supportsFetch } from '../utils/supports';
 import { BaseTransport } from '../interfaces/base-transport';
 import { FetchTransport } from './fetch-transport';
 import { XHRTransport } from './xhr-transport';
-import { API_V2_URL } from '../config';
+import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {
+  private static apiInstance: RestAPI;
+  private static cachedInstance: RestAPI;
+
   private baseURL = API_V2_URL;
   private transport: BaseTransport;
 
@@ -39,6 +42,28 @@ export class RestAPI implements BaseRest {
     } else {
       this.transport = new XHRTransport(this.baseURL, authToken);
     }
+  }
+
+  public static getAPIInstance(): RestAPI {
+    if (!RestAPI.apiInstance) {
+      RestAPI.apiInstance = new RestAPI({url: API_V2_URL, authToken: DEFAULT_AUTH_TOKEN})
+    }
+
+    return RestAPI.apiInstance
+  }
+
+  public static setAPIToken(token: string | null): RestAPI {
+    RestAPI.apiInstance = new RestAPI({url: API_V2_URL, authToken: token ?? DEFAULT_AUTH_TOKEN})
+
+    return RestAPI.apiInstance
+  }
+
+  public static getCachedInstance(): RestAPI {
+    if (!RestAPI.cachedInstance) {
+      RestAPI.cachedInstance = new RestAPI({url: CACHED_API})
+    }
+
+    return RestAPI.cachedInstance
   }
 
   /**
