@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.24 (2021-04-15)
+
+
+### Bug Fixes
+
+* send message reactions ([8d0e11f](https://github.com/stationfy/arena-chat-sdk/commit/8d0e11f89d59c1a2650fcda3d503059059dbc33b))
+
+
+
+
+
 ## 2.0.23 (2021-04-13)
 
 
