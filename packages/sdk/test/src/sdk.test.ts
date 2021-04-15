@@ -28,26 +28,28 @@ jest.mock('@channel/private-channel', () => ({
 
 describe('SDK', () => {
   beforeEach(() => {
-    // @ts-ignore
-    RestAPI.mockImplementation(() => {
-      return {
-        loadSite: async () => {
-          return exampleSite;
-        },
-      };
+    const mockAPIInstance = jest.fn();
+
+    mockAPIInstance.mockReturnValue({
+      loadSite: async () => {
+        return exampleSite;
+      },
     });
+
+    RestAPI.getCachedInstance = mockAPIInstance;
   });
 
   describe('getLiveChat()', () => {
     it('should get a live chat', async () => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          loadChatRoom: () => {
-            return Promise.resolve({ chatRoom: exampleChatRoom, site: exampleSite });
-          },
-        };
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        loadChatRoom: () => {
+          return Promise.resolve({ chatRoom: exampleChatRoom, site: exampleSite });
+        },
       });
+
+      RestAPI.getCachedInstance = mockAPIInstance;
 
       // @ts-ignore
       LiveChat.mockImplementation(() => {
@@ -64,14 +66,15 @@ describe('SDK', () => {
     });
 
     it('should receive an error when the apiKey or channel is wrong', async () => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          loadChatRoom: () => {
-            return Promise.reject('invalid');
-          },
-        };
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        loadChatRoom: () => {
+          return Promise.reject('invalid');
+        },
       });
+
+      RestAPI.getCachedInstance = mockAPIInstance;
 
       // @ts-ignore
       Channel.mockImplementation(() => {
@@ -90,14 +93,15 @@ describe('SDK', () => {
     });
 
     it('should receive an error when there is an internal server error', async () => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          loadChatRoom: () => {
-            return Promise.reject('failed');
-          },
-        };
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        loadChatRoom: () => {
+          return Promise.reject('failed');
+        },
       });
+
+      RestAPI.getCachedInstance = mockAPIInstance;
 
       // @ts-ignore
       Channel.mockImplementation(() => {
@@ -117,21 +121,23 @@ describe('SDK', () => {
   });
   describe('setUser()', () => {
     it('should set an anonymous user', async () => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          getArenaUser: () => {
-            const user: ExternalUser = {
-              id: '123456',
-              name: 'Kristin Mckinney',
-              image: 'https://randomuser.me/api/portraits/women/12.jpg',
-              token: 'user-token-1234',
-              isModerator: false,
-            };
-            return Promise.resolve(user);
-          },
-        };
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        getArenaUser: () => {
+          const user: ExternalUser = {
+            id: '123456',
+            name: 'Kristin Mckinney',
+            image: 'https://randomuser.me/api/portraits/women/12.jpg',
+            token: 'user-token-1234',
+            isModerator: false,
+          };
+          return Promise.resolve(user);
+        },
       });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
+      RestAPI.setAPIToken = jest.fn();
 
       const sender: ExternalUser = {
         id: '123456',
@@ -148,21 +154,22 @@ describe('SDK', () => {
     });
 
     it('should unset the current user', async () => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          getArenaUser: () => {
-            const user: ExternalUser = {
-              id: '123456',
-              name: 'Kristin Mckinney',
-              image: 'https://randomuser.me/api/portraits/women/12.jpg',
-              token: 'user-token-1234',
-              isModerator: false,
-            };
-            return Promise.resolve(user);
-          },
-        };
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        getArenaUser: () => {
+          const user: ExternalUser = {
+            id: '123456',
+            name: 'Kristin Mckinney',
+            image: 'https://randomuser.me/api/portraits/women/12.jpg',
+            token: 'user-token-1234',
+            isModerator: false,
+          };
+          return Promise.resolve(user);
+        },
       });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const sdk = new ArenaChat('my-api-key');
 
