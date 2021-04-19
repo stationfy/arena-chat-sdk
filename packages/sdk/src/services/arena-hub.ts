@@ -29,7 +29,7 @@ export class ArenaHub {
   }
 
   private async sendRequest(trackObj: TrackPayload): Promise<{ success: boolean }> {
-    const restAPI = RestAPI.getAPIInstance()
+    const restAPI = RestAPI.getAPINoauthInstance();
     return await restAPI.collect(trackObj);
   }
 

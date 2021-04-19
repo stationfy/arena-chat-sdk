@@ -43,7 +43,7 @@ describe('ArenaHub', () => {
         },
       });
 
-      RestAPI.getAPIInstance = mockAPIInstance;
+      RestAPI.getAPINoauthInstance = mockAPIInstance;
 
       const arenaHub = new ArenaHub(exampleChatRoom, exampleSDK);
 

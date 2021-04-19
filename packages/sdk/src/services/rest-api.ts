@@ -26,6 +26,7 @@ import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
 export class RestAPI implements BaseRest {
   private static apiInstance: RestAPI;
   private static cachedInstance: RestAPI;
+  private static apiNoauthInstance: RestAPI;
 
   private baseURL = API_V2_URL;
   private transport: BaseTransport;
@@ -44,33 +45,53 @@ export class RestAPI implements BaseRest {
     }
   }
 
+  /**
+   *
+   * @returns api v2 with authentication
+   */
   public static getAPIInstance(): RestAPI {
     if (!RestAPI.apiInstance) {
-      RestAPI.apiInstance = new RestAPI({url: API_V2_URL, authToken: DEFAULT_AUTH_TOKEN})
+      RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: DEFAULT_AUTH_TOKEN });
     }
 
-    return RestAPI.apiInstance
+    return RestAPI.apiInstance;
   }
 
   public static setAPIToken(token: string | null): RestAPI {
-    RestAPI.apiInstance = new RestAPI({url: API_V2_URL, authToken: token ?? DEFAULT_AUTH_TOKEN})
+    RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: token ?? DEFAULT_AUTH_TOKEN });
 
-    return RestAPI.apiInstance
+    return RestAPI.apiInstance;
   }
 
+  /**
+   *
+   * @returns cached api
+   */
   public static getCachedInstance(): RestAPI {
     if (!RestAPI.cachedInstance) {
-      RestAPI.cachedInstance = new RestAPI({url: CACHED_API})
+      RestAPI.cachedInstance = new RestAPI({ url: CACHED_API });
     }
 
-    return RestAPI.cachedInstance
+    return RestAPI.cachedInstance;
+  }
+
+  /**
+   *
+   * @returns api v2 w/o authentication
+   */
+  public static getAPINoauthInstance(): RestAPI {
+    if (!RestAPI.apiNoauthInstance) {
+      RestAPI.apiNoauthInstance = new RestAPI({ url: API_V2_URL });
+    }
+
+    return RestAPI.apiNoauthInstance;
   }
 
   /**
    * @inheritdoc
    */
   public collect(trackObj: TrackPayload): PromiseLike<{ success: boolean }> {
-    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, trackObj, true);
+    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, trackObj);
   }
 
   /**

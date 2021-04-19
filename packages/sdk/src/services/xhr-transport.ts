@@ -16,8 +16,8 @@ export class XHRTransport implements BaseTransport {
   /**
    * @inheritdoc
    */
-  public post<T, K>(path: string, payload: K, noAuth?: boolean): PromiseLike<T> {
-    return this.makeRequestResponse<T, K>(path, 'POST', payload, noAuth);
+  public post<T, K>(path: string, payload: K): PromiseLike<T> {
+    return this.makeRequestResponse<T, K>(path, 'POST', payload);
   }
 
   /**
@@ -70,7 +70,7 @@ export class XHRTransport implements BaseTransport {
    * @param url request URL
    * @param options request options
    */
-  private makeRequestResponse<T, K>(path: string, method: string, payload?: K, noAuth?: boolean): PromiseLike<T> {
+  private makeRequestResponse<T, K>(path: string, method: string, payload?: K): PromiseLike<T> {
     const url = getRequestURL(this.baseURL, path);
 
     return new SyncPromise<T>((resolve, reject) => {
@@ -94,9 +94,6 @@ export class XHRTransport implements BaseTransport {
       request.open(method, url);
 
       for (const header in this.headers) {
-        if (noAuth && header === 'Authorization') {
-          continue;
-        }
         // eslint-disable-next-line no-prototype-builtins
         if (this.headers.hasOwnProperty(header)) {
           request.setRequestHeader(header, this.headers[header]);
