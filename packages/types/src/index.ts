@@ -11,7 +11,7 @@ export {
   MessageReaction,
   SendReactionResult,
 } from './chat-message';
-export { ChatRoom, ChatModerationRequest, LiveChatChannel, BaseLiveChat, BaseChannel } from './chat-room';
+export { ChatRoom, ChatModerationRequest, LiveChatChannel, BaseLiveChat, BaseChannel, PageRequest } from './chat-room';
 export { DocumentChangeType, ListenChangeConfig, Where, OrderBy } from './firestore';
 export { Site, EmbedSettings } from './site';
 export { Status } from './status';

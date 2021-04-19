@@ -12,6 +12,7 @@ import {
   PublicUserInput,
   PrivateMessageInput,
   ChannelMessageReactions,
+  PageRequest,
 } from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
@@ -164,11 +165,11 @@ export class GraphQLAPI {
    *
    * @param chatId the current chat id
    */
-  public async fetchMembers(chatId: string): Promise<PublicUser[]> {
+  public async fetchMembers(chatId: string, page: PageRequest, searchTerm: string): Promise<PublicUser[]> {
     const query = gql`
-      query chatRoom($id: ID!) {
+      query chatRoom($id: ID!, $page: PageRequest!, $searchTerm: String!) {
         chatRoom(id: $id) {
-          members {
+          members(page: $page, filter: { searchTerm: $searchTerm }) {
             items {
               _id
               name
@@ -184,7 +185,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query, { id: chatId });
+    const data = await this.graphQL.client.request(query, { id: chatId, page, searchTerm });
 
     const users = data.chatRoom.members.items as PublicUser[];
 
