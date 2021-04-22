@@ -12,7 +12,6 @@ import {
   PublicUserInput,
 } from '@arena-im/chat-types';
 import { RestAPI } from './services/rest-api';
-import { DEFAULT_AUTH_TOKEN, CACHED_API } from './config';
 import { LiveChat } from './live-chat/live-chat';
 
 /**
@@ -37,8 +36,6 @@ export class ArenaChat {
   public user: ExternalUser | null = null;
   public site: Site | null = null;
   public mainChatRoom: ChatRoom | null = null;
-  public restAPI: RestAPI;
-  private defaultAuthToken = DEFAULT_AUTH_TOKEN;
   private userChangedListeners: UserChangedListener[] = [];
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private liveChat: LiveChat | null = null;
@@ -48,9 +45,7 @@ export class ArenaChat {
     site: Site;
   }> | null = null;
 
-  public constructor(private apiKey: string) {
-    this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
-  }
+  public constructor(private apiKey: string) {}
 
   /**
    * Get the current user profile
@@ -319,7 +314,7 @@ export class ArenaChat {
       return { chatRoom: this.mainChatRoom, site: this.site };
     }
 
-    const restAPI = new RestAPI({ url: CACHED_API });
+    const restAPI = RestAPI.getCachedInstance();
 
     const { chatRoom, site, settings } = await restAPI.loadChatRoom(this.apiKey, channel);
 
@@ -336,7 +331,7 @@ export class ArenaChat {
       return this.site;
     }
 
-    const restAPI = new RestAPI({ url: CACHED_API });
+    const restAPI = RestAPI.getCachedInstance();
 
     const site = await restAPI.loadSite(this.apiKey);
 
@@ -362,7 +357,9 @@ export class ArenaChat {
    */
   private unsetUser(): void {
     this.user = null;
-    this.restAPI = new RestAPI({ authToken: this.defaultAuthToken });
+
+    RestAPI.setAPIToken(null)
+
     this.callChangedUserListeners(null);
   }
 
@@ -374,7 +371,9 @@ export class ArenaChat {
   private async setNewUser(user: ExternalUser): Promise<ExternalUser> {
     const [givenName, ...familyName] = user.name.split(' ');
 
-    const result = await this.restAPI.getArenaUser({
+    const restAPI = RestAPI.getAPIInstance()
+
+    const result = await restAPI.getArenaUser({
       provider: this.apiKey,
       username: user.id,
       profile: {
@@ -404,6 +403,6 @@ export class ArenaChat {
   }
 
   private setRestAPIAuthToken(token: string): void {
-    this.restAPI = new RestAPI({ authToken: token });
+    RestAPI.setAPIToken(token)
   }
 }

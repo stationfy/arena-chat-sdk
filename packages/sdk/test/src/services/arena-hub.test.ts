@@ -1,6 +1,7 @@
 import { ArenaHub } from '@services/arena-hub';
 import { exampleChatRoom, exampleSDK } from '../../fixtures/examples';
 import * as misc from '@utils/misc';
+import { RestAPI } from '@services/rest-api';
 
 let window: jest.SpyInstance;
 
@@ -34,10 +35,15 @@ describe('ArenaHub', () => {
   });
   describe('track()', () => {
     it('should track page', async () => {
-      // @ts-ignore
-      exampleSDK.restAPI.collect = () => {
-        return Promise.resolve({ success: true });
-      };
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        collect: () => {
+          return Promise.resolve({ success: true });
+        },
+      });
+
+      RestAPI.getAPINoauthInstance = mockAPIInstance;
 
       const arenaHub = new ArenaHub(exampleChatRoom, exampleSDK);
 

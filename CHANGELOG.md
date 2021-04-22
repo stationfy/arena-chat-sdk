@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.25 (2021-04-19)
+
+
+### Bug Fixes
+
+* send reaction ([90e5b97](https://github.com/stationfy/arena-chat-sdk/commit/90e5b97f555252e53cb56388e8624c8b8fd4dce0))
+
+
+
+
+
+## 2.0.24 (2021-04-15)
+
+
+### Bug Fixes
+
+* send message reactions ([8d0e11f](https://github.com/stationfy/arena-chat-sdk/commit/8d0e11f89d59c1a2650fcda3d503059059dbc33b))
+
+
+
+
+
+## 2.0.23 (2021-04-13)
+
+
+### Bug Fixes
+
+* add react and vue examples ([66cda98](https://github.com/stationfy/arena-chat-sdk/commit/66cda9892bd1c5cd524a3d3dfd2ede4cabd2edb1))
+
+
+
+
+
 ## 2.0.22 (2021-03-25)
 
 

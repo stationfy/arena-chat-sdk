@@ -20,16 +20,16 @@ import { ArenaHub } from '@services/arena-hub';
 import { ArenaChat } from '../../../src/sdk';
 import { exampleChatMessage, exampleChatRoom, exampleLiveChatChannel, exampleSDK } from '../../fixtures/examples';
 
+jest.mock('@services/rest-api', () => ({
+  RestAPI: jest.fn(),
+}));
+
 jest.mock('@services/arena-hub', () => ({
   ArenaHub: jest.fn(),
 }));
 
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: jest.fn(),
-}));
-
-jest.mock('@services/rest-api', () => ({
-  RestAPI: jest.fn(),
 }));
 
 jest.mock('@services/realtime-api', () => ({
@@ -97,12 +97,16 @@ describe('Channel', () => {
     it('should ban a user', (done) => {
       // @ts-ignore
       const sdk: ArenaChat = { ...exampleSDK };
-      // @ts-ignore
-      sdk.restAPI = {
+
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
         banUser: () => {
           return Promise.resolve();
         },
-      };
+      });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 
@@ -116,12 +120,15 @@ describe('Channel', () => {
     });
 
     it('should receive an error when ban a user', (done) => {
-      // @ts-ignore
-      sdk.restAPI = {
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
         banUser: () => {
           return Promise.reject('failed');
         },
-      };
+      });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
@@ -142,8 +149,10 @@ describe('Channel', () => {
     it('should request moderation for a user', async () => {
       // @ts-ignore
       const sdk: ArenaChat = { ...exampleSDK };
-      // @ts-ignore
-      sdk.restAPI = {
+
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
         requestModeration: async (site: Site, chatRoom: ChatRoom) => {
           const moderation: Moderation = {
             label: 'Mod',
@@ -156,7 +165,9 @@ describe('Channel', () => {
 
           return moderation;
         },
-      };
+      });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 
@@ -169,12 +180,15 @@ describe('Channel', () => {
     });
 
     it('should receive an error when request moderation', (done) => {
-      // @ts-ignore
-      sdk.restAPI = {
-        requestModeration: async () => {
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        requestModeration: () => {
           return Promise.reject('failed');
         },
-      };
+      });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
@@ -221,12 +235,15 @@ describe('Channel', () => {
     });
 
     it('should receive an error when delete a message', (done) => {
-      // @ts-ignore
-      sdk.restAPI = {
-        deleteMessage: async () => {
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        deleteMessage: () => async () => {
           return Promise.reject('failed');
         },
-      };
+      });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
@@ -292,15 +309,16 @@ describe('Channel', () => {
     });
 
     it('should receive an error when try to send an empty message', async () => {
-      // @ts-ignore
-      RestAPI.mockImplementation(() => {
-        return {
-          sendMessage: (_: ChatRoom, chatMessage: ChatMessage) => {
-            chatMessage.key = 'new-message-key';
-            return Promise.resolve(chatMessage);
-          },
-        };
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
+        sendMessage: (_: ChatRoom, chatMessage: ChatMessage) => {
+          chatMessage.key = 'new-message-key';
+          return Promise.resolve(chatMessage);
+        },
       });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, exampleSDK);
 
@@ -824,12 +842,16 @@ describe('Channel', () => {
     it('should send a reaction', async () => {
       // @ts-ignore
       const sdk: ArenaChat = { ...exampleSDK };
-      // @ts-ignore
-      sdk.restAPI = {
+
+      const mockAPIInstance = jest.fn();
+
+      mockAPIInstance.mockReturnValue({
         sendReaction: () => {
           return Promise.resolve('new-reaction-key');
         },
-      };
+      });
+
+      RestAPI.getAPIInstance = mockAPIInstance;
 
       const channel = new Channel(exampleLiveChatChannel, exampleChatRoom, sdk);
 

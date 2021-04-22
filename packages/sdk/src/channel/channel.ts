@@ -21,6 +21,7 @@ import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
+import { RestAPI } from '../services/rest-api';
 
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
@@ -146,7 +147,8 @@ export class Channel implements BaseChannel {
     };
 
     try {
-      await this.sdk.restAPI.banUser(requestUser);
+      const restAPI = RestAPI.getAPIInstance()
+      await restAPI.banUser(requestUser);
     } catch (e) {
       throw new Error(
         `Cannot ban this user: "${requestUser.userId || requestUser.anonymousId}". Contact the Arena support team.`,
@@ -220,7 +222,8 @@ export class Channel implements BaseChannel {
     }
 
     try {
-      return await this.sdk.restAPI.requestModeration(this.sdk.site, this.sdk.mainChatRoom);
+      const restAPI = RestAPI.getAPIInstance()
+      return await restAPI.requestModeration(this.sdk.site, this.sdk.mainChatRoom);
     } catch (e) {
       throw new Error(`Cannot request moderation for user: "${this.sdk.user.id}". Contact the Arena support team.`);
     }
@@ -524,7 +527,8 @@ export class Channel implements BaseChannel {
         isDashboardUser,
       };
 
-      const result = await this.sdk.restAPI.sendReaction(serverReaction);
+      const restAPI = RestAPI.getAPIInstance()
+      const result = await restAPI.sendReaction(serverReaction);
 
       return {
         id: result,
