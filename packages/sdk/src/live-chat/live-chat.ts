@@ -7,6 +7,7 @@ import {
   Status,
   BaseLiveChat,
   BaseChannel,
+  PageRequest,
 } from '@arena-im/chat-types';
 import { GraphQLAPI } from '../services/graphql-api';
 import { ArenaChat } from '../sdk';
@@ -150,7 +151,7 @@ export class LiveChat implements BaseLiveChat {
   /**
    * Get all online and offline chat members
    */
-  public async getMembers(): Promise<PublicUser[]> {
+  public async getMembers(page: PageRequest, searchTerm: string): Promise<PublicUser[]> {
     if (this.sdk.site === null) {
       throw new Error('Cannot get chat members without a site id');
     }
@@ -165,7 +166,7 @@ export class LiveChat implements BaseLiveChat {
 
       const graphQLAPI = new GraphQLAPI(this.sdk.site, user);
 
-      const members = await graphQLAPI.fetchMembers(this.chatRoom._id);
+      const members = await graphQLAPI.fetchMembers(this.chatRoom._id, page, searchTerm);
 
       return members;
     } catch (e) {

@@ -251,7 +251,13 @@ describe('GraphQLAPI', () => {
 
       const graphqlAPI = new GraphQLAPI(exampleSite);
 
-      const members = await graphqlAPI.fetchMembers('chat-id-fake');
+      const page = {
+        first: 25,
+      };
+
+      const searchTerm = '';
+
+      const members = await graphqlAPI.fetchMembers('chat-id-fake', page, searchTerm);
 
       expect(members).toEqual([examplePublicUser]);
     });
