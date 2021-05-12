@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.0.27 (2021-05-12)
+
+**Note:** Version bump only for package @arena-im/chat-types
+
+
+
+
+
 ## 2.0.26 (2021-04-22)
 
 **Note:** Version bump only for package @arena-im/chat-types
