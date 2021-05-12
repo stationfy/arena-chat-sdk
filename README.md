@@ -17,6 +17,7 @@ The SDKs are organized inside the `@arena-im/` namespace. It can be used conveni
 
   1. [Installation](#installation)
   1. [Usage](#usage)
+      1. [Examples](#examples)
       1. [Initialize](#initialize)
       1. [Get Live Chat](#get-live-chat)
       1. [Get a Live Chat Channel Instance](#get-a-live-chat-channel-instance)
@@ -45,9 +46,21 @@ yarn add @arena-im/chat-sdk
 
 ## Usage
 
+### Examples
+You can find all examples [here](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/sdk/examples)
+- [Reactjs live example](https://codesandbox.io/s/distracted-yalow-nm0d7)
+- [Vuejs live example](https://codesandbox.io/s/magical-jennings-seqr5)
+
 ### Initialize
 
 To initialize the SDK you'll need your site slug and a chat room slug and both can be obtained from the Arena Dashboard or using the Platform API.
+
+You can find your site slug in the dashboard settings: https://dashboard.arena.im/settings/site.
+
+To access the chat room slug, go to the [chat list page](https://dashboard.arena.im/chatlist), find the chat and take the last route param as in the example below:
+
+<img width="998" alt="Screen Shot 2021-05-12 at 08 02 26" src="https://user-images.githubusercontent.com/5726140/117965047-b5ffb600-b2f8-11eb-9f6c-ddfbff2f11c1.png">
+
 
 ```javascript
 import ArenaChat from '@arena-im/chat-sdk';
