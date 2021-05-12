@@ -50,7 +50,6 @@ yarn add @arena-im/chat-sdk
 You can find all examples [here](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/sdk/examples)
 - [Reactjs live example](https://codesandbox.io/s/distracted-yalow-nm0d7)
 - [Vuejs live example](https://codesandbox.io/s/magical-jennings-seqr5)
-- [Vanillajs live example](https://codesandbox.io/s/youthful-bell-79wm4)
 
 ### Initialize
 
