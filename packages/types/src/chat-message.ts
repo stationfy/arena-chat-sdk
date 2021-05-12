@@ -14,6 +14,13 @@ export interface ChatMessage {
   tempId?: string;
   replyTo?: string;
   slowMode?: boolean;
+  type?: MessageType;
+}
+
+enum MessageType {
+  POLL = 'POLL_PUBLISHED',
+  QNA = 'QNA_QUESTION_ANSWER',
+  MONETIZATION = 'MONETIZATION'
 }
 
 interface ChatMessageReaction {
