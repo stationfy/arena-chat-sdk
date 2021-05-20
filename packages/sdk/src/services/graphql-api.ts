@@ -758,6 +758,7 @@ export class GraphQLAPI {
           qnaId
           reactionsEnabled
           showEmojiButton
+          showOnlineUsersNumber
           unreadCount
         }
       }
