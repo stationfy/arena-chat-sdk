@@ -1,29 +1,18 @@
-import {
-  BasePolls,
-  Poll,
-  PollFilter,
-  ServerReaction,
-  LiveChatChannel,
-  ExternalUser,
-  DocumentChangeType,
-} from '@arena-im/chat-types';
-import { ArenaChat } from '../sdk';
+import { BasePolls, Poll, PollFilter, ServerReaction, LiveChatChannel, DocumentChangeType } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
+import { User } from '../auth/user';
 
 export class Polls implements BasePolls {
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentPolls: Poll[] = [];
-  private graphQLAPI: GraphQLAPI;
   private pollModificationListener: (() => void) | null = null;
   private userReactionsPollSubscription: (() => void) | null = null;
   private cacheUserPollsReactions: { [key: string]: ServerReaction } = {};
   private pollModificationCallbacks: { [type: string]: ((poll: Poll) => void)[] } = {};
 
-  public constructor(private channel: LiveChatChannel, private sdk: ArenaChat) {
+  public constructor(private channel: LiveChatChannel) {
     this.realtimeAPI = RealtimeAPI.getInstance();
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
   }
 
   public async loadPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {
@@ -38,17 +27,11 @@ export class Polls implements BasePolls {
     }
   }
 
-  public onUserChanged(user: ExternalUser | null): void {
-    if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
-    }
-  }
-
   public async pollVote(pollId: string, optionId: number, anonymousId?: string): Promise<boolean> {
     let userId = anonymousId;
 
-    if (this.sdk.user) {
-      userId = this.sdk.user.id;
+    if (User.instance.data) {
+      userId = User.instance.data.id;
     }
 
     if (typeof userId === 'undefined') {
@@ -56,7 +39,8 @@ export class Polls implements BasePolls {
     }
 
     try {
-      const result = await this.graphQLAPI.pollVote({ pollId, userId, optionId });
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.pollVote({ pollId, userId, optionId });
 
       return result;
     } catch (e) {

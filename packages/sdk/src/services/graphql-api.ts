@@ -16,12 +16,39 @@ import {
 } from '@arena-im/chat-types';
 import { GraphQLTransport } from './graphql-transport';
 import { DEFAULT_AUTH_TOKEN } from '../config';
+import { OrganizationSite } from '../organization/organization-site';
+import { User } from '../auth/user';
 
 export class GraphQLAPI {
-  private graphQL: GraphQLTransport;
+  private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;
+  private transport: GraphQLTransport;
 
-  public constructor(site: Site, user?: ExternalUser) {
-    this.graphQL = new GraphQLTransport(user?.token || DEFAULT_AUTH_TOKEN, site._id, site.settings.graphqlPubApiKey);
+  private constructor(site: Site) {
+    const user = User.instance.data
+
+    this.transport = new GraphQLTransport(user?.token || DEFAULT_AUTH_TOKEN, site._id, site.settings.graphqlPubApiKey);
+
+    User.instance.onUserChanged(this.handleUserChange.bind(this));
+  }
+
+  public static get instance(): Promise<GraphQLAPI> {
+    if (!GraphQLAPI.graphQLAPIInstance) {
+      GraphQLAPI.graphQLAPIInstance = OrganizationSite.instance.getSite().then((site) => {
+        return new GraphQLAPI(site);
+      });
+    }
+
+    return GraphQLAPI.graphQLAPIInstance;
+  }
+
+  public static cleanInstance (): void {
+    GraphQLAPI.graphQLAPIInstance = undefined
+  }
+
+  private handleUserChange(user: ExternalUser | null) {
+    const token = user?.token || DEFAULT_AUTH_TOKEN;
+
+    this.transport.setToken(token);
   }
 
   /**
@@ -31,7 +58,7 @@ export class GraphQLAPI {
    */
   public async fetchGroupChannels(user?: ExternalUser): Promise<GroupChannel[]> {
     if (typeof user?.token !== 'undefined') {
-      this.graphQL.setToken(user.token);
+      this.transport.setToken(user.token);
     }
 
     const query = gql`
@@ -70,7 +97,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query);
+    const data = await this.transport.client.request(query);
 
     const me = data.me as PublicUser;
 
@@ -88,7 +115,7 @@ export class GraphQLAPI {
    */
   public async fetchGroupChannelTotalUnreadCount(user?: ExternalUser): Promise<number> {
     if (typeof user?.token !== 'undefined') {
-      this.graphQL.setToken(user.token);
+      this.transport.setToken(user.token);
     }
 
     const query = gql`
@@ -99,7 +126,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query);
+    const data = await this.transport.client.request(query);
 
     const me = data.me as PublicUser;
 
@@ -153,7 +180,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input });
+    const data = await this.transport.client.request(mutation, { input });
 
     const groupChannel = data.createGroupChannel as GroupChannel;
 
@@ -185,7 +212,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query, { id: chatId, page, searchTerm });
+    const data = await this.transport.client.request(query, { id: chatId, page, searchTerm });
 
     const users = data.chatRoom.members.items as PublicUser[];
 
@@ -232,7 +259,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query, { id });
+    const data = await this.transport.client.request(query, { id });
 
     const groupChannel = data.groupChannel as GroupChannel;
 
@@ -251,7 +278,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: privateMessageInput });
+    const data = await this.transport.client.request(mutation, { input: privateMessageInput });
 
     const messageId = data.sendMessage as string;
 
@@ -270,7 +297,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { groupChannelId } });
+    const data = await this.transport.client.request(mutation, { input: { groupChannelId } });
 
     const result = data.markRead as boolean;
 
@@ -293,7 +320,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { openChannelId } });
+    const data = await this.transport.client.request(mutation, { input: { openChannelId } });
 
     const result = data.markRead as boolean;
 
@@ -317,7 +344,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { groupChannelId, messageId } });
+    const data = await this.transport.client.request(mutation, { input: { groupChannelId, messageId } });
 
     const result = data.deleteMessage as boolean;
 
@@ -342,7 +369,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { userId, itemId, reaction } });
+    const data = await this.transport.client.request(mutation, { input: { userId, itemId, reaction } });
 
     const result = data.deleteReaction as boolean;
 
@@ -385,7 +412,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query, { id: channelId, _id: messageId });
+    const data = await this.transport.client.request(query, { id: channelId, _id: messageId });
 
     const channel = data.openChannel as LiveChatChannel;
 
@@ -410,7 +437,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { groupChannelId } });
+    const data = await this.transport.client.request(mutation, { input: { groupChannelId } });
 
     const result = data.removeGroupChannel as boolean;
 
@@ -433,7 +460,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { userId } });
+    const data = await this.transport.client.request(mutation, { input: { userId } });
 
     const result = data.blockUser as boolean;
 
@@ -456,7 +483,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { userId } });
+    const data = await this.transport.client.request(mutation, { input: { userId } });
 
     const result = data.unblockUser as boolean;
 
@@ -474,7 +501,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { qnaId, text } });
+    const data = await this.transport.client.request(mutation, { input: { qnaId, text } });
 
     const result = data.addQuestion as string;
 
@@ -492,7 +519,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { qnaId, questionId, text } });
+    const data = await this.transport.client.request(mutation, { input: { qnaId, questionId, text } });
 
     const result = data.answerQuestion as boolean;
 
@@ -510,7 +537,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { qnaId, questionId } });
+    const data = await this.transport.client.request(mutation, { input: { qnaId, questionId } });
 
     const result = data.deleteQuestion as boolean;
 
@@ -528,7 +555,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { qnaId, questionId, userId } });
+    const data = await this.transport.client.request(mutation, { input: { qnaId, questionId, userId } });
 
     const result = data.upvoteQuestion as boolean;
 
@@ -550,7 +577,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { anonymousId, userId } });
+    const data = await this.transport.client.request(mutation, { input: { anonymousId, userId } });
 
     const result = data.banUser as boolean;
 
@@ -575,7 +602,7 @@ export class GraphQLAPI {
         pollVote(input: $input)
       }
     `;
-    const data = await this.graphQL.client.request(mutation, { input: { pollId, userId, optionId } });
+    const data = await this.transport.client.request(mutation, { input: { pollId, userId, optionId } });
 
     const result = data.pollVote as boolean;
 
@@ -593,7 +620,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input });
+    const data = await this.transport.client.request(mutation, { input });
 
     const result = data.sendMessage as string;
 
@@ -611,7 +638,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input });
+    const data = await this.transport.client.request(mutation, { input });
 
     const result = data.sendMonetizationMessage as string;
 
@@ -629,7 +656,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, { input: { openChannelId, messageId } });
+    const data = await this.transport.client.request(mutation, { input: { openChannelId, messageId } });
 
     const result = data.deleteMessage as boolean;
 
@@ -651,7 +678,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(mutation, {
+    const data = await this.transport.client.request(mutation, {
       input: { channelId, messageId, reportDoc: { reportedBy } },
     });
 
@@ -708,7 +735,7 @@ export class GraphQLAPI {
         }
       }
     `;
-    const data = await this.graphQL.client.request(query, { id: channelId });
+    const data = await this.transport.client.request(query, { id: channelId });
 
     const result = data.openChannel as ChatMessage;
 
@@ -733,7 +760,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query, { id: chatId });
+    const data = await this.transport.client.request(query, { id: chatId });
 
     const channels = data.chatRoom.channels as LiveChatChannel[];
 
@@ -763,7 +790,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query, { id: channelId });
+    const data = await this.transport.client.request(query, { id: channelId });
 
     const channel = data.openChannel as LiveChatChannel;
 
@@ -796,7 +823,7 @@ export class GraphQLAPI {
       }
     `;
 
-    const data = await this.graphQL.client.request(query, { id: userId });
+    const data = await this.transport.client.request(query, { id: userId });
 
     const user = data.user as PublicUser;
 
@@ -859,7 +886,7 @@ export class GraphQLAPI {
       input.password = user.password;
     }
 
-    const data = await this.graphQL.client.request(mutation, { input });
+    const data = await this.transport.client.request(mutation, { input });
 
     const result = data.updateUser as PublicUser;
 

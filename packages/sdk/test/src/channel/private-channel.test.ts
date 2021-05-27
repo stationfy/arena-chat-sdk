@@ -1,49 +1,61 @@
 import { PrivateChannel } from '@channel/private-channel';
-import { exampleSite, exampleUser, exampleGroupChannel } from '../../fixtures/examples';
-import * as GraphQLAPI from '@services/graphql-api';
+import { exampleUser, exampleGroupChannel, exampleSite } from '../../fixtures/examples';
+import { GraphQLAPI } from '@services/graphql-api';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ExternalUser, ChatMessage } from '@arena-im/chat-types';
+import { User } from '@auth/user';
+import { OrganizationSite } from '@organization/organization-site';
 
 jest.mock('@services/graphql-api', () => ({
-  GraphQLAPI: jest.fn(),
+  GraphQLAPI: {
+    instance: jest.fn(),
+  }
 }));
 
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
+jest.mock('@auth/user', () => ({
+  User: {
+    instance: {
+      data: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@organization/organization-site', () => ({
+  OrganizationSite: {
+    instance: {
+      getSite: jest.fn(),
+    },
+  },
+}));
+
 describe('PrivateChannel', () => {
   describe('getGroupChannel()', () => {
     it('should get a group channel', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchGroupChannel: async (id: string) => {
           return { ...exampleGroupChannel, _id: id };
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const groupChannel = await PrivateChannel.getGroupChannel(exampleSite, exampleUser, 'fake-group-channel');
+      const groupChannel = await PrivateChannel.getGroupChannel('fake-group-channel');
 
       expect(groupChannel._id).toEqual('fake-group-channel');
     });
 
     it('should return an exception', async (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchGroupChannel: async () => {
           throw new Error('failed');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      PrivateChannel.getGroupChannel(exampleSite, exampleUser, 'fake-group-channel').catch((error) => {
+      PrivateChannel.getGroupChannel('fake-group-channel').catch((error) => {
         expect(error.message).toEqual('Cannot get the "fake-group-channel" group channel.');
         done();
       });
@@ -52,35 +64,27 @@ describe('PrivateChannel', () => {
 
   describe('unblockPrivateUser()', () => {
     it('should unblock a private user', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         unblockPrivateUser: async () => {
           return true;
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const result = await PrivateChannel.unblockPrivateUser(exampleUser, exampleSite, 'fake-user');
+      const result = await PrivateChannel.unblockPrivateUser('fake-user');
 
       expect(result).toBeTruthy();
     });
 
     it('should return an exception', async (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         unblockPrivateUser: async () => {
           throw new Error('failed');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      PrivateChannel.unblockPrivateUser(exampleUser, exampleSite, 'fake-user').catch((error) => {
+      PrivateChannel.unblockPrivateUser('fake-user').catch((error) => {
         expect(error.message).toEqual('Cannot unblock the user: "fake-user".');
         done();
       });
@@ -89,35 +93,27 @@ describe('PrivateChannel', () => {
 
   describe('blockPrivateUser()', () => {
     it('should block a private user', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         blockPrivateUser: async () => {
           return true;
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const result = await PrivateChannel.blockPrivateUser(exampleUser, exampleSite, 'fake-user');
+      const result = await PrivateChannel.blockPrivateUser('fake-user');
 
       expect(result).toBeTruthy();
     });
 
     it('should return an exception', async (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         blockPrivateUser: async () => {
           throw new Error('failed');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      PrivateChannel.blockPrivateUser(exampleUser, exampleSite, 'fake-user').catch((error) => {
+      PrivateChannel.blockPrivateUser('fake-user').catch((error) => {
         expect(error.message).toEqual('Cannot block the user: "fake-user".');
         done();
       });
@@ -126,35 +122,30 @@ describe('PrivateChannel', () => {
 
   describe('getUserChannels()', () => {
     it('should block a private user', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchGroupChannels: async () => {
           return [exampleGroupChannel];
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const groupChannels = await PrivateChannel.getUserChannels(exampleUser, exampleSite);
+      const groupChannels = await PrivateChannel.getUserChannels();
 
       expect(groupChannels).toEqual([exampleGroupChannel]);
     });
 
     it('should return an exception', async (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchGroupChannels: async () => {
           throw new Error('failed');
         },
       };
 
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
+      User.instance.data = exampleUser;
 
-      PrivateChannel.getUserChannels(exampleUser, exampleSite).catch((error) => {
+      PrivateChannel.getUserChannels().catch((error) => {
         expect(error.message).toEqual(`Cannot the channels for the user: "${exampleUser.id}".`);
         done();
       });
@@ -163,16 +154,12 @@ describe('PrivateChannel', () => {
 
   describe('onUnreadMessagesCountChanged()', () => {
     it('should receive the unread messages count', (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchGroupChannelTotalUnreadCount: async () => {
           return 10;
         },
       };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
 
       const realtimeAPIInstanceMock = {
         listenToUserGroupChannels: (_: ExternalUser, callback: () => void) => {
@@ -185,23 +172,22 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      PrivateChannel.onUnreadMessagesCountChanged(exampleUser, exampleSite, (total) => {
+      PrivateChannel.onUnreadMessagesCountChanged((total) => {
         expect(total).toBe(10);
         done();
       });
     });
 
     it('should return an exception on realtime fail', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchGroupChannelTotalUnreadCount: async () => {
           return 10;
         },
       };
 
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
+      User.instance.data = exampleUser;
 
       const realtimeAPIInstanceMock = {
         listenToUserGroupChannels: () => {
@@ -216,7 +202,7 @@ describe('PrivateChannel', () => {
 
       try {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
-        PrivateChannel.onUnreadMessagesCountChanged(exampleUser, exampleSite, () => {});
+        PrivateChannel.onUnreadMessagesCountChanged(() => {});
       } catch (e) {
         expect(e.message).toEqual(`Cannot watch unread messages count for the user: "${exampleUser.id}".`);
       }
@@ -224,43 +210,45 @@ describe('PrivateChannel', () => {
   });
 
   describe('createUserChannel()', () => {
+    beforeAll(() => {
+      // @ts-ignore
+      OrganizationSite.getInstance = jest.fn(() => {
+        return {
+          getSite: jest.fn(async () => exampleSite),
+        };
+      });
+
+      // @ts-ignore
+      OrganizationSite.instance.getSite = jest.fn(async () => exampleSite);
+    });
     it('should create a private user channel', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         createGroupChannel: async () => {
           return exampleGroupChannel;
         },
       };
 
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
+      User.instance.data = exampleUser;
 
       const privateChannel = await PrivateChannel.createUserChannel({
-        user: exampleUser,
         userId: 'fake-user',
-        site: exampleSite,
       });
 
       expect(typeof privateChannel.sendMessage).toEqual('function');
     });
 
     it('should return an exception', (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         createGroupChannel: async () => {
           throw new Error('failed');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
       PrivateChannel.createUserChannel({
-        user: exampleUser,
         userId: 'fake-user',
-        site: exampleSite,
       }).catch((e) => {
         expect(e.message).toEqual('Cannot create a channel for with this user: "fake-user".');
         done();
@@ -270,18 +258,14 @@ describe('PrivateChannel', () => {
 
   describe('markRead()', () => {
     it('should mark all message as read', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         markGroupChannelRead: async () => {
           return true;
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       const result = await privateChannel.markRead();
 
@@ -289,18 +273,14 @@ describe('PrivateChannel', () => {
     });
 
     it('should return an exception', (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         markGroupChannelRead: async () => {
           throw new Error('failed');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.markRead().catch((e) => {
         expect(e.message).toBe('Cannot set group channel read.');
@@ -311,18 +291,14 @@ describe('PrivateChannel', () => {
 
   describe('deleteMessage()', () => {
     it('should delete a private message', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         deletePrivateMessage: async () => {
           return true;
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       const result = await privateChannel.deleteMessage('fake-message');
 
@@ -330,18 +306,14 @@ describe('PrivateChannel', () => {
     });
 
     it('should return an exception', (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         deletePrivateMessage: async () => {
           throw new Error('failed');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.deleteMessage('fake-message').catch((e) => {
         expect(e.message).toBe('Cannot delete this message: "fake-message".');
@@ -352,18 +324,14 @@ describe('PrivateChannel', () => {
 
   describe('removeAllMessages()', () => {
     it('should remove all messages', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         removeGroupChannel: async () => {
           return true;
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       const result = await privateChannel.removeAllMessages();
 
@@ -371,18 +339,17 @@ describe('PrivateChannel', () => {
     });
 
     it('should return an exception', (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         removeGroupChannel: async () => {
           throw new Error('failed');
         },
       };
 
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
+      User.instance.data = exampleUser;
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.removeAllMessages().catch((e) => {
         expect(e.message).toBe(`Cannot remove all messages for this user: "${exampleUser.id}".`);
@@ -393,76 +360,12 @@ describe('PrivateChannel', () => {
 
   describe('sendMessage()', () => {
     it('should send message on a channel', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         sendPrivateMessage: async () => {
           return 'fake-message';
         },
       };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
-
-      const sentMessageId = await privateChannel.sendMessage({ text: 'hey!' });
-
-      expect(sentMessageId).toEqual('fake-message');
-    });
-
-    it('should receive an error when try to send a message', (done) => {
-      const graphQLAPIInstanceMock = {
-        sendPrivateMessage: async () => {
-          throw new Error('failed');
-        },
-      };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
-
-      privateChannel.sendMessage({ text: 'hey!' }).catch((e) => {
-        expect(e.message).toBe('Cannot send this message: "hey!". Contact the Arena support team.');
-        done();
-      });
-    });
-
-    it('should receive an error when try to send an empty message', async () => {
-      const graphQLAPIInstanceMock = {
-        sendPrivateMessage: async () => {
-          return 'fake-message';
-        },
-      };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
-
-      privateChannel.sendMessage({ text: '' }).catch((e) => {
-        expect(e.message).toBe('Cannot send an empty message.');
-      });
-    });
-  });
-
-  describe('loadRecentMessages()', () => {
-    it('should load recent messages empty', async () => {
-      const graphQLAPIInstanceMock = {
-        markGroupChannelRead: async () => {
-          return true;
-        },
-      };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
 
       const realtimeAPIInstanceMock = {
         fetchGroupRecentMessages: () => {
@@ -475,7 +378,82 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
+
+      OrganizationSite.instance.getSite = jest.fn().mockReturnValue(exampleSite);
+
+      // @ts-ignore
+      User.instance.data = exampleUser;
+
+      const sentMessageId = await privateChannel.sendMessage({ text: 'hey!' });
+
+      expect(sentMessageId).toEqual('fake-message');
+    });
+
+    it('should receive an error when try to send a message', (done) => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        sendPrivateMessage: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const realtimeAPIInstanceMock = {
+        fetchGroupRecentMessages: () => {
+          return Promise.resolve([]);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
+
+      privateChannel.sendMessage({ text: 'hey!' }).catch((e) => {
+        expect(e.message).toBe('Cannot send this message: "hey!". Contact the Arena support team.');
+        done();
+      });
+    });
+
+    it('should receive an error when try to send an empty message', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        sendPrivateMessage: async () => {
+          return 'fake-message';
+        },
+      };
+
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
+
+      privateChannel.sendMessage({ text: '' }).catch((e) => {
+        expect(e.message).toBe('Cannot send an empty message.');
+      });
+    });
+  });
+
+  describe('loadRecentMessages()', () => {
+    it('should load recent messages empty', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        markGroupChannelRead: async () => {
+          return true;
+        },
+      };
+
+      const realtimeAPIInstanceMock = {
+        fetchGroupRecentMessages: () => {
+          return Promise.resolve([]);
+        },
+      };
+
+      // @ts-ignore
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
+        return realtimeAPIInstanceMock;
+      });
+
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       const messages = await privateChannel.loadRecentMessages(10);
 
@@ -483,16 +461,12 @@ describe('PrivateChannel', () => {
     });
 
     it('should load 5 recent messages', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         markGroupChannelRead: async () => {
           return true;
         },
       };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
 
       const realtimeAPIInstanceMock = {
         fetchGroupRecentMessages: () => {
@@ -520,7 +494,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       const messages = await privateChannel.loadRecentMessages(10);
 
@@ -528,16 +502,12 @@ describe('PrivateChannel', () => {
     });
 
     it('should receive an error', (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         markGroupChannelRead: async () => {
           return true;
         },
       };
-
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
 
       const realtimeAPIInstanceMock = {
         fetchGroupRecentMessages: () => {
@@ -550,7 +520,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.loadRecentMessages(10).catch((e) => {
         expect(e.message).toEqual(`Cannot load messages on "${exampleGroupChannel._id}" channel.`);
@@ -606,7 +576,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       await privateChannel.loadRecentMessages(5);
 
@@ -642,7 +612,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.loadPreviousMessages(5).catch((e) => {
         expect(e.message).toBe('You should call the loadRecentMessages method first.');
@@ -666,7 +636,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       await privateChannel.loadRecentMessages(5);
 
@@ -703,7 +673,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       privateChannel.onMessageReceived(() => {});
@@ -741,7 +711,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.onMessageReceived((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -776,9 +746,12 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       const spy = jest.spyOn(privateChannel, 'markRead');
+
+      // @ts-ignore
+      User.instance.data = exampleUser;
 
       privateChannel.onMessageReceived(() => {
         expect(spy).toBeCalledTimes(1);
@@ -813,7 +786,10 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      // @ts-ignore
+      User.instance.data = exampleUser;
+
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       const spy = jest.spyOn(privateChannel, 'markRead');
 
@@ -835,7 +811,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       try {
         privateChannel.onMessageReceived((message: ChatMessage) => {
@@ -874,7 +850,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       privateChannel.onMessageDeleted(() => {});
@@ -909,7 +885,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.onMessageDeleted((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');
@@ -930,7 +906,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       try {
         privateChannel.onMessageDeleted((message: ChatMessage) => {
@@ -969,7 +945,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       const handleMessageModified = () => {};
@@ -1007,7 +983,7 @@ describe('PrivateChannel', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const privateChannel = new PrivateChannel(exampleGroupChannel, exampleSite, exampleUser);
+      const privateChannel = new PrivateChannel(exampleGroupChannel);
 
       privateChannel.onMessageModified((message: ChatMessage) => {
         expect(message.key).toEqual('fake-key');

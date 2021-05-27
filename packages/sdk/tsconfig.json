@@ -8,7 +8,9 @@
       "@qna/*": ["./src/qna/*"],
       "@models/*": ["./src/models/*"],
       "@polls/*": ["./src/polls/*"],
-      "@live-chat/*": ["./src/live-chat/*"]
+      "@live-chat/*": ["./src/live-chat/*"],
+      "@organization/*": ["./src/organization/*"],
+      "@auth/*": ["./src/auth/*"]
     }
   },
   "include": ["src/**/*", "test/**/*"]

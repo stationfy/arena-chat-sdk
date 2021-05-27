@@ -17,16 +17,15 @@ import {
   BaseReaction,
 } from '@arena-im/chat-types';
 import { RealtimeAPI } from '../services/realtime-api';
-import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
+import { User } from '../auth/user';
+import { OrganizationSite } from '../organization/organization-site';
 
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
-  private graphQLAPI: GraphQLAPI;
-  private realtimeAPI: RealtimeAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
@@ -36,25 +35,17 @@ export class Channel implements BaseChannel {
   public polls: BasePolls | null = null;
   private reactionI: BaseReaction | null = null;
 
-  public constructor(public channel: LiveChatChannel, private chatRoom: ChatRoom, private sdk: ArenaChat) {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot create a channel without a site.');
-    }
-
-    this.graphQLAPI = new GraphQLAPI(this.sdk.site, this.sdk.user || undefined);
-
-    this.realtimeAPI = RealtimeAPI.getInstance();
-
+  private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
 
-    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
+    User.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.markReadDebounced = debounce(this.markRead, 10000);
   }
 
-  public static getInstance(channel: LiveChatChannel, chatRoom: ChatRoom, sdk: ArenaChat): Channel {
+  public static getInstance(channel: LiveChatChannel, chatRoom: ChatRoom): Channel {
     if (!Channel.instances[channel._id]) {
-      Channel.instances[channel._id] = new Channel(channel, chatRoom, sdk);
+      Channel.instances[channel._id] = new Channel(channel, chatRoom);
     }
 
     return Channel.instances[channel._id];
@@ -65,7 +56,8 @@ export class Channel implements BaseChannel {
    */
   private async markRead(): Promise<boolean> {
     try {
-      const result = await this.graphQLAPI.markOpenChannelRead(this.channel._id);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.markOpenChannelRead(this.channel._id);
 
       return result;
     } catch (e) {
@@ -82,7 +74,7 @@ export class Channel implements BaseChannel {
     if (this.reactionI === null) {
       const { Reaction } = await import('../reaction/reaction');
 
-      this.reactionI = new Reaction(this.channel._id, this.sdk);
+      this.reactionI = new Reaction(this.channel._id);
 
       return this.reactionI.fetchReactions(messageId);
     }
@@ -99,7 +91,7 @@ export class Channel implements BaseChannel {
 
     const qnaProps = await Qna.getQnaProps(this.channel.qnaId);
 
-    const qnaI = new Qna(qnaProps, this.channel.qnaId, this.sdk);
+    const qnaI = new Qna(qnaProps, this.channel.qnaId);
 
     return qnaI;
   }
@@ -107,10 +99,10 @@ export class Channel implements BaseChannel {
   public async getPollsIntance(userId: string): Promise<BasePolls> {
     const { Polls } = await import('../polls/polls');
 
-    this.polls = new Polls(this.channel, this.sdk);
+    this.polls = new Polls(this.channel);
 
-    if (this.sdk.user) {
-      userId = this.sdk.user.id;
+    if (User.instance.data) {
+      userId = User.instance.data.id;
     }
 
     if (userId) {
@@ -126,11 +118,7 @@ export class Channel implements BaseChannel {
    * @returns {Promise<void>} only waits for the service return
    */
   public async banUser(user: ChatMessageSender): Promise<void> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot ban a user without a site id');
-    }
-
-    if (this.sdk.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot ban a user without a user');
     }
 
@@ -138,16 +126,18 @@ export class Channel implements BaseChannel {
       throw new Error('You have to inform a user');
     }
 
+    const site = await OrganizationSite.instance.getSite();
+
     const requestUser: BanUser = {
       anonymousId: user.anonymousId,
       image: user.photoURL,
       name: user.displayName,
-      siteId: this.sdk.site._id,
+      siteId: site._id,
       userId: user.uid,
     };
 
     try {
-      const restAPI = RestAPI.getAPIInstance()
+      const restAPI = RestAPI.getAPIInstance();
       await restAPI.banUser(requestUser);
     } catch (e) {
       throw new Error(
@@ -157,11 +147,7 @@ export class Channel implements BaseChannel {
   }
 
   public async deleteMessage(message: ChatMessage): Promise<boolean> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot request moderation without a site id');
-    }
-
-    if (this.sdk.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot ban a user without a user');
     }
 
@@ -169,35 +155,36 @@ export class Channel implements BaseChannel {
       throw new Error('You have to inform a message');
     }
 
+    const graphQLAPI = await GraphQLAPI.instance;
+    
     try {
-      return this.graphQLAPI.deleteOpenChannelMessage(this.channel._id, message.key);
+      const response = await graphQLAPI.deleteOpenChannelMessage(this.channel._id, message.key);
+
+      return response
     } catch (e) {
       throw new Error(`Cannot delete this message: "${message.key}". Contact the Arena support team.`);
     }
   }
 
   public async reportMessage(message: ChatMessage, anonymousId?: string): Promise<boolean> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot request moderation without a site id');
-    }
-
     if (typeof message === 'undefined' || !message.key) {
       throw new Error('You have to inform a message');
     }
 
-    if (!this.sdk.user && !anonymousId) {
+    if (!User.instance.data && !anonymousId) {
       throw new Error('Cannot report a message without a user');
     }
 
     const reportedBy: ChatMessageReportedBy = {
-      uid: this.sdk.user?.id || anonymousId,
-      displayName: this.sdk.user?.name || 'Anonymous User',
-      image: this.sdk.user?.image,
-      reportedByType: this.sdk.user?.id && this.sdk.user?.token ? 'user' : 'anonymous',
+      uid: User.instance.data?.id || anonymousId,
+      displayName: User.instance.data?.name || 'Anonymous User',
+      image: User.instance.data?.image,
+      reportedByType: User.instance.data?.id && User.instance.data?.token ? 'user' : 'anonymous',
     };
 
+    const graphQLAPI = await GraphQLAPI.instance;
     try {
-      return this.graphQLAPI.reportOpenChannelMessage(this.channel._id, message.key, reportedBy);
+      return graphQLAPI.reportOpenChannelMessage(this.channel._id, message.key, reportedBy);
     } catch (e) {
       throw new Error(`Cannot report this message: "${message.key}". Contact the Arena support team.`);
     }
@@ -209,23 +196,19 @@ export class Channel implements BaseChannel {
    * @returns {Promise<Moderation>} moderation
    */
   public async requestModeration(): Promise<Moderation> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot request moderation without a site id');
-    }
-
-    if (this.sdk.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot request moderation without a user');
     }
 
-    if (this.sdk.mainChatRoom === null) {
-      throw new Error('Cannot request moderation without a chat room');
-    }
+    const site = await OrganizationSite.instance.getSite();
 
     try {
-      const restAPI = RestAPI.getAPIInstance()
-      return await restAPI.requestModeration(this.sdk.site, this.sdk.mainChatRoom);
+      const restAPI = RestAPI.getAPIInstance();
+      return await restAPI.requestModeration(site, this.chatRoom);
     } catch (e) {
-      throw new Error(`Cannot request moderation for user: "${this.sdk.user.id}". Contact the Arena support team.`);
+      throw new Error(
+        `Cannot request moderation for user: "${User.instance.data.id}". Contact the Arena support team.`,
+      );
     }
   }
 
@@ -255,11 +238,7 @@ export class Channel implements BaseChannel {
       throw new Error('Cannot send an empty message.');
     }
 
-    if (this.sdk.site === null) {
-      throw new Error('Cannot send message without a site id');
-    }
-
-    if (this.sdk.user === null && !sender) {
+    if (User.instance.data === null && !sender) {
       throw new Error('Cannot send message without a user');
     }
 
@@ -287,8 +266,9 @@ export class Channel implements BaseChannel {
       chatMessage.slowMode = slowMode;
     }
 
+    const graphQLAPI = await GraphQLAPI.instance;
     try {
-      const response = await this.graphQLAPI.sendMessaToChannel(chatMessage);
+      const response = await graphQLAPI.sendMessaToChannel(chatMessage);
 
       return response;
     } catch (e) {
@@ -305,33 +285,31 @@ export class Channel implements BaseChannel {
   public async sendMonetizationMessage({
     text,
     amount,
-    sender
+    sender,
   }: {
     text?: string;
     amount?: number;
     sender?: ChatMessageSender;
   }): Promise<string> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot send message without a site id');
-    }
-
-    if (this.sdk.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot send message without a user');
     }
 
     const chatMessage: any = {
       messageInput: {
         message: {
-          text
+          text,
         },
         openChannelId: this.channel._id,
-        sender
+        sender,
       },
       amount,
     };
 
+    const graphQLAPI = await GraphQLAPI.instance;
+
     try {
-      const response = await this.graphQLAPI.sendMonetizationMessageToChannel(chatMessage);
+      const response = await graphQLAPI.sendMonetizationMessageToChannel(chatMessage);
 
       return response;
     } catch (e) {
@@ -359,12 +337,6 @@ export class Channel implements BaseChannel {
       if (user?.id) {
         this.polls.watchUserPollsReactions(user.id);
       }
-
-      this.polls.onUserChanged(user);
-    }
-
-    if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
     }
   }
 
@@ -379,7 +351,8 @@ export class Channel implements BaseChannel {
     }
 
     try {
-      this.userReactionsSubscription = this.realtimeAPI.listenToUserReactions(this.channel._id, user, (reactions) => {
+      const realtimeAPI = RealtimeAPI.getInstance();
+      this.userReactionsSubscription = realtimeAPI.listenToUserReactions(this.channel._id, user, (reactions) => {
         this.cacheUserReactions = {};
 
         reactions.forEach((reaction) => {
@@ -460,7 +433,8 @@ export class Channel implements BaseChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      const messages = await this.realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);
+      const realtimeAPI = RealtimeAPI.getInstance();
+      const messages = await realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);
 
       this.updateCacheCurrentMessages(messages);
 
@@ -485,7 +459,8 @@ export class Channel implements BaseChannel {
     try {
       const firstMessage = this.cacheCurrentMessages[0];
 
-      const messages = await this.realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
+      const realtimeAPI = RealtimeAPI.getInstance();
+      const messages = await realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
 
       this.updateCacheCurrentMessages([...messages, ...this.cacheCurrentMessages]);
 
@@ -504,21 +479,19 @@ export class Channel implements BaseChannel {
     anonymousId?: string,
     isDashboardUser = false,
   ): Promise<MessageReaction> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot react to a message without a site id');
-    }
-
-    const userId = this.sdk.user?.id || anonymousId;
+    const userId = User.instance.data?.id || anonymousId;
 
     if (typeof userId === 'undefined') {
       throw new Error('Cannot react to a message without a user');
     }
 
+    const site = await OrganizationSite.instance.getSite();
+
     try {
       const serverReaction: ServerReaction = {
         itemType: 'chatMessage',
         reaction: reaction.type,
-        publisherId: this.sdk.site._id,
+        publisherId: site._id,
         itemId: reaction.messageID,
         userId,
         openChannelId: this.channel._id,
@@ -527,7 +500,7 @@ export class Channel implements BaseChannel {
         isDashboardUser,
       };
 
-      const restAPI = RestAPI.getAPIInstance()
+      const restAPI = RestAPI.getAPIInstance();
       const result = await restAPI.sendReaction(serverReaction);
 
       return {
@@ -546,18 +519,22 @@ export class Channel implements BaseChannel {
    */
 
   public async deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
-    if (this.sdk.site === null) {
+    const site = await OrganizationSite.instance.getSite();
+
+    if (site === null) {
       throw new Error('Cannot react to a message without a site id');
     }
 
-    const userId = this.sdk.user?.id || anonymousId;
+    const userId = User.instance.data?.id || anonymousId;
 
     if (typeof userId === 'undefined') {
       throw new Error('Cannot react to a message without a user');
     }
 
+    const graphQLAPI = await GraphQLAPI.instance;
+
     try {
-      const result = await this.graphQLAPI.deleteReaction(userId, reaction.messageID, reaction.type);
+      const result = await graphQLAPI.deleteReaction(userId, reaction.messageID, reaction.type);
 
       return result;
     } catch (e) {
@@ -570,12 +547,16 @@ export class Channel implements BaseChannel {
    *
    */
   public async fetchPinMessage(): Promise<ChatMessage> {
-    if (this.sdk.site === null) {
+    const site = await OrganizationSite.instance.getSite();
+
+    if (site === null) {
       throw new Error('Cannot fetch pinned message without a site id');
     }
 
+    const graphQLAPI = await GraphQLAPI.instance;
+
     try {
-      const pinMessage = await this.graphQLAPI.fetchPinMessage({ channelId: this.channel._id });
+      const pinMessage = await graphQLAPI.fetchPinMessage({ channelId: this.channel._id });
 
       return pinMessage;
     } catch (e) {
@@ -607,7 +588,7 @@ export class Channel implements BaseChannel {
 
         this.updateCacheCurrentMessages(messages);
 
-        if (this.sdk.user?.id !== newMessage.sender?._id) {
+        if (User.instance.data?.id !== newMessage.sender?._id) {
           this.markReadDebounced();
         }
 
@@ -715,7 +696,9 @@ export class Channel implements BaseChannel {
       return;
     }
 
-    this.messageModificationListener = this.realtimeAPI.listenToMessageReceived(this.channel.dataPath, (message) => {
+    const realtimeAPI = RealtimeAPI.getInstance();
+
+    this.messageModificationListener = realtimeAPI.listenToMessageReceived(this.channel.dataPath, (message) => {
       if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
         return;
       }
@@ -730,8 +713,9 @@ export class Channel implements BaseChannel {
    */
   public watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void {
     try {
+      const realtimeAPI = RealtimeAPI.getInstance();
       const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
-      return this.realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
+      return realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
         this.channel = {
           ...nextChatRoom,
           _id: this.channel._id,

@@ -9,10 +9,9 @@ import {
 } from '@arena-im/chat-types';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
-import { ArenaChat } from '../sdk';
+import { User } from '../auth/user';
 
 export class Qna implements BaseQna {
-  private graphQLAPI: GraphQLAPI;
   private realtimeAPI: RealtimeAPI;
   private cacheCurrentQuestions: QnaQuestion[] = [];
   private propsChangeListener: (() => void) | null = null;
@@ -29,13 +28,10 @@ export class Qna implements BaseQna {
   public createdBy: string;
   public name: string;
 
-  public constructor(props: QnaProps, private qnaId: string, private sdk: ArenaChat) {
+  public constructor(props: QnaProps, private qnaId: string) {
     this.realtimeAPI = RealtimeAPI.getInstance();
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.graphQLAPI = new GraphQLAPI(this.sdk.site!, this.sdk.user || undefined);
-
-    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
+    User.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.preModeration = props.preModeration;
     this.language = props.language;
@@ -65,13 +61,9 @@ export class Qna implements BaseQna {
   public offChange(callback?: (success: boolean) => void): void {
     this.propsChangeCallbacks = [];
 
-    if (typeof this.propsChangeListener === 'function') {
-      this.propsChangeListener();
+    this.propsChangeListener?.();
 
-      if (typeof callback === 'function') callback(true);
-    } else {
-      if (typeof callback === 'function') callback(false);
-    }
+    callback?.(typeof this.propsChangeListener === 'function');
   }
 
   /**
@@ -102,14 +94,8 @@ export class Qna implements BaseQna {
    * @param {ExternalUser} user external user
    */
   private watchUserChanged(user: ExternalUser | null) {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot watch the user change without a site.');
-    }
-
     this.cleanQuestionsReaction();
     this.watchUserReactions(user);
-
-    this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
   }
 
   public async loadQuestions(limit?: number, filter?: QnaQuestionFilter): Promise<QnaQuestion[]> {
@@ -201,7 +187,8 @@ export class Qna implements BaseQna {
 
   public async addQuestion(text: string): Promise<string> {
     try {
-      const result = await this.graphQLAPI.addQuestion(this.qnaId, text);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.addQuestion(this.qnaId, text);
 
       return result;
     } catch (e) {
@@ -211,7 +198,8 @@ export class Qna implements BaseQna {
 
   public async answerQuestion(question: QnaQuestion, text: string): Promise<boolean> {
     try {
-      const result = await this.graphQLAPI.answerQuestion(this.qnaId, question.key, text);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.answerQuestion(this.qnaId, question.key, text);
 
       return result;
     } catch (e) {
@@ -221,7 +209,8 @@ export class Qna implements BaseQna {
 
   public async deleteQuestion(question: QnaQuestion): Promise<boolean> {
     try {
-      const result = await this.graphQLAPI.deleteQuestion(this.qnaId, question.key);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.deleteQuestion(this.qnaId, question.key);
 
       return result;
     } catch (e) {
@@ -232,8 +221,8 @@ export class Qna implements BaseQna {
   public async upvoteQuestion(question: QnaQuestion, anonymousId?: string): Promise<boolean> {
     let userId = anonymousId;
 
-    if (this.sdk.user) {
-      userId = this.sdk.user.id;
+    if (User.instance.data) {
+      userId = User.instance.data.id;
     }
 
     if (typeof userId === 'undefined') {
@@ -241,7 +230,8 @@ export class Qna implements BaseQna {
     }
 
     try {
-      const result = await this.graphQLAPI.upvoteQuestion(this.qnaId, question.key, userId);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.upvoteQuestion(this.qnaId, question.key, userId);
 
       return result;
     } catch (e) {
@@ -250,11 +240,11 @@ export class Qna implements BaseQna {
   }
 
   private async getUserReactions(): Promise<ServerReaction[] | void> {
-    if (typeof this.sdk.user?.id === 'undefined') {
+    if (typeof User.instance.data?.id === 'undefined') {
       return;
     }
 
-    return this.realtimeAPI.fetchQnaUserReactions(this.sdk.user.id, this.qnaId);
+    return this.realtimeAPI.fetchQnaUserReactions(User.instance.data.id, this.qnaId);
   }
 
   /**
@@ -262,7 +252,7 @@ export class Qna implements BaseQna {
    *
    * @param user external user
    */
-  private watchUserReactions(user = this.sdk.user): void {
+  private watchUserReactions(user = User.instance.data): void {
     if (typeof user?.id === 'undefined') {
       return;
     }
@@ -313,7 +303,8 @@ export class Qna implements BaseQna {
     }
 
     try {
-      const result = await this.graphQLAPI.banUser({ anonymousId, userId });
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.banUser({ anonymousId, userId });
 
       return result;
     } catch (e) {

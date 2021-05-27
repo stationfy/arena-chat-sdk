@@ -1,37 +1,30 @@
 import {
-  ExternalUser,
   GroupChannel,
   ChatMessage,
   MessageChangeType,
-  Site,
   ChatMessageContent,
   BasePrivateChannel,
 } from '@arena-im/chat-types';
+import { OrganizationSite } from '../organization/organization-site';
+import { User } from '../auth/user';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
 
 export class PrivateChannel implements BasePrivateChannel {
-  private realtimeAPI: RealtimeAPI;
-  private graphQLAPI: GraphQLAPI;
   private cacheCurrentMessages: ChatMessage[] = [];
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListener: (() => void) | null = null;
   private loadRecentMessagesCalled = false;
 
-  public constructor(private groupChannel: GroupChannel, private site: Site, private user: ExternalUser) {
-    this.realtimeAPI = RealtimeAPI.getInstance();
-    this.graphQLAPI = new GraphQLAPI(site, user);
-  }
+  public constructor(private groupChannel: GroupChannel) {}
 
   /**
    * Get a group channel by id
    *
-   * @param site current site
-   * @param user current logged user
    * @param id GroupChannel id
    */
-  static async getGroupChannel(site: Site, user: ExternalUser, id: string): Promise<GroupChannel> {
-    const graphQLAPI = new GraphQLAPI(site, user);
+  static async getGroupChannel(id: string): Promise<GroupChannel> {
+    const graphQLAPI = await GraphQLAPI.instance;
 
     try {
       const groupChannel = await graphQLAPI.fetchGroupChannel(id);
@@ -44,12 +37,10 @@ export class PrivateChannel implements BasePrivateChannel {
   /**
    * Unblock a private user
    *
-   * @param user current logged user
-   * @param site current site
    * @param userId the userid of the user that the current user wants to unblock
    */
-  static async unblockPrivateUser(user: ExternalUser, site: Site, userId: string): Promise<boolean> {
-    const graphQLAPI = new GraphQLAPI(site, user);
+  static async unblockPrivateUser(userId: string): Promise<boolean> {
+    const graphQLAPI = await GraphQLAPI.instance;
 
     try {
       const result = await graphQLAPI.unblockPrivateUser(userId);
@@ -62,12 +53,10 @@ export class PrivateChannel implements BasePrivateChannel {
   /**
    * Block a private user
    *
-   * @param user current logged user
-   * @param site current site
    * @param userId the userid of the user that the current user wants to block
    */
-  static async blockPrivateUser(user: ExternalUser, site: Site, userId: string): Promise<boolean> {
-    const graphQLAPI = new GraphQLAPI(site, user);
+  static async blockPrivateUser(userId: string): Promise<boolean> {
+    const graphQLAPI = await GraphQLAPI.instance;
 
     try {
       const result = await graphQLAPI.blockPrivateUser(userId);
@@ -80,11 +69,15 @@ export class PrivateChannel implements BasePrivateChannel {
   /**
    * Get User Channels
    *
-   * @param user current logged user
-   * @param site current site
    */
-  static async getUserChannels(user: ExternalUser, site: Site): Promise<GroupChannel[]> {
-    const graphQLAPI = new GraphQLAPI(site, user);
+  static async getUserChannels(): Promise<GroupChannel[]> {
+    const user = User.instance.data;
+
+    if (user === null) {
+      throw new Error('Cannot channels without a user');
+    }
+
+    const graphQLAPI = await GraphQLAPI.instance;
 
     try {
       const groupChannel = await graphQLAPI.fetchGroupChannels();
@@ -98,15 +91,19 @@ export class PrivateChannel implements BasePrivateChannel {
   /**
    * Watch unread messages count
    *
-   * @param user current logged user
-   * @param site current site
    * @param callback callback with total
    */
-  static onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): () => void {
+  static onUnreadMessagesCountChanged(callback: (total: number) => void): () => void {
+    const user = User.instance.data;
+
+    if (user === null) {
+      throw new Error('Cannot get unread messages count without a user');
+    }
+
     try {
       const realtimeAPI = RealtimeAPI.getInstance();
       const unsubscribe = realtimeAPI.listenToUserGroupChannels(user, async () => {
-        const graphQLAPI = new GraphQLAPI(site, user);
+        const graphQLAPI = await GraphQLAPI.instance;
 
         const totalUnreadMessages = await graphQLAPI.fetchGroupChannelTotalUnreadCount();
 
@@ -125,25 +122,35 @@ export class PrivateChannel implements BasePrivateChannel {
    * @param options create user options
    */
   static async createUserChannel(options: {
-    user: ExternalUser;
     userId: string;
-    site: Site;
     firstMessage?: ChatMessageContent;
   }): Promise<BasePrivateChannel> {
-    if (!options.user?.token) {
+    const user = User.instance.data;
+
+    if (user === null) {
+      throw new Error('Cannot get unread messages count without a user');
+    }
+
+    const site = await OrganizationSite.instance.getSite();
+
+    if (site === null) {
+      throw new Error('Cannot create a channel without a site id');
+    }
+
+    if (!user?.token) {
       throw new Error('Cannot create a channel without a user');
     }
 
     try {
-      const graphQLAPI = new GraphQLAPI(options.site, options.user);
+      const graphQLAPI = await GraphQLAPI.instance;
 
       const groupChannel = await graphQLAPI.createGroupChannel({
         userIds: [options.userId],
-        siteId: options.site._id,
+        siteId: site._id,
         firstMessage: options.firstMessage,
       });
 
-      return new PrivateChannel(groupChannel, options.site, options.user);
+      return new PrivateChannel(groupChannel);
     } catch (e) {
       throw new Error(`Cannot create a channel for with this user: "${options.userId}".`);
     }
@@ -154,7 +161,8 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   public async markRead(): Promise<boolean> {
     try {
-      const result = await this.graphQLAPI.markGroupChannelRead(this.groupChannel._id);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.markGroupChannelRead(this.groupChannel._id);
 
       return result;
     } catch (e) {
@@ -169,7 +177,8 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   public async deleteMessage(messageId: string): Promise<boolean> {
     try {
-      const result = await this.graphQLAPI.deletePrivateMessage(this.groupChannel._id, messageId);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.deletePrivateMessage(this.groupChannel._id, messageId);
 
       return result;
     } catch (e) {
@@ -181,12 +190,19 @@ export class PrivateChannel implements BasePrivateChannel {
    * Remove all message for the current user
    */
   public async removeAllMessages(): Promise<boolean> {
+    const user = User.instance.data;
+
+    if (user === null) {
+      throw new Error('Cannot remove messages without a user');
+    }
+
     try {
-      const result = await this.graphQLAPI.removeGroupChannel(this.groupChannel._id);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.removeGroupChannel(this.groupChannel._id);
 
       return result;
     } catch (e) {
-      throw new Error(`Cannot remove all messages for this user: "${this.user.id}".`);
+      throw new Error(`Cannot remove all messages for this user: "${user.id}".`);
     }
   }
 
@@ -199,20 +215,25 @@ export class PrivateChannel implements BasePrivateChannel {
    * @returns message id, temp id
    */
   public async sendMessage(message: ChatMessageContent, replyMessageId?: string, tempId?: string): Promise<string> {
+    const user = User.instance.data;
+
+    if (user === null) {
+      throw new Error('Cannot send message without a user');
+    }
+
     if (message.text?.trim() === '' && !message.media?.url) {
       throw new Error('Cannot send an empty message.');
     }
 
-    if (this.site === null) {
+    const site = await OrganizationSite.instance.getSite();
+
+    if (site === null) {
       throw new Error('Cannot send message without a site id');
     }
 
-    if (this.user === null) {
-      throw new Error('Cannot send message without a user');
-    }
-
     try {
-      const response = await this.graphQLAPI.sendPrivateMessage({
+      const graphQLAPI = await GraphQLAPI.instance;
+      const response = await graphQLAPI.sendPrivateMessage({
         groupChannelId: this.groupChannel._id,
         message,
         replyTo: replyMessageId,
@@ -232,7 +253,8 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      const messages = await this.realtimeAPI.fetchGroupRecentMessages(
+      const realtimeAPI = RealtimeAPI.getInstance();
+      const messages = await realtimeAPI.fetchGroupRecentMessages(
         this.groupChannel._id,
         limit,
         this.groupChannel.lastClearedTimestamp,
@@ -267,7 +289,8 @@ export class PrivateChannel implements BasePrivateChannel {
     try {
       const firstMessage = this.cacheCurrentMessages[0];
 
-      const messages = await this.realtimeAPI.fetchGroupPreviousMessages(
+      const realtimeAPI = RealtimeAPI.getInstance();
+      const messages = await realtimeAPI.fetchGroupPreviousMessages(
         this.groupChannel._id,
         firstMessage,
         this.groupChannel.lastClearedTimestamp,
@@ -298,6 +321,12 @@ export class PrivateChannel implements BasePrivateChannel {
   public onMessageReceived(callback: (message: ChatMessage) => void): void {
     try {
       this.registerMessageModificationCallback((newMessage) => {
+        const user = User.instance.data;
+
+        if (user === null) {
+          throw new Error('Cannot send message without a user');
+        }
+
         if (this.cacheCurrentMessages.some((message) => newMessage.key === message.key)) {
           return;
         }
@@ -306,7 +335,7 @@ export class PrivateChannel implements BasePrivateChannel {
 
         this.updateCacheCurrentMessages(messages);
 
-        if (this.user.id !== newMessage.sender?._id) {
+        if (user.id !== newMessage.sender?._id) {
           this.markRead();
         }
 
@@ -401,16 +430,14 @@ export class PrivateChannel implements BasePrivateChannel {
       return;
     }
 
-    this.messageModificationListener = this.realtimeAPI.listenToGroupMessageReceived(
-      this.groupChannel._id,
-      (message) => {
-        if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
-          return;
-        }
+    const realtimeAPI = RealtimeAPI.getInstance();
+    this.messageModificationListener = realtimeAPI.listenToGroupMessageReceived(this.groupChannel._id, (message) => {
+      if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
+        return;
+      }
 
-        this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
-      },
-    );
+      this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
+    });
   }
 
   /**

@@ -12,7 +12,6 @@ import {
   LiveChatChannel,
   ServerReaction,
 } from '@arena-im/chat-types';
-import { ArenaChat } from '../../src/sdk';
 
 export const exampleLiveChatChannel: LiveChatChannel = {
   _id: 'fake-main-channel',
@@ -71,6 +70,7 @@ export const exampleSite: Site = {
   settings: {
     graphqlPubApiKey: '1234',
   },
+  slug: 'site-slug',
 };
 
 export const exampleGroupChannel: GroupChannel = {
@@ -139,10 +139,7 @@ export const exampleUser: ExternalUser = {
   token: 'user-token',
 };
 
-export const exampleSDK = new ArenaChat('my-api-key');
-exampleSDK.site = exampleSite;
-exampleSDK.user = exampleUser;
-exampleSDK.mainChatRoom = exampleChatRoom;
+export const apiKey = 'my-api-key';
 
 export const exampleQnaQuestion: QnaQuestion = {
   createdAt: 1111111111,

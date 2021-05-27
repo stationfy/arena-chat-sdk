@@ -1,19 +1,15 @@
 import {
   Status,
   ExternalUser,
-  Site,
-  UserChangedListener,
   GroupChannel,
-  ChatRoom,
   ChatMessageContent,
   BasePrivateChannel,
   BaseUserProfile,
   PublicUser,
   PublicUserInput,
 } from '@arena-im/chat-types';
-import { RestAPI } from './services/rest-api';
 import { LiveChat } from './live-chat/live-chat';
-
+import { User } from './auth/user';
 /**
  * Chat SDK Client
  *
@@ -33,34 +29,26 @@ import { LiveChat } from './live-chat/live-chat';
  *```
  */
 export class ArenaChat {
-  public user: ExternalUser | null = null;
-  public site: Site | null = null;
-  public mainChatRoom: ChatRoom | null = null;
-  private userChangedListeners: UserChangedListener[] = [];
+  public static apiKey: string;
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
-  private liveChat: LiveChat | null = null;
   private userProfileI: BaseUserProfile | null = null;
-  private promiseFetchAndSetChatRoomAndSite: Promise<{
-    chatRoom: ChatRoom;
-    site: Site;
-  }> | null = null;
 
-  public constructor(private apiKey: string) {}
+  public constructor(apiKey: string) {
+    ArenaChat.apiKey = apiKey;
+  }
 
   /**
    * Get the current user profile
    */
   public async getMeProfile(): Promise<PublicUser> {
-    if (this.user === null) {
+    if (User.instance.data === null) {
       throw new Error('You have to set a user before get the current user profile.');
     }
 
     if (this.userProfileI === null) {
-      const site = await this.fetchAndSetSite();
-
       const { UserProfile } = await import('./user-profile/user-profile');
 
-      this.userProfileI = new UserProfile(site, this);
+      this.userProfileI = new UserProfile();
     }
 
     return this.userProfileI.getMeProfile();
@@ -73,30 +61,26 @@ export class ArenaChat {
    */
   public async getUserProfile(userId: string): Promise<PublicUser> {
     if (this.userProfileI === null) {
-      const site = await this.fetchAndSetSite();
-
       const { UserProfile } = await import('./user-profile/user-profile');
 
-      this.userProfileI = new UserProfile(site, this);
+      this.userProfileI = new UserProfile();
     }
 
     return this.userProfileI.getUserProfile(userId);
   }
 
-  public async updateUserProfile(user: PublicUserInput): Promise<PublicUser> {
-    if (this.user === null) {
+  public async updateUserProfile(userInput: PublicUserInput): Promise<PublicUser> {
+    if (User.instance.data === null) {
       throw new Error('You have to set a user before update the user profile.');
     }
 
     if (this.userProfileI === null) {
-      const site = await this.fetchAndSetSite();
-
       const { UserProfile } = await import('./user-profile/user-profile');
 
-      this.userProfileI = new UserProfile(site, this);
+      this.userProfileI = new UserProfile();
     }
 
-    return this.userProfileI.updateUserProfile(user);
+    return this.userProfileI.updateUserProfile(userInput);
   }
 
   /**
@@ -105,15 +89,13 @@ export class ArenaChat {
    * @param userId block the userId for the current user
    */
   public async blockPrivateUser(userId: string): Promise<boolean> {
-    if (this.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot block a user without a current user.');
     }
 
-    const site = await this.fetchAndSetSite();
-
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    return PrivateChannel.blockPrivateUser(this.user, site, userId);
+    return PrivateChannel.blockPrivateUser(userId);
   }
 
   /**
@@ -122,15 +104,13 @@ export class ArenaChat {
    * @param userId unblock the userId for the current user
    */
   public async unblockPrivateUser(userId: string): Promise<boolean> {
-    if (this.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot unblock a user without a current user.');
     }
 
-    const site = await this.fetchAndSetSite();
-
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    return PrivateChannel.unblockPrivateUser(this.user, site, userId);
+    return PrivateChannel.unblockPrivateUser(userId);
   }
 
   /**
@@ -139,19 +119,13 @@ export class ArenaChat {
    * @param callback
    */
   public async onUnreadPrivateMessagesCountChanged(callback: (total: number) => void): Promise<void> {
-    if (this.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot listen to unread private messages without a current user.');
     }
 
-    const site = await this.fetchAndSetSite();
-
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    this.unsubscribeOnUnreadMessagesCountChanged = PrivateChannel.onUnreadMessagesCountChanged(
-      this.user,
-      site,
-      callback,
-    );
+    this.unsubscribeOnUnreadMessagesCountChanged = PrivateChannel.onUnreadMessagesCountChanged(callback);
   }
 
   /**
@@ -161,9 +135,9 @@ export class ArenaChat {
     if (this.unsubscribeOnUnreadMessagesCountChanged) {
       this.unsubscribeOnUnreadMessagesCountChanged();
 
-      if (typeof callback === 'function') callback(true);
+      callback?.(true);
     } else {
-      if (typeof callback === 'function') callback(false);
+      callback?.(false);
     }
   }
 
@@ -173,32 +147,28 @@ export class ArenaChat {
    * @param channelId
    */
   public async getPrivateChannel(channelId: string): Promise<BasePrivateChannel> {
-    if (this.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot get a private channel without a current user.');
     }
 
-    const site = await this.fetchAndSetSite();
-
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    const groupChannel = await PrivateChannel.getGroupChannel(site, this.user, channelId);
+    const groupChannel = await PrivateChannel.getGroupChannel(channelId);
 
-    return new PrivateChannel(groupChannel, site, this.user);
+    return new PrivateChannel(groupChannel);
   }
 
   /**
    * Get all user's private channels
    */
   public async getUserPrivateChannels(): Promise<GroupChannel[]> {
-    if (this.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot get the list of private channels without a current user.');
     }
 
-    const site = await this.fetchAndSetSite();
-
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    return PrivateChannel.getUserChannels(this.user, site);
+    return PrivateChannel.getUserChannels();
   }
 
   /**
@@ -211,15 +181,13 @@ export class ArenaChat {
     userId: string,
     firstMessage?: ChatMessageContent,
   ): Promise<BasePrivateChannel> {
-    if (this.user === null) {
+    if (User.instance.data === null) {
       throw new Error('Cannot create a private channel without a current user.');
     }
 
-    const site = await this.fetchAndSetSite();
-
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    return PrivateChannel.createUserChannel({ user: this.user, userId, site, firstMessage });
+    return PrivateChannel.createUserChannel({ userId, firstMessage });
   }
 
   /**
@@ -228,27 +196,15 @@ export class ArenaChat {
    * @param slug
    */
   public async getLiveChat(slug: string): Promise<LiveChat> {
-    if (this.liveChat) {
-      return this.liveChat;
-    }
-
     try {
-      if (this.promiseFetchAndSetChatRoomAndSite === null) {
-        this.promiseFetchAndSetChatRoomAndSite = this.fetchAndSetChatRoomAndSite(slug);
-      }
+      const liveChat = await LiveChat.getInstance(slug);
 
-      const { chatRoom, site } = await this.promiseFetchAndSetChatRoomAndSite;
-
-      const liveChatI = new LiveChat(chatRoom, site, this);
-
-      this.liveChat = liveChatI;
-
-      return liveChatI;
+      return liveChat;
     } catch (e) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
       if (e === Status.Invalid) {
-        erroMessage = `Invalid site (${this.apiKey}) or live chat (${slug}) slugs.`;
+        erroMessage = `Invalid site (${ArenaChat.apiKey}) or live chat (${slug}) slugs.`;
       }
 
       throw new Error(erroMessage);
@@ -256,153 +212,29 @@ export class ArenaChat {
   }
 
   /**
-   * Whatch set a new user
-   *
-   * @param callback
-   */
-  public onUserChanged(callback: UserChangedListener): void {
-    if (typeof callback !== 'function') {
-      return;
-    }
-
-    this.userChangedListeners.push(callback);
-  }
-
-  /**
    * Set a external user
    *
    * @param user external user
    */
-  public async setUser(user: ExternalUser | null): Promise<ExternalUser | null> {
-    if (user === null) {
-      this.unsetUser();
+  public async setUser(externalUser: ExternalUser | null): Promise<ExternalUser | null> {
+    if (externalUser === null) {
+      User.instance.unsetUser();
 
       return null;
     }
 
-    const createdUser = await this.setNewUser(user);
+    const createdUser = await User.instance.setNewUser(externalUser);
 
-    if (createdUser.token) {
-      this.setRestAPIAuthToken(createdUser.token);
-    }
-
-    this.callChangedUserListeners(createdUser);
-
-    return this.user;
+    return createdUser;
   }
 
-  public setInternalUser(user: ExternalUser): ExternalUser | null {
-    if (user === null) {
-      this.unsetUser();
+  public setInternalUser(externalUser: ExternalUser): ExternalUser | null {
+    if (externalUser === null) {
+      User.instance.unsetUser();
 
       return null;
     }
 
-    if (user.token) {
-      this.setRestAPIAuthToken(user.token);
-    }
-
-    this.callChangedUserListeners(user);
-
-    this.user = user;
-
-    return this.user;
-  }
-
-  private async fetchAndSetChatRoomAndSite(channel: string): Promise<{ chatRoom: ChatRoom; site: Site }> {
-    if (this.mainChatRoom !== null && this.site !== null) {
-      return { chatRoom: this.mainChatRoom, site: this.site };
-    }
-
-    const restAPI = RestAPI.getCachedInstance();
-
-    const { chatRoom, site, settings } = await restAPI.loadChatRoom(this.apiKey, channel);
-
-    this.mainChatRoom = chatRoom;
-
-    site.settings = settings;
-    this.site = site;
-
-    return { chatRoom, site };
-  }
-
-  private async fetchAndSetSite(): Promise<Site> {
-    if (this.site !== null) {
-      return this.site;
-    }
-
-    const restAPI = RestAPI.getCachedInstance();
-
-    const site = await restAPI.loadSite(this.apiKey);
-
-    this.site = site;
-
-    return site;
-  }
-
-  /**
-   * Call all changed user listeners
-   *
-   * @param user created user
-   */
-  private callChangedUserListeners(user: ExternalUser | null): void {
-    this.userChangedListeners.forEach((listener) => {
-      listener(user);
-    });
-  }
-
-  /**
-   * Unset user
-   *
-   */
-  private unsetUser(): void {
-    this.user = null;
-
-    RestAPI.setAPIToken(null)
-
-    this.callChangedUserListeners(null);
-  }
-
-  /**
-   * Set a new user
-   *
-   * @param user external user
-   */
-  private async setNewUser(user: ExternalUser): Promise<ExternalUser> {
-    const [givenName, ...familyName] = user.name.split(' ');
-
-    const restAPI = RestAPI.getAPIInstance()
-
-    const result = await restAPI.getArenaUser({
-      provider: this.apiKey,
-      username: user.id,
-      profile: {
-        urlName: `${+new Date()}`,
-        email: user.email,
-        username: user.id,
-        displayName: user.name,
-        name: {
-          familyName: familyName.join(' '),
-          givenName,
-        },
-        profileImage: user.image,
-        id: user.id,
-      },
-      metadata: user.metaData,
-    });
-
-    this.user = {
-      ...user,
-      id: result.id,
-      token: result.token,
-      isModerator: result.isModerator,
-      isBanned: result.isBanned,
-    };
-
-    return this.user;
-  }
-
-  private setRestAPIAuthToken(token: string): void {
-    RestAPI.setAPIToken(token)
+    return User.instance.setInternalUser(externalUser);
   }
 }

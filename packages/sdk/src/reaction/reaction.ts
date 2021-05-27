@@ -1,8 +1,7 @@
-import { ArenaChat } from '../sdk';
 import { BaseReaction, MessageReactions, ChannelMessageReactions } from '@arena-im/chat-types';
 
 export class Reaction implements BaseReaction {
-  public constructor(public channelId: string, private sdk: ArenaChat) {}
+  public constructor(public channelId: string) {}
 
   /**
    * Fetch message reactions
@@ -10,12 +9,9 @@ export class Reaction implements BaseReaction {
    * @param messageId Message id
    */
   public async fetchReactions(messageId: string): Promise<ChannelMessageReactions> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot create a channel without a site.');
-    }
     const { GraphQLAPI } = await import('../services/graphql-api');
 
-    const graphQLAPI = new GraphQLAPI(this.sdk.site);
+    const graphQLAPI = await GraphQLAPI.instance;
 
     try {
       const reactions = await graphQLAPI.fetchReactions(this.channelId, messageId);

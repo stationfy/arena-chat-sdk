@@ -1,12 +1,24 @@
 import { ArenaHub } from '@services/arena-hub';
-import { exampleChatRoom, exampleSDK } from '../../fixtures/examples';
+import { exampleChatRoom, exampleSite, exampleUser } from '../../fixtures/examples';
 import * as misc from '@utils/misc';
 import { RestAPI } from '@services/rest-api';
+import { OrganizationSite } from '@organization/organization-site';
+import { User } from '@auth/user';
 
 let window: jest.SpyInstance;
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
+}));
+
+jest.mock('@organization/organization-site', () => ({
+  OrganizationSite: {
+    instance: jest.fn(),
+  },
+}));
+
+jest.mock('@auth/user', () => ({
+  User: jest.fn(),
 }));
 
 describe('ArenaHub', () => {
@@ -32,6 +44,14 @@ describe('ArenaHub', () => {
         getRandomValues: () => 0,
       },
     });
+
+    // @ts-ignore
+    User.instance = jest.fn().mockReturnValue({
+      data: exampleUser,
+    });
+
+    // @ts-ignore
+    OrganizationSite.instance.getSite = jest.fn(() => exampleSite);
   });
   describe('track()', () => {
     it('should track page', async () => {
@@ -45,7 +65,7 @@ describe('ArenaHub', () => {
 
       RestAPI.getAPINoauthInstance = mockAPIInstance;
 
-      const arenaHub = new ArenaHub(exampleChatRoom, exampleSDK);
+      const arenaHub = new ArenaHub(exampleChatRoom);
 
       const result = await arenaHub.track('page');
 

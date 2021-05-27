@@ -1,43 +1,20 @@
-import { BaseUserProfile, ExternalUser, PublicUser, PublicUserInput, Site, Status } from '@arena-im/chat-types';
+import { BaseUserProfile, PublicUser, PublicUserInput, Status } from '@arena-im/chat-types';
+import { User } from '../auth/user';
 
-import { ArenaChat } from '../sdk';
 import { GraphQLAPI } from '../services/graphql-api';
 
 export class UserProfile implements BaseUserProfile {
-  private graphQLAPI: GraphQLAPI;
-
-  public constructor(site: Site, private sdk: ArenaChat) {
-    let currentUser: ExternalUser | undefined;
-
-    if (this.sdk.user) {
-      currentUser = this.sdk.user;
-    }
-
-    this.graphQLAPI = new GraphQLAPI(site, currentUser);
-
-    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
-  }
-
-  /**
-   * Watch user changed
-   *
-   * @param {ExternalUser} user external user
-   */
-  private watchUserChanged(user: ExternalUser | null) {
-    if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
-    }
-  }
-
   public async getMeProfile(): Promise<PublicUser> {
-    const userId = this.sdk.user?.id;
+    const userId = User.instance.data?.id;
 
     if (!userId) {
       throw new Error('You have to set a user before get the current user profile');
     }
 
+    const graphQLAPI = await GraphQLAPI.instance;
+
     try {
-      const user = await this.graphQLAPI.fetchUserProfile(userId);
+      const user = await graphQLAPI.fetchUserProfile(userId);
 
       return user;
     } catch (e) {
@@ -52,8 +29,10 @@ export class UserProfile implements BaseUserProfile {
   }
 
   public async getUserProfile(userId: string): Promise<PublicUser> {
+    const graphQLAPI = await GraphQLAPI.instance;
+
     try {
-      const user = await this.graphQLAPI.fetchUserProfile(userId);
+      const user = await graphQLAPI.fetchUserProfile(userId);
 
       return user;
     } catch (e) {
@@ -68,8 +47,10 @@ export class UserProfile implements BaseUserProfile {
   }
 
   public async updateUserProfile(user: PublicUserInput): Promise<PublicUser> {
+    const graphQLAPI = await GraphQLAPI.instance;
+
     try {
-      const updatedUser = await this.graphQLAPI.updateUser(user);
+      const updatedUser = await graphQLAPI.updateUser(user);
 
       return updatedUser;
     } catch (e) {

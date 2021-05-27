@@ -6,7 +6,7 @@ export interface Site {
   featureFlags?: SiteFeatureFlags;
   image?: string;
   photoURL?: string;
-  slug?: string;
+  slug: string;
   uid?: string;
   websiteUrl?: string;
   _id: string;

@@ -1,43 +1,50 @@
 import {
   ChatRoom,
-  ExternalUser,
   LiveChatChannel,
   PublicUser,
-  Site,
   Status,
   BaseLiveChat,
   BaseChannel,
   PageRequest,
 } from '@arena-im/chat-types';
 import { GraphQLAPI } from '../services/graphql-api';
-import { ArenaChat } from '../sdk';
 import { Channel } from '../channel/channel';
+import { RestAPI } from '../services/rest-api';
+import { ArenaChat } from '../sdk';
 
 export class LiveChat implements BaseLiveChat {
-  private graphQLAPI: GraphQLAPI;
+  private static instance: Promise<LiveChat>;
 
-  public constructor(private chatRoom: ChatRoom, site: Site, private sdk: ArenaChat) {
-    let currentUser: ExternalUser | undefined;
-
-    if (this.sdk.user) {
-      currentUser = this.sdk.user;
-    }
-
-    this.graphQLAPI = new GraphQLAPI(site, currentUser);
-
-    this.sdk.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
-
-    this.trackPageView();
+  private constructor(private readonly chatRoom: ChatRoom) {
+    this.trackPageView(chatRoom);
   }
 
-  private async trackPageView() {
+  public static getInstance(slug: string): Promise<LiveChat> {
+    if (!LiveChat.instance) {
+      LiveChat.instance = this.fetchChatRoom(slug).then((chatRoom) => {
+        return new LiveChat(chatRoom);
+      });
+    }
+
+    return LiveChat.instance;
+  }
+
+  private static async fetchChatRoom(chatSlug: string): Promise<ChatRoom> {
+    const restAPI = RestAPI.getCachedInstance();
+
+    const { chatRoom } = await restAPI.loadChatRoom(ArenaChat.apiKey, chatSlug);
+
+    return chatRoom;
+  }
+
+  private async trackPageView(chatRoom: ChatRoom) {
     if (this.detectWidgetsPresence()) {
       return;
     }
 
     const { ArenaHub } = await import('../services/arena-hub');
-    const arenaHub = new ArenaHub(this.chatRoom, this.sdk);
-    arenaHub.track('page');
+    const arenaHub = ArenaHub.getInstance(chatRoom);
+    arenaHub.trackPage();
   }
 
   /**
@@ -63,20 +70,10 @@ export class LiveChat implements BaseLiveChat {
     );
   }
 
-  /**
-   * Watch user changed
-   *
-   * @param {ExternalUser} user external user
-   */
-  private watchUserChanged(user: ExternalUser | null) {
-    if (this.sdk.site) {
-      this.graphQLAPI = new GraphQLAPI(this.sdk.site, user || undefined);
-    }
-  }
-
   public async getChannels(): Promise<LiveChatChannel[]> {
     try {
-      const channels = await this.graphQLAPI.listChannels(this.chatRoom._id);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const channels = await graphQLAPI.listChannels(this.chatRoom._id);
 
       return channels;
     } catch (e) {
@@ -95,7 +92,7 @@ export class LiveChat implements BaseLiveChat {
 
       const channel = this.chatRoom.mainChannel;
 
-      const channelI = Channel.getInstance(channel, this.chatRoom, this.sdk);
+      const channelI = Channel.getInstance(channel, this.chatRoom);
 
       return channelI;
     } catch (e) {
@@ -111,7 +108,8 @@ export class LiveChat implements BaseLiveChat {
 
   public async getChannelData(channelId: string): Promise<LiveChatChannel> {
     try {
-      const channel = await this.graphQLAPI.fetchChannel(channelId);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const channel = await graphQLAPI.fetchChannel(channelId);
 
       return channel;
     } catch (e) {
@@ -132,9 +130,10 @@ export class LiveChat implements BaseLiveChat {
    */
   public async getChannel(channelId: string): Promise<BaseChannel> {
     try {
-      const channel = await this.graphQLAPI.fetchChannel(channelId);
+      const graphQLAPI = await GraphQLAPI.instance;
+      const channel = await graphQLAPI.fetchChannel(channelId);
 
-      const channelI = Channel.getInstance(channel, this.chatRoom, this.sdk);
+      const channelI = Channel.getInstance(channel, this.chatRoom);
 
       return channelI;
     } catch (e) {
@@ -152,19 +151,10 @@ export class LiveChat implements BaseLiveChat {
    * Get all online and offline chat members
    */
   public async getMembers(page: PageRequest, searchTerm: string): Promise<PublicUser[]> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot get chat members without a site id');
-    }
-
-    let user;
-    if (this.sdk.user !== null) {
-      user = this.sdk.user;
-    }
-
     try {
       const { GraphQLAPI } = await import('../services/graphql-api');
 
-      const graphQLAPI = new GraphQLAPI(this.sdk.site, user);
+      const graphQLAPI = await GraphQLAPI.instance;
 
       const members = await graphQLAPI.fetchMembers(this.chatRoom._id, page, searchTerm);
 

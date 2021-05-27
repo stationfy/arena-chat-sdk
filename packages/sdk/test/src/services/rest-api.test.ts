@@ -72,6 +72,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       const response = await restAPI.sendMessage(chatRoom, message);
@@ -101,6 +102,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       try {
@@ -147,6 +149,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       const response = await restAPI.reportMessage(chatRoom, report);
@@ -162,6 +165,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       try {
@@ -183,6 +187,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       await restAPI.requestModeration(site, chatRoom);
@@ -209,6 +214,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       const response = await restAPI.banUser(banUser);
@@ -245,6 +251,7 @@ describe('RestAPI', () => {
         siteId: site._id,
       };
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       await restAPI.deleteMessage(site, chatRoom, message);
@@ -299,6 +306,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       const providerUser: ProviderUser = {
@@ -339,6 +347,7 @@ describe('RestAPI', () => {
         };
       });
 
+      // @ts-ignore
       const restAPI = new RestAPI();
 
       const reaction = exampleServerReaction;

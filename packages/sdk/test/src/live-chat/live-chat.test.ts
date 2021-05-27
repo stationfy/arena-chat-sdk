@@ -1,12 +1,16 @@
 import { LiveChat } from '@live-chat/live-chat';
-import * as GraphQLAPI from '@services/graphql-api';
+import { GraphQLAPI } from '@services/graphql-api';
 import { ArenaHub } from '@services/arena-hub';
-import { exampleChatRoom, exampleLiveChatChannel, exampleSDK, exampleSite } from '../../fixtures/examples';
+import { exampleChatRoom, exampleLiveChatChannel, exampleSite } from '../../fixtures/examples';
 import { PublicUser, PublicUserStatus, Status } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
+import { RestAPI } from '@services/rest-api';
+import { Channel } from '@channel/channel';
 
 jest.mock('@services/graphql-api', () => ({
-  GraphQLAPI: jest.fn(),
+  GraphQLAPI: {
+    instance: jest.fn(),
+  }
 }));
 
 jest.mock('@services/arena-hub', () => ({
@@ -33,6 +37,14 @@ jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
+jest.mock('@services/rest-api', () => ({
+  RestAPI: jest.fn(),
+}));
+
+jest.mock('@channel/channel', () => ({
+  Channel: jest.fn(),
+}));
+
 describe('LiveChat', () => {
   beforeEach(() => {
     // @ts-ignore
@@ -41,40 +53,41 @@ describe('LiveChat', () => {
         track: jest.fn(),
       };
     });
+
+    // @ts-ignore
+    RestAPI.getCachedInstance = jest.fn(() => {
+      return {
+        loadChatRoom: async () => {
+          return { chatRoom: exampleChatRoom };
+        },
+      };
+    });
   });
   describe('getChannels()', () => {
     it('should get all live chat channels', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         listChannels: async () => {
           return [];
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       const result = await liveChat.getChannels();
 
       expect(result).toEqual([]);
     });
 
-    it('should return an exception', (done) => {
-      const graphQLAPIInstanceMock = {
+    it('should return an exception', async (done) => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         listChannels: async () => {
           throw new Error('failed');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       liveChat.getChannels().catch((error) => {
         expect(error.message).toEqual(`Cannot get channels on "${exampleChatRoom.slug}" live chat.`);
@@ -93,23 +106,19 @@ describe('LiveChat', () => {
       });
     });
 
-    it('should get the main channel', () => {
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
+    it('should get the main channel', async () => {
+      // @ts-ignore
+      Channel.getInstance = jest.fn(() => {
+        return {
+          banUser: jest.fn(),
+        };
+      });
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       const channelI = liveChat.getMainChannel();
 
       expect(typeof channelI.banUser).toEqual('function');
-    });
-
-    it('should return an exception when there is no mainChannel property in chat room', () => {
-      // @ts-ignore
-      const liveChat = new LiveChat({ ...exampleChatRoom, mainChannel: null }, exampleSite, exampleSDK);
-
-      try {
-        liveChat.getMainChannel();
-      } catch (e) {
-        expect(e.message).toEqual('Invalid main channel.');
-      }
     });
   });
 
@@ -123,18 +132,21 @@ describe('LiveChat', () => {
       });
     });
     it('should get an specific channel', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchChannel: async () => {
           return exampleLiveChatChannel;
         },
       };
 
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
+      Channel.getInstance = jest.fn(() => {
+        return {
+          banUser: jest.fn(),
+        };
       });
 
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       const channelI = await liveChat.getChannel('fake-main-channel');
 
@@ -142,19 +154,15 @@ describe('LiveChat', () => {
     });
 
     it('should return an exception when the channel id is invalid', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchChannel: async () => {
           throw new Error(Status.Invalid);
         },
       };
 
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      // @ts-ignore
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       try {
         await liveChat.getChannel('fake-main-channel');
@@ -175,19 +183,14 @@ describe('LiveChat', () => {
         isBlocked: false,
       };
 
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchMembers: async () => {
           return [user];
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      // @ts-ignore
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, { ...exampleSDK, user: null });
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       const page = {
         first: 25,
@@ -210,19 +213,15 @@ describe('LiveChat', () => {
         isBlocked: false,
       };
 
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchMembers: async () => {
           return [user];
         },
       };
 
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      // @ts-ignore
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       const page = {
         first: 25,
@@ -235,19 +234,15 @@ describe('LiveChat', () => {
       expect(members).toEqual([user]);
     });
 
-    it('should receive a error', (done) => {
-      const graphQLAPIInstanceMock = {
+    it('should receive a error', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         fetchMembers: async () => {
           throw new Error('invalid');
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const liveChat = new LiveChat(exampleChatRoom, exampleSite, exampleSDK);
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       const page = {
         first: 25,
@@ -257,8 +252,7 @@ describe('LiveChat', () => {
 
       liveChat.getMembers(page, searchTerm).catch((e) => {
         expect(e.message).toEqual(`Cannot fetch chat members messages on "${exampleChatRoom.slug}" channel.`);
-        done();
-      });
+      })
     });
   });
 });

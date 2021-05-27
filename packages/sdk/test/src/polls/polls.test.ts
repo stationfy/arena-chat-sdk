@@ -1,19 +1,31 @@
 import * as RealtimeAPI from '@services/realtime-api';
-import * as GraphQLAPI from '@services/graphql-api';
+import { GraphQLAPI } from '@services/graphql-api';
 import { Polls } from '@polls/polls';
-import { exampleChatRoom, exampleLiveChatChannel, examplePoll, exampleSDK } from '../../fixtures/examples';
+import { exampleChatRoom, exampleLiveChatChannel, examplePoll, exampleUser } from '../../fixtures/examples';
 import { Poll, PollFilter, ServerReaction } from '@arena-im/chat-types';
-import ArenaChat from 'src';
+import * as User from '@auth/user';
 
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
 jest.mock('@services/graphql-api', () => ({
-  GraphQLAPI: jest.fn(),
+  GraphQLAPI: {
+    instance: jest.fn(),
+  }
+}));
+
+jest.mock('@auth/user', () => ({
+  User: jest.fn(),
 }));
 
 describe('Polls', () => {
+  beforeAll(() => {
+    // @ts-ignore
+    User.User.instance = jest.fn().mockReturnValue({
+      data: exampleUser,
+    });
+  });
   describe('loadPolls()', () => {
     it('should load polls empty', async () => {
       const realtimeAPIInstanceMock = {
@@ -27,7 +39,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
       const items = await polls.loadPolls();
 
       expect(items).toEqual([]);
@@ -46,7 +58,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
       const items = await polls.loadPolls(PollFilter.ACTIVE, 5);
 
       expect(items.length).toEqual(5);
@@ -64,7 +76,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       try {
         await polls.loadPolls(PollFilter.ACTIVE, 5);
@@ -76,18 +88,14 @@ describe('Polls', () => {
 
   describe('pollVote()', () => {
     it('should vote on a poll options', async () => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         pollVote: async () => {
           return true;
         },
       };
 
-      // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
-      });
-
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       const result = await polls.pollVote('111111', 0, '1234');
 
@@ -95,18 +103,25 @@ describe('Polls', () => {
     });
 
     it('should return an exception when the services is not working', (done) => {
-      const graphQLAPIInstanceMock = {
+      // @ts-ignore
+      GraphQLAPI.instance = {
         pollVote: async () => {
           throw new Error('failed');
         },
       };
 
+      const realtimeAPIInstanceMock = {
+        fetchAllPolls: () => {
+          return Promise.reject('invalid');
+        },
+      };
+
       // @ts-ignore
-      GraphQLAPI.GraphQLAPI.mockImplementation(() => {
-        return graphQLAPIInstanceMock;
+      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
+        return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       polls.pollVote('111111', 0, '1234').catch((error) => {
         expect(error.message).toEqual('Cannot vote for the "111111" poll question.');
@@ -115,9 +130,7 @@ describe('Polls', () => {
     });
 
     it('should return an exception when try to vote without a user', (done) => {
-      const sdk: ArenaChat = exampleSDK;
-      sdk.user = null;
-      const polls = new Polls(exampleChatRoom, sdk);
+      const polls = new Polls(exampleChatRoom);
 
       polls.pollVote('111111', 0).catch((error) => {
         expect(error.message).toEqual('Cannot vote without anonymoud id or user id.');
@@ -139,7 +152,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollReceived(() => {});
@@ -160,7 +173,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       polls.onPollReceived((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -180,7 +193,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       try {
         polls.onPollReceived((poll: Poll) => {
@@ -205,7 +218,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollDeleted(() => {});
@@ -226,7 +239,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       polls.onPollDeleted((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -247,7 +260,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       try {
         polls.onPollDeleted((poll: Poll) => {
@@ -272,7 +285,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       polls.watchUserPollsReactions('fake-user');
     });
@@ -291,7 +304,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollModified(() => {});
@@ -312,7 +325,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       polls.onPollModified((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -333,7 +346,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       try {
         polls.onPollModified((poll: Poll) => {
@@ -358,7 +371,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel, exampleSDK);
+      const polls = new Polls(exampleLiveChatChannel);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollModified(() => {});

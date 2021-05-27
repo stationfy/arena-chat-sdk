@@ -1,31 +1,68 @@
-import { ChatRoom, TrackContext, TrackPageInfo, TrackPayload } from '@arena-im/chat-types';
+import { ChatRoom, TrackPayload, EventMap } from '@arena-im/chat-types';
 import { getGlobalObject } from '../utils/misc';
-import { ArenaChat } from '../sdk';
 import { RestAPI } from './rest-api';
+import { OrganizationSite } from '../organization/organization-site';
+import { User } from '../auth/user';
+
+type OptionalSpread<T = undefined> = T extends undefined ? [] : [T];
 
 export class ArenaHub {
+  private static instance: ArenaHub;
+  private anonymousId: string;
   private global = getGlobalObject<Window>();
-  public constructor(private chatRoom: ChatRoom, private sdk: ArenaChat) {}
 
-  public async track(type: string, anonymousId?: string): Promise<{ success: boolean }> {
-    if (this.sdk.site === null) {
-      throw new Error('Cannot call arena hub without a site id');
+  private constructor(private chatRoom: ChatRoom) {
+    this.anonymousId = this.getMessageId();
+  }
+
+  public static getInstance(chatRoom: ChatRoom): ArenaHub {
+    if (!this.instance) {
+      this.instance = new ArenaHub(chatRoom);
     }
 
+    return this.instance;
+  }
+
+  public async track<T extends keyof EventMap>(
+    event: T,
+    ...options: OptionalSpread<EventMap[T]>
+  ): Promise<{ success: boolean }> {
+    const trackObj = await this.getTrackPayload('track');
+
+    if (options.length > 0) {
+      trackObj.properties = { ...trackObj.properties, ...options[0] };
+    }
+
+    trackObj.event = event;
+
+    return this.sendRequest(trackObj);
+  }
+
+  public async trackPage(): Promise<{ success: boolean }> {
+    const trackObj = await this.getTrackPayload('page');
+
+    return this.sendRequest(trackObj);
+  }
+
+  private async getTrackPayload(type: TrackPayload['type']): Promise<TrackPayload> {
+    const site = await OrganizationSite.instance.getSite();
+
+    const user = User.instance.data;
+
     const trackObj: TrackPayload = {
-      userId: this.sdk.user?.id || null,
-      anonymousId: anonymousId || this.getMessageId(),
-      type: type,
+      userId: user?.id || null,
+      anonymousId: this.anonymousId,
       context: this.getContext(),
       messageId: this.getMessageId(),
       timestamp: this.getTimestamp(),
-      writeKey: this.sdk.site._id,
+      writeKey: site._id,
       sentAt: this.getTimestamp(),
       properties: this.getPageInfo(),
-      arenaUserId: this.sdk.user?.id || null,
+      arenaUserId: user?.id || null,
+      type,
     };
 
-    return this.sendRequest(trackObj);
+    return trackObj;
   }
 
   private async sendRequest(trackObj: TrackPayload): Promise<{ success: boolean }> {
@@ -33,7 +70,7 @@ export class ArenaHub {
     return await restAPI.collect(trackObj);
   }
 
-  private getPageInfo(): TrackPageInfo {
+  private getPageInfo(): TrackPayload['properties'] {
     return {
       path: this.global.location.pathname,
       referrer: this.global.document.referrer,
@@ -73,7 +110,7 @@ export class ArenaHub {
     });
   }
 
-  private getContext(): TrackContext {
+  private getContext(): TrackPayload['context'] {
     const nextContext = {
       library: this.getLibraryInfo(),
       page: this.getPageInfo(),

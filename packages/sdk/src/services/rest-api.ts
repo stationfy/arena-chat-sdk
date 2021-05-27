@@ -21,6 +21,7 @@ import { BaseTransport } from '../interfaces/base-transport';
 import { FetchTransport } from './fetch-transport';
 import { XHRTransport } from './xhr-transport';
 import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
+import { User } from '../auth/user';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {
@@ -29,15 +30,20 @@ export class RestAPI implements BaseRest {
   private static apiNoauthInstance: RestAPI;
 
   private baseURL = API_V2_URL;
-  private transport: BaseTransport;
+  private transport!: BaseTransport;
 
-  public constructor(options?: BaseRestOptions) {
+  private constructor(options?: BaseRestOptions) {
     const { url, authToken } = options || {};
 
     if (url) {
       this.baseURL = url;
     }
 
+    this.setTransport(authToken);
+    User.instance.onUserChanged(this.handleUserChange.bind(this));
+  }
+
+  private setTransport(authToken?: string) {
     if (supportsFetch()) {
       this.transport = new FetchTransport(this.baseURL, authToken);
     } else {
@@ -57,10 +63,8 @@ export class RestAPI implements BaseRest {
     return RestAPI.apiInstance;
   }
 
-  public static setAPIToken(token: string | null): RestAPI {
-    RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: token ?? DEFAULT_AUTH_TOKEN });
-
-    return RestAPI.apiInstance;
+  private setAPIToken(token: string = DEFAULT_AUTH_TOKEN) {
+    this.setTransport(token);
   }
 
   /**
@@ -85,6 +89,12 @@ export class RestAPI implements BaseRest {
     }
 
     return RestAPI.apiNoauthInstance;
+  }
+
+  private handleUserChange(user: ExternalUser | null) {
+    const token = user?.token;
+
+    this.setAPIToken(token);
   }
 
   /**

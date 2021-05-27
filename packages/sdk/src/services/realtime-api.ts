@@ -27,6 +27,9 @@ import {
 export class RealtimeAPI implements BaseRealtime {
   private static instance: RealtimeAPI;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private constructor() {}
+
   /** Unsubscribe functions */
   private unsbscribeFunctions: (() => void)[] = [];
 
