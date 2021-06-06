@@ -3,21 +3,21 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "2.0.27"
+  version "2.0.30"
   dependencies:
-    "@arena-im/chat-types" "^2.0.27"
+    "@arena-im/chat-types" "^2.0.30"
     firebase "^7.24.0"
     graphql "^15.3.0"
     graphql-request "^3.3.0"
     rollup-plugin-json "^4.0.0"
 
-"@arena-im/chat-types@^2.0.27":
-  version "2.0.27"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.27.tgz#522a496542c473eba4680a68a7561480a013b5f7"
-  integrity sha512-rVrQD6pFQI26rdko7YoZ+ofkjpmt8hqOEtHkagjxZlYL7Xy6T3NQjyXRyC+HZu4FHgDgCK1XP4S9oSCu34gy+w==
+"@arena-im/chat-types@^2.0.30":
+  version "2.0.30"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.30.tgz#c2b3a1a102fe4937c55a914809cd89c37d6806ce"
+  integrity sha512-9d2lfABDOgszsiSI67LdFickPwObsRkANzF2M96ZD1CAIvhDoy4WRnO8GkgC0Wa/GTPPl1XRAAkOaeS1kUQaSg==
 
 "@arena-im/chat-types@link:../../../types":
-  version "2.0.27"
+  version "2.0.30"
 
 "@babel/code-frame@7.10.4":
   version "7.10.4"
@@ -12710,9 +12710,9 @@ write@1.0.3:
     mkdirp "^0.5.1"
 
 ws@^6.2.1:
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-6.2.1.tgz#442fdf0a47ed64f59b6a5d8ff130f4748ed524fb"
-  integrity sha512-GIyAXC2cB7LjvpgMt9EKS2ldqr0MTrORaleiOno6TweZ6r3TKtoFQWay/2PceJ3RuBasOHzXNn5Lrw1X0bEjqA==
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-6.2.2.tgz#dd5cdbd57a9979916097652d78f1cc5faea0c32e"
+  integrity sha512-zmhltoSR8u1cnDsD43TX59mzoMZsLKqUweyYBAIvTngR3shc0W6aOZylZmq/7hqyVxPdi+5Ud2QInblgyE72fw==
   dependencies:
     async-limiter "~1.0.0"
 
