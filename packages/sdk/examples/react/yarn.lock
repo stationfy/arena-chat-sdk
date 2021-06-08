@@ -3,21 +3,21 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "2.0.27"
+  version "2.0.30"
   dependencies:
-    "@arena-im/chat-types" "^2.0.27"
+    "@arena-im/chat-types" "^2.0.30"
     firebase "^7.24.0"
     graphql "^15.3.0"
     graphql-request "^3.3.0"
     rollup-plugin-json "^4.0.0"
 
-"@arena-im/chat-types@^2.0.27":
-  version "2.0.27"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.27.tgz#522a496542c473eba4680a68a7561480a013b5f7"
-  integrity sha512-rVrQD6pFQI26rdko7YoZ+ofkjpmt8hqOEtHkagjxZlYL7Xy6T3NQjyXRyC+HZu4FHgDgCK1XP4S9oSCu34gy+w==
+"@arena-im/chat-types@^2.0.30":
+  version "2.0.30"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.0.30.tgz#c2b3a1a102fe4937c55a914809cd89c37d6806ce"
+  integrity sha512-9d2lfABDOgszsiSI67LdFickPwObsRkANzF2M96ZD1CAIvhDoy4WRnO8GkgC0Wa/GTPPl1XRAAkOaeS1kUQaSg==
 
 "@arena-im/chat-types@link:../../../types":
-  version "2.0.27"
+  version "2.0.30"
 
 "@babel/code-frame@7.10.4":
   version "7.10.4"
@@ -8142,9 +8142,9 @@ memory-fs@^0.5.0:
     readable-stream "^2.0.1"
 
 merge-deep@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/merge-deep/-/merge-deep-3.0.2.tgz#f39fa100a4f1bd34ff29f7d2bf4508fbb8d83ad2"
-  integrity sha512-T7qC8kg4Zoti1cFd8Cr0M+qaZfOwjlPDEdZIIPPB2JZctjaPM4fX+i7HOId69tAti2fvO6X5ldfYUONDODsrkA==
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/merge-deep/-/merge-deep-3.0.3.tgz#1a2b2ae926da8b2ae93a0ac15d90cd1922766003"
+  integrity sha512-qtmzAS6t6grwEkNrunqTBdn0qKwFgNWvlxUbAV8es9M7Ot1EbyApytCnvE0jALPa46ZpKDUo527kKiaWplmlFA==
   dependencies:
     arr-union "^3.1.0"
     clone-deep "^0.2.4"
