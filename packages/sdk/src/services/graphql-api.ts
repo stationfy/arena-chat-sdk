@@ -819,6 +819,10 @@ export class GraphQLAPI {
           userName
           location
           slug
+          customProps {
+            label
+            value
+          }
         }
       }
     `;
