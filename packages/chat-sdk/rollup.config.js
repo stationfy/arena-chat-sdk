@@ -16,6 +16,7 @@ const terserInstance = terser({
 const plugins = [
   replace({
     'firebase.initializeApp': 'firebase.default.initializeApp',
+    preventAssignment: true
   }),
   typescript({
     tsconfig: 'tsconfig.build.json',
@@ -30,6 +31,7 @@ const plugins = [
   }),
   resolve({
     mainFields: ['module'],
+    preferBuiltins: true
   }),
   commonjs(),
   json(),
