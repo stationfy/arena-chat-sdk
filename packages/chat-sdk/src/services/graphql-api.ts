@@ -145,7 +145,7 @@ export class GraphQLAPI {
   public async createGroupChannel(input: {
     userIds: string[];
     siteId: string;
-    firstMessage?: ChatMessageContent;
+    firstMessage?: ChatMessageContent | undefined;
   }): Promise<GroupChannel> {
     const mutation = gql`
       mutation createGroupChannel($input: CreateGroupChannelInput!) {
@@ -864,8 +864,12 @@ export class GraphQLAPI {
 
     if (typeof user.bio !== 'undefined') {
       input.bio = user.bio;
-      input.socialLinks = user.socialLinks;
     }
+
+    if (user.socialLinks) {
+      input.socialLinks = user.socialLinks
+    }
+
     if (typeof user.location !== 'undefined') {
       input.location = user.location;
     }

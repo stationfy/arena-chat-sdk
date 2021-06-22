@@ -1,1 +1,3 @@
-console.log('hey!')
+import { ArenaChat } from './sdk';
+
+export default ArenaChat;

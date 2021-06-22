@@ -1,0 +1,20 @@
+{
+    "name": "@arena-im/core",
+    "version": "2.0.30",
+    "description": "Base implementation for all Arena JavaScript SDKs",
+    "author": "Arena",
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/stationfy/arena-sdk.git"
+    },
+    "bugs": {
+        "url": "https://github.com/stationfy/arena-sdk/issues"
+    },
+    "homepage": "https://github.com/stationfy/arena-sdk#readme",
+    "engines": {
+        "node": ">=6"
+    },
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts"
+}

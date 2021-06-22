@@ -4,6 +4,7 @@ import {
   MessageChangeType,
   ChatMessageContent,
   BasePrivateChannel,
+  PrivateMessageInput,
 } from '@arena-im/chat-types';
 import { OrganizationSite } from '../organization/organization-site';
 import { User } from '../auth/user';
@@ -123,7 +124,7 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   static async createUserChannel(options: {
     userId: string;
-    firstMessage?: ChatMessageContent;
+    firstMessage?: ChatMessageContent | undefined;
   }): Promise<BasePrivateChannel> {
     const user = User.instance.data;
 
@@ -233,12 +234,21 @@ export class PrivateChannel implements BasePrivateChannel {
 
     try {
       const graphQLAPI = await GraphQLAPI.instance;
-      const response = await graphQLAPI.sendPrivateMessage({
+
+      const payload: PrivateMessageInput = {
         groupChannelId: this.groupChannel._id,
         message,
-        replyTo: replyMessageId,
-        tempId,
-      });
+      }
+
+      if (replyMessageId) {
+        payload.replyTo = replyMessageId
+      }
+
+      if (tempId) {
+        payload.tempId = tempId
+      }
+
+      const response = await graphQLAPI.sendPrivateMessage(payload);
 
       return response;
     } catch (e) {
@@ -391,7 +401,10 @@ export class PrivateChannel implements BasePrivateChannel {
       this.registerMessageModificationCallback((modifiedMessage) => {
         const messages = this.cacheCurrentMessages.map((message) => {
           if (message.key === modifiedMessage.key) {
-            modifiedMessage.currentUserReactions = message.currentUserReactions;
+            if (message.currentUserReactions) {
+              modifiedMessage.currentUserReactions = message.currentUserReactions;
+            }
+            
             return modifiedMessage;
           }
 
