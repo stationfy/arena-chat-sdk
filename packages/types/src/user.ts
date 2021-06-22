@@ -115,6 +115,12 @@ export interface PublicUser {
   slug?: string;
   userName?: string;
   location?: string;
+  customProps?: CustomUserProps[];
+}
+
+export interface CustomUserProps {
+  label: string;
+  value: string;
 }
 
 export interface PublicUserInput {
