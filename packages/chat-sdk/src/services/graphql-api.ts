@@ -14,7 +14,7 @@ import {
   ChannelMessageReactions,
   PageRequest,
 } from '@arena-im/chat-types';
-import { GraphQLTransport } from './graphql-transport';
+import { GraphQLTransport } from '@arena-im/core'
 import { DEFAULT_AUTH_TOKEN } from '../config';
 import { OrganizationSite } from '../organization/organization-site';
 import { User } from '../auth/user';

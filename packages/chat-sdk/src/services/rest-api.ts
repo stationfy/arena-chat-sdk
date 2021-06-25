@@ -15,11 +15,10 @@ import {
   ServerReaction,
   SendReactionResult,
 } from '@arena-im/chat-types';
+import { FetchTransport, XHRTransport, BaseTransport } from '@arena-im/core'
 import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
 import { supportsFetch } from '../utils/supports';
-import { BaseTransport } from '../interfaces/base-transport';
-import { FetchTransport } from './fetch-transport';
-import { XHRTransport } from './xhr-transport';
+// import { BaseTransport } from '../interfaces/base-transport';
 import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
 import { User } from '../auth/user';
 

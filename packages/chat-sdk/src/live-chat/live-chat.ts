@@ -95,10 +95,10 @@ export class LiveChat implements BaseLiveChat {
       const channelI = Channel.getInstance(channel, this.chatRoom);
 
       return channelI;
-    } catch (e) {
+    } catch (e: unknown) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
-      if (e.message === Status.Invalid) {
+      if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid main channel.`;
       }
 
@@ -112,10 +112,10 @@ export class LiveChat implements BaseLiveChat {
       const channel = await graphQLAPI.fetchChannel(channelId);
 
       return channel;
-    } catch (e) {
+    } catch (e: unknown) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
-      if (e.message === Status.Invalid) {
+      if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid channel (${channelId}) id.`;
       }
 
@@ -136,10 +136,10 @@ export class LiveChat implements BaseLiveChat {
       const channelI = Channel.getInstance(channel, this.chatRoom);
 
       return channelI;
-    } catch (e) {
+    } catch (e: unknown) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
-      if (e.message === Status.Invalid) {
+      if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid channel (${channelId}) id.`;
       }
 

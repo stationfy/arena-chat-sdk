@@ -14,14 +14,7 @@ import {
   LiveChatChannel,
 } from '@arena-im/chat-types';
 import { BaseRealtime } from '../interfaces/base-realtime';
-import {
-  listenToCollectionChange,
-  listenToDocumentChange,
-  fetchCollectionItems,
-  listenToCollectionItemChange,
-  addItem,
-  fetchDocument,
-} from '../services/firestore-api';
+import { FirestoreAPI } from '@arena-im/core'
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {
@@ -84,7 +77,7 @@ export class RealtimeAPI implements BaseRealtime {
       config.where = [where];
     }
 
-    const questions = await fetchCollectionItems(config);
+    const questions = await FirestoreAPI.fetchCollectionItems(config);
 
     return questions as QnaQuestion[];
   }
@@ -148,7 +141,7 @@ export class RealtimeAPI implements BaseRealtime {
       where,
     };
 
-    const polls = await fetchCollectionItems(config);
+    const polls = await FirestoreAPI.fetchCollectionItems(config);
 
     return polls as Poll[];
   }
@@ -157,7 +150,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritDoc
    */
   public listenToMessage(channelId: string, callback: (messages: ChatMessage[]) => void, limit?: number): void {
-    const unsubscribe = listenToCollectionChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionChange(
       {
         path: `chat-rooms/${channelId}/messages`,
         limit,
@@ -203,7 +196,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToChatConfigChanges(path: string, callback: (channel: LiveChatChannel) => void): () => void {
-    const unsubscribe = listenToDocumentChange(
+    const unsubscribe = FirestoreAPI.listenToDocumentChange(
       {
         path,
       },
@@ -242,7 +235,7 @@ export class RealtimeAPI implements BaseRealtime {
       limit,
     };
 
-    const messages = await fetchCollectionItems(config);
+    const messages = await FirestoreAPI.fetchCollectionItems(config);
 
     return messages.reverse() as ChatMessage[];
   }
@@ -270,7 +263,7 @@ export class RealtimeAPI implements BaseRealtime {
       config.endAt = [lastClearedTimestamp];
     }
 
-    const messages = await fetchCollectionItems(config);
+    const messages = await FirestoreAPI.fetchCollectionItems(config);
 
     return messages.reverse() as ChatMessage[];
   }
@@ -291,7 +284,7 @@ export class RealtimeAPI implements BaseRealtime {
       limit = limit + 1;
     }
 
-    const messages = await fetchCollectionItems({
+    const messages = await FirestoreAPI.fetchCollectionItems({
       path: `${dataPath}/messages`,
       orderBy: [
         {
@@ -339,7 +332,7 @@ export class RealtimeAPI implements BaseRealtime {
       config.endAt = [lastClearedTimestamp];
     }
 
-    const messages = await fetchCollectionItems(config);
+    const messages = await FirestoreAPI.fetchCollectionItems(config);
 
     messages.reverse();
 
@@ -349,7 +342,7 @@ export class RealtimeAPI implements BaseRealtime {
   }
 
   public listenToQuestionReceived(channelId: string, callback: (message: QnaQuestion) => void): () => void {
-    const unsubscribe = listenToCollectionItemChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `qnas/${channelId}/questions`,
       },
@@ -371,7 +364,7 @@ export class RealtimeAPI implements BaseRealtime {
       throw new Error('failed');
     }
 
-    const unsubscribe = listenToCollectionItemChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `${dataPath}/messages`,
       },
@@ -389,7 +382,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToPollReceived(channelId: string, callback: (poll: Poll) => void): () => void {
-    const unsubscribe = listenToCollectionItemChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `polls`,
         where: [
@@ -419,7 +412,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToGroupMessageReceived(channelId: string, callback: (message: ChatMessage) => void): () => void {
-    const unsubscribe = listenToCollectionItemChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `group-channels/${channelId}/messages`,
       },
@@ -438,7 +431,7 @@ export class RealtimeAPI implements BaseRealtime {
    */
   public async sendReaction(reaction: ServerReaction): Promise<ServerReaction> {
     try {
-      return (await addItem('reactions', reaction)) as ServerReaction;
+      return (await FirestoreAPI.addItem('reactions', reaction)) as ServerReaction;
     } catch (e) {
       throw new Error('failed');
     }
@@ -452,7 +445,7 @@ export class RealtimeAPI implements BaseRealtime {
     user: ExternalUser,
     callback: (reactions: ServerReaction[]) => void,
   ): () => void {
-    const unsubscribe = listenToCollectionChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionChange(
       {
         path: 'reactions',
         where: [
@@ -486,7 +479,7 @@ export class RealtimeAPI implements BaseRealtime {
     userId: string,
     callback: (reactions: ServerReaction[]) => void,
   ): () => void {
-    const unsubscribe = listenToCollectionChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionChange(
       {
         path: 'reactions',
         where: [
@@ -525,7 +518,7 @@ export class RealtimeAPI implements BaseRealtime {
     qnaId: string,
     callback: (reaction: ServerReaction[]) => void,
   ): () => void {
-    const unsubscribe = listenToCollectionChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionChange(
       {
         path: 'reactions',
         where: [
@@ -555,7 +548,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchQnaUserReactions(userId: string, qnaId: string): Promise<ServerReaction[]> {
-    const reactions = await fetchCollectionItems({
+    const reactions = await FirestoreAPI.fetchCollectionItems({
       path: 'reactions',
       where: [
         {
@@ -578,7 +571,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchQnaProps(qnaId: string): Promise<QnaProps> {
-    const qnaProps = (await fetchDocument({
+    const qnaProps = (await FirestoreAPI.fetchDocument({
       path: `qnas/${qnaId}`,
     })) as QnaProps;
 
@@ -589,7 +582,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToQnaProps(qnaId: string, callback: (props: QnaProps) => void): () => void {
-    const unsubscribe = listenToDocumentChange(
+    const unsubscribe = FirestoreAPI.listenToDocumentChange(
       {
         path: `qnas/${qnaId}`,
       },
@@ -607,7 +600,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToUserGroupChannels(user: ExternalUser, callback: (groupChannels: GroupChannel[]) => void): () => void {
-    const unsubscribe = listenToCollectionChange(
+    const unsubscribe = FirestoreAPI.listenToCollectionChange(
       {
         path: 'group-channels',
         where: [

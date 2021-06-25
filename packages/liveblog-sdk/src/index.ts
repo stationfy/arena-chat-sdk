@@ -1,3 +1,3 @@
-import { ArenaChat } from './sdk';
+import { ArenaLiveblog } from './sdk';
 
-export default ArenaChat;
+export default ArenaLiveblog;

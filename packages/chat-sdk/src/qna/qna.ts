@@ -127,7 +127,7 @@ export class Qna implements BaseQna {
           return;
         }
 
-        const messages = [...this.cacheCurrentQuestions, newQuestion];
+        const messages = this.cacheCurrentQuestions.concat(newQuestion);
 
         this.updateCacheCurrentQuestions(messages);
 

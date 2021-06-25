@@ -462,7 +462,9 @@ export class Channel implements BaseChannel {
       const realtimeAPI = RealtimeAPI.getInstance();
       const messages = await realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
 
-      this.updateCacheCurrentMessages([...messages, ...this.cacheCurrentMessages]);
+
+
+      this.updateCacheCurrentMessages(messages.concat(this.cacheCurrentMessages));
 
       return messages;
     } catch (e) {
@@ -584,7 +586,7 @@ export class Channel implements BaseChannel {
           return;
         }
 
-        const messages = [...this.cacheCurrentMessages, newMessage];
+        const messages = this.cacheCurrentMessages.concat(newMessage);
 
         this.updateCacheCurrentMessages(messages);
 

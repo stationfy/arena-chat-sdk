@@ -68,7 +68,7 @@ export class Polls implements BasePolls {
           return;
         }
 
-        const polls = [...this.cacheCurrentPolls, newPoll];
+        const polls = this.cacheCurrentPolls.concat(newPoll);
 
         this.updateCacheCurrentPolls(polls);
 

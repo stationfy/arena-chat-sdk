@@ -307,7 +307,7 @@ export class PrivateChannel implements BasePrivateChannel {
         limit,
       );
 
-      this.updateCacheCurrentMessages([...messages, ...this.cacheCurrentMessages]);
+      this.updateCacheCurrentMessages(messages.concat(this.cacheCurrentMessages));
 
       return messages;
     } catch (e) {
@@ -341,7 +341,7 @@ export class PrivateChannel implements BasePrivateChannel {
           return;
         }
 
-        const messages = [...this.cacheCurrentMessages, newMessage];
+        const messages = this.cacheCurrentMessages.concat(newMessage);
 
         this.updateCacheCurrentMessages(messages);
 

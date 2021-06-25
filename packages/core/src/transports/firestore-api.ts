@@ -1,5 +1,5 @@
 import { OrderBy, ListenChangeConfig } from '@arena-im/chat-types';
-import * as firebase from 'firebase/app';
+import firebase from 'firebase';
 import 'firebase/firestore';
 import { SyncPromise } from '../utils/syncpromise';
 import { FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_PROJECT_ID } from '../config';
@@ -12,12 +12,9 @@ const config = {
 
 let app;
 
-// @ts-ignore
 if (firebase.apps.length) {
-  // @ts-ignore
   app = firebase.initializeApp(config, 'arena-firebase');
 } else {
-  // @ts-ignore
   app = firebase.initializeApp(config);
 }
 
@@ -194,11 +191,11 @@ export function fetchCollectionItems({
     }
 
     if (endAt) {
-      queryRef = queryRef.endAt(...endAt);
+      queryRef = queryRef.endAt.apply(queryRef, endAt) as firebase.firestore.Query<firebase.firestore.DocumentData>;
     }
 
     if (startAt) {
-      queryRef = queryRef.startAt(...startAt);
+      queryRef = queryRef.startAt.apply(queryRef, startAt) as firebase.firestore.Query<firebase.firestore.DocumentData>;
     }
 
     if (limit) {

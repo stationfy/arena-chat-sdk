@@ -17,10 +17,10 @@ export class UserProfile implements BaseUserProfile {
       const user = await graphQLAPI.fetchUserProfile(userId);
 
       return user;
-    } catch (e) {
+    } catch (e: unknown) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
-      if (e.message === Status.Invalid) {
+      if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid user (${userId}) id.`;
       }
 
@@ -35,10 +35,10 @@ export class UserProfile implements BaseUserProfile {
       const user = await graphQLAPI.fetchUserProfile(userId);
 
       return user;
-    } catch (e) {
+    } catch (e: unknown) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
-      if (e.message === Status.Invalid) {
+      if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid user (${userId}) id.`;
       }
 
@@ -53,10 +53,10 @@ export class UserProfile implements BaseUserProfile {
       const updatedUser = await graphQLAPI.updateUser(user);
 
       return updatedUser;
-    } catch (e) {
+    } catch (e: unknown) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
-      if (e.message === Status.Invalid) {
+      if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid user to update.`;
       }
 
