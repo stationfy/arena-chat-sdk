@@ -62,6 +62,8 @@
         "fix:tslint": "tslint --fix -t stylish -p .",
         "prepare": "run-s build",
         "publish:registry": "yarn publish --access public",
+        "size:check": "run-p size:check:bundle",
+        "size:check:bundle": "cat dist/*.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'",
         "test": "jest",
         "test:jest:watch": "jest --watch",
         "test:watch": "run-s copy-config:dev test:jest:watch"
