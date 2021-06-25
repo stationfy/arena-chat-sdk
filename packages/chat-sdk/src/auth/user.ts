@@ -1,16 +1,12 @@
 import { ExternalUser } from '@arena-im/chat-types';
-import { createObserver, Listerner } from '../utils/observer';
-import { ArenaChat } from '../sdk';
 import { RestAPI } from '../services/rest-api';
-
-type UserEvent = ExternalUser | null;
+import { Credentials } from './credentials';
+import { UserObservable } from './user-observable';
 
 export class User {
   private static userInstance: User;
-  private userChangedListeners = createObserver<UserEvent>();
   public data: ExternalUser | null = null;
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   public static get instance(): User {
@@ -19,16 +15,6 @@ export class User {
     }
 
     return User.userInstance;
-  }
-
-  /**
-   * Whatch set a new user
-   *
-   * @param listener subscribe function
-   * @returns unsubscribe function
-   */
-  public onUserChanged(listener: Listerner<UserEvent>): () => void {
-    return this.userChangedListeners.subscribe(listener)
   }
 
   /**
@@ -42,7 +28,7 @@ export class User {
     const restAPI = RestAPI.getAPIInstance();
 
     const result = await restAPI.getArenaUser({
-      provider: ArenaChat.apiKey,
+      provider: Credentials.apiKey,
       username: user.id,
       profile: {
         urlName: `${+new Date()}`,
@@ -67,13 +53,13 @@ export class User {
       isBanned: result.isBanned,
     };
 
-    this.userChangedListeners.publish(this.data)
+    UserObservable.instance.updateUser(this.data)
 
     return this.data;
   }
 
   public setInternalUser(user: ExternalUser): ExternalUser | null {
-    this.userChangedListeners.publish(user)
+    UserObservable.instance.updateUser(user)
 
     this.data = user;
 
@@ -87,6 +73,6 @@ export class User {
   public unsetUser(): void {
     this.data = null;
 
-    this.userChangedListeners.publish(null)
+    UserObservable.instance.updateUser(null)
   }
 }

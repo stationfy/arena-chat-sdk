@@ -10,7 +10,7 @@ import {
 import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
-import { ArenaChat } from '../sdk';
+import { Credentials } from '../auth/credentials';
 
 export class LiveChat implements BaseLiveChat {
   private static instance: Promise<LiveChat>;
@@ -32,7 +32,7 @@ export class LiveChat implements BaseLiveChat {
   private static async fetchChatRoom(chatSlug: string): Promise<ChatRoom> {
     const restAPI = RestAPI.getCachedInstance();
 
-    const { chatRoom } = await restAPI.loadChatRoom(ArenaChat.apiKey, chatSlug);
+    const { chatRoom } = await restAPI.loadChatRoom(Credentials.apiKey, chatSlug);
 
     return chatRoom;
   }

@@ -18,6 +18,7 @@ import { GraphQLTransport } from '@arena-im/core'
 import { DEFAULT_AUTH_TOKEN } from '../config';
 import { OrganizationSite } from '../organization/organization-site';
 import { User } from '../auth/user';
+import { UserObservable } from '../auth/user-observable';
 
 export class GraphQLAPI {
   private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;
@@ -28,7 +29,7 @@ export class GraphQLAPI {
 
     this.transport = new GraphQLTransport(user?.token || DEFAULT_AUTH_TOKEN, site._id, site.settings.graphqlPubApiKey);
 
-    User.instance.onUserChanged(this.handleUserChange.bind(this));
+    UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
 
   public static get instance(): Promise<GraphQLAPI> {

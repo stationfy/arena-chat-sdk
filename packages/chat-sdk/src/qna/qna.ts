@@ -10,6 +10,7 @@ import {
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
 import { User } from '../auth/user';
+import { UserObservable } from '../auth/user-observable';
 
 export class Qna implements BaseQna {
   private realtimeAPI: RealtimeAPI;
@@ -31,7 +32,7 @@ export class Qna implements BaseQna {
   public constructor(props: QnaProps, private qnaId: string) {
     this.realtimeAPI = RealtimeAPI.getInstance();
 
-    User.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
+    UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.preModeration = props.preModeration;
     this.language = props.language;

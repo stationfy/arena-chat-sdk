@@ -31,7 +31,8 @@ const plugins = [
   }),
   resolve({
     mainFields: ['module'],
-    preferBuiltins: true
+    preferBuiltins: true,
+    browser: true
   }),
   commonjs(),
   json()

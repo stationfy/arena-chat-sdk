@@ -23,6 +23,7 @@ import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
 import { User } from '../auth/user';
 import { OrganizationSite } from '../organization/organization-site';
+import { UserObservable } from '../auth/user-observable';
 
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
@@ -38,7 +39,7 @@ export class Channel implements BaseChannel {
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
 
-    User.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
+    UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
 
     this.markReadDebounced = debounce(this.markRead, 10000);
   }

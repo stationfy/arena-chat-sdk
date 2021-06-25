@@ -10,6 +10,7 @@ import {
 } from '@arena-im/chat-types';
 import { LiveChat } from './live-chat/live-chat';
 import { User } from './auth/user';
+import { Credentials } from './auth/credentials';
 /**
  * Chat SDK Client
  *
@@ -29,12 +30,11 @@ import { User } from './auth/user';
  *```
  */
 export class ArenaChat {
-  public static apiKey: string;
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private userProfileI: BaseUserProfile | null = null;
 
   public constructor(apiKey: string) {
-    ArenaChat.apiKey = apiKey;
+    Credentials.apiKey = apiKey;
   }
 
   /**
@@ -204,7 +204,7 @@ export class ArenaChat {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
       if (e === Status.Invalid) {
-        erroMessage = `Invalid site (${ArenaChat.apiKey}) or live chat (${slug}) slugs.`;
+        erroMessage = `Invalid site (${Credentials.apiKey}) or live chat (${slug}) slugs.`;
       }
 
       throw new Error(erroMessage);

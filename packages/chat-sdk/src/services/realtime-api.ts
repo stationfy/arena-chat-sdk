@@ -13,8 +13,7 @@ import {
   QnaQuestionFilter,
   LiveChatChannel,
 } from '@arena-im/chat-types';
-import { BaseRealtime } from '../interfaces/base-realtime';
-import { FirestoreAPI } from '@arena-im/core'
+import { FirestoreAPI, BaseRealtime } from '@arena-im/core'
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {

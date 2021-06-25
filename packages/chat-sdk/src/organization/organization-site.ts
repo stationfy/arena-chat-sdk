@@ -1,5 +1,5 @@
 import { Site } from '@arena-im/chat-types';
-import { ArenaChat } from '../sdk';
+import { Credentials } from '../auth/credentials';
 import { RestAPI } from '../services/rest-api';
 
 export class OrganizationSite {
@@ -16,7 +16,7 @@ export class OrganizationSite {
 
   public async getSite(): Promise<Site> {
     if (this.site === null) {
-      this.site = await this.fetchSiteData(ArenaChat.apiKey);
+      this.site = await this.fetchSiteData(Credentials.apiKey);
     }
 
     return this.site;

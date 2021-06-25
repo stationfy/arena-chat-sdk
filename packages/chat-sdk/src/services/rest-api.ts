@@ -15,12 +15,10 @@ import {
   ServerReaction,
   SendReactionResult,
 } from '@arena-im/chat-types';
-import { FetchTransport, XHRTransport, BaseTransport } from '@arena-im/core'
-import { BaseRest, BaseRestOptions } from '../interfaces/base-rest';
+import { FetchTransport, XHRTransport, BaseTransport, BaseRest, BaseRestOptions } from '@arena-im/core';
 import { supportsFetch } from '../utils/supports';
-// import { BaseTransport } from '../interfaces/base-transport';
 import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
-import { User } from '../auth/user';
+import { UserObservable } from '../auth/user-observable';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {
@@ -39,7 +37,7 @@ export class RestAPI implements BaseRest {
     }
 
     this.setTransport(authToken);
-    User.instance.onUserChanged(this.handleUserChange.bind(this));
+    UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
 
   private setTransport(authToken?: string) {
