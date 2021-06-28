@@ -1,6 +1,22 @@
 import { OrderBy, ListenChangeConfig } from '@arena-im/chat-types';
-import firebase from 'firebase';
-import 'firebase/firestore';
+import { initializeApp, getApps } from 'firebase/app';
+import {
+  CollectionReference,
+  DocumentData,
+  initializeFirestore,
+  collection,
+  onSnapshot,
+  orderBy,
+  QueryConstraint,
+  limit,
+  where,
+  query,
+  endAt,
+  startAt,
+  doc,
+  getDoc,
+  setDoc,
+} from 'firebase/firestore';
 import { SyncPromise } from '../utils/syncpromise';
 import { FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_PROJECT_ID } from '../config';
 
@@ -12,14 +28,13 @@ const config = {
 
 let app;
 
-if (firebase.apps.length) {
-  app = firebase.initializeApp(config, 'arena-firebase');
+if (getApps().length) {
+  app = initializeApp(config, 'arena-firebase');
 } else {
-  app = firebase.initializeApp(config);
+  app = initializeApp(config);
 }
 
-const firestore = app.firestore();
-app.firestore().settings({
+const firestore = initializeFirestore(app, {
   experimentalAutoDetectLongPolling: true,
 });
 
@@ -30,47 +45,51 @@ app.firestore().settings({
  * @param callback
  */
 export function listenToCollectionChange(
-  { path, limit, orderBy, where }: ListenChangeConfig,
-  callback: (response: firebase.firestore.DocumentData[]) => void,
+  listenChangeConfig: ListenChangeConfig,
+  callback: (response: DocumentData) => void,
 ): () => void {
-  let queryRef = getQueryRefByPath(path);
+  const queryRef = collection(firestore, listenChangeConfig.path);
 
   if (queryRef === null) {
-    throw new Error(`Invalid path: ${path}`);
+    throw new Error(`Invalid path: ${listenChangeConfig.path}`);
   }
 
-  if (orderBy) {
-    orderBy.forEach((sort: OrderBy) => {
+  const contraints: QueryConstraint[] = [];
+  if (listenChangeConfig.orderBy) {
+    listenChangeConfig.orderBy.forEach((sort: OrderBy) => {
       if (queryRef === null) {
         return;
       }
 
       if (sort.desc) {
-        queryRef = queryRef.orderBy(sort.field, 'desc');
+        contraints.push(orderBy(sort.field, 'desc'));
       } else {
-        queryRef = queryRef.orderBy(sort.field);
+        contraints.push(orderBy(sort.field));
       }
     });
   }
 
-  if (limit) {
-    queryRef = queryRef.limit(limit);
+  if (listenChangeConfig.limit) {
+    contraints.push(limit(listenChangeConfig.limit));
   }
 
-  if (where) {
-    where.forEach((whereClause) => {
+  if (listenChangeConfig.where) {
+    listenChangeConfig.where.forEach((whereClause) => {
       if (queryRef === null) {
         return;
       }
 
       // @ts-ignore
-      queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
+      contraints.push(where(whereClause.fieldPath, whereClause.opStr, whereClause.value));
     });
   }
 
-  return queryRef.onSnapshot(
+  const listenQuery = query(queryRef, ...contraints);
+
+  return onSnapshot(
+    listenQuery,
     (querySnapshot) => {
-      const results: firebase.firestore.DocumentData[] = [];
+      const results: DocumentData[] = [];
 
       querySnapshot.forEach((doc) => {
         results.push(doc.data());
@@ -79,7 +98,7 @@ export function listenToCollectionChange(
       callback(results);
     },
     function (err) {
-      console.log('listen error', err, path);
+      console.error('listen error', err, listenChangeConfig.path);
     },
   );
 }
@@ -90,70 +109,24 @@ export function listenToCollectionChange(
  * @param options Listen config
  * @param callback
  */
-export function listenToDocumentChange(
-  { path, where }: ListenChangeConfig,
-  callback: (response: firebase.firestore.DocumentData) => void,
-): () => void {
-  let queryRef = getQueryRefByPath(path);
+export function listenToDocumentChange(path: string, callback: (response: DocumentData) => void): () => void {
+  const queryRef = doc(firestore, path);
 
   if (queryRef === null) {
     throw new Error(`Invalid path: ${path}`);
   }
 
-  if (where) {
-    where.forEach((whereClause) => {
-      if (queryRef === null) {
-        return;
-      }
-
-      // @ts-ignore
-      queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
-    });
-  }
-
-  return queryRef.onSnapshot(
+  return onSnapshot(
+    queryRef,
     (querySnapshot) => {
-      // @ts-ignore
-      const result = querySnapshot.data();
+      const result = querySnapshot.data;
 
       callback(result);
     },
     function (err) {
-      console.log('listen error', err, path);
+      console.error('listen error', err, path);
     },
   );
-}
-
-/**
- * Get the firestore query ref
- * @param path firestore path
- */
-function getQueryRefByPath(path: string): firebase.firestore.Query | null {
-  let documentRef: firebase.firestore.DocumentReference | null = null;
-  let collectionRef: firebase.firestore.CollectionReference | null = null;
-
-  let isNextCollection = true;
-
-  path.split('/').forEach((item) => {
-    if (!item) {
-      return;
-    }
-
-    if (isNextCollection) {
-      if (documentRef === null) {
-        collectionRef = firestore.collection(item);
-      } else {
-        collectionRef = documentRef.collection(item);
-      }
-
-      isNextCollection = false;
-    } else if (collectionRef !== null) {
-      documentRef = collectionRef.doc(item);
-      isNextCollection = true;
-    }
-  });
-
-  return isNextCollection ? documentRef : collectionRef;
 }
 
 /**
@@ -161,72 +134,61 @@ function getQueryRefByPath(path: string): firebase.firestore.Query | null {
  *
  * @param options
  */
-export function fetchCollectionItems({
-  path,
-  orderBy,
-  limit,
-  startAt,
-  endAt,
-  where,
-}: ListenChangeConfig): PromiseLike<firebase.firestore.DocumentData[]> {
-  return new SyncPromise<firebase.firestore.DocumentData[]>((resolve, reject) => {
-    let queryRef = getQueryRefByPath(path);
+export function fetchCollectionItems(listenChangeConfig: ListenChangeConfig): PromiseLike<DocumentData[]> {
+  return new SyncPromise<DocumentData[]>((resolve, reject) => {
+    const queryRef = collection(firestore, listenChangeConfig.path);
 
     if (queryRef === null) {
-      throw new Error(`Invalid path: ${path}`);
+      throw new Error(`Invalid path: ${listenChangeConfig.path}`);
     }
 
-    if (orderBy) {
-      orderBy.forEach((sort) => {
-        if (queryRef === null) {
-          return;
-        }
-
+    const contraints: QueryConstraint[] = [];
+    if (listenChangeConfig.orderBy) {
+      listenChangeConfig.orderBy.forEach((sort) => {
         if (sort.desc) {
-          queryRef = queryRef.orderBy(sort.field, 'desc');
+          contraints.push(orderBy(sort.field, 'desc'));
         } else {
-          queryRef = queryRef.orderBy(sort.field);
+          contraints.push(orderBy(sort.field));
         }
       });
     }
 
-    if (endAt) {
-      queryRef = queryRef.endAt.apply(queryRef, endAt) as firebase.firestore.Query<firebase.firestore.DocumentData>;
+    if (listenChangeConfig.endAt) {
+      contraints.push(endAt(...listenChangeConfig.endAt));
     }
 
-    if (startAt) {
-      queryRef = queryRef.startAt.apply(queryRef, startAt) as firebase.firestore.Query<firebase.firestore.DocumentData>;
+    if (listenChangeConfig.startAt) {
+      contraints.push(startAt(...listenChangeConfig.startAt));
     }
 
-    if (limit) {
-      queryRef = queryRef.limit(limit);
+    if (listenChangeConfig.limit) {
+      contraints.push(limit(listenChangeConfig.limit));
     }
 
-    if (where) {
-      where.forEach((whereClause) => {
-        if (queryRef === null) {
-          return;
-        }
-
+    if (listenChangeConfig.where) {
+      listenChangeConfig.where.forEach((whereClause) => {
         // @ts-ignore
-        queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
+        contraints.push(where(whereClause.fieldPath, whereClause.opStr, whereClause.value));
       });
     }
 
-    queryRef
-      .get()
-      .then((querySnapshot) => {
-        const results: firebase.firestore.DocumentData[] = [];
+    const queryCollectionItems = query(queryRef, ...contraints);
+
+    return onSnapshot(
+      queryCollectionItems,
+      (querySnapshot) => {
+        const results: DocumentData[] = [];
 
         querySnapshot.forEach((doc) => {
           results.push(doc.data());
         });
 
         resolve(results);
-      })
-      .catch((error) => {
+      },
+      function (error) {
         reject(error);
-      });
+      },
+    );
   });
 }
 
@@ -235,40 +197,21 @@ export function fetchCollectionItems({
  *
  * @param options
  */
-export function fetchDocument({ path, where }: ListenChangeConfig): PromiseLike<firebase.firestore.DocumentData> {
-  return new SyncPromise<firebase.firestore.DocumentData>((resolve, reject) => {
-    const queryRef = getQueryRefByPath(path);
+export function fetchDocument(path: string): PromiseLike<DocumentData> {
+  return new SyncPromise<DocumentData>((resolve) => {
+    const queryRef = doc(firestore, path);
 
     if (queryRef === null) {
       throw new Error(`Invalid path: ${path}`);
     }
 
-    // @ts-ignore
-    const documentRef: firebase.firestore.DocumentReference = queryRef;
+    getDoc(queryRef).then((queryDocument) => {
+      if (!queryDocument.exists) {
+        resolve(null);
+      }
 
-    if (where) {
-      where.forEach((whereClause) => {
-        if (queryRef === null) {
-          return;
-        }
-
-        // @ts-ignore
-        documentRef = documentRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
-      });
-    }
-
-    documentRef
-      .get()
-      .then((querySnapshot) => {
-        if (!querySnapshot.exists) {
-          resolve(null);
-        }
-
-        resolve(querySnapshot.data());
-      })
-      .catch((error) => {
-        reject(error);
-      });
+      resolve(queryDocument.data());
+    });
   });
 }
 
@@ -279,45 +222,42 @@ export function fetchDocument({ path, where }: ListenChangeConfig): PromiseLike<
  * @param callback
  */
 export function listenToCollectionItemChange(
-  { path, limit, orderBy, where }: ListenChangeConfig,
-  callback: (response: firebase.firestore.DocumentData) => void,
+  listenChangeConfig: ListenChangeConfig,
+  callback: (response: DocumentData) => void,
 ): () => void {
-  let queryRef = getQueryRefByPath(path);
+  const queryRef = collection(firestore, listenChangeConfig.path);
 
   if (queryRef === null) {
-    throw new Error(`Invalid path: ${path}`);
+    throw new Error(`Invalid path: ${listenChangeConfig.path}`);
   }
 
-  if (orderBy) {
-    orderBy.forEach((sort: OrderBy) => {
-      if (queryRef === null) {
-        return;
-      }
+  const contraints: QueryConstraint[] = [];
 
+  if (listenChangeConfig.orderBy) {
+    listenChangeConfig.orderBy.forEach((sort: OrderBy) => {
       if (sort.desc) {
-        queryRef = queryRef.orderBy(sort.field, 'desc');
+        contraints.push(orderBy(sort.field, 'desc'));
       } else {
-        queryRef = queryRef.orderBy(sort.field);
+        contraints.push(orderBy(sort.field));
       }
     });
   }
 
-  if (limit) {
-    queryRef = queryRef.limit(limit);
+  if (listenChangeConfig.limit) {
+    contraints.push(limit(listenChangeConfig.limit));
   }
 
-  if (where) {
-    where.forEach((whereClause) => {
-      if (queryRef === null) {
-        return;
-      }
-
+  if (listenChangeConfig.where) {
+    listenChangeConfig.where.forEach((whereClause) => {
       // @ts-ignore
-      queryRef = queryRef.where(whereClause.fieldPath, whereClause.opStr, whereClause.value);
+      contraints.push(where(whereClause.fieldPath, whereClause.opStr, whereClause.value));
     });
   }
 
-  return queryRef.onSnapshot(
+  const queryDocument = query(queryRef, ...contraints);
+
+  return onSnapshot(
+    queryDocument,
     (querySnapshot) => {
       const changes = querySnapshot.docChanges();
 
@@ -331,7 +271,7 @@ export function listenToCollectionItemChange(
       }
     },
     function (err) {
-      console.log('listen error', err, path);
+      console.error('listen error', err, listenChangeConfig.path);
     },
   );
 }
@@ -343,17 +283,18 @@ export function listenToCollectionItemChange(
  */
 export function addItem(path: string, value: { [key: string]: any }): Promise<{ [key: string]: any }> {
   return new Promise((resolve, reject) => {
-    const collectionRef = getQueryRefByPath(path) as firebase.firestore.CollectionReference;
+    const collectionRef = collection(firestore, path) as CollectionReference;
 
     if (collectionRef === null) {
       throw new Error(`Invalid path: ${path}`);
     }
 
-    const docRef = collectionRef.doc();
+    doc(firestore, path);
+
+    const docRef = doc(firestore, path);
     value.key = docRef.id;
 
-    return docRef
-      .set(value)
+    return setDoc(docRef, value)
       .then(() => {
         resolve(value);
       })

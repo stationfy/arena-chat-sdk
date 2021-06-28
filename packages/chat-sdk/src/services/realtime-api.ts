@@ -13,7 +13,7 @@ import {
   QnaQuestionFilter,
   LiveChatChannel,
 } from '@arena-im/chat-types';
-import { FirestoreAPI, BaseRealtime } from '@arena-im/core'
+import { FirestoreAPI, BaseRealtime } from '@arena-im/core';
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {
@@ -155,7 +155,7 @@ export class RealtimeAPI implements BaseRealtime {
         limit,
       },
       (response) => {
-        const messages: ChatMessage[] = response.map((messageData) => ({
+        const messages: ChatMessage[] = response.map((messageData: Partial<ChatMessage>) => ({
           createdAt: messageData.createdAt,
           key: messageData.key,
           message: messageData.message,
@@ -195,16 +195,11 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToChatConfigChanges(path: string, callback: (channel: LiveChatChannel) => void): () => void {
-    const unsubscribe = FirestoreAPI.listenToDocumentChange(
-      {
-        path,
-      },
-      (data) => {
-        const channel: LiveChatChannel = data as LiveChatChannel;
+    const unsubscribe = FirestoreAPI.listenToDocumentChange(path, (data) => {
+      const channel: LiveChatChannel = data as LiveChatChannel;
 
-        callback(channel);
-      },
-    );
+      callback(channel);
+    });
     this.unsbscribeFunctions.push(unsubscribe);
 
     return unsubscribe;
@@ -570,9 +565,7 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public async fetchQnaProps(qnaId: string): Promise<QnaProps> {
-    const qnaProps = (await FirestoreAPI.fetchDocument({
-      path: `qnas/${qnaId}`,
-    })) as QnaProps;
+    const qnaProps = (await FirestoreAPI.fetchDocument(`qnas/${qnaId}`)) as QnaProps;
 
     return qnaProps;
   }
@@ -581,14 +574,9 @@ export class RealtimeAPI implements BaseRealtime {
    * @inheritdoc
    */
   public listenToQnaProps(qnaId: string, callback: (props: QnaProps) => void): () => void {
-    const unsubscribe = FirestoreAPI.listenToDocumentChange(
-      {
-        path: `qnas/${qnaId}`,
-      },
-      (response) => {
-        callback(response as QnaProps);
-      },
-    );
+    const unsubscribe = FirestoreAPI.listenToDocumentChange(`qnas/${qnaId}`, (response) => {
+      callback(response as QnaProps);
+    });
 
     this.unsbscribeFunctions.push(unsubscribe);
 

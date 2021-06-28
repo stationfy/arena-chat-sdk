@@ -19,7 +19,7 @@
     "types": "dist/index.d.ts",
     "dependencies": {
         "@arena-im/chat-types": "^2.0.30",
-        "firebase": "^8.6.8",
+        "firebase": "^9.0.0-beta.5",
         "graphql": "^15.5.0",
         "graphql-request": "^3.4.0"
     },

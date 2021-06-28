@@ -157,11 +157,11 @@ export class Channel implements BaseChannel {
     }
 
     const graphQLAPI = await GraphQLAPI.instance;
-    
+
     try {
       const response = await graphQLAPI.deleteOpenChannelMessage(this.channel._id, message.key);
 
-      return response
+      return response;
     } catch (e) {
       throw new Error(`Cannot delete this message: "${message.key}". Contact the Arena support team.`);
     }
@@ -462,8 +462,6 @@ export class Channel implements BaseChannel {
 
       const realtimeAPI = RealtimeAPI.getInstance();
       const messages = await realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
-
-
 
       this.updateCacheCurrentMessages(messages.concat(this.cacheCurrentMessages));
 
