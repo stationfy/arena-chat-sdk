@@ -6,8 +6,7 @@ import {
   BasePrivateChannel,
   PrivateMessageInput,
 } from '@arena-im/chat-types';
-import { User } from '@arena-im/core';
-import { OrganizationSite } from '../organization/organization-site';
+import { User, OrganizationSite } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
 

@@ -14,9 +14,8 @@ import {
   ChannelMessageReactions,
   PageRequest,
 } from '@arena-im/chat-types';
-import { GraphQLTransport, User, UserObservable } from '@arena-im/core';
+import { GraphQLTransport, User, UserObservable, OrganizationSite } from '@arena-im/core';
 import { DEFAULT_AUTH_TOKEN } from '../config';
-import { OrganizationSite } from '../organization/organization-site';
 
 export class GraphQLAPI {
   private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;
