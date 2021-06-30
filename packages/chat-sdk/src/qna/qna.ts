@@ -7,10 +7,9 @@ import {
   ExternalUser,
   QnaProps,
 } from '@arena-im/chat-types';
+import { User, UserObservable } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
-import { User } from '../auth/user';
-import { UserObservable } from '../auth/user-observable';
 
 export class Qna implements BaseQna {
   private realtimeAPI: RealtimeAPI;

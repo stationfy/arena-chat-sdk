@@ -1,5 +1,5 @@
 import { BaseUserProfile, PublicUser, PublicUserInput, Status } from '@arena-im/chat-types';
-import { User } from '../auth/user';
+import { User } from '@arena-im/core';
 
 import { GraphQLAPI } from '../services/graphql-api';
 

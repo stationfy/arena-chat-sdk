@@ -14,18 +14,16 @@ import {
   ChannelMessageReactions,
   PageRequest,
 } from '@arena-im/chat-types';
-import { GraphQLTransport } from '@arena-im/core'
+import { GraphQLTransport, User, UserObservable } from '@arena-im/core';
 import { DEFAULT_AUTH_TOKEN } from '../config';
 import { OrganizationSite } from '../organization/organization-site';
-import { User } from '../auth/user';
-import { UserObservable } from '../auth/user-observable';
 
 export class GraphQLAPI {
   private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;
   private transport: GraphQLTransport;
 
   private constructor(site: Site) {
-    const user = User.instance.data
+    const user = User.instance.data;
 
     this.transport = new GraphQLTransport(user?.token || DEFAULT_AUTH_TOKEN, site._id, site.settings.graphqlPubApiKey);
 
@@ -42,8 +40,8 @@ export class GraphQLAPI {
     return GraphQLAPI.graphQLAPIInstance;
   }
 
-  public static cleanInstance (): void {
-    GraphQLAPI.graphQLAPIInstance = undefined
+  public static cleanInstance(): void {
+    GraphQLAPI.graphQLAPIInstance = undefined;
   }
 
   private handleUserChange(user: ExternalUser | null) {
@@ -868,7 +866,7 @@ export class GraphQLAPI {
     }
 
     if (user.socialLinks) {
-      input.socialLinks = user.socialLinks
+      input.socialLinks = user.socialLinks;
     }
 
     if (typeof user.location !== 'undefined') {

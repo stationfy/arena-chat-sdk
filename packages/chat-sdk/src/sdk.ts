@@ -8,9 +8,8 @@ import {
   PublicUser,
   PublicUserInput,
 } from '@arena-im/chat-types';
+import { User, Credentials } from '@arena-im/core';
 import { LiveChat } from './live-chat/live-chat';
-import { User } from './auth/user';
-import { Credentials } from './auth/credentials';
 /**
  * Chat SDK Client
  *

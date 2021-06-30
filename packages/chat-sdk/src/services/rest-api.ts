@@ -15,10 +15,9 @@ import {
   ServerReaction,
   SendReactionResult,
 } from '@arena-im/chat-types';
-import { FetchTransport, XHRTransport, BaseTransport, BaseRest, BaseRestOptions } from '@arena-im/core';
+import { FetchTransport, XHRTransport, BaseTransport, BaseRest, BaseRestOptions, UserObservable } from '@arena-im/core';
 import { supportsFetch } from '../utils/supports';
 import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
-import { UserObservable } from '../auth/user-observable';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {

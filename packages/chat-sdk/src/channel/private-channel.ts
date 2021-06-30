@@ -6,8 +6,8 @@ import {
   BasePrivateChannel,
   PrivateMessageInput,
 } from '@arena-im/chat-types';
+import { User } from '@arena-im/core';
 import { OrganizationSite } from '../organization/organization-site';
-import { User } from '../auth/user';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
 
@@ -238,14 +238,14 @@ export class PrivateChannel implements BasePrivateChannel {
       const payload: PrivateMessageInput = {
         groupChannelId: this.groupChannel._id,
         message,
-      }
+      };
 
       if (replyMessageId) {
-        payload.replyTo = replyMessageId
+        payload.replyTo = replyMessageId;
       }
 
       if (tempId) {
-        payload.tempId = tempId
+        payload.tempId = tempId;
       }
 
       const response = await graphQLAPI.sendPrivateMessage(payload);
@@ -404,7 +404,7 @@ export class PrivateChannel implements BasePrivateChannel {
             if (message.currentUserReactions) {
               modifiedMessage.currentUserReactions = message.currentUserReactions;
             }
-            
+
             return modifiedMessage;
           }
 

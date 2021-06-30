@@ -1,0 +1,1 @@
+export { supportsFetch } from './supports';

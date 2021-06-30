@@ -1,5 +1,5 @@
 import { Site } from '@arena-im/chat-types';
-import { Credentials } from '../auth/credentials';
+import { Credentials } from '@arena-im/core';
 import { RestAPI } from '../services/rest-api';
 
 export class OrganizationSite {

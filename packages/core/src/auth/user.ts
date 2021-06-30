@@ -7,6 +7,7 @@ export class User {
   private static userInstance: User;
   public data: ExternalUser | null = null;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   public static get instance(): User {
@@ -53,13 +54,13 @@ export class User {
       isBanned: result.isBanned,
     };
 
-    UserObservable.instance.updateUser(this.data)
+    UserObservable.instance.updateUser(this.data);
 
     return this.data;
   }
 
   public setInternalUser(user: ExternalUser): ExternalUser | null {
-    UserObservable.instance.updateUser(user)
+    UserObservable.instance.updateUser(user);
 
     this.data = user;
 
@@ -73,6 +74,6 @@ export class User {
   public unsetUser(): void {
     this.data = null;
 
-    UserObservable.instance.updateUser(null)
+    UserObservable.instance.updateUser(null);
   }
 }

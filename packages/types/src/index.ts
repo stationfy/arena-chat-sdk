@@ -33,3 +33,4 @@ export { BasePolls, Poll, PollFilter } from './polls';
 export { TrackPayload, EventMap } from './arena-hub';
 export { BaseUserProfile } from './user-profile';
 export { BaseReaction, MessageReactions, ChannelMessageReactions } from './reaction';
+export { ILiveblogInfo } from './liveblog';

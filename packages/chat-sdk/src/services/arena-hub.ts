@@ -1,8 +1,8 @@
 import { ChatRoom, TrackPayload, EventMap } from '@arena-im/chat-types';
+import { User } from '@arena-im/core';
 import { getGlobalObject } from '../utils/misc';
 import { RestAPI } from './rest-api';
 import { OrganizationSite } from '../organization/organization-site';
-import { User } from '../auth/user';
 
 type OptionalSpread<T = undefined> = T extends undefined ? [] : [T];
 

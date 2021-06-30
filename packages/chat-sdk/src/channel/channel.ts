@@ -16,14 +16,13 @@ import {
   ChannelMessageReactions,
   BaseReaction,
 } from '@arena-im/chat-types';
+import { User, UserObservable } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
-import { User } from '../auth/user';
 import { OrganizationSite } from '../organization/organization-site';
-import { UserObservable } from '../auth/user-observable';
 
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};

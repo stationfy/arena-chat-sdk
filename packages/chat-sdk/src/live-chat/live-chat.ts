@@ -7,10 +7,10 @@ import {
   BaseChannel,
   PageRequest,
 } from '@arena-im/chat-types';
+import { Credentials } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
-import { Credentials } from '../auth/credentials';
 
 export class LiveChat implements BaseLiveChat {
   private static instance: Promise<LiveChat>;

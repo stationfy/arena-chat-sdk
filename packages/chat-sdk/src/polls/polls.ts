@@ -1,7 +1,7 @@
 import { BasePolls, Poll, PollFilter, ServerReaction, LiveChatChannel, DocumentChangeType } from '@arena-im/chat-types';
+import { User } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
-import { User } from '../auth/user';
 
 export class Polls implements BasePolls {
   private realtimeAPI: RealtimeAPI;
