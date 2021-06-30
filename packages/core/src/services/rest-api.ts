@@ -1,4 +1,4 @@
-import { ProviderUser, ExternalUser, SSOExchangeResult } from '@arena-im/chat-types';
+import { ProviderUser, ExternalUser, SSOExchangeResult, Site } from '@arena-im/chat-types';
 import { FetchTransport, XHRTransport } from '../transports';
 import { BaseTransport, BaseRestOptions } from '../interfaces';
 import { supportsFetch } from '../utils/supports';
@@ -98,6 +98,16 @@ export class RestAPI {
       };
 
       return externalUser;
+    });
+  }
+
+  /**
+   *
+   * @inheritdoc
+   */
+  public loadSite(siteSlug: string): PromiseLike<Site> {
+    return this.transport.get<Site>(`/sites/${siteSlug}`).then((site) => {
+      return site;
     });
   }
 }

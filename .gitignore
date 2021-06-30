@@ -1,6 +1,8 @@
 # dependencies
 node_modules/
-packages/sdk/src/config.ts
+packages/chat-sdk/src/config.ts
+packages/liveblog-sdk/src/config.ts
+packages/core/src/config.ts
 
 # build and test
 dist/
