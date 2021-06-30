@@ -1,0 +1,72 @@
+{
+  "name": "@arena-im/chat-sdk",
+  "version": "2.0.30",
+  "description": "arena-chat-sdk is the official JavaScript client for Arena Chat, a service for building chat applications.",
+  "author": "Arena",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stationfy/arena-chat-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stationfy/arena-chat-sdk/issues"
+  },
+  "homepage": "https://github.com/stationfy/arena-chat-sdk#readme",
+  "engines": {
+    "node": ">=6"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@arena-im/chat-types": "^2.0.30",
+    "@arena-im/core": "^2.0.30"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-replace": "^2.4.2",
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.12.3",
+    "@types/sinon": "^10.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "eslint": "^7.28.0",
+    "eslint-config-prettier": "^6.11.0",
+    "husky": "^4.2.5",
+    "jest": "^27.0.4",
+    "lint-staged": "^11.0.0",
+    "npm-run-all": "4.1.5",
+    "prettier": "^2.3.1",
+    "prettier-check": "2.0.0",
+    "rimraf": "3.0.2",
+    "rollup": "2.52.3",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "0.30.0",
+    "ts-jest": "^27.0.3",
+    "typescript": "4.3.4"
+  },
+  "scripts": {
+    "build": "run-s copy-config:prod build:dist build:bundle",
+    "build:bundle": "rollup --config",
+    "build:bundle:watch": "rollup --config --watch",
+    "build:dev": "run-s copy-config:dev build:dist build:bundle",
+    "build:dist": "tsc -p tsconfig.build.json",
+    "build:dist:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "build:watch": "run-p copy-config:dev build:dist:watch build:bundle:watch",
+    "clean": "rimraf dist coverage build",
+    "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
+    "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
+    "link:yarn": "yarn link",
+    "lint": "eslint . --ext .js,.ts",
+    "pre-commit": "yarn lint-staged",
+    "pretest": "run-s copy-config:dev",
+    "publish:registry": "yarn publish --access public",
+    "size:check": "run-p size:check:bundle",
+    "size:check:bundle": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'",
+    "test": "jest",
+    "test:jest:watch": "jest --watch",
+    "test:watch": "run-s copy-config:dev test:jest:watch"
+  },
+  "gitHead": "769b1a9a457e24ac16f0a90ea827b55a1a86f07b"
+}

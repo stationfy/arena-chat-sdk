@@ -14,7 +14,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "eslint": "^7.2.0",
+    "eslint": "^7.29.0",
     "eslint-config-prettier": "^6.11.0",
     "npm-run-all": "^4.1.2",
     "prettier": "^1.17.0",
@@ -40,7 +40,9 @@
     "fix:prettier": "prettier --write \"{src,test}/**/*.ts\"",
     "fix:tslint": "tslint --fix -t stylish -p .",
     "prepare": "run-s build",
-    "publish:registry": "yarn publish --access public"
+    "publish:registry": "yarn publish --access public",
+    "size:check": "run-p size:check:bundle",
+    "size:check:bundle": "cat dist/*.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'"
   },
   "sideEffects": false,
   "gitHead": "769b1a9a457e24ac16f0a90ea827b55a1a86f07b"
