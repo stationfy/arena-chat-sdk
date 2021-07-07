@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 2.2.0 (2021-07-07)
+
+
+### Features
+
+* bump package version ([076a2a5](https://github.com/stationfy/arena-chat-sdk/commit/076a2a5be8cb7c94c75305a2955640d07d2c017b))
+
+
+
+
+
 # 2.2.0-beta.6 (2021-07-07)
 
 
