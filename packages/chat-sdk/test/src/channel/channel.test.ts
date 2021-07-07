@@ -1,4 +1,5 @@
 import { Channel } from '@channel/channel';
+import { User, OrganizationSite } from '@arena-im/core';
 import { ChatRoom, Moderation, ModeratorStatus, MessageReaction, ChatMessageSender } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
@@ -7,8 +8,6 @@ import { RestAPI } from '@services/rest-api';
 import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ArenaHub } from '@services/arena-hub';
-import { User } from '@auth/user';
-import { OrganizationSite } from '@organization/organization-site';
 import {
   exampleChatMessage,
   exampleChatRoom,
@@ -28,24 +27,26 @@ jest.mock('@services/arena-hub', () => ({
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: {
     instance: jest.fn(),
-  }
+  },
 }));
 
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
-jest.mock('@auth/user', () => ({
+jest.mock('@arena-im/core', () => ({
   User: {
     instance: {
       data: jest.fn(),
     },
   },
-}));
-
-jest.mock('@organization/organization-site', () => ({
   OrganizationSite: {
     instance: jest.fn(),
+  },
+  UserObservable: {
+    instance: {
+      onUserChanged: jest.fn(),
+    },
   },
 }));
 

@@ -9,13 +9,7 @@ import {
   Poll,
   LiveChatChannel,
 } from '@arena-im/chat-types';
-import {
-  listenToCollectionChange,
-  listenToDocumentChange,
-  fetchCollectionItems,
-  listenToCollectionItemChange,
-  addItem,
-} from '@services/firestore-api';
+import { FirestoreAPI } from '@arena-im/core';
 
 import {
   exampleChatMessage,
@@ -25,12 +19,14 @@ import {
   exampleQnaQuestion,
 } from '../../fixtures/examples';
 
-jest.mock('@services/firestore-api', () => ({
-  listenToCollectionChange: jest.fn(),
-  listenToDocumentChange: jest.fn(),
-  fetchCollectionItems: jest.fn(),
-  listenToCollectionItemChange: jest.fn(),
-  addItem: jest.fn(),
+jest.mock('@arena-im/core', () => ({
+  FirestoreAPI: {
+    listenToCollectionChange: jest.fn(),
+    listenToDocumentChange: jest.fn(),
+    fetchCollectionItems: jest.fn(),
+    listenToCollectionItemChange: jest.fn(),
+    addItem: jest.fn(),
+  },
 }));
 
 describe('RealtimeAPI', () => {
@@ -39,7 +35,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      listenToCollectionChange.mockImplementation((_, callback) => {
+      FirestoreAPI.listenToCollectionChange.mockImplementation((_, callback) => {
         const message: ChatMessage = {
           createdAt: 1592342151026,
           key: 'fake-key',
@@ -73,7 +69,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      listenToCollectionChange.mockImplementation((_, callback) => {
+      FirestoreAPI.listenToCollectionChange.mockImplementation((_, callback) => {
         const reaction: ServerReaction = {
           itemType: 'chatMessage',
           reaction: 'love',
@@ -107,7 +103,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      listenToDocumentChange.mockImplementation((_, callback) => {
+      FirestoreAPI.listenToDocumentChange.mockImplementation((_, callback) => {
         callback(exampleChatRoom);
       });
 
@@ -126,7 +122,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const message: ChatMessage = {
           createdAt: 1592342151026,
           key: 'fake-key',
@@ -155,7 +151,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         exampleChatMessage;
         const messages: ChatMessage[] = new Array(10).fill(exampleChatMessage);
 
@@ -171,7 +167,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         exampleChatMessage;
         const messages: ChatMessage[] = new Array(10).fill(exampleChatMessage);
 
@@ -189,7 +185,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
         callback(exampleChatMessage);
       });
 
@@ -206,7 +202,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = [
           {
             ...exampleChatMessage,
@@ -258,7 +254,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      listenToCollectionItemChange.mockImplementation((_, callback: (poll: Poll) => void) => {
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (poll: Poll) => void) => {
         callback(examplePoll);
       });
 
@@ -275,7 +271,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
         callback(exampleChatMessage);
       });
 
@@ -292,7 +288,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = [
           {
             ...exampleChatMessage,
@@ -348,7 +344,7 @@ describe('RealtimeAPI', () => {
       };
 
       // @ts-ignore
-      addItem.mockImplementation(async () => {
+      FirestoreAPI.addItem.mockImplementation(async () => {
         return;
       });
 
@@ -370,7 +366,7 @@ describe('RealtimeAPI', () => {
       };
 
       // @ts-ignore
-      addItem.mockImplementation(async () => {
+      FirestoreAPI.addItem.mockImplementation(async () => {
         throw new Error('cannot set this doc');
       });
 
@@ -386,7 +382,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = new Array(10).fill(exampleQnaQuestion);
 
         return messages;
@@ -401,7 +397,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = new Array(10).fill(exampleQnaQuestion);
 
         return messages;
@@ -418,7 +414,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = new Array(10).fill(examplePoll);
 
         return messages;
@@ -434,7 +430,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = new Array(10).fill(examplePoll);
 
         return messages;
@@ -450,7 +446,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = new Array(10).fill(examplePoll);
 
         return messages;
@@ -466,7 +462,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      fetchCollectionItems.mockImplementation(async () => {
+      FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = new Array(10).fill(examplePoll);
 
         return messages;
@@ -484,7 +480,7 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      listenToCollectionItemChange.mockImplementation((_, callback: (question: QnaQuestion) => void) => {
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (question: QnaQuestion) => void) => {
         callback({ ...exampleQnaQuestion, changeType: 'added' });
       });
 

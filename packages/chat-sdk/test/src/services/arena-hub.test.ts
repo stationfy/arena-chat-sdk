@@ -1,9 +1,8 @@
 import { ArenaHub } from '@services/arena-hub';
+import { OrganizationSite, User } from '@arena-im/core';
 import { exampleChatRoom, exampleSite, exampleUser } from '../../fixtures/examples';
 import * as misc from '@utils/misc';
 import { RestAPI } from '@services/rest-api';
-import { OrganizationSite } from '@organization/organization-site';
-import { User } from '@auth/user';
 
 let window: jest.SpyInstance;
 
@@ -11,13 +10,10 @@ jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
 }));
 
-jest.mock('@organization/organization-site', () => ({
+jest.mock('@arena-im/core', () => ({
   OrganizationSite: {
     instance: jest.fn(),
   },
-}));
-
-jest.mock('@auth/user', () => ({
   User: jest.fn(),
 }));
 
@@ -65,9 +61,9 @@ describe('ArenaHub', () => {
 
       RestAPI.getAPINoauthInstance = mockAPIInstance;
 
-      const arenaHub = new ArenaHub(exampleChatRoom);
+      const arenaHub = ArenaHub.getInstance(exampleChatRoom);
 
-      const result = await arenaHub.track('page');
+      const result = await arenaHub.trackPage();
 
       expect(result).toEqual({ success: true });
     });

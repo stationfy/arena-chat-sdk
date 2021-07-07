@@ -1,30 +1,26 @@
 import { PrivateChannel } from '@channel/private-channel';
+import { User, OrganizationSite } from '@arena-im/core';
 import { exampleUser, exampleGroupChannel, exampleSite } from '../../fixtures/examples';
 import { GraphQLAPI } from '@services/graphql-api';
 import * as RealtimeAPI from '@services/realtime-api';
 import { ExternalUser, ChatMessage } from '@arena-im/chat-types';
-import { User } from '@auth/user';
-import { OrganizationSite } from '@organization/organization-site';
 
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: {
     instance: jest.fn(),
-  }
+  },
 }));
 
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
-jest.mock('@auth/user', () => ({
+jest.mock('@arena-im/core', () => ({
   User: {
     instance: {
       data: jest.fn(),
     },
   },
-}));
-
-jest.mock('@organization/organization-site', () => ({
   OrganizationSite: {
     instance: {
       getSite: jest.fn(),
@@ -47,7 +43,7 @@ describe('PrivateChannel', () => {
       expect(groupChannel._id).toEqual('fake-group-channel');
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       // @ts-ignore
       GraphQLAPI.instance = {
         fetchGroupChannel: async () => {
@@ -76,7 +72,7 @@ describe('PrivateChannel', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       // @ts-ignore
       GraphQLAPI.instance = {
         unblockPrivateUser: async () => {
@@ -105,7 +101,7 @@ describe('PrivateChannel', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       // @ts-ignore
       GraphQLAPI.instance = {
         blockPrivateUser: async () => {
@@ -134,7 +130,7 @@ describe('PrivateChannel', () => {
       expect(groupChannels).toEqual([exampleGroupChannel]);
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       // @ts-ignore
       GraphQLAPI.instance = {
         fetchGroupChannels: async () => {
@@ -204,6 +200,7 @@ describe('PrivateChannel', () => {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         PrivateChannel.onUnreadMessagesCountChanged(() => {});
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot watch unread messages count for the user: "${exampleUser.id}".`);
       }
     });
@@ -818,6 +815,7 @@ describe('PrivateChannel', () => {
           console.log({ message });
         });
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot watch new messages on "${exampleGroupChannel._id}" channel.`);
       }
     });
@@ -913,6 +911,7 @@ describe('PrivateChannel', () => {
           console.log({ message });
         });
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot watch deleted messages on "${exampleGroupChannel._id}" channel.`);
       }
     });
