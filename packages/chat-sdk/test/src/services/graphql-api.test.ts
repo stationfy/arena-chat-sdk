@@ -1329,4 +1329,32 @@ describe('GraphQLAPI', () => {
       });
     });
   });
+
+  describe('fetchUserReminderSubscription()', () => {
+    it('should fetch a user reminder subscription', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              _id: '60be662f96d07a00097045c8',
+              name: 'test',
+              isSubscribedToReminder: true
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = await GraphQLAPI.instance;
+
+      const result = await graphqlAPI.fetchUserReminderSubscription('fake-reminder-id');
+
+      expect(result).toBe(true);
+    });
+
+  });
 });
