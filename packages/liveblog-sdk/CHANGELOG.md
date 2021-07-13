@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.2.1 (2021-07-13)
+
+
+### Bug Fixes
+
+* listen to chat channel ([44f8b86](https://github.com/stationfy/arena-sdk/commit/44f8b86d0d6d9ca85c724e652686092459527e8f))
+
+
+
+
+
 # 2.2.0 (2021-07-07)
 
 
