@@ -10,7 +10,7 @@ import { Channel } from '@channel/channel';
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: {
     instance: jest.fn(),
-  }
+  },
 }));
 
 jest.mock('@services/arena-hub', () => ({
@@ -79,7 +79,7 @@ describe('LiveChat', () => {
       expect(result).toEqual([]);
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       // @ts-ignore
       GraphQLAPI.instance = {
         listChannels: async () => {
@@ -87,12 +87,14 @@ describe('LiveChat', () => {
         },
       };
 
-      const liveChat = await LiveChat.getInstance(exampleSite.slug);
-
-      liveChat.getChannels().catch((error) => {
-        expect(error.message).toEqual(`Cannot get channels on "${exampleChatRoom.slug}" live chat.`);
-        done();
-      });
+      LiveChat.getInstance(exampleSite.slug)
+        .then((liveChat) => {
+          return liveChat.getChannels();
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(`Cannot get channels on "${exampleChatRoom.slug}" live chat.`);
+          done();
+        });
     });
   });
 
@@ -252,7 +254,7 @@ describe('LiveChat', () => {
 
       liveChat.getMembers(page, searchTerm).catch((e) => {
         expect(e.message).toEqual(`Cannot fetch chat members messages on "${exampleChatRoom.slug}" channel.`);
-      })
+      });
     });
   });
 });

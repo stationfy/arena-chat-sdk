@@ -1,10 +1,12 @@
   
 {
     "extends": "./tsconfig.build.json",
-    "include": ["src/**/*.ts", "test/**/*.ts"],
-    "exclude": ["dist"],
     "compilerOptions": {
-      "rootDir": ".",
-      "types": ["node", "jest"]
-    }
+      "paths": {
+        "@transports/*": ["./src/transports/*"],
+        "@interfaces/*": ["./src/interfaces/*"],
+        "@utils/*": ["./src/utils/*"]
+      }
+    },
+    "include": ["src/**/*", "test/**/*"]
   }

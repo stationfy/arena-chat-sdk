@@ -1,24 +1,28 @@
 import { Qna } from '@qna/qna';
+import { User } from '@arena-im/core';
 import { exampleQnaProps, exampleQnaQuestion, exampleUser } from '../../fixtures/examples';
 import { GraphQLAPI } from '@services/graphql-api';
 import * as RealtimeAPI from '@services/realtime-api';
 import { BaseQna, QnaQuestion } from '@arena-im/chat-types';
-import { User } from '@auth/user';
 
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: {
     instance: jest.fn(),
-  }
+  },
 }));
 
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
-jest.mock('@auth/user', () => ({
+jest.mock('@arena-im/core', () => ({
   User: {
     instance: {
       data: jest.fn(),
+    },
+  },
+  UserObservable: {
+    instance: {
       onUserChanged: jest.fn(),
     },
   },
@@ -102,6 +106,7 @@ describe('Qna', () => {
       try {
         await qna.loadQuestions(10);
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot load questions on "fake-qna" Q&A.`);
       }
     });
@@ -150,6 +155,7 @@ describe('Qna', () => {
           console.log({ question });
         });
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual('Cannot watch new questions on "fake-qna" Q&A.');
       }
     });
@@ -301,6 +307,7 @@ describe('Qna', () => {
           console.log({ question });
         });
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot watch deleted questions on "fake-qna" Q&A.`);
       }
     });

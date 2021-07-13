@@ -1,5 +1,5 @@
 import { GraphQLAPI } from '@services/graphql-api';
-import * as GraphQLTransport from '@services/graphql-transport';
+import { GraphQLTransport, OrganizationSite, UserObservable } from '@arena-im/core';
 import {
   exampleSite,
   exampleGroupChannel,
@@ -9,24 +9,19 @@ import {
 } from '../../fixtures/examples';
 import { RequestDocument } from 'graphql-request/dist/types';
 import { ChatMessageContent, Status } from '@arena-im/chat-types';
-import { OrganizationSite } from '@organization/organization-site';
-import { User } from '@auth/user';
 
-jest.mock('@services/graphql-transport', () => ({
+jest.mock('@arena-im/core', () => ({
   GraphQLTransport: jest.fn(),
-}));
-
-jest.mock('@organization/organization-site', () => ({
   OrganizationSite: {
-    instance: jest.fn()
+    instance: jest.fn(),
   },
-}));
-
-jest.mock('@auth/user', () => ({
-  User: {
+  UserObservable: {
     instance: {
       onUserChanged: jest.fn(),
     },
+  },
+  User: {
+    instance: {},
   },
 }));
 
@@ -37,12 +32,12 @@ describe('GraphQLAPI', () => {
       getSite: jest.fn(async () => exampleSite),
     };
 
-    User.instance.onUserChanged = jest.fn()
-  })
+    UserObservable.instance.onUserChanged = jest.fn();
+  });
 
   beforeEach(() => {
-    GraphQLAPI.cleanInstance()
-  })
+    GraphQLAPI.cleanInstance();
+  });
 
   describe('fetchGroupChannels()', () => {
     it('should fetch the user group channels', async () => {
@@ -59,7 +54,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -84,7 +79,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -111,7 +106,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -136,7 +131,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -177,7 +172,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -233,7 +228,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -274,7 +269,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -305,7 +300,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -330,7 +325,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -341,7 +336,7 @@ describe('GraphQLAPI', () => {
       expect(channel._id).toEqual('fake-channel');
     });
 
-    it('should throw an exception when return an invalid channel', async (done) => {
+    it('should throw an exception when return an invalid channel', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -353,16 +348,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.fetchChannel('fake-channel').catch((error) => {
-        expect(error.message).toEqual(Status.Invalid);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.fetchChannel('fake-channel');
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(Status.Invalid);
+          done();
+        });
     });
   });
 
@@ -379,7 +376,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -404,7 +401,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -415,7 +412,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBe(true);
     });
 
-    it('should throw an exception when return false from server', async () => {
+    it('should throw an exception when return false from server', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -427,17 +424,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      try {
-        await graphqlAPI.deleteReaction('fake-user', 'fake-message', 'like');
-      } catch (error) {
-        expect(error.message).toEqual(Status.Failed);
-      }
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.deleteReaction('fake-user', 'fake-message', 'like');
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(Status.Failed);
+          done();
+        });
     });
   });
 
@@ -454,7 +452,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -465,7 +463,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBe(true);
     });
 
-    it('should throw an exception when return false from server', async (done) => {
+    it('should throw an exception when return false from server', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -477,16 +475,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.deleteOpenChannelMessage('fake-channel', 'fake-message').catch((error) => {
-        expect(error.message).toEqual(Status.Failed);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.deleteOpenChannelMessage('fake-channel', 'fake-message');
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(Status.Failed);
+          done();
+        });
     });
   });
 
@@ -503,7 +503,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -514,7 +514,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBe('fake-message');
     });
 
-    it('should throw an exception when get an invalid message from server', async (done) => {
+    it('should throw an exception when get an invalid message from server', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -526,16 +526,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.sendMessaToChannel(exampleChatMessage).catch((error) => {
-        expect(error.message).toEqual(Status.Failed);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.sendMessaToChannel(exampleChatMessage);
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(Status.Failed);
+          done();
+        });
     });
   });
 
@@ -552,7 +554,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -563,7 +565,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBe(true);
     });
 
-    it('should throw an exception when get false from server', async (done) => {
+    it('should throw an exception when get false from server', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -575,16 +577,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.markOpenChannelRead('fake-channel-id').catch((error) => {
-        expect(error.message).toEqual(Status.Failed);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.markOpenChannelRead('fake-channel-id');
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(Status.Failed);
+          done();
+        });
     });
   });
 
@@ -601,7 +605,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -612,7 +616,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBe(true);
     });
 
-    it('should throw an exception when get false from server', async (done) => {
+    it('should throw an exception when get false from server', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -624,16 +628,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.pollVote({ pollId: 'fake-poll', userId: 'fake-user-id', optionId: 0 }).catch((error) => {
-        expect(error.message).toEqual(Status.Failed);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.pollVote({ pollId: 'fake-poll', userId: 'fake-user-id', optionId: 0 });
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(Status.Failed);
+          done();
+        });
     });
   });
 
@@ -650,7 +656,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -678,7 +684,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -689,7 +695,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -701,16 +707,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.markGroupChannelRead('fake-group-channel').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.markGroupChannelRead('fake-group-channel');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -727,7 +735,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -738,7 +746,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -750,16 +758,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.deletePrivateMessage('fake-group-channel', 'fake-massage').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.deletePrivateMessage('fake-group-channel', 'fake-massage');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -776,7 +786,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -787,7 +797,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -799,16 +809,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.removeGroupChannel('fake-group-channel').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.removeGroupChannel('fake-group-channel');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -825,7 +837,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -836,7 +848,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -848,16 +860,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.blockPrivateUser('fake-user').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.blockPrivateUser('fake-user');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -874,7 +888,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -885,7 +899,7 @@ describe('GraphQLAPI', () => {
       expect(result).toBeTruthy();
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -897,16 +911,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.unblockPrivateUser('fake-user').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.unblockPrivateUser('fake-user');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -923,7 +939,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -934,7 +950,7 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual('fake-qna-id');
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -946,16 +962,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.addQuestion('fake-qna-id', 'hey?').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.addQuestion('fake-qna-id', 'hey?');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -972,7 +990,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -983,7 +1001,7 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual(true);
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -995,16 +1013,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.answerQuestion('fake-qna-id', 'fake-question-id', 'hey?').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.answerQuestion('fake-qna-id', 'fake-question-id', 'hey?');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -1021,7 +1041,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -1032,7 +1052,7 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual(true);
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1044,16 +1064,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.deleteQuestion('fake-qna-id', 'fake-question-id').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.deleteQuestion('fake-qna-id', 'fake-question-id');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -1070,7 +1092,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -1081,7 +1103,7 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual(true);
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1093,16 +1115,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.upvoteQuestion('fake-qna-id', 'fake-question-id', 'fake-user-id').catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.upvoteQuestion('fake-qna-id', 'fake-question-id', 'fake-user-id');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
   });
 
@@ -1119,7 +1143,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -1130,7 +1154,7 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual(true);
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1142,19 +1166,21 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.banUser({ anonymousId: 'anonymous-user-id' }).catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.banUser({ anonymousId: 'anonymous-user-id' });
+        })
+        .catch((e) => {
+          expect(e.message).toEqual('failed');
+          done();
+        });
     });
 
-    it('should return an exception when there is no anonymousId or userId', async (done) => {
+    it('should return an exception when there is no anonymousId or userId', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1166,16 +1192,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.banUser({}).catch((e) => {
-        expect(e.message).toEqual(Status.Invalid);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.banUser({});
+        })
+        .catch((e) => {
+          expect(e.message).toEqual(Status.Invalid);
+          done();
+        });
     });
   });
 
@@ -1196,7 +1224,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -1207,7 +1235,7 @@ describe('GraphQLAPI', () => {
       expect(result).toEqual({ fetchPinMessage: { exampleChatMessage } });
     });
 
-    it('should return an error when channelId is not present', async (done) => {
+    it('should return an error when channelId is not present', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1223,20 +1251,22 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      // @ts-ignore
-      graphqlAPI.fetchPinMessage({}).catch((e) => {
-        expect(e.message).toEqual("Can't fetch pin message without a channel id");
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          // @ts-ignore
+          return graphqlAPI.fetchPinMessage({});
+        })
+        .catch((e) => {
+          expect(e.message).toEqual("Can't fetch pin message without a channel id");
+          done();
+        });
     });
 
-    it('should return invalid error when there is no response', async (done) => {
+    it('should return invalid error when there is no response', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1248,16 +1278,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.fetchPinMessage({ channelId: 'fake-channel-id' }).catch((e) => {
-        expect(e.message).toEqual(Status.Failed);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.fetchPinMessage({ channelId: 'fake-channel-id' });
+        })
+        .catch((e) => {
+          expect(e.message).toEqual(Status.Failed);
+          done();
+        });
     });
   });
 
@@ -1286,7 +1318,7 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
@@ -1305,7 +1337,7 @@ describe('GraphQLAPI', () => {
       });
     });
 
-    it('should return invalid error when there is no response', async (done) => {
+    it('should return invalid error when there is no response', (done) => {
       const graphQLTransportInstanceMock = {
         client: {
           request: async () => {
@@ -1317,16 +1349,18 @@ describe('GraphQLAPI', () => {
       };
 
       // @ts-ignore
-      GraphQLTransport.GraphQLTransport.mockImplementation(() => {
+      GraphQLTransport.mockImplementation(() => {
         return graphQLTransportInstanceMock;
       });
 
-      const graphqlAPI = await GraphQLAPI.instance;
-
-      graphqlAPI.fetchReactions('fake-channel-id', 'fake-message-id').catch((e) => {
-        expect(e.message).toEqual(Status.Failed);
-        done();
-      });
+      GraphQLAPI.instance
+        .then((graphqlAPI) => {
+          return graphqlAPI.fetchReactions('fake-channel-id', 'fake-message-id');
+        })
+        .catch((e) => {
+          expect(e.message).toEqual(Status.Failed);
+          done();
+        });
     });
   });
 

@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/liveblog-sdk",
-  "version": "2.2.0-beta.4",
+  "version": "2.2.1",
   "description": "arena-liveblog-sdk is the official JavaScript client for Arena Liveblog, a service for building liveblog applications.",
   "author": "Arena",
   "license": "ISC",
@@ -18,8 +18,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "2.2.0-beta.4",
-    "@arena-im/core": "2.2.0-beta.4"
+    "@arena-im/chat-types": "^2.2.1",
+    "@arena-im/core": "^2.2.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^19.0.0",
@@ -63,10 +63,7 @@
     "pretest": "run-s copy-config:dev",
     "publish:registry": "yarn publish --access public",
     "size:check": "run-p size:check:bundle",
-    "size:check:bundle": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'",
-    "test": "jest",
-    "test:jest:watch": "jest --watch",
-    "test:watch": "run-s copy-config:dev test:jest:watch"
+    "size:check:bundle": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'"
   },
   "gitHead": "769b1a9a457e24ac16f0a90ea827b55a1a86f07b"
 }
