@@ -277,7 +277,7 @@ describe('LiveChat', () => {
       // @ts-ignore
       GraphQLAPI.instance = {
         fetchUserReminderSubscription: async () => {
-          throw new Error('failed');
+          throw new Error();
         },
       };
 
@@ -286,7 +286,7 @@ describe('LiveChat', () => {
       try {
         await liveChat.fetchUserReminderSubscription('fake-reminder-id');
       } catch (err) {
-        expect(err.message).toEqual('failed');
+        expect(err.message).toEqual('Cannot fetch user reminder subscription for this reminder: "fake-reminder-id".');
       }
     });
   });
@@ -318,7 +318,7 @@ describe('LiveChat', () => {
       try {
         await liveChat.subscribeUserToReminder('fake-reminder-id');
       } catch (err) {
-        expect(err.message).toEqual('failed');
+        expect(err.message).toEqual('Cannot subscribe user to reminder for this reminder: "fake-reminder-id".');
       }
     });
   });
@@ -350,7 +350,7 @@ describe('LiveChat', () => {
       try {
         await liveChat.unsubscribeUserToReminder('fake-reminder-id');
       } catch (err) {
-        expect(err.message).toEqual('failed');
+        expect(err.message).toEqual('Cannot unsubscribe user to reminder for this reminder: "fake-reminder-id".');
       }
     });
   });

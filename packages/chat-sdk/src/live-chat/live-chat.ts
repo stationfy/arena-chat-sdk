@@ -168,11 +168,10 @@ export class LiveChat implements BaseLiveChat {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
-      const isSubscribedToReminder = graphQLAPI.fetchUserReminderSubscription(reminderId);
+      const isSubscribedToReminder = await graphQLAPI.fetchUserReminderSubscription(reminderId);
 
       return isSubscribedToReminder;
     } catch (e) {
-      console.log(e);
       throw new Error(`Cannot fetch user reminder subscription for this reminder: "${reminderId}".`);
     }
   }
@@ -181,7 +180,7 @@ export class LiveChat implements BaseLiveChat {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
-      const subscribedUserToReminder = graphQLAPI.subscribeUserToReminder(reminderId);
+      const subscribedUserToReminder = await graphQLAPI.subscribeUserToReminder(reminderId);
 
       return subscribedUserToReminder;
     } catch (e) {
@@ -193,7 +192,7 @@ export class LiveChat implements BaseLiveChat {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
-      const unsubscribedUserToReminder = graphQLAPI.unsubscribeUserToReminder(reminderId);
+      const unsubscribedUserToReminder = await graphQLAPI.unsubscribeUserToReminder(reminderId);
 
       return unsubscribedUserToReminder;
     } catch (e) {
