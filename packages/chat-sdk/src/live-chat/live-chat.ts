@@ -163,4 +163,40 @@ export class LiveChat implements BaseLiveChat {
       throw new Error(`Cannot fetch chat members messages on "${this.chatRoom.slug}" channel.`);
     }
   }
+
+  public async fetchUserReminderSubscription(reminderId: string): Promise<boolean> {
+    try {
+      const graphQLAPI = await GraphQLAPI.instance;
+
+      const isSubscribedToReminder = await graphQLAPI.fetchUserReminderSubscription(reminderId);
+
+      return isSubscribedToReminder;
+    } catch (e) {
+      throw new Error(`Cannot fetch user reminder subscription for this reminder: "${reminderId}".`);
+    }
+  }
+
+  public async subscribeUserToReminder(reminderId: string): Promise<boolean> {
+    try {
+      const graphQLAPI = await GraphQLAPI.instance;
+
+      const subscribedUserToReminder = await graphQLAPI.subscribeUserToReminder(reminderId);
+
+      return subscribedUserToReminder;
+    } catch (e) {
+      throw new Error(`Cannot subscribe user to reminder for this reminder: "${reminderId}".`);
+    }
+  }
+
+  public async unsubscribeUserToReminder(reminderId: string): Promise<boolean> {
+    try {
+      const graphQLAPI = await GraphQLAPI.instance;
+
+      const unsubscribedUserToReminder = await graphQLAPI.unsubscribeUserToReminder(reminderId);
+
+      return unsubscribedUserToReminder;
+    } catch (e) {
+      throw new Error(`Cannot unsubscribe user to reminder for this reminder: "${reminderId}".`);
+    }
+  }
 }

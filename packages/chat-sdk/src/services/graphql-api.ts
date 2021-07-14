@@ -902,4 +902,61 @@ export class GraphQLAPI {
 
     return result;
   }
+
+  public async fetchUserReminderSubscription(reminderId: string): Promise<boolean> {
+    const query = gql`
+      query reminderSubscription($id: ID!) {
+        me {
+          _id
+          name
+          isSubscribedToReminder(id: $id)
+        }
+      }
+    `;
+    const data = await this.transport.client.request(query, { id: reminderId });
+
+    const result = data?.me?.isSubscribedToReminder as boolean;
+
+    if (!data) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async subscribeUserToReminder(reminderId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation subscribe($input: SubscribeReminderInput!) {
+        subscribeReminder(input: $input)
+      }
+    `;
+
+    const data = await this.transport.client.request(mutation, { input: { reminderId } });
+
+    const result = data.subscribeReminder as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async unsubscribeUserToReminder(reminderId: string): Promise<boolean> {
+    const mutation = gql`
+      mutation subscribe($input: SubscribeReminderInput!) {
+        unsubscribeReminder(input: $input)
+      }
+    `;
+
+    const data = await this.transport.client.request(mutation, { input: { reminderId } });
+
+    const result = data.unsubscribeReminder as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
 }

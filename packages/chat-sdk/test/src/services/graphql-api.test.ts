@@ -1363,4 +1363,151 @@ describe('GraphQLAPI', () => {
         });
     });
   });
+
+  describe('fetchUserReminderSubscription()', () => {
+    it('should fetch a user reminder subscription', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              me: {
+                isSubscribedToReminder: true,
+              },
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = await GraphQLAPI.instance;
+
+      const result = await graphqlAPI.fetchUserReminderSubscription('fake-reminder-id');
+
+      expect(result).toBe(true);
+    });
+    it('should return invalid error when there is no response', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return null;
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = await GraphQLAPI.instance;
+
+      try {
+        await graphqlAPI.fetchUserReminderSubscription('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual(Status.Failed);
+      }
+    });
+  });
+
+  describe('subscribeUserToReminder()', () => {
+    it('should subscribe user to reminder', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              subscribeReminder: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = await GraphQLAPI.instance;
+
+      const result = await graphqlAPI.subscribeUserToReminder('fake-reminder-id');
+
+      expect(result).toBe(true);
+    });
+    it('should return invalid error when there is no response', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              subscribeReminder: false,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = await GraphQLAPI.instance;
+
+      try {
+        await graphqlAPI.subscribeUserToReminder('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual(Status.Failed);
+      }
+    });
+  });
+
+  describe('unsubscribeUserToReminder()', () => {
+    it('should unsubscribe user to reminder', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              unsubscribeReminder: true,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = await GraphQLAPI.instance;
+
+      const result = await graphqlAPI.unsubscribeUserToReminder('fake-reminder-id');
+
+      expect(result).toBe(true);
+    });
+    it('should return invalid error when there is no response', async () => {
+      const graphQLTransportInstanceMock = {
+        client: {
+          request: async () => {
+            return {
+              unsubscribeReminder: false,
+            };
+          },
+        },
+      };
+
+      // @ts-ignore
+      GraphQLTransport.mockImplementation(() => {
+        return graphQLTransportInstanceMock;
+      });
+
+      const graphqlAPI = await GraphQLAPI.instance;
+
+      try {
+        await graphqlAPI.unsubscribeUserToReminder('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual(Status.Failed);
+      }
+    });
+  });
 });
