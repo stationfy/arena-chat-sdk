@@ -7,9 +7,10 @@ module.exports = {
     browser: true,
     amd: true,
   },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier/@typescript-eslint'],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
   },
+  ignorePatterns: ["**/build/*", "**/examples/*", "**/dist/*", "**/esm/*"]
 };

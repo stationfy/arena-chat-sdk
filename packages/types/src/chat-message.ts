@@ -20,7 +20,7 @@ export interface ChatMessage {
 enum MessageType {
   POLL = 'POLL_PUBLISHED',
   QNA = 'QNA_QUESTION_ANSWER',
-  MONETIZATION = 'MONETIZATION'
+  MONETIZATION = 'MONETIZATION',
 }
 
 interface ChatMessageReaction {
