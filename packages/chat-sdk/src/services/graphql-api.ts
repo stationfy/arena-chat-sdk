@@ -915,11 +915,12 @@ export class GraphQLAPI {
     `;
     const data = await this.transport.client.request(query, { id: reminderId });
 
-    const result = data.me.isSubscribedToReminder as boolean;
+    const result = data?.me?.isSubscribedToReminder as boolean;
 
-    if (!result) {
+    if (!data) {
       throw new Error(Status.Failed);
     }
+
     return result;
   }
 

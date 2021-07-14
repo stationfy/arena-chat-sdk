@@ -172,6 +172,7 @@ export class LiveChat implements BaseLiveChat {
 
       return isSubscribedToReminder;
     } catch (e) {
+      console.log(e);
       throw new Error(`Cannot fetch user reminder subscription for this reminder: "${reminderId}".`);
     }
   }

@@ -257,4 +257,101 @@ describe('LiveChat', () => {
       });
     });
   });
+
+  describe('fetchUserReminderSubscription()', () => {
+    it('should fetch a user reminder subscription', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        fetchUserReminderSubscription: async () => {
+          return true;
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      const isSubscribedToReminder = await liveChat.fetchUserReminderSubscription('fake-reminder-id');
+
+      expect(isSubscribedToReminder).toEqual(true);
+    });
+    it('should throw error', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        fetchUserReminderSubscription: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      try {
+        await liveChat.fetchUserReminderSubscription('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual('failed');
+      }
+    });
+  });
+  describe('subscribeUserToReminder()', () => {
+    it('should subscribe user to reminder', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        subscribeUserToReminder: async () => {
+          return true;
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      const subscribeUserToReminder = await liveChat.subscribeUserToReminder('fake-reminder-id');
+
+      expect(subscribeUserToReminder).toEqual(true);
+    });
+    it('should throw error', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        subscribeUserToReminder: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      try {
+        await liveChat.subscribeUserToReminder('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual('failed');
+      }
+    });
+  });
+  describe('unsubscribeUserToReminder()', () => {
+    it('should subscribe user to reminder', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        unsubscribeUserToReminder: async () => {
+          return true;
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      const unsubscribeUserToReminder = await liveChat.unsubscribeUserToReminder('fake-reminder-id');
+
+      expect(unsubscribeUserToReminder).toEqual(true);
+    });
+    it('should throw error', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        unsubscribeUserToReminder: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      try {
+        await liveChat.unsubscribeUserToReminder('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual('failed');
+      }
+    });
+  });
 });
