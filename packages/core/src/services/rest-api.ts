@@ -110,4 +110,10 @@ export class RestAPI {
       return site;
     });
   }
+
+  public loadViewerCountry(): PromiseLike<string> {
+    return this.transport.get<{ country: string }>('/viewercountry').then((data) => {
+      return data.country;
+    });
+  }
 }

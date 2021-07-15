@@ -2,13 +2,19 @@ import { ExternalUser } from '@arena-im/chat-types';
 import { RestAPI } from '../services/rest-api';
 import { Credentials } from './credentials';
 import { UserObservable } from './user-observable';
+import { LocalStorageAPI } from '../services/local-storage-api';
+
+const userCountryCacheKey = 'arenaUserCountry';
 
 export class User {
   private static userInstance: User;
   public data: ExternalUser | null = null;
-
+  public anonymousId: string = `${+new Date()}`;
+  private localStorage: LocalStorageAPI;
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private constructor() {}
+  private constructor() {
+    this.localStorage = new LocalStorageAPI();
+  }
 
   public static get instance(): User {
     if (!User.userInstance) {
@@ -75,5 +81,26 @@ export class User {
     this.data = null;
 
     UserObservable.instance.updateUser(null);
+  }
+
+  private get countryFromCache() {
+    // TODO: mover para um service separado
+    return this.localStorage.getItem(userCountryCacheKey);
+  }
+
+  private set cacheCountry(country: string) {
+    this.localStorage.setItem(userCountryCacheKey, country);
+  }
+
+  public async loadCountry() {
+    if (this.countryFromCache) {
+      return this.countryFromCache;
+    }
+
+    const restAPI = RestAPI.getAPINoauthInstance();
+    const country = await restAPI.loadViewerCountry();
+    this.cacheCountry = country;
+
+    return country;
   }
 }

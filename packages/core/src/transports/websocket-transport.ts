@@ -6,7 +6,6 @@ export class WebSocketTransport<EventsMap, ListenEvents> {
 
   constructor() {
     this.client = io(ARENA_REALTIME_URL, {
-      forceNew: true,
       transports: ['websocket'],
     });
   }

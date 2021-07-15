@@ -10,6 +10,7 @@ export {
   ServerReaction,
   MessageReaction,
   SendReactionResult,
+  ChannelReaction
 } from './chat-message';
 export { ChatRoom, ChatModerationRequest, LiveChatChannel, BaseLiveChat, BaseChannel, PageRequest } from './chat-room';
 export { DocumentChangeType, ListenChangeConfig, Where, OrderBy } from './firestore';
@@ -24,6 +25,7 @@ export {
   UserChangedListener,
   SSOExchangeResult,
   PublicUserInput,
+  PresenceUser,
 } from './user';
 export { Moderation, ModeratorStatus } from './moderation';
 export { PublicUserStatus, GroupChannel, PrivateMessageInput } from './private-chat';

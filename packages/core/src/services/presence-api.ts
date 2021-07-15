@@ -1,23 +1,27 @@
-import { ExternalUser } from '@arena-im/chat-types';
-import { UserObservable } from '../auth';
+import { ExternalUser, PresenceUser } from '@arena-im/chat-types';
+import { isMobile } from '../utils/misc';
+import { User, UserObservable } from '../auth';
 import { WebSocketTransport } from '../transports/websocket-transport';
+
+type ChannelType = 'liveblog' | 'chat_room';
 
 type EmitJoin = {
   channelId: string;
   siteId: string;
-  user: Partial<ExternalUser>;
+  user: Partial<PresenceUser> | null;
+  channelType: ChannelType;
 };
 
 type EmitEvents = {
   join: (join: EmitJoin) => void;
-  'user.setdata': (user: Partial<ExternalUser>) => void;
+  'user.setdata': (user: PresenceUser) => void;
   list: (
     options: { channelId: string; status: 'online' | 'offline' },
     cb: (error: Error | null, data: ExternalUser[]) => void,
   ) => void;
 };
 
-type LitenEvents = {
+type ListenEvents = {
   reconnect: () => void;
   'presence.info': (data: { onlineCount: number }) => void;
   'user.joined': (user: ExternalUser) => void;
@@ -25,25 +29,42 @@ type LitenEvents = {
 };
 
 export class PresenceAPI {
-  private wsTransport: WebSocketTransport<LitenEvents, EmitEvents>;
-  private currentUser: Partial<ExternalUser> | null = null;
+  private wsTransport: WebSocketTransport<ListenEvents, EmitEvents>;
+  private currentUser: PresenceUser | null = null;
 
-  public constructor(private siteId: string, private channelId: string) {
+  public constructor(
+    private siteId: string,
+    private channelId: string,
+    private channelType: ChannelType
+  ) {
     this.wsTransport = new WebSocketTransport();
     this.wsTransport.client.on('reconnect', this.onReconnect);
 
+    this.joinUser();
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
 
-  private handleUserChange(user: Partial<ExternalUser> | null) {
-    let nextUser = user;
+  private async joinUser() {
+    const userToJoin = await this.buildPresenceUser(User.instance.data);
 
-    if (nextUser === null) {
-      nextUser = {
-        isAnonymous: true,
-        id: `${+new Date()}`,
-      };
+    this.join(userToJoin);
+  }
+
+  private async buildPresenceUser(user: Partial<ExternalUser> | null) {
+    const country = await User.instance.loadCountry();
+
+    return {
+      isMobile: isMobile(),
+      userId: user?.id ?? User.instance.anonymousId,
+      isAnonymous: !user,
+      name: user?.name ?? null,
+      image: user?.image ?? null,
+      country
     }
+  }
+
+  private async handleUserChange(user: ExternalUser) {
+    const nextUser = await this.buildPresenceUser(user);
 
     this.updateUser(nextUser);
   }
@@ -54,23 +75,27 @@ export class PresenceAPI {
     }
   }
 
-  public join(user: Partial<ExternalUser>): void {
+  public join(user: PresenceUser | null): void {
     this.currentUser = user;
 
     this.wsTransport.client.emit('join', {
       channelId: this.channelId,
       siteId: this.siteId,
-      user,
+      channelType: this.channelType,
+      user
     });
   }
 
-  public updateUser(user: Partial<ExternalUser>): void {
+  public updateUser(user: PresenceUser): void {
     this.wsTransport.client.emit('user.setdata', user);
   }
 
   public getAllOnlineUsers(): Promise<ExternalUser[]> {
     return new Promise((resolve, reject) => {
-      this.wsTransport.client.emit('list', { channelId: this.channelId, status: 'online' }, (err, data) => {
+      this.wsTransport.client.emit('list', {
+        channelId: this.channelId,
+        status: 'online'
+      }, (err, data) => {
         if (err) {
           return reject(err);
         }

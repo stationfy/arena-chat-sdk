@@ -1,8 +1,8 @@
-import { ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
+import { ChannelReaction, ChatMessage, ChatMessageSender, MessageReaction, ServerReaction } from './chat-message';
 import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
-import { PublicUser } from './user';
+import { ExternalUser, PublicUser } from './user';
 import { ChannelMessageReactions } from './reaction';
 
 export interface ChatRoom extends LiveChatChannel {
@@ -104,6 +104,11 @@ export interface BaseChannel {
   fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
   sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<MessageReaction>;
+  watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
+  getUserList(): Promise<ExternalUser[]>;
+  watchOnlineCount(callback: (onlineCount: number) => void): void;
+  watchUserJoined(callback: (ExternalUser: ExternalUser) => void): void;
+  watchUserLeft(callback: (ExternalUser: ExternalUser) => void): void;
   deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean>;
   offMessageReceived(): void;
   onMessageReceived(callback: (message: ChatMessage) => void): void;

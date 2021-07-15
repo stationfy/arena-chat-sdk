@@ -20,3 +20,13 @@ export function supportsFetch(): boolean {
     return false;
   }
 }
+
+/**
+ * Tells whether current enviroment supports LocalStorage API
+ * {@link supportsLocalStorage}
+ *
+ * @returns Answer to the given question.
+ */
+export function supportsLocalStorage() {
+  return 'localStorage' in getGlobalObject<Window>();
+}

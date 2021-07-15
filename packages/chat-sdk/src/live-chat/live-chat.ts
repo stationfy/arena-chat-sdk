@@ -5,7 +5,7 @@ import {
   Status,
   BaseLiveChat,
   BaseChannel,
-  PageRequest,
+  PageRequest
 } from '@arena-im/chat-types';
 import { Credentials } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
