@@ -84,7 +84,6 @@ export class User {
   }
 
   private get countryFromCache() {
-    // TODO: mover para um service separado
     return this.localStorage.getItem(userCountryCacheKey);
   }
 
