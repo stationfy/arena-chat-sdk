@@ -439,7 +439,6 @@ export class RealtimeAPI implements BaseRealtime {
     user: ExternalUser,
     callback: (reactions: ServerReaction[]) => void,
   ): () => void {
-    // need to change
     const unsubscribe = FirestoreAPI.listenToCollectionChange(
       {
         path: 'reactions',

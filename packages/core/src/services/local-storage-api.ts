@@ -1,4 +1,4 @@
-import { supportsLocalStorage } from 'src/utils/supports';
+import { supportsLocalStorage } from '../utils/supports';
 import { getGlobalObject } from '../utils/misc';
 
 export class LocalStorageAPI {

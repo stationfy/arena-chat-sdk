@@ -517,8 +517,6 @@ export class Channel implements BaseChannel {
 
       const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
       reactionsAPI.createReaction(serverReaction)
-      // const restAPI = RestAPI.getAPIInstance();
-      // const result = await restAPI.sendReaction(serverReaction);
 
       return {
         id: `${new Date()}`,
