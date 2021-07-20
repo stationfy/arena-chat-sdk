@@ -11,11 +11,10 @@ export class PresenceAPI {
   public constructor(private siteId: string, private channelId: string, private channelType: ChannelType) {
     WebSocketTransport.instance.on('reconnect', this.onReconnect);
 
-    this.joinUser();
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
 
-  private async joinUser() {
+  public async joinUser(): Promise<void> {
     const userToJoin = await this.buildPresenceUser(User.instance.data);
 
     this.join(userToJoin);
@@ -46,7 +45,7 @@ export class PresenceAPI {
     }
   }
 
-  public join(user: PresenceUser | null): void {
+  private join(user: PresenceUser | null): void {
     this.currentUser = user;
 
     WebSocketTransport.instance.emit('join', {
