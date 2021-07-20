@@ -14,10 +14,9 @@ import {
   ChatMessageReportedBy,
   ChatRoom,
   ChannelMessageReactions,
-  BaseReaction
+  BaseReaction,
 } from '@arena-im/chat-types';
 import { User, UserObservable, OrganizationSite, ReactionsAPI, PresenceAPI } from '@arena-im/core';
-import * as Core from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
@@ -55,15 +54,13 @@ export class Channel implements BaseChannel {
   }
 
   private initPresence(siteId: string) {
-    console.log({ PresenceAPI, Core });
-
     this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
-    this.watchChannelReactions(reactions => {
+    this.watchChannelReactions((reactions) => {
       this.initialReactions = reactions;
     });
 
     this.presenceAPI = new PresenceAPI(siteId, this.channel._id, 'chat_room');
-    this.watchOnlineCount(onlineCount => this.initialOnlineCount = onlineCount);
+    this.watchOnlineCount((onlineCount) => (this.initialOnlineCount = onlineCount));
   }
 
   /**
@@ -514,7 +511,7 @@ export class Channel implements BaseChannel {
         chatRoomVersion: this.chatRoom.version,
         isDashboardUser,
         widgetId: this.channel._id,
-        widgetType: 'Chat Room'
+        widgetType: 'Chat Room',
       };
 
       this.createReaction(serverReaction);
@@ -529,14 +526,14 @@ export class Channel implements BaseChannel {
     }
   }
 
-   /**
+  /**
    * Create a reaction
    *
    */
 
   private createReaction(serverReaction: ServerReaction) {
     const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
-    reactionsAPI.createReaction(serverReaction)
+    reactionsAPI.createReaction(serverReaction);
   }
 
   /**
@@ -554,7 +551,7 @@ export class Channel implements BaseChannel {
    *
    */
 
-  public watchChannelReactions(callback: (reactions: any[]) => void) {
+  public watchChannelReactions(callback: (reactions: ServerReaction[]) => void): void {
     callback(this.initialReactions);
     this.reactionsAPI.watchUserReactions(callback);
   }
