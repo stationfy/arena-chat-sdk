@@ -10,7 +10,7 @@ import { Channel } from '@channel/channel';
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: {
     instance: jest.fn(),
-  }
+  },
 }));
 
 jest.mock('@services/arena-hub', () => ({
@@ -79,7 +79,7 @@ describe('LiveChat', () => {
       expect(result).toEqual([]);
     });
 
-    it('should return an exception', async (done) => {
+    it('should return an exception', (done) => {
       // @ts-ignore
       GraphQLAPI.instance = {
         listChannels: async () => {
@@ -87,12 +87,14 @@ describe('LiveChat', () => {
         },
       };
 
-      const liveChat = await LiveChat.getInstance(exampleSite.slug);
-
-      liveChat.getChannels().catch((error) => {
-        expect(error.message).toEqual(`Cannot get channels on "${exampleChatRoom.slug}" live chat.`);
-        done();
-      });
+      LiveChat.getInstance(exampleSite.slug)
+        .then((liveChat) => {
+          return liveChat.getChannels();
+        })
+        .catch((error) => {
+          expect(error.message).toEqual(`Cannot get channels on "${exampleChatRoom.slug}" live chat.`);
+          done();
+        });
     });
   });
 
@@ -252,7 +254,104 @@ describe('LiveChat', () => {
 
       liveChat.getMembers(page, searchTerm).catch((e) => {
         expect(e.message).toEqual(`Cannot fetch chat members messages on "${exampleChatRoom.slug}" channel.`);
-      })
+      });
+    });
+  });
+
+  describe('fetchUserReminderSubscription()', () => {
+    it('should fetch a user reminder subscription', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        fetchUserReminderSubscription: async () => {
+          return true;
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      const isSubscribedToReminder = await liveChat.fetchUserReminderSubscription('fake-reminder-id');
+
+      expect(isSubscribedToReminder).toEqual(true);
+    });
+    it('should throw error', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        fetchUserReminderSubscription: async () => {
+          throw new Error();
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      try {
+        await liveChat.fetchUserReminderSubscription('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual('Cannot fetch user reminder subscription for this reminder: "fake-reminder-id".');
+      }
+    });
+  });
+  describe('subscribeUserToReminder()', () => {
+    it('should subscribe user to reminder', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        subscribeUserToReminder: async () => {
+          return true;
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      const subscribeUserToReminder = await liveChat.subscribeUserToReminder('fake-reminder-id');
+
+      expect(subscribeUserToReminder).toEqual(true);
+    });
+    it('should throw error', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        subscribeUserToReminder: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      try {
+        await liveChat.subscribeUserToReminder('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual('Cannot subscribe user to reminder for this reminder: "fake-reminder-id".');
+      }
+    });
+  });
+  describe('unsubscribeUserToReminder()', () => {
+    it('should subscribe user to reminder', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        unsubscribeUserToReminder: async () => {
+          return true;
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      const unsubscribeUserToReminder = await liveChat.unsubscribeUserToReminder('fake-reminder-id');
+
+      expect(unsubscribeUserToReminder).toEqual(true);
+    });
+    it('should throw error', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        unsubscribeUserToReminder: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const liveChat = await LiveChat.getInstance(exampleSite.slug);
+
+      try {
+        await liveChat.unsubscribeUserToReminder('fake-reminder-id');
+      } catch (err) {
+        expect(err.message).toEqual('Cannot unsubscribe user to reminder for this reminder: "fake-reminder-id".');
+      }
     });
   });
 });

@@ -9,9 +9,9 @@ const userCountryCacheKey = 'arenaUserCountry';
 export class User {
   private static userInstance: User;
   public data: ExternalUser | null = null;
-  public anonymousId: string = `${+new Date()}`;
+  public anonymousId = `${+new Date()}`;
   private localStorage: LocalStorageAPI;
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
+
   private constructor() {
     this.localStorage = new LocalStorageAPI();
   }
@@ -91,7 +91,7 @@ export class User {
     this.localStorage.setItem(userCountryCacheKey, country);
   }
 
-  public async loadCountry() {
+  public async loadCountry(): Promise<string> {
     if (this.countryFromCache) {
       return this.countryFromCache;
     }

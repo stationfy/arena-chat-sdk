@@ -456,7 +456,6 @@ export class RealtimeAPI implements BaseRealtime {
         ],
       },
       (response) => {
-        console.log({ response });
         callback(response as ServerReaction[]);
       },
     );

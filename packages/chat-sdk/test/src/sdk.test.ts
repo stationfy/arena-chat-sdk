@@ -5,8 +5,7 @@ import { PrivateChannel } from '@channel/private-channel';
 import { exampleUser, exampleSite, exampleGroupChannel } from '../fixtures/examples';
 import { ExternalUser } from '@arena-im/chat-types';
 import { LiveChat } from '@live-chat/live-chat';
-import { OrganizationSite } from '@organization/organization-site';
-import { User } from '@auth/user';
+import { OrganizationSite, User } from '@arena-im/core';
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -28,19 +27,17 @@ jest.mock('@channel/private-channel', () => ({
   PrivateChannel: jest.fn(),
 }));
 
-jest.mock('@organization/organization-site', () => ({
+jest.mock('@arena-im/core', () => ({
   OrganizationSite: {
     instance: jest.fn(),
     getInstance: jest.fn(),
   },
-}));
-
-jest.mock('@auth/user', () => ({
   User: {
     instance: {
       data: jest.fn(),
     },
   },
+  Credentials: jest.fn(),
 }));
 
 describe('SDK', () => {
@@ -126,6 +123,7 @@ describe('SDK', () => {
       try {
         await sdk.getLiveChat('my-channel');
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual('Internal Server Error. Contact the Arena support team.');
       }
     });

@@ -70,7 +70,7 @@ export class PresenceAPI {
       WebSocketTransport.instance.emit('list', {
         channelId: this.channelId,
         status: 'online'
-      }, (err: {} | null, data: ExternalUser[]) => {
+      }, (err: Record<string, unknown> | null, data: ExternalUser[]) => {
         if (err) {
           return reject(err);
         }

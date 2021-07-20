@@ -1,5 +1,5 @@
-import { BaseTransport } from 'src/interfaces/base-transport';
-import { XHRTransport } from '@services/xhr-transport';
+import { BaseTransport } from '@interfaces/base-transport';
+import { XHRTransport } from '@transports/xhr-transport';
 
 let transport: BaseTransport;
 

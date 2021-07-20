@@ -109,7 +109,10 @@ export function listenToCollectionChange(
  * @param options Listen config
  * @param callback
  */
-export function listenToDocumentChange(path: string, callback: (response: DocumentData) => void): () => void {
+export function listenToDocumentChange(
+  path: string,
+  callback: (response: DocumentData | undefined) => void,
+): () => void {
   const queryRef = doc(firestore, path);
 
   if (queryRef === null) {
@@ -119,7 +122,7 @@ export function listenToDocumentChange(path: string, callback: (response: Docume
   return onSnapshot(
     queryRef,
     (querySnapshot) => {
-      const result = querySnapshot.data;
+      const result = querySnapshot.data();
 
       callback(result);
     },

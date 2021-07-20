@@ -1,6 +1,6 @@
 {
     "name": "@arena-im/core",
-    "version": "2.2.0-beta.4",
+    "version": "2.2.1",
     "description": "Base implementation for all Arena JavaScript SDKs",
     "author": "Arena",
     "license": "ISC",
@@ -18,7 +18,7 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "dependencies": {
-        "@arena-im/chat-types": "2.2.0-beta.4",
+        "@arena-im/chat-types": "^2.2.1",
         "firebase": "^9.0.0-beta.5",
         "graphql": "^15.5.0",
         "graphql-request": "^3.4.0",
@@ -54,7 +54,7 @@
         "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
         "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
         "link:yarn": "yarn link",
-        "lint": "run-s lint:prettier lint:tslint",
+        "lint": "eslint . --ext .js,.ts",
         "pre-commit": "yarn lint-staged",
         "pretest": "run-s copy-config:dev",
         "publish:registry": "yarn publish --access public",

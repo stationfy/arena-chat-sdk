@@ -3,7 +3,7 @@ import { GraphQLAPI } from '@services/graphql-api';
 import { Polls } from '@polls/polls';
 import { exampleChatRoom, exampleLiveChatChannel, examplePoll, exampleUser } from '../../fixtures/examples';
 import { Poll, PollFilter, ServerReaction } from '@arena-im/chat-types';
-import * as User from '@auth/user';
+import { User } from '@arena-im/core';
 
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
@@ -12,17 +12,17 @@ jest.mock('@services/realtime-api', () => ({
 jest.mock('@services/graphql-api', () => ({
   GraphQLAPI: {
     instance: jest.fn(),
-  }
+  },
 }));
 
-jest.mock('@auth/user', () => ({
+jest.mock('@arena-im/core', () => ({
   User: jest.fn(),
 }));
 
 describe('Polls', () => {
   beforeAll(() => {
     // @ts-ignore
-    User.User.instance = jest.fn().mockReturnValue({
+    User.instance = jest.fn().mockReturnValue({
       data: exampleUser,
     });
   });
@@ -81,6 +81,7 @@ describe('Polls', () => {
       try {
         await polls.loadPolls(PollFilter.ACTIVE, 5);
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot load polls on "${exampleLiveChatChannel._id}" chat channel.`);
       }
     });
@@ -199,7 +200,8 @@ describe('Polls', () => {
         polls.onPollReceived((poll: Poll) => {
           console.log({ poll });
         });
-      } catch (e) {
+      } catch (e: unknown) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot watch new polls on "${exampleLiveChatChannel._id}" channel.`);
       }
     });
@@ -267,6 +269,7 @@ describe('Polls', () => {
           console.log({ poll });
         });
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot watch deleted polls on "${exampleLiveChatChannel._id}" channel.`);
       }
     });
@@ -353,6 +356,7 @@ describe('Polls', () => {
           console.log({ poll });
         });
       } catch (e) {
+        // @ts-ignore
         expect(e.message).toEqual(`Cannot watch polls modified on "${exampleLiveChatChannel._id}" channel.`);
       }
     });

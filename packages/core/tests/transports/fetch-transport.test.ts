@@ -1,5 +1,5 @@
-import { BaseTransport } from 'src/interfaces/base-transport';
-import { FetchTransport } from '@services/fetch-transport';
+import { BaseTransport } from '@interfaces/base-transport';
+import { FetchTransport } from '@transports/fetch-transport';
 import * as misc from '@utils/misc';
 
 let window: jest.SpyInstance;

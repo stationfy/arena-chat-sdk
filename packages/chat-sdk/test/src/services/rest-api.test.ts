@@ -1,13 +1,18 @@
 import { RestAPI } from '@services/rest-api';
+import { XHRTransport } from '@arena-im/core';
 import { ChatRoom, ExternalUser, SendReactionResult, SSOExchangeResult } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 import { BanUser, ProviderUser } from '@arena-im/chat-types';
 import { ChatMessage, ChatMessageReport, DeleteChatMessageRequest } from '@arena-im/chat-types';
-import { XHRTransport } from '@services/xhr-transport';
 import { exampleServerReaction, exampleSite } from '../../fixtures/examples';
 
-jest.mock('@services/xhr-transport', () => ({
+jest.mock('@arena-im/core', () => ({
   XHRTransport: jest.fn(),
+  UserObservable: {
+    instance: {
+      onUserChanged: jest.fn(),
+    },
+  },
 }));
 
 let chatRoom: ChatRoom;

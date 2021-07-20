@@ -13,6 +13,7 @@
     "lint:json": "lerna run --stream --concurrency 1 lint:tslint:json",
     "publish:all": "lerna publish",
     "publish:beta": "lerna publish --ignore-prepublish --ignore-scripts --canary --preid beta --dist-tag beta",
+    "publish:dev": "run-s build:dev publish:beta",
     "size:check": "lerna run --stream --concurrency 1 size:check",
     "test": "lerna run --stream --concurrency 1 --sort test"
   },

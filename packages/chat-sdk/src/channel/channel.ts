@@ -17,6 +17,7 @@ import {
   BaseReaction
 } from '@arena-im/chat-types';
 import { User, UserObservable, OrganizationSite, ReactionsAPI, PresenceAPI } from '@arena-im/core';
+import * as Core from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
@@ -26,7 +27,7 @@ import { RestAPI } from '../services/rest-api';
 export class Channel implements BaseChannel {
   private reactionsAPI!: ReactionsAPI;
   private presenceAPI!: PresenceAPI;
-  private initialReactions: any[] = [];
+  private initialReactions: ServerReaction[] = [];
   private initialOnlineCount = 0;
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
@@ -54,6 +55,8 @@ export class Channel implements BaseChannel {
   }
 
   private initPresence(siteId: string) {
+    console.log({ PresenceAPI, Core });
+
     this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
     this.watchChannelReactions(reactions => {
       this.initialReactions = reactions;
@@ -774,20 +777,20 @@ export class Channel implements BaseChannel {
     }
   }
 
-  public getUserList() {
+  public getUserList(): Promise<ExternalUser[]> {
     return this.presenceAPI.getAllOnlineUsers();
   }
 
-  public watchOnlineCount(callback: (onlineCount: number) => void) {
+  public watchOnlineCount(callback: (onlineCount: number) => void): void {
     callback(this.initialOnlineCount);
-    return this.presenceAPI.watchOnlineCount(callback);
+    this.presenceAPI.watchOnlineCount(callback);
   }
 
-  public watchUserJoined(callback: (user: ExternalUser) => void) {
-    return this.presenceAPI.watchUserJoined(callback);
+  public watchUserJoined(callback: (user: ExternalUser) => void): void {
+    this.presenceAPI.watchUserJoined(callback);
   }
 
-  public watchUserLeft(callback: (user: ExternalUser) => void) {
-    return this.presenceAPI.watchUserLeft(callback);
+  public watchUserLeft(callback: (user: ExternalUser) => void): void {
+    this.presenceAPI.watchUserLeft(callback);
   }
 }
