@@ -27,6 +27,6 @@ export function supportsFetch(): boolean {
  *
  * @returns Answer to the given question.
  */
-export function supportsLocalStorage() {
+export function supportsLocalStorage(): boolean {
   return 'localStorage' in getGlobalObject<Window>();
 }

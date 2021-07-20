@@ -1,64 +1,64 @@
 {
-    "name": "@arena-im/core",
-    "version": "2.2.1",
-    "description": "Base implementation for all Arena JavaScript SDKs",
-    "author": "Arena",
-    "license": "ISC",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/stationfy/arena-sdk.git"
-    },
-    "bugs": {
-        "url": "https://github.com/stationfy/arena-sdk/issues"
-    },
-    "homepage": "https://github.com/stationfy/arena-sdk#readme",
-    "engines": {
-        "node": ">=6"
-    },
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "dependencies": {
-        "@arena-im/chat-types": "^2.2.1",
-        "firebase": "^9.0.0-beta.5",
-        "graphql": "^15.5.0",
-        "graphql-request": "^3.4.0",
-        "socket.io-client": "^4.1.2"
-    },
-    "devDependencies": {
-        "@types/jest": "^26.0.23",
-        "@types/node": "^15.12.3",
-        "@types/sinon": "^10.0.2",
-        "@typescript-eslint/eslint-plugin": "^4.28.0",
-        "@typescript-eslint/parser": "^4.28.0",
-        "eslint": "^7.28.0",
-        "eslint-config-prettier": "^6.11.0",
-        "husky": "^4.2.5",
-        "jest": "^27.0.5",
-        "lint-staged": "^11.0.0",
-        "npm-run-all": "4.1.5",
-        "prettier": "^2.3.1",
-        "prettier-check": "2.0.0",
-        "rimraf": "3.0.2",
-        "ts-jest": "^27.0.3",
-        "typescript": "4.3.4"
-    },
-    "scripts": {
-        "build": "run-s copy-config:prod build:es5 build:esm",
-        "build:dev": "run-s copy-config:dev build:es5 build:esm",
-        "build:es5": "tsc -p tsconfig.build.json",
-        "build:esm": "tsc -p tsconfig.esm.json",
-        "build:watch": "run-s copy-config:dev build:watch:es5 build:watch:esm",
-        "build:watch:es5": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
-        "build:watch:esm": "tsc -p tsconfig.esm.json -w --preserveWatchOutput",
-        "clean": "rimraf dist esm",
-        "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
-        "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
-        "link:yarn": "yarn link",
-        "lint": "eslint . --ext .js,.ts",
-        "pre-commit": "yarn lint-staged",
-        "pretest": "run-s copy-config:dev",
-        "publish:registry": "yarn publish --access public",
-        "size:check": "run-p size:check:bundle",
-        "size:check:bundle": "cat dist/*.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'"
-    }
+  "name": "@arena-im/core",
+  "version": "2.2.1",
+  "description": "Base implementation for all Arena JavaScript SDKs",
+  "author": "Arena",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stationfy/arena-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stationfy/arena-sdk/issues"
+  },
+  "homepage": "https://github.com/stationfy/arena-sdk#readme",
+  "engines": {
+    "node": ">=6"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@arena-im/chat-types": "^2.2.1",
+    "firebase": "^9.0.0-beta.5",
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0",
+    "socket.io-client": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.12.3",
+    "@types/sinon": "^10.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "eslint": "^7.28.0",
+    "eslint-config-prettier": "^6.11.0",
+    "husky": "^4.2.5",
+    "jest": "^27.0.5",
+    "lint-staged": "^11.0.0",
+    "npm-run-all": "4.1.5",
+    "prettier": "^2.3.1",
+    "prettier-check": "2.0.0",
+    "rimraf": "3.0.2",
+    "ts-jest": "^27.0.3",
+    "typescript": "4.3.4"
+  },
+  "scripts": {
+    "build": "run-s copy-config:prod build:es5 build:esm",
+    "build:dev": "run-s copy-config:dev build:es5 build:esm",
+    "build:es5": "tsc -p tsconfig.build.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:watch": "run-s copy-config:dev build:watch:es5 build:watch:esm",
+    "build:watch:es5": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
+    "build:watch:esm": "tsc -p tsconfig.esm.json -w --preserveWatchOutput",
+    "clean": "rimraf dist esm",
+    "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
+    "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
+    "link:yarn": "yarn link",
+    "lint": "eslint . --ext .js,.ts",
+    "pre-commit": "yarn lint-staged",
+    "pretest": "run-s copy-config:dev",
+    "publish:registry": "yarn publish --access public",
+    "size:check": "run-p size:check:bundle",
+    "size:check:bundle": "cat dist/*.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'"
+  }
 }

@@ -8,11 +8,7 @@ type ChannelType = 'liveblog' | 'chat_room';
 export class PresenceAPI {
   private currentUser: PresenceUser | null = null;
 
-  public constructor(
-    private siteId: string,
-    private channelId: string,
-    private channelType: ChannelType
-  ) {
+  public constructor(private siteId: string, private channelId: string, private channelType: ChannelType) {
     WebSocketTransport.instance.on('reconnect', this.onReconnect);
 
     this.joinUser();
@@ -34,8 +30,8 @@ export class PresenceAPI {
       isAnonymous: !user,
       name: user?.name ?? null,
       image: user?.image ?? null,
-      country
-    }
+      country,
+    };
   }
 
   private async handleUserChange(user: ExternalUser) {
@@ -57,7 +53,7 @@ export class PresenceAPI {
       channelId: this.channelId,
       siteId: this.siteId,
       channelType: this.channelType,
-      user
+      user,
     });
   }
 
@@ -67,16 +63,20 @@ export class PresenceAPI {
 
   public getAllOnlineUsers(): Promise<ExternalUser[]> {
     return new Promise((resolve, reject) => {
-      WebSocketTransport.instance.emit('list', {
-        channelId: this.channelId,
-        status: 'online'
-      }, (err: Record<string, unknown> | null, data: ExternalUser[]) => {
-        if (err) {
-          return reject(err);
-        }
+      WebSocketTransport.instance.emit(
+        'list',
+        {
+          channelId: this.channelId,
+          status: 'online',
+        },
+        (err: Record<string, unknown> | null, data: ExternalUser[]) => {
+          if (err) {
+            return reject(err);
+          }
 
-        resolve(data);
-      });
+          resolve(data);
+        },
+      );
     });
   }
 

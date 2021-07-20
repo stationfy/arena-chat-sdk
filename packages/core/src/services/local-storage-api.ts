@@ -5,9 +5,7 @@ export class LocalStorageAPI {
   private global = getGlobalObject<Window>();
   private cache = {} as Record<string, string>;
 
-  constructor() { }
-
-  public setItem(key: string, value: string) {
+  public setItem(key: string, value: string): void {
     if (supportsLocalStorage()) {
       this.global.localStorage.setItem(key, value);
     } else {
@@ -15,7 +13,7 @@ export class LocalStorageAPI {
     }
   }
 
-  public getItem(key: string) {
+  public getItem(key: string): string | null {
     if (supportsLocalStorage()) {
       return this.global.localStorage.getItem(key);
     }
