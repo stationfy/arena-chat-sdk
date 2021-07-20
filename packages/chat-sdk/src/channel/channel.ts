@@ -60,6 +60,7 @@ export class Channel implements BaseChannel {
     });
 
     this.presenceAPI = new PresenceAPI(siteId, this.channel._id, 'chat_room');
+    this.presenceAPI.joinUser();
     this.watchOnlineCount((onlineCount) => (this.initialOnlineCount = onlineCount));
   }
 
