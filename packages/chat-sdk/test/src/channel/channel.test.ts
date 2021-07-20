@@ -728,7 +728,7 @@ describe('Channel', () => {
   });
 
   describe('sendReaction()', () => {
-    it.only('should send a reaction', async () => {
+    it('should send a reaction', async () => {
       const mockAPIInstance = jest.fn();
 
       mockAPIInstance.mockReturnValue({

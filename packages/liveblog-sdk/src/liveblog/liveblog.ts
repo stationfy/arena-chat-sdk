@@ -28,8 +28,4 @@ export class Liveblog {
   public fetchRememberMe(): void {
     console.log(this.liveblogInfo);
   }
-
-  public join() {
-
-  }
 }

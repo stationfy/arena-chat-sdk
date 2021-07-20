@@ -537,16 +537,6 @@ export class Channel implements BaseChannel {
   }
 
   /**
-   * Create a reaction to old architecture (Firebase)
-   *
-   */
-
-  // private async createReactionOld(serverReaction: ServerReaction) {
-  //   const restAPI = RestAPI.getAPIInstance();
-  //   return await restAPI.sendReaction(serverReaction);
-  // }
-
-  /**
    * Watch Channel reactions
    *
    */

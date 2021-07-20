@@ -29,7 +29,7 @@ export interface PresenceUser {
   name: string | null;
   image: string | null;
   country: string | null;
-  anonymousId?: string; // TODO: Verificar com o Thadeu se é necessário
+  anonymousId?: string;
 }
 
 export interface BanUser {
