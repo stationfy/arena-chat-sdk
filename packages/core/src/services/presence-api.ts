@@ -93,4 +93,10 @@ export class PresenceAPI {
   public watchUserLeft(callback: (user: ExternalUser) => void): void {
     WebSocketTransport.instance.on('user.left', callback);
   }
+
+  public offAllListeners(): void {
+    WebSocketTransport.instance.off('presence.info');
+    WebSocketTransport.instance.off('user.joined');
+    WebSocketTransport.instance.off('user.left');
+  }
 }

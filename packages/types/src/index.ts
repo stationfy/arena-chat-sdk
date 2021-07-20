@@ -10,7 +10,7 @@ export {
   ServerReaction,
   MessageReaction,
   SendReactionResult,
-  ChannelReaction
+  ChannelReaction,
 } from './chat-message';
 export { ChatRoom, ChatModerationRequest, LiveChatChannel, BaseLiveChat, BaseChannel, PageRequest } from './chat-room';
 export { DocumentChangeType, ListenChangeConfig, Where, OrderBy } from './firestore';

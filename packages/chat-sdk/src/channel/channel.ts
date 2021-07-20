@@ -714,6 +714,8 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.ADDED] = [];
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
+
+    this.presenceAPI.offAllListeners();
   }
 
   /**
