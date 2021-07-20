@@ -14,8 +14,7 @@ import {
   ChatMessageReportedBy,
   ChatRoom,
   ChannelMessageReactions,
-  BaseReaction,
-  ChannelReaction
+  BaseReaction
 } from '@arena-im/chat-types';
 import { User, UserObservable, OrganizationSite, ReactionsAPI, PresenceAPI } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
@@ -27,7 +26,7 @@ import { RestAPI } from '../services/rest-api';
 export class Channel implements BaseChannel {
   private reactionsAPI!: ReactionsAPI;
   private presenceAPI!: PresenceAPI;
-  private initialReactions: ChannelReaction[] = [];
+  private initialReactions: any[] = [];
   private initialOnlineCount = 0;
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
@@ -511,12 +510,11 @@ export class Channel implements BaseChannel {
         chatRoomId: this.chatRoom._id,
         chatRoomVersion: this.chatRoom.version,
         isDashboardUser,
-        widgetId: this.chatRoom._id,
+        widgetId: this.channel._id,
         widgetType: 'Chat Room'
       };
 
-      const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
-      reactionsAPI.createReaction(serverReaction)
+      this.createReaction(serverReaction);
 
       return {
         id: `${new Date()}`,
@@ -528,14 +526,34 @@ export class Channel implements BaseChannel {
     }
   }
 
+   /**
+   * Create a reaction
+   *
+   */
+
+  private createReaction(serverReaction: ServerReaction) {
+    const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
+    reactionsAPI.createReaction(serverReaction)
+  }
+
+  /**
+   * Create a reaction to old architecture (Firebase)
+   *
+   */
+
+  // private async createReactionOld(serverReaction: ServerReaction) {
+  //   const restAPI = RestAPI.getAPIInstance();
+  //   return await restAPI.sendReaction(serverReaction);
+  // }
+
   /**
    * Watch Channel reactions
    *
    */
 
-  public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void) {
+  public watchChannelReactions(callback: (reactions: any[]) => void) {
     callback(this.initialReactions);
-    this.reactionsAPI.watchChannelReactions(callback);
+    this.reactionsAPI.watchUserReactions(callback);
   }
 
   /**

@@ -5,31 +5,7 @@ import { WebSocketTransport } from '../transports/websocket-transport';
 
 type ChannelType = 'liveblog' | 'chat_room';
 
-type EmitJoin = {
-  channelId: string;
-  siteId: string;
-  user: Partial<PresenceUser> | null;
-  channelType: ChannelType;
-};
-
-type EmitEvents = {
-  join: (join: EmitJoin) => void;
-  'user.setdata': (user: PresenceUser) => void;
-  list: (
-    options: { channelId: string; status: 'online' | 'offline' },
-    cb: (error: Error | null, data: ExternalUser[]) => void,
-  ) => void;
-};
-
-type ListenEvents = {
-  reconnect: () => void;
-  'presence.info': (data: { onlineCount: number }) => void;
-  'user.joined': (user: ExternalUser) => void;
-  'user.left': (user: ExternalUser) => void;
-};
-
 export class PresenceAPI {
-  private wsTransport: WebSocketTransport<ListenEvents, EmitEvents>;
   private currentUser: PresenceUser | null = null;
 
   public constructor(
@@ -37,8 +13,7 @@ export class PresenceAPI {
     private channelId: string,
     private channelType: ChannelType
   ) {
-    this.wsTransport = new WebSocketTransport();
-    this.wsTransport.client.on('reconnect', this.onReconnect);
+    WebSocketTransport.instance.on('reconnect', this.onReconnect);
 
     this.joinUser();
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
@@ -78,7 +53,7 @@ export class PresenceAPI {
   public join(user: PresenceUser | null): void {
     this.currentUser = user;
 
-    this.wsTransport.client.emit('join', {
+    WebSocketTransport.instance.emit('join', {
       channelId: this.channelId,
       siteId: this.siteId,
       channelType: this.channelType,
@@ -87,15 +62,15 @@ export class PresenceAPI {
   }
 
   public updateUser(user: PresenceUser): void {
-    this.wsTransport.client.emit('user.setdata', user);
+    WebSocketTransport.instance.emit('user.setdata', user);
   }
 
   public getAllOnlineUsers(): Promise<ExternalUser[]> {
     return new Promise((resolve, reject) => {
-      this.wsTransport.client.emit('list', {
+      WebSocketTransport.instance.emit('list', {
         channelId: this.channelId,
         status: 'online'
-      }, (err, data) => {
+      }, (err: {} | null, data: ExternalUser[]) => {
         if (err) {
           return reject(err);
         }
@@ -106,16 +81,16 @@ export class PresenceAPI {
   }
 
   public watchOnlineCount(callback: (onlineCount: number) => void): void {
-    this.wsTransport.client.on('presence.info', ({ onlineCount }) => {
+    WebSocketTransport.instance.on('presence.info', ({ onlineCount }) => {
       callback(onlineCount);
     });
   }
 
   public watchUserJoined(callback: (user: ExternalUser) => void): void {
-    this.wsTransport.client.on('user.joined', callback);
+    WebSocketTransport.instance.on('user.joined', callback);
   }
 
   public watchUserLeft(callback: (user: ExternalUser) => void): void {
-    this.wsTransport.client.on('user.left', callback);
+    WebSocketTransport.instance.on('user.left', callback);
   }
 }
