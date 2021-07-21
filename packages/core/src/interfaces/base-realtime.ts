@@ -63,12 +63,13 @@ export interface BaseRealtime {
   sendReaction(reaction: ServerReaction): Promise<ServerReaction>;
 
   /**
-   * Listen to user reactions
+   * Listen to user reactions from Firebase
    *
+   * @deprecated
    * @param user external user
    * @param callback callback that will receive the reactions
    */
-  listenToUserReactions(
+  listenToUserReactionsOld(
     channelId: string,
     user: ExternalUser,
     callback: (reactions: ServerReaction[]) => void,

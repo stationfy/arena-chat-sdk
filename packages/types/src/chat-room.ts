@@ -1,4 +1,4 @@
-import { ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
+import { ChannelReaction, ChatMessage, ChatMessageSender, MessageReaction, ServerReaction } from './chat-message';
 import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
@@ -104,7 +104,8 @@ export interface BaseChannel {
   fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
   sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<MessageReaction>;
-  watchChannelReactions(callback: (reactions: any[]) => void): void;
+  watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
+  watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
   getUserList(): Promise<ExternalUser[]>;
   watchOnlineCount(callback: (onlineCount: number) => void): void;
   watchUserJoined(callback: (ExternalUser: ExternalUser) => void): void;

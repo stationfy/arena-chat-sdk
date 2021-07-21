@@ -27,4 +27,10 @@ export class ReactionsAPI {
   public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {
     WebSocketTransport.instance.on('reaction.channel', callback);
   }
+
+  public offAllListeners(): void {
+    WebSocketTransport.instance.off('reaction.create');
+    WebSocketTransport.instance.off('reaction.user');
+    WebSocketTransport.instance.off('reaction.channel');
+  }
 }
