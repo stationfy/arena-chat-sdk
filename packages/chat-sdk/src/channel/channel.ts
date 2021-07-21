@@ -15,6 +15,7 @@ import {
   ChatRoom,
   ChannelMessageReactions,
   BaseReaction,
+  ChannelReaction,
 } from '@arena-im/chat-types';
 import { User, UserObservable, OrganizationSite, ReactionsAPI, PresenceAPI } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
@@ -26,7 +27,8 @@ import { RestAPI } from '../services/rest-api';
 export class Channel implements BaseChannel {
   private reactionsAPI!: ReactionsAPI;
   private presenceAPI!: PresenceAPI;
-  private initialReactions: ServerReaction[] = [];
+  private initialUserReactions: ServerReaction[] = [];
+  private initialChannelReactions: ChannelReaction[] = [];
   private initialOnlineCount = 0;
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
@@ -56,7 +58,10 @@ export class Channel implements BaseChannel {
   private initPresence(siteId: string) {
     this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
     this.watchChannelReactions((reactions) => {
-      this.initialReactions = reactions;
+      this.initialChannelReactions = reactions;
+    });
+    this.watchUserReactions((reactions) => {
+      this.initialUserReactions = reactions;
     });
 
     this.presenceAPI = new PresenceAPI(siteId, this.channel._id, 'chat_room');
@@ -337,7 +342,7 @@ export class Channel implements BaseChannel {
    */
   private watchUserChanged(user: ExternalUser | null) {
     if (user !== null) {
-      this.watchUserReactions(user);
+      this.watchUserReactionsOld(user);
     } else {
       if (this.userReactionsSubscription !== null) {
         this.userReactionsSubscription();
@@ -355,17 +360,18 @@ export class Channel implements BaseChannel {
 
   /**
    * Watch user reactions
+   * @deprecated
    *
    * @param user external user
    */
-  private watchUserReactions(user: ExternalUser) {
+  private watchUserReactionsOld(user: ExternalUser) {
     if (this.userReactionsSubscription !== null) {
       this.userReactionsSubscription();
     }
 
     try {
       const realtimeAPI = RealtimeAPI.getInstance();
-      this.userReactionsSubscription = realtimeAPI.listenToUserReactions(this.channel._id, user, (reactions) => {
+      this.userReactionsSubscription = realtimeAPI.listenToUserReactionsOld(this.channel._id, user, (reactions) => {
         this.cacheUserReactions = {};
 
         reactions.forEach((reaction) => {
@@ -381,6 +387,39 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot listen to user reactions');
     }
+  }
+
+  /**
+   * Watch user reactions
+   *
+   * @param user external user
+   */
+  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
+    callback(this.initialUserReactions);
+    this.reactionsAPI.watchUserReactions((reactions: ServerReaction[]) => {
+      callback(reactions);
+      this.cacheUserReactions = {};
+
+      reactions.forEach((reaction) => {
+        if (!this.cacheUserReactions[reaction.itemId]) {
+          this.cacheUserReactions[reaction.itemId] = [];
+        }
+
+        this.cacheUserReactions[reaction.itemId].push(reaction);
+      });
+
+      this.notifyUserReactionsVerification();
+    });
+  }
+
+  /**
+   * Watch Channel reactions
+   *
+   */
+
+  public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {
+    callback(this.initialChannelReactions);
+    this.reactionsAPI.watchChannelReactions(callback);
   }
 
   /**
@@ -535,16 +574,6 @@ export class Channel implements BaseChannel {
   private createReaction(serverReaction: ServerReaction) {
     const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
     reactionsAPI.createReaction(serverReaction);
-  }
-
-  /**
-   * Watch Channel reactions
-   *
-   */
-
-  public watchChannelReactions(callback: (reactions: ServerReaction[]) => void): void {
-    callback(this.initialReactions);
-    this.reactionsAPI.watchUserReactions(callback);
   }
 
   /**
@@ -707,6 +736,7 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
     this.presenceAPI.offAllListeners();
+    ReactionsAPI.getInstance(this.channel._id).offAllListeners();
   }
 
   /**

@@ -58,14 +58,12 @@ jest.mock('@arena-im/core', () => ({
   ReactionsAPI: {
     getInstance: () => ({
       watchUserReactions: jest.fn(),
+      watchChannelReactions: jest.fn(),
+      offAllListeners: jest.fn(),
       createReaction: createReactionSpy,
     }),
   },
   LocalStorageAPI: {},
-}));
-
-jest.mock('@services/arena-hub', () => ({
-  ArenaHub: jest.fn(),
 }));
 
 describe('Channel', () => {
