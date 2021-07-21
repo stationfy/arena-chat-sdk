@@ -6,9 +6,9 @@ type Instance = {
 };
 
 export class ReactionsAPI {
-  static instance: Instance = {};
+  private static instance: Instance = {};
 
-  static getInstance(channelId: string): ReactionsAPI {
+  public static getInstance(channelId: string): ReactionsAPI {
     if (!this.instance[channelId]) {
       this.instance[channelId] = new ReactionsAPI();
     }
