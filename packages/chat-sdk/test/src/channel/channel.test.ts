@@ -52,6 +52,7 @@ jest.mock('@arena-im/core', () => ({
   },
   PresenceAPI: () => ({
     watchOnlineCount: jest.fn(),
+    joinUser: jest.fn(),
   }),
   ReactionsAPI: {
     getInstance: () => ({
