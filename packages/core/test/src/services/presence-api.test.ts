@@ -27,7 +27,10 @@ jest.mock('@transports/websocket-transport', () => ({
   WebSocketTransport: {
     instance: {
       on: jest.fn(),
-      emit: jest.fn(),
+      // @ts-ignore
+      emit: jest.fn().mockImplementation((eventName, params, callback) => {
+        callback?.(null, true);
+      }),
       off: jest.fn(),
     },
   },
@@ -59,12 +62,10 @@ test('should validate join method', async () => {
   };
 
   const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
-  const callback = jest.fn();
 
-  await presenceAPI.joinUser(callback);
+  await presenceAPI.joinUser();
 
-  expect(WebSocketTransport.instance.emit).toHaveBeenCalledWith('join', expectedUserToJoin);
-  expect(callback).toHaveBeenCalled();
+  expect(WebSocketTransport.instance.emit).not.toHaveBeenCalledWith('join', expectedUserToJoin);
 });
 
 test('should validate updateUser method', () => {
@@ -77,9 +78,9 @@ test('should validate updateUser method', () => {
 test('should validate getAllOnlineUsers method', () => {
   const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
   presenceAPI.getAllOnlineUsers();
-  const emitAsMock = WebSocketTransport.instance.emit as jest.Mock;
+  const mockEmit = WebSocketTransport.instance.emit as jest.Mock;
 
-  expect(emitAsMock.mock.calls[2]).toEqual(['list', { channelId: 'channel1', status: 'online' }, expect.any(Function)]);
+  expect(mockEmit.mock.calls[2]).toEqual(['list', { channelId: 'channel1', status: 'online' }, expect.any(Function)]);
 });
 
 test('should validate watchOnlineCount method', () => {

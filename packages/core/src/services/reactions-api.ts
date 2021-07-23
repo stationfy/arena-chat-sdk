@@ -25,7 +25,7 @@ export class ReactionsAPI {
       WebSocketTransport.instance.emit(
         'reaction.retrieve',
         {},
-        (data: ServerReaction[], err: Record<string, unknown> | null) => {
+        (err: Record<string, unknown> | null, data: ServerReaction[]) => {
           if (err) {
             return reject(err);
           }

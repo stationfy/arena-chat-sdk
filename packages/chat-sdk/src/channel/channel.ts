@@ -61,7 +61,7 @@ export class Channel implements BaseChannel {
       this.initialChannelReactions = reactions;
     });
     this.presenceAPI = new PresenceAPI(siteId, this.channel._id, 'chat_room');
-    this.presenceAPI.joinUser(() => {
+    this.presenceAPI.joinUser().then(() => {
       this.retrieveUserReactions((reactions) => {
         this.initialUserReactions = reactions;
       });
@@ -416,7 +416,6 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Could not retrieve user reactions');
     }
-
   }
 
   /**
