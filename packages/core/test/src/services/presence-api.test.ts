@@ -59,10 +59,12 @@ test('should validate join method', async () => {
   };
 
   const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const callback = jest.fn();
 
-  await presenceAPI.joinUser();
+  await presenceAPI.joinUser(callback);
 
   expect(WebSocketTransport.instance.emit).toHaveBeenCalledWith('join', expectedUserToJoin);
+  expect(callback).toHaveBeenCalled();
 });
 
 test('should validate updateUser method', () => {

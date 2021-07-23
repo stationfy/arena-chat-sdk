@@ -25,11 +25,10 @@ test('should validate createReaction method', () => {
   expect(WebSocketTransport.instance.emit).toHaveBeenCalledWith('reaction.create', {});
 });
 
-test('should validate watchUserReactions method', () => {
-  const callback = jest.fn();
-  ReactionsAPI.getInstance(channelId).watchUserReactions(callback);
+test('should validate retrieveUserReactions method', () => {
+  ReactionsAPI.getInstance(channelId).retrieveUserReactions();
 
-  expect(WebSocketTransport.instance.on).toHaveBeenCalledWith('reaction.user', callback);
+  expect(WebSocketTransport.instance.emit).toHaveBeenCalledWith('reaction.retrieve', {}, expect.any(Function));
 });
 
 test('should validate watchChannelReactions method', () => {

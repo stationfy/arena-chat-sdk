@@ -14,10 +14,10 @@ export class PresenceAPI {
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
 
-  public async joinUser(): Promise<void> {
+  public async joinUser(callback: () => void): Promise<void> {
     const userToJoin = await this.buildPresenceUser(User.instance.data);
 
-    this.join(userToJoin);
+    this.join(userToJoin, callback);
   }
 
   private async buildPresenceUser(user: Partial<ExternalUser> | null) {
@@ -41,11 +41,11 @@ export class PresenceAPI {
 
   private onReconnect() {
     if (this.currentUser) {
-      this.join(this.currentUser);
+      this.join(this.currentUser, () => null);
     }
   }
 
-  private join(user: PresenceUser | null): void {
+  private join(user: PresenceUser | null, callback: () => void): void {
     this.currentUser = user;
 
     WebSocketTransport.instance.emit('join', {
@@ -54,6 +54,8 @@ export class PresenceAPI {
       channelType: this.channelType,
       user,
     });
+
+    callback();
   }
 
   public updateUser(user: PresenceUser): void {

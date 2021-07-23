@@ -20,8 +20,20 @@ export class ReactionsAPI {
     WebSocketTransport.instance.emit('reaction.create', reaction);
   }
 
-  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
-    WebSocketTransport.instance.on('reaction.user', callback);
+  public retrieveUserReactions(): Promise<ServerReaction[]> {
+    return new Promise((resolve, reject) => {
+      WebSocketTransport.instance.emit(
+        'reaction.retrieve',
+        {},
+        (data: ServerReaction[], err: Record<string, unknown> | null) => {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve(data);
+        },
+      );
+    });
   }
 
   public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {

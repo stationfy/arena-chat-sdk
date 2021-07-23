@@ -60,12 +60,12 @@ export class Channel implements BaseChannel {
     this.watchChannelReactions((reactions) => {
       this.initialChannelReactions = reactions;
     });
-    this.watchUserReactions((reactions) => {
-      this.initialUserReactions = reactions;
-    });
-
     this.presenceAPI = new PresenceAPI(siteId, this.channel._id, 'chat_room');
-    this.presenceAPI.joinUser();
+    this.presenceAPI.joinUser(() => {
+      this.retrieveUserReactions((reactions) => {
+        this.initialUserReactions = reactions;
+      });
+    });
     this.watchOnlineCount((onlineCount) => (this.initialOnlineCount = onlineCount));
   }
 
@@ -394,10 +394,14 @@ export class Channel implements BaseChannel {
    *
    * @param user external user
    */
-  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
+  public async retrieveUserReactions(callback: (reactions: ServerReaction[]) => void): Promise<void> {
     callback(this.initialUserReactions);
-    this.reactionsAPI.watchUserReactions((reactions: ServerReaction[]) => {
+
+    try {
+      const reactions = await this.reactionsAPI.retrieveUserReactions();
+
       callback(reactions);
+
       this.cacheUserReactions = {};
 
       reactions.forEach((reaction) => {
@@ -409,7 +413,10 @@ export class Channel implements BaseChannel {
       });
 
       this.notifyUserReactionsVerification();
-    });
+    } catch (e) {
+      throw new Error('Could not retrieve user reactions');
+    }
+
   }
 
   /**

@@ -57,7 +57,7 @@ jest.mock('@arena-im/core', () => ({
   }),
   ReactionsAPI: {
     getInstance: () => ({
-      watchUserReactions: jest.fn(),
+      retrieveUserReactions: jest.fn(),
       watchChannelReactions: jest.fn(),
       offAllListeners: jest.fn(),
       createReaction: createReactionSpy,
