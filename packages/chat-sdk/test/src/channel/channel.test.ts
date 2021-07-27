@@ -50,11 +50,13 @@ jest.mock('@arena-im/core', () => ({
       onUserChanged: jest.fn(),
     },
   },
-  PresenceAPI: () => ({
-    watchOnlineCount: jest.fn(),
-    joinUser: jest.fn().mockResolvedValue(true),
-    offAllListeners: jest.fn(),
-  }),
+  PresenceAPI: {
+    getInstance: () => ({
+      watchOnlineCount: jest.fn(),
+      joinUser: jest.fn().mockResolvedValue(true),
+      offAllListeners: jest.fn(),
+    }),
+  },
   ReactionsAPI: {
     getInstance: () => ({
       retrieveUserReactions: jest.fn(),

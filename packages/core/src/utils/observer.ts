@@ -1,6 +1,6 @@
 export type Listerner<T> = (event: T) => void;
 
-export function createObserver<T>(): {
+export function createObserver<T>(name?: string): {
   subscribe: (listerner: Listerner<T>) => () => void;
   publish: (event: T) => void;
 } {
@@ -9,6 +9,9 @@ export function createObserver<T>(): {
   return {
     subscribe: (listener: Listerner<T>): (() => void) => {
       listeners.push(listener);
+      if (name) {
+        console.log({ name, listeners });
+      }
       return () => {
         listeners = listeners.filter((l) => l !== listener);
       };

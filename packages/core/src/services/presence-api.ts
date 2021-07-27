@@ -1,17 +1,30 @@
-import { ExternalUser, PresenceUser } from '@arena-im/chat-types';
+import { ChannelType, ExternalUser, PresenceUser } from '@arena-im/chat-types';
 import { isMobile } from '../utils/misc';
 import { User, UserObservable } from '../auth';
 import { WebSocketTransport } from '../transports/websocket-transport';
+import { PresenceObservable } from './presence-observable';
 
-type ChannelType = 'liveblog' | 'chat_room';
+type Instance = {
+  [key: string]: PresenceAPI;
+};
 
 export class PresenceAPI {
+  private static instance: Instance = {};
   private currentUser: PresenceUser | null = null;
+  private cachedOnlineCount: number | null = null;
 
-  public constructor(private siteId: string, private channelId: string, private channelType: ChannelType) {
+  private constructor(private siteId: string, private channelId: string, private channelType: ChannelType) {
     WebSocketTransport.instance.on('reconnect', this.onReconnect);
 
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
+  }
+
+  public static getInstance(siteId: string, channelId: string, channelType: ChannelType): PresenceAPI {
+    if (!this.instance[channelId]) {
+      this.instance[channelId] = new PresenceAPI(siteId, channelId, channelType);
+    }
+
+    return this.instance[channelId];
   }
 
   public async joinUser(): Promise<boolean> {
@@ -45,7 +58,7 @@ export class PresenceAPI {
     }
   }
 
-  private join(user: PresenceUser | null): Promise<boolean> {
+  private join(user: PresenceUser): Promise<boolean> {
     this.currentUser = user;
 
     return new Promise((resolve, reject) => {
@@ -65,11 +78,21 @@ export class PresenceAPI {
           resolve(data);
         },
       );
+      this.handleUserJoined(user);
+    });
+  }
+
+  private handleUserJoined(user: PresenceUser) {
+    PresenceObservable.getInstance(this.channelId).updateUserJoined(user);
+
+    this.watchOnlineCountEvent((onlineCount) => {
+      PresenceObservable.getInstance(this.channelId).updateOnlineCount(onlineCount);
     });
   }
 
   public updateUser(user: PresenceUser): void {
     WebSocketTransport.instance.emit('user.setdata', user);
+    PresenceObservable.getInstance(this.channelId).updateUserSetted(true);
   }
 
   public getAllOnlineUsers(): Promise<ExternalUser[]> {
@@ -92,7 +115,16 @@ export class PresenceAPI {
   }
 
   public watchOnlineCount(callback: (onlineCount: number) => void): void {
+    if (this.cachedOnlineCount) {
+      callback(this.cachedOnlineCount);
+    }
+
+    PresenceObservable.getInstance(this.channelId).onOnlineCountChanged(callback);
+  }
+
+  private watchOnlineCountEvent(callback: (onlineCount: number) => void) {
     WebSocketTransport.instance.on('presence.info', ({ onlineCount }) => {
+      this.cachedOnlineCount = onlineCount;
       callback(onlineCount);
     });
   }

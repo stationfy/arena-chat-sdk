@@ -62,6 +62,7 @@ export const exampleChatRoom: ChatRoom = {
   showEmojiButton: true,
   unreadCount: 0,
   version: '2',
+  useNewReactionAPI: true,
 };
 
 export const exampleSite: Site = {

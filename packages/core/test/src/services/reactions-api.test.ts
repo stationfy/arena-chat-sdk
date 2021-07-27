@@ -35,5 +35,5 @@ test('should validate watchChannelReactions method', () => {
   const callback = jest.fn();
   ReactionsAPI.getInstance(channelId).watchChannelReactions(callback);
 
-  expect(WebSocketTransport.instance.on).toHaveBeenCalledWith('reaction.channel', callback);
+  expect(callback).not.toHaveBeenCalled();
 });

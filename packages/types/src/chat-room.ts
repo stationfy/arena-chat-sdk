@@ -23,6 +23,7 @@ export interface ChatRoom extends LiveChatChannel {
   numChannels: number;
   mainChannel: LiveChatChannel;
   version: string;
+  useNewReactionAPI: boolean;
 }
 
 export interface LiveChatChannel {
@@ -105,7 +106,7 @@ export interface BaseChannel {
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
   sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<MessageReaction>;
   watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
-  retrieveUserReactions(callback: (reactions: ServerReaction[]) => void): void;
+  watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
   getUserList(): Promise<ExternalUser[]>;
   watchOnlineCount(callback: (onlineCount: number) => void): void;
   watchUserJoined(callback: (ExternalUser: ExternalUser) => void): void;
@@ -122,3 +123,5 @@ export interface BaseChannel {
   reportMessage(message: ChatMessage, anonymousId?: string): Promise<boolean>;
   watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void;
 }
+
+export type ChannelType = 'liveblog' | 'chat_room';

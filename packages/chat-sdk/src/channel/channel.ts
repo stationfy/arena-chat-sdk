@@ -27,9 +27,6 @@ import { RestAPI } from '../services/rest-api';
 export class Channel implements BaseChannel {
   private reactionsAPI!: ReactionsAPI;
   private presenceAPI!: PresenceAPI;
-  private initialUserReactions: ServerReaction[] = [];
-  private initialChannelReactions: ChannelReaction[] = [];
-  private initialOnlineCount = 0;
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
@@ -57,16 +54,8 @@ export class Channel implements BaseChannel {
 
   private initPresence(siteId: string) {
     this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
-    this.watchChannelReactions((reactions) => {
-      this.initialChannelReactions = reactions;
-    });
-    this.presenceAPI = new PresenceAPI(siteId, this.channel._id, 'chat_room');
-    this.presenceAPI.joinUser().then(() => {
-      this.retrieveUserReactions((reactions) => {
-        this.initialUserReactions = reactions;
-      });
-    });
-    this.watchOnlineCount((onlineCount) => (this.initialOnlineCount = onlineCount));
+    this.presenceAPI = PresenceAPI.getInstance(siteId, this.channel._id, 'chat_room');
+    this.presenceAPI.joinUser();
   }
 
   /**
@@ -341,9 +330,10 @@ export class Channel implements BaseChannel {
    * @param {ExternalUser} user external user
    */
   private watchUserChanged(user: ExternalUser | null) {
-    if (user !== null) {
-      this.watchUserReactionsOld(user);
-    } else {
+    if (!this.chatRoom.useNewReactionAPI) {
+      if (user !== null) {
+        this.watchUserReactionsOld(user);
+      }
       if (this.userReactionsSubscription !== null) {
         this.userReactionsSubscription();
       }
@@ -394,28 +384,8 @@ export class Channel implements BaseChannel {
    *
    * @param user external user
    */
-  public async retrieveUserReactions(callback: (reactions: ServerReaction[]) => void): Promise<void> {
-    callback(this.initialUserReactions);
-
-    try {
-      const reactions = await this.reactionsAPI.retrieveUserReactions();
-
-      callback(reactions);
-
-      this.cacheUserReactions = {};
-
-      reactions.forEach((reaction) => {
-        if (!this.cacheUserReactions[reaction.itemId]) {
-          this.cacheUserReactions[reaction.itemId] = [];
-        }
-
-        this.cacheUserReactions[reaction.itemId].push(reaction);
-      });
-
-      this.notifyUserReactionsVerification();
-    } catch (e) {
-      throw new Error('Could not retrieve user reactions');
-    }
+  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
+    this.reactionsAPI.watchUserReactions(callback);
   }
 
   /**
@@ -424,7 +394,6 @@ export class Channel implements BaseChannel {
    */
 
   public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {
-    callback(this.initialChannelReactions);
     this.reactionsAPI.watchChannelReactions(callback);
   }
 
@@ -578,7 +547,7 @@ export class Channel implements BaseChannel {
    */
 
   private createReaction(serverReaction: ServerReaction) {
-    const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
+    const reactionsAPI = ReactionsAPI.getInstance(this.chatRoom.siteId);
     reactionsAPI.createReaction(serverReaction);
   }
 
@@ -742,7 +711,7 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
     this.presenceAPI.offAllListeners();
-    ReactionsAPI.getInstance(this.channel._id).offAllListeners();
+    ReactionsAPI.getInstance(this.chatRoom.siteId).offAllListeners();
   }
 
   /**
@@ -808,7 +777,6 @@ export class Channel implements BaseChannel {
   }
 
   public watchOnlineCount(callback: (onlineCount: number) => void): void {
-    callback(this.initialOnlineCount);
     this.presenceAPI.watchOnlineCount(callback);
   }
 

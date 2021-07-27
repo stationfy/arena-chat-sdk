@@ -41,7 +41,7 @@ const channelId = 'channel1';
 const channelType = 'chat_room';
 
 test('should validate Presence constructor call', () => {
-  new PresenceAPI(siteId, channelId, channelType);
+  PresenceAPI.getInstance(siteId, channelId, channelType);
 
   expect(WebSocketTransport.instance.on).toHaveBeenCalledWith('reconnect', expect.any(Function));
 });
@@ -61,7 +61,7 @@ test('should validate join method', async () => {
     },
   };
 
-  const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
 
   await presenceAPI.joinUser();
 
@@ -69,14 +69,14 @@ test('should validate join method', async () => {
 });
 
 test('should validate updateUser method', () => {
-  const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.updateUser({} as PresenceUser);
 
   expect(WebSocketTransport.instance.emit).toHaveBeenCalledWith('user.setdata', {});
 });
 
 test('should validate getAllOnlineUsers method', () => {
-  const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.getAllOnlineUsers();
   const mockEmit = WebSocketTransport.instance.emit as jest.Mock;
 
@@ -84,28 +84,28 @@ test('should validate getAllOnlineUsers method', () => {
 });
 
 test('should validate watchOnlineCount method', () => {
-  const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.watchOnlineCount(jest.fn());
 
   expect(WebSocketTransport.instance.on).toHaveBeenCalledWith('presence.info', expect.any(Function));
 });
 
 test('should validate watchUserJoined method', () => {
-  const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.watchUserJoined(jest.fn());
 
   expect(WebSocketTransport.instance.on).toHaveBeenCalledWith('user.joined', expect.any(Function));
 });
 
 test('should validate watchUserLeft method', () => {
-  const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.watchUserLeft(jest.fn());
 
   expect(WebSocketTransport.instance.on).toHaveBeenCalledWith('user.left', expect.any(Function));
 });
 
 test('should turn off all Presence listeners', () => {
-  const presenceAPI = new PresenceAPI(siteId, channelId, channelType);
+  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.offAllListeners();
 
   expect(WebSocketTransport.instance.off).toHaveBeenCalledTimes(3);
