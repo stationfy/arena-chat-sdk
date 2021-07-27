@@ -15,8 +15,10 @@ export class ReactionsAPI {
   private channelReactionsListeners = createObserver<ChannelReaction[]>();
 
   constructor(channelId: string) {
-    PresenceObservable.getInstance(channelId).onUserJoinedChanged(this.onUserJoined.bind(this));
+    PresenceObservable.getInstance(channelId).onUserJoinedChanged(this.onPresenceChanged.bind(this));
     PresenceObservable.getInstance(channelId).onUserSettedChanged(this.onPresenceChanged.bind(this));
+
+    this.watchChannelReactionsEvent();
   }
 
   public static getInstance(channelId: string): ReactionsAPI {
@@ -25,14 +27,6 @@ export class ReactionsAPI {
     }
 
     return this.instance[channelId];
-  }
-
-  private onUserJoined() {
-    this.watchChannelReactionsEvent((channelReactions) => {
-      this.channelReactionsListeners.publish(channelReactions);
-    });
-
-    this.onPresenceChanged();
   }
 
   private onPresenceChanged() {
@@ -88,10 +82,11 @@ export class ReactionsAPI {
     this.channelReactionsListeners.subscribe(callback);
   }
 
-  private watchChannelReactionsEvent(callback: (reactions: ChannelReaction[]) => void): void {
+  private watchChannelReactionsEvent(): void {
     WebSocketTransport.instance.on('reaction.channel', (reactions: ChannelReaction[]) => {
       this.cachedChannelReactions = reactions;
-      callback(reactions);
+
+      this.channelReactionsListeners.publish(reactions);
     });
   }
 

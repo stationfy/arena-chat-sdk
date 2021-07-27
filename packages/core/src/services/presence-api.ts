@@ -75,10 +75,10 @@ export class PresenceAPI {
             return reject(err);
           }
 
+          this.handleUserJoined(user);
           resolve(data);
         },
       );
-      this.handleUserJoined(user);
     });
   }
 
