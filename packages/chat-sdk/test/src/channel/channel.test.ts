@@ -753,11 +753,9 @@ describe('Channel', () => {
         type: 'like',
       };
 
-      const result: MessageReaction = await channel.sendReaction(reaction);
+      await channel.sendReaction(reaction);
 
       expect(createReactionSpy).toHaveBeenCalled();
-      expect(result.type).toEqual('like');
-      expect(result.messageID).toEqual('fake-message');
     });
   });
 
