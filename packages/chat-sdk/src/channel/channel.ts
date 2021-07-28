@@ -15,8 +15,9 @@ import {
   ChatRoom,
   ChannelMessageReactions,
   BaseReaction,
+  ChannelReaction,
 } from '@arena-im/chat-types';
-import { User, UserObservable, OrganizationSite } from '@arena-im/core';
+import { User, UserObservable, OrganizationSite, ReactionsAPI, PresenceAPI } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
@@ -24,6 +25,8 @@ import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
 
 export class Channel implements BaseChannel {
+  private reactionsAPI!: ReactionsAPI;
+  private presenceAPI!: PresenceAPI;
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
@@ -36,10 +39,9 @@ export class Channel implements BaseChannel {
 
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
-
     UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
-
     this.markReadDebounced = debounce(this.markRead, 10000);
+    this.initPresence(chatRoom.siteId);
   }
 
   public static getInstance(channel: LiveChatChannel, chatRoom: ChatRoom): Channel {
@@ -48,6 +50,12 @@ export class Channel implements BaseChannel {
     }
 
     return Channel.instances[channel._id];
+  }
+
+  private initPresence(siteId: string) {
+    this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
+    this.presenceAPI = PresenceAPI.getInstance(siteId, this.channel._id, 'chat_room');
+    this.presenceAPI.joinUser();
   }
 
   /**
@@ -322,9 +330,10 @@ export class Channel implements BaseChannel {
    * @param {ExternalUser} user external user
    */
   private watchUserChanged(user: ExternalUser | null) {
-    if (user !== null) {
-      this.watchUserReactions(user);
-    } else {
+    if (!this.chatRoom.useNewReactionAPI) {
+      if (user !== null) {
+        this.watchUserReactionsOld(user);
+      }
       if (this.userReactionsSubscription !== null) {
         this.userReactionsSubscription();
       }
@@ -341,17 +350,18 @@ export class Channel implements BaseChannel {
 
   /**
    * Watch user reactions
+   * @deprecated
    *
    * @param user external user
    */
-  private watchUserReactions(user: ExternalUser) {
+  private watchUserReactionsOld(user: ExternalUser) {
     if (this.userReactionsSubscription !== null) {
       this.userReactionsSubscription();
     }
 
     try {
       const realtimeAPI = RealtimeAPI.getInstance();
-      this.userReactionsSubscription = realtimeAPI.listenToUserReactions(this.channel._id, user, (reactions) => {
+      this.userReactionsSubscription = realtimeAPI.listenToUserReactionsOld(this.channel._id, user, (reactions) => {
         this.cacheUserReactions = {};
 
         reactions.forEach((reaction) => {
@@ -367,6 +377,24 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot listen to user reactions');
     }
+  }
+
+  /**
+   * Watch user reactions
+   *
+   * @param user external user
+   */
+  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
+    this.reactionsAPI.watchUserReactions(callback);
+  }
+
+  /**
+   * Watch Channel reactions
+   *
+   */
+
+  public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {
+    this.reactionsAPI.watchChannelReactions(callback);
   }
 
   /**
@@ -477,7 +505,7 @@ export class Channel implements BaseChannel {
     reaction: MessageReaction,
     anonymousId?: string,
     isDashboardUser = false,
-  ): Promise<MessageReaction> {
+  ): Promise<void> {
     const userId = User.instance.data?.id || anonymousId;
 
     if (typeof userId === 'undefined') {
@@ -497,19 +525,37 @@ export class Channel implements BaseChannel {
         chatRoomId: this.chatRoom._id,
         chatRoomVersion: this.chatRoom.version,
         isDashboardUser,
+        widgetId: this.channel._id,
+        widgetType: 'Chat Room',
       };
 
-      const restAPI = RestAPI.getAPIInstance();
-      const result = await restAPI.sendReaction(serverReaction);
-
-      return {
-        id: result,
-        type: serverReaction.reaction,
-        messageID: serverReaction.itemId,
-      };
+      if (this.chatRoom.useNewReactionAPI) {
+        this.createReaction(serverReaction);
+      } else {
+        this.createReactionOld(serverReaction);
+      }
     } catch (e) {
       throw new Error(`Cannot react to the message "${reaction.messageID}"`);
     }
+  }
+
+  /**
+   * Create a reaction
+   *
+   */
+
+  private createReaction(serverReaction: ServerReaction) {
+    const reactionsAPI = ReactionsAPI.getInstance(this.chatRoom.siteId);
+    reactionsAPI.createReaction(serverReaction);
+  }
+
+  /**
+   * Create a reaction on Firebase
+   * @deprecated
+   */
+  private async createReactionOld(reaction: ServerReaction) {
+    const restAPI = RestAPI.getAPIInstance();
+    return await restAPI.sendReaction(reaction);
   }
 
   /**
@@ -670,6 +716,9 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.ADDED] = [];
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
+
+    this.presenceAPI.offAllListeners();
+    ReactionsAPI.getInstance(this.chatRoom.siteId).offAllListeners();
   }
 
   /**
@@ -728,5 +777,21 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');
     }
+  }
+
+  public getUserList(): Promise<ExternalUser[]> {
+    return this.presenceAPI.getAllOnlineUsers();
+  }
+
+  public watchOnlineCount(callback: (onlineCount: number) => void): void {
+    this.presenceAPI.watchOnlineCount(callback);
+  }
+
+  public watchUserJoined(callback: (user: ExternalUser) => void): void {
+    this.presenceAPI.watchUserJoined(callback);
+  }
+
+  public watchUserLeft(callback: (user: ExternalUser) => void): void {
+    this.presenceAPI.watchUserLeft(callback);
   }
 }

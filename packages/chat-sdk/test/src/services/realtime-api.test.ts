@@ -90,7 +90,7 @@ describe('RealtimeAPI', () => {
         image: 'https://www.google.com',
       };
 
-      realtimeAPI.listenToUserReactions('my-channel', user, (reactions: ServerReaction[]) => {
+      realtimeAPI.listenToUserReactionsOld('my-channel', user, (reactions: ServerReaction[]) => {
         expect(reactions.length).toBe(20);
 
         done();

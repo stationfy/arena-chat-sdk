@@ -34,6 +34,8 @@ jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
+const createReactionSpy = jest.fn();
+
 jest.mock('@arena-im/core', () => ({
   User: {
     instance: {
@@ -48,10 +50,22 @@ jest.mock('@arena-im/core', () => ({
       onUserChanged: jest.fn(),
     },
   },
-}));
-
-jest.mock('@services/arena-hub', () => ({
-  ArenaHub: jest.fn(),
+  PresenceAPI: {
+    getInstance: () => ({
+      watchOnlineCount: jest.fn(),
+      joinUser: jest.fn().mockResolvedValue(true),
+      offAllListeners: jest.fn(),
+    }),
+  },
+  ReactionsAPI: {
+    getInstance: () => ({
+      retrieveUserReactions: jest.fn(),
+      watchChannelReactions: jest.fn(),
+      offAllListeners: jest.fn(),
+      createReaction: createReactionSpy,
+    }),
+  },
+  LocalStorageAPI: {},
 }));
 
 describe('Channel', () => {
@@ -739,11 +753,9 @@ describe('Channel', () => {
         type: 'like',
       };
 
-      const result: MessageReaction = await channel.sendReaction(reaction);
+      await channel.sendReaction(reaction);
 
-      expect(result.id).toEqual('new-reaction-key');
-      expect(result.type).toEqual('like');
-      expect(result.messageID).toEqual('fake-message');
+      expect(createReactionSpy).toHaveBeenCalled();
     });
   });
 

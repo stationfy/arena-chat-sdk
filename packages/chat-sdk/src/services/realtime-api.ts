@@ -434,7 +434,7 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToUserReactions(
+  public listenToUserReactionsOld(
     channelId: string,
     user: ExternalUser,
     callback: (reactions: ServerReaction[]) => void,
