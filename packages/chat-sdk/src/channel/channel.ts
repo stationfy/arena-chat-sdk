@@ -505,7 +505,7 @@ export class Channel implements BaseChannel {
     reaction: MessageReaction,
     anonymousId?: string,
     isDashboardUser = false,
-  ): Promise<MessageReaction> {
+  ): Promise<void> {
     const userId = User.instance.data?.id || anonymousId;
 
     if (typeof userId === 'undefined') {
@@ -529,13 +529,11 @@ export class Channel implements BaseChannel {
         widgetType: 'Chat Room',
       };
 
-      this.createReaction(serverReaction);
-
-      return {
-        id: `${new Date()}`,
-        type: serverReaction.reaction,
-        messageID: serverReaction.itemId,
-      };
+      if (this.chatRoom.useNewReactionAPI) {
+        this.createReaction(serverReaction);
+      } else {
+        this.createReactionOld(serverReaction);
+      }
     } catch (e) {
       throw new Error(`Cannot react to the message "${reaction.messageID}"`);
     }
@@ -549,6 +547,15 @@ export class Channel implements BaseChannel {
   private createReaction(serverReaction: ServerReaction) {
     const reactionsAPI = ReactionsAPI.getInstance(this.chatRoom.siteId);
     reactionsAPI.createReaction(serverReaction);
+  }
+
+  /**
+   * Create a reaction on Firebase
+   * @deprecated
+   */
+  private async createReactionOld(reaction: ServerReaction) {
+    const restAPI = RestAPI.getAPIInstance();
+    return await restAPI.sendReaction(reaction);
   }
 
   /**

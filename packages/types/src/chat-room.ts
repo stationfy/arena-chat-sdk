@@ -104,7 +104,7 @@ export interface BaseChannel {
   loadRecentMessages(limit?: number): Promise<ChatMessage[]>;
   fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
-  sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<MessageReaction>;
+  sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<void>;
   watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
   watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
   getUserList(): Promise<ExternalUser[]>;
