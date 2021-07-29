@@ -17,6 +17,7 @@ export class PresenceAPI {
     WebSocketTransport.instance.on('reconnect', this.onReconnect);
 
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
+    this.watchOnlineCountEvent();
   }
 
   public static getInstance(siteId: string, channelId: string, channelType: ChannelType): PresenceAPI {
@@ -84,10 +85,6 @@ export class PresenceAPI {
 
   private handleUserJoined(user: PresenceUser) {
     PresenceObservable.getInstance(this.channelId).updateUserJoined(user);
-
-    this.watchOnlineCountEvent((onlineCount) => {
-      PresenceObservable.getInstance(this.channelId).updateOnlineCount(onlineCount);
-    });
   }
 
   public updateUser(user: PresenceUser): void {
@@ -122,10 +119,11 @@ export class PresenceAPI {
     PresenceObservable.getInstance(this.channelId).onOnlineCountChanged(callback);
   }
 
-  private watchOnlineCountEvent(callback: (onlineCount: number) => void) {
+  private watchOnlineCountEvent(): void {
     WebSocketTransport.instance.on('presence.info', ({ onlineCount }) => {
       this.cachedOnlineCount = onlineCount;
-      callback(onlineCount);
+
+      PresenceObservable.getInstance(this.channelId).updateOnlineCount(onlineCount);
     });
   }
 
