@@ -4,10 +4,10 @@ import { ServerReaction } from '@arena-im/chat-types';
 
 jest.mock('@transports/websocket-transport', () => ({
   WebSocketTransport: {
-    getInstance: jest.fn().mockImplementation(jest.fn().mockReturnValue({
+    getInstance: jest.fn().mockReturnValue({
       on: jest.fn(),
       emit: jest.fn(),
-    })),
+    }),
   },
 }));
 

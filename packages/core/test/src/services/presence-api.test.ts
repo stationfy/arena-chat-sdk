@@ -25,14 +25,14 @@ jest.mock('@auth/user', () => ({
 
 jest.mock('@transports/websocket-transport', () => ({
   WebSocketTransport: {
-    getInstance: jest.fn().mockImplementation(jest.fn().mockReturnValue({
+    getInstance: jest.fn().mockReturnValue({
       on: jest.fn(),
       // @ts-ignore
       emit: jest.fn().mockImplementation((eventName, params, callback) => {
         callback?.(null, true);
       }),
       off: jest.fn(),
-    })),
+    }),
   },
 }));
 
