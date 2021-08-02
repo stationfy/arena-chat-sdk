@@ -1,8 +1,9 @@
 import { ChannelReaction, ILiveblogInfo, ServerReaction } from '@arena-im/chat-types';
 import { Credentials, PresenceAPI, ReactionsAPI } from '@arena-im/core';
+import { BaseLiveBlog } from '../../../types/dist/liveblog';
 import { RestAPI } from '../services/rest-api';
 
-export class Liveblog {
+export class Liveblog implements BaseLiveBlog {
   private static instance: Promise<Liveblog>;
   private presenceAPI!: PresenceAPI;
   private reactionsAPI!: ReactionsAPI;
@@ -52,6 +53,15 @@ export class Liveblog {
    */
   public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
     this.reactionsAPI.watchUserReactions(callback);
+  }
+
+  /**
+   * Watch liveblog online count
+   *
+   * @param callback callback fn
+   */
+  public watchOnlineCount(callback: (onlineCount: number) => void): void {
+    this.presenceAPI.watchOnlineCount(callback);
   }
 
   public fetchRememberMe(): void {

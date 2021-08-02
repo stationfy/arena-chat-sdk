@@ -1,3 +1,12 @@
+import { ChannelReaction, ServerReaction } from "./chat-message";
+
+export interface BaseLiveBlog {
+  watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
+  watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
+  watchOnlineCount(callback: (onlineCount: number) => void): void;
+  fetchRememberMe(): void;
+}
+
 export interface ILiveblogInfo {
   adsIsEnabled: boolean;
   autoPlayByPlay: boolean;
