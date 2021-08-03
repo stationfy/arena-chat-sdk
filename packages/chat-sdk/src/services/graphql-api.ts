@@ -944,7 +944,7 @@ export class GraphQLAPI {
 
   public async unsubscribeUserToReminder(reminderId: string): Promise<boolean> {
     const mutation = gql`
-      mutation unsubscribe($input: SubscribeReminderInput!) {
+      mutation unsubscribe($input: UnsubscribeReminderInput!) {
         unsubscribeReminder(input: $input)
       }
     `;
