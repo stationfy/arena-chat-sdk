@@ -545,7 +545,7 @@ export class Channel implements BaseChannel {
    */
 
   private createReaction(serverReaction: ServerReaction) {
-    const reactionsAPI = ReactionsAPI.getInstance(this.chatRoom.siteId);
+    const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
     reactionsAPI.createReaction(serverReaction);
   }
 
@@ -718,7 +718,7 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
     this.presenceAPI.offAllListeners();
-    ReactionsAPI.getInstance(this.chatRoom.siteId).offAllListeners();
+    ReactionsAPI.getInstance(this.channel._id).offAllListeners();
   }
 
   /**

@@ -14,9 +14,10 @@ export class PresenceAPI {
   private cachedOnlineCount: number | null = null;
 
   private constructor(private siteId: string, private channelId: string, private channelType: ChannelType) {
-    WebSocketTransport.instance.on('reconnect', this.onReconnect);
+    WebSocketTransport.getInstance(channelId).on('reconnect', this.onReconnect);
 
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
+    this.watchOnlineCountEvent();
   }
 
   public static getInstance(siteId: string, channelId: string, channelType: ChannelType): PresenceAPI {
@@ -62,7 +63,7 @@ export class PresenceAPI {
     this.currentUser = user;
 
     return new Promise((resolve, reject) => {
-      WebSocketTransport.instance.emit(
+      WebSocketTransport.getInstance(this.channelId).emit(
         'join',
         {
           channelId: this.channelId,
@@ -84,20 +85,16 @@ export class PresenceAPI {
 
   private handleUserJoined(user: PresenceUser) {
     PresenceObservable.getInstance(this.channelId).updateUserJoined(user);
-
-    this.watchOnlineCountEvent((onlineCount) => {
-      PresenceObservable.getInstance(this.channelId).updateOnlineCount(onlineCount);
-    });
   }
 
   public updateUser(user: PresenceUser): void {
-    WebSocketTransport.instance.emit('user.setdata', user);
+    WebSocketTransport.getInstance(this.channelId).emit('user.setdata', user);
     PresenceObservable.getInstance(this.channelId).updateUserSetted(true);
   }
 
   public getAllOnlineUsers(): Promise<ExternalUser[]> {
     return new Promise((resolve, reject) => {
-      WebSocketTransport.instance.emit(
+      WebSocketTransport.getInstance(this.channelId).emit(
         'list',
         {
           channelId: this.channelId,
@@ -122,24 +119,25 @@ export class PresenceAPI {
     PresenceObservable.getInstance(this.channelId).onOnlineCountChanged(callback);
   }
 
-  private watchOnlineCountEvent(callback: (onlineCount: number) => void) {
-    WebSocketTransport.instance.on('presence.info', ({ onlineCount }) => {
+  private watchOnlineCountEvent() {
+    WebSocketTransport.getInstance(this.channelId).on('presence.info', ({ onlineCount }) => {
       this.cachedOnlineCount = onlineCount;
-      callback(onlineCount);
+
+      PresenceObservable.getInstance(this.channelId).updateOnlineCount(onlineCount);
     });
   }
 
   public watchUserJoined(callback: (user: ExternalUser) => void): void {
-    WebSocketTransport.instance.on('user.joined', callback);
+    WebSocketTransport.getInstance(this.channelId).on('user.joined', callback);
   }
 
   public watchUserLeft(callback: (user: ExternalUser) => void): void {
-    WebSocketTransport.instance.on('user.left', callback);
+    WebSocketTransport.getInstance(this.channelId).on('user.left', callback);
   }
 
   public offAllListeners(): void {
-    WebSocketTransport.instance.off('presence.info');
-    WebSocketTransport.instance.off('user.joined');
-    WebSocketTransport.instance.off('user.left');
+    WebSocketTransport.getInstance(this.channelId).off('presence.info');
+    WebSocketTransport.getInstance(this.channelId).off('user.joined');
+    WebSocketTransport.getInstance(this.channelId).off('user.left');
   }
 }

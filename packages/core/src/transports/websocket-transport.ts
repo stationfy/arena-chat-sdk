@@ -1,16 +1,20 @@
 import { io, Socket } from 'socket.io-client';
 import { ARENA_REALTIME_URL } from '../config';
 
-export class WebSocketTransport {
-  private static client: Socket;
+type Instance = {
+  [key: string]: Socket;
+};
 
-  public static get instance(): Socket {
-    if (!WebSocketTransport.client) {
-      WebSocketTransport.client = io(ARENA_REALTIME_URL, {
+export class WebSocketTransport {
+  private static instance: Instance = {};
+
+  public static getInstance(channelId: string): Socket {
+    if (!this.instance[channelId]) {
+      this.instance[channelId] = io(ARENA_REALTIME_URL, {
         transports: ['websocket'],
       });
     }
 
-    return WebSocketTransport.client;
+    return this.instance[channelId];
   }
 }

@@ -1,3 +1,12 @@
+import { ChannelReaction, ServerReaction } from "./chat-message";
+
+export interface BaseLiveBlog {
+  watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
+  watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
+  watchOnlineCount(callback: (onlineCount: number) => void): void;
+  fetchRememberMe(): void;
+}
+
 export interface ILiveblogInfo {
   adsIsEnabled: boolean;
   autoPlayByPlay: boolean;
@@ -14,7 +23,7 @@ export interface ILiveblogInfo {
   chatRoom: boolean;
   chatType: string;
   commentIsEnabled: boolean;
-  createdAt: 1583265797491;
+  createdAt: number;
   description: string;
   infoTab: boolean;
   isFirestore: boolean;
@@ -22,19 +31,19 @@ export interface ILiveblogInfo {
   language: string;
   liveblogLayout: string;
   location: string;
-  modifiedAt: 1621445332621;
+  modifiedAt: number;
   name: string;
   officialEvent: IOfficialEvent;
   officialTournamentId: string;
-  pagination: 20;
+  pagination: number;
   presenceId: string;
   reactionType: string;
   scoreBar: boolean;
   scores: IScore[];
   share: boolean;
   showEventTitle: boolean;
-  siteId: '5e308d3468fd630008d02305';
-  slug: 'v8vy';
+  siteId: string;
+  slug: string;
   soundAlert: boolean;
   sport: {
     actions: ISportAction;
