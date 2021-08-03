@@ -4,10 +4,10 @@ import { ServerReaction } from '@arena-im/chat-types';
 
 jest.mock('@transports/websocket-transport', () => ({
   WebSocketTransport: {
-    instance: {
+    getInstance: jest.fn().mockReturnValue({
       on: jest.fn(),
       emit: jest.fn(),
-    },
+    }),
   },
 }));
 
@@ -22,13 +22,13 @@ test('should validate getInstance method', () => {
 test('should validate createReaction method', () => {
   ReactionsAPI.getInstance(channelId).createReaction({} as ServerReaction);
 
-  expect(WebSocketTransport.instance.emit).toHaveBeenCalledWith('reaction.create', {});
+  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('reaction.create', {});
 });
 
 test('should validate retrieveUserReactions method', () => {
   ReactionsAPI.getInstance(channelId).retrieveUserReactions();
 
-  expect(WebSocketTransport.instance.emit).toHaveBeenCalledWith('reaction.retrieve', {}, expect.any(Function));
+  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('reaction.retrieve', {}, expect.any(Function));
 });
 
 test('should validate watchChannelReactions method', () => {

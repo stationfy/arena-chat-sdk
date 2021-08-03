@@ -1,5 +1,5 @@
 import { Channel } from '@channel/channel';
-import { User, OrganizationSite } from '@arena-im/core';
+import { User, OrganizationSite, ReactionsAPI } from '@arena-im/core';
 import { ChatRoom, Moderation, ModeratorStatus, MessageReaction, ChatMessageSender } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
