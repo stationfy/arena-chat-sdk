@@ -1432,7 +1432,7 @@ describe('GraphQLAPI', () => {
 
       const graphqlAPI = await GraphQLAPI.instance;
 
-      const result = await graphqlAPI.subscribeUserToReminder('fake-reminder-id');
+      const result = await graphqlAPI.subscribeUserToReminder('fake-reminder-id', 'fake-url');
 
       expect(result).toBe(true);
     });
@@ -1455,7 +1455,7 @@ describe('GraphQLAPI', () => {
       const graphqlAPI = await GraphQLAPI.instance;
 
       try {
-        await graphqlAPI.subscribeUserToReminder('fake-reminder-id');
+        await graphqlAPI.subscribeUserToReminder('fake-reminder-id', 'fake-url');
       } catch (err) {
         expect(err.message).toEqual(Status.Failed);
       }

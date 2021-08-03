@@ -924,14 +924,14 @@ export class GraphQLAPI {
     return result;
   }
 
-  public async subscribeUserToReminder(reminderId: string): Promise<boolean> {
+  public async subscribeUserToReminder(reminderId: string, url: string): Promise<boolean> {
     const mutation = gql`
       mutation subscribe($input: SubscribeReminderInput!) {
         subscribeReminder(input: $input)
       }
     `;
 
-    const data = await this.transport.client.request(mutation, { input: { reminderId } });
+    const data = await this.transport.client.request(mutation, { input: { reminderId, url } });
 
     const result = data.subscribeReminder as boolean;
 
@@ -944,7 +944,7 @@ export class GraphQLAPI {
 
   public async unsubscribeUserToReminder(reminderId: string): Promise<boolean> {
     const mutation = gql`
-      mutation subscribe($input: SubscribeReminderInput!) {
+      mutation unsubscribe($input: SubscribeReminderInput!) {
         unsubscribeReminder(input: $input)
       }
     `;
