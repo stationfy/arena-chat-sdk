@@ -5,6 +5,7 @@ type UserEvent = ExternalUser | null;
 
 export class UserObservable {
   private static userObervableInstance: UserObservable;
+  private userChangedListeners = createObserver<UserEvent>();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
@@ -16,8 +17,6 @@ export class UserObservable {
 
     return UserObservable.userObervableInstance;
   }
-
-  private userChangedListeners = createObserver<UserEvent>();
 
   /**
    * Whatch set a new user

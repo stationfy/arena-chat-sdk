@@ -20,7 +20,7 @@ export interface ChatMessage {
 enum MessageType {
   POLL = 'POLL_PUBLISHED',
   QNA = 'QNA_QUESTION_ANSWER',
-  MONETIZATION = 'MONETIZATION'
+  MONETIZATION = 'MONETIZATION',
 }
 
 interface ChatMessageReaction {
@@ -97,6 +97,17 @@ export interface ServerReaction {
   openChannelId?: string;
   chatRoomVersion?: string;
   isDashboardUser?: boolean;
+  widgetId?: string;
+  widgetType?: 'Content Wall' | 'Chat Room' | 'Liveblog'
+}
+
+export interface ChannelReaction {
+  channelId: string;
+  itemId: string;
+  itemType: string;
+  reactions: {
+    [key: string]: number;
+  }
 }
 
 export interface MessageReaction {

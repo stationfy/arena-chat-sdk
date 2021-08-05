@@ -22,6 +22,16 @@ export interface ExternalUser {
   isAnonymous?: boolean;
 }
 
+export interface PresenceUser {
+  isMobile: boolean;
+  userId: string;
+  isAnonymous: boolean;
+  name: string | null;
+  image: string | null;
+  country: string | null;
+  anonymousId?: string;
+}
+
 export interface BanUser {
   anonymousId?: string;
   image?: string;

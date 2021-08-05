@@ -3,14 +3,7 @@
   "compilerOptions": {
     "paths": {
       "@services/*": ["./src/services/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@channel/*": ["./src/channel/*"],
-      "@qna/*": ["./src/qna/*"],
-      "@models/*": ["./src/models/*"],
-      "@polls/*": ["./src/polls/*"],
-      "@live-chat/*": ["./src/live-chat/*"],
-      "@organization/*": ["./src/organization/*"],
-      "@auth/*": ["./src/auth/*"]
+      "@liveblog/*": ["./src/liveblog/*"]
     }
   },
   "include": ["src/**/*", "test/**/*"]

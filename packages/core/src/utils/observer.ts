@@ -9,6 +9,7 @@ export function createObserver<T>(): {
   return {
     subscribe: (listener: Listerner<T>): (() => void) => {
       listeners.push(listener);
+
       return () => {
         listeners = listeners.filter((l) => l !== listener);
       };

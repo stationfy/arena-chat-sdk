@@ -1,11 +1,13 @@
-  
+
 {
     "extends": "./tsconfig.build.json",
     "compilerOptions": {
       "paths": {
         "@transports/*": ["./src/transports/*"],
         "@interfaces/*": ["./src/interfaces/*"],
-        "@utils/*": ["./src/utils/*"]
+        "@utils/*": ["./src/utils/*"],
+        "@services/*": ["./src/services/*"],
+        "@auth/*": ["./src/auth/*"]
       }
     },
     "include": ["src/**/*", "test/**/*"]
