@@ -1,6 +1,13 @@
 import { PresenceAPI } from '@services/presence-api';
 import { WebSocketTransport } from '@transports/websocket-transport';
 import { PresenceUser } from '@arena-im/chat-types';
+import { UserObservable } from '@auth/user-observable';
+
+const mockOnOnlineCountChanged = jest.fn();
+
+afterEach(() => {
+  mockOnOnlineCountChanged.mockRestore();
+});
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
@@ -11,6 +18,16 @@ jest.mock('@auth/user-observable', () => ({
     instance: {
       onUserChanged: jest.fn(),
     },
+  },
+}));
+
+jest.mock('@services/presence-observable', () => ({
+  PresenceObservable: {
+    getInstance: () => ({
+      onOnlineCountChanged: mockOnOnlineCountChanged,
+      updateUserJoined: jest.fn(),
+      updateUserSetted: jest.fn(),
+    }),
   },
 }));
 
@@ -43,7 +60,9 @@ const channelType = 'chat_room';
 test('should validate Presence constructor call', () => {
   PresenceAPI.getInstance(siteId, channelId, channelType);
 
+  expect(UserObservable.instance.onUserChanged).toHaveBeenCalled();
   expect(WebSocketTransport.getInstance(channelId).on).toHaveBeenCalledWith('reconnect', expect.any(Function));
+  expect(WebSocketTransport.getInstance(channelId).on).toHaveBeenCalledWith('presence.info', expect.any(Function));
 });
 
 test('should validate join method', async () => {
@@ -85,9 +104,11 @@ test('should validate getAllOnlineUsers method', () => {
 
 test('should validate watchOnlineCount method', () => {
   const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
-  presenceAPI.watchOnlineCount(jest.fn());
+  const callback = jest.fn();
 
-  expect(WebSocketTransport.getInstance(channelId).on).toHaveBeenCalledWith('presence.info', expect.any(Function));
+  presenceAPI.watchOnlineCount(callback);
+
+  expect(mockOnOnlineCountChanged).toHaveBeenCalled();
 });
 
 test('should validate watchUserJoined method', () => {
