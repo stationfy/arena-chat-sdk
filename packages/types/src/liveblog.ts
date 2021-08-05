@@ -1,10 +1,10 @@
 import { ChannelReaction, ServerReaction } from "./chat-message";
 
 export interface BaseLiveBlog {
-  watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
+  watchEventReactions(callback: (reactions: ChannelReaction[]) => void): void;
   watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
-  watchOnlineCount(callback: (onlineCount: number) => void): void;
   fetchRememberMe(): void;
+  sendReaction(reaction: ServerReaction, anonymousId?: string, isDashboardUser?: boolean): void;
 }
 
 export interface ILiveblogInfo {
