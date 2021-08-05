@@ -1,11 +1,16 @@
-import { ILiveblogInfo } from '@arena-im/chat-types';
-import { Credentials } from '@arena-im/core';
+import { ChannelReaction, ILiveblogInfo, ServerReaction } from '@arena-im/chat-types';
+import { Credentials, PresenceAPI, ReactionsAPI } from '@arena-im/core';
+import { BaseLiveBlog } from '../../../types/dist/liveblog';
 import { RestAPI } from '../services/rest-api';
 
-export class Liveblog {
+export class Liveblog implements BaseLiveBlog {
   private static instance: Promise<Liveblog>;
+  private presenceAPI!: PresenceAPI;
+  private reactionsAPI!: ReactionsAPI;
 
-  private constructor(private readonly liveblogInfo: ILiveblogInfo) {}
+  private constructor(private readonly liveblogInfo: ILiveblogInfo) {
+    this.initPresence();
+  }
 
   public static getInstance(slug: string): Promise<Liveblog> {
     if (!Liveblog.instance) {
@@ -17,6 +22,12 @@ export class Liveblog {
     return Liveblog.instance;
   }
 
+  private initPresence() {
+    this.reactionsAPI = ReactionsAPI.getInstance(this.liveblogInfo.key);
+    this.presenceAPI = PresenceAPI.getInstance(this.liveblogInfo.siteId, this.liveblogInfo.key, 'liveblog');
+    this.presenceAPI.joinUser();
+  }
+
   private static async fetchLiveblogInfo(slug: string): Promise<ILiveblogInfo> {
     const restAPI = RestAPI.getCachedInstance();
 
@@ -25,7 +36,31 @@ export class Liveblog {
     return liveblog;
   }
 
+  /**
+   * Watch liveblog channel reactions
+   *
+   * @param callback callback fn
+   */
+
+  public watchEventReactions(callback: (reactions: ChannelReaction[]) => void): void {
+    this.reactionsAPI.watchChannelReactions(callback);
+  }
+
+  /**
+   * Watch liveblog user reactions
+   *
+   * @param callback callback fn
+   */
+  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
+    this.reactionsAPI.watchUserReactions(callback);
+  }
+
   public fetchRememberMe(): void {
     console.log(this.liveblogInfo);
+  }
+
+  public sendReaction(reaction: ServerReaction): void {
+    const reactionsAPI = ReactionsAPI.getInstance(this.liveblogInfo.key);
+    reactionsAPI.createReaction(reaction);
   }
 }
