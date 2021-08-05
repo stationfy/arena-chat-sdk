@@ -1,3 +1,4 @@
+import { Socket } from 'socket.io-client';
 import { createObserver } from '../utils/observer';
 import { ServerReaction, ChannelReaction } from '../../../types/dist';
 import { WebSocketTransport } from '../transports/websocket-transport';
@@ -13,8 +14,11 @@ export class ReactionsAPI {
   private cachedChannelReactions: ChannelReaction[] | null = null;
   private userReactionsListeners = createObserver<ServerReaction[]>();
   private channelReactionsListeners = createObserver<ChannelReaction[]>();
+  private webSocketTransport: Socket;
 
-  constructor(private channelId: string) {
+  constructor(channelId: string) {
+    this.webSocketTransport = WebSocketTransport.getInstance(channelId);
+
     PresenceObservable.getInstance(channelId).onUserJoinedChanged(this.onPresenceChanged.bind(this));
     PresenceObservable.getInstance(channelId).onUserSettedChanged(this.onPresenceChanged.bind(this));
 
@@ -36,7 +40,7 @@ export class ReactionsAPI {
   }
 
   public createReaction(reaction: ServerReaction): void {
-    WebSocketTransport.getInstance(this.channelId).emit('reaction.create', reaction);
+    this.webSocketTransport.emit('reaction.create', reaction);
   }
 
   public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
@@ -60,7 +64,7 @@ export class ReactionsAPI {
 
   public retrieveUserReactions(): Promise<ServerReaction[]> {
     return new Promise((resolve, reject) => {
-      WebSocketTransport.getInstance(this.channelId).emit(
+      this.webSocketTransport.emit(
         'reaction.retrieve',
         {},
         (err: Record<string, unknown> | null, data: ServerReaction[]) => {
@@ -83,7 +87,7 @@ export class ReactionsAPI {
   }
 
   private watchChannelReactionsEvent(): void {
-    WebSocketTransport.getInstance(this.channelId).on('reaction.channel', (reactions: ChannelReaction[]) => {
+    this.webSocketTransport.on('reaction.channel', (reactions: ChannelReaction[]) => {
       this.cachedChannelReactions = reactions;
 
       this.channelReactionsListeners.publish(reactions);
@@ -91,8 +95,8 @@ export class ReactionsAPI {
   }
 
   public offAllListeners(): void {
-    WebSocketTransport.getInstance(this.channelId).off('reaction.create');
-    WebSocketTransport.getInstance(this.channelId).off('reaction.user');
-    WebSocketTransport.getInstance(this.channelId).off('reaction.channel');
+    this.webSocketTransport.off('reaction.create');
+    this.webSocketTransport.off('reaction.user');
+    this.webSocketTransport.off('reaction.channel');
   }
 }
