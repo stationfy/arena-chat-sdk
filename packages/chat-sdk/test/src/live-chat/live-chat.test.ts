@@ -301,7 +301,7 @@ describe('LiveChat', () => {
 
       const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
-      const subscribeUserToReminder = await liveChat.subscribeUserToReminder('fake-reminder-id');
+      const subscribeUserToReminder = await liveChat.subscribeUserToReminder('fake-reminder-id', 'fake-url');
 
       expect(subscribeUserToReminder).toEqual(true);
     });
@@ -316,7 +316,7 @@ describe('LiveChat', () => {
       const liveChat = await LiveChat.getInstance(exampleSite.slug);
 
       try {
-        await liveChat.subscribeUserToReminder('fake-reminder-id');
+        await liveChat.subscribeUserToReminder('fake-reminder-id', 'fake-url');
       } catch (err) {
         expect(err.message).toEqual('Cannot subscribe user to reminder for this reminder: "fake-reminder-id".');
       }

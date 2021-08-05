@@ -176,11 +176,11 @@ export class LiveChat implements BaseLiveChat {
     }
   }
 
-  public async subscribeUserToReminder(reminderId: string): Promise<boolean> {
+  public async subscribeUserToReminder(reminderId: string, url: string): Promise<boolean> {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
-      const subscribedUserToReminder = await graphQLAPI.subscribeUserToReminder(reminderId);
+      const subscribedUserToReminder = await graphQLAPI.subscribeUserToReminder(reminderId, url);
 
       return subscribedUserToReminder;
     } catch (e) {
@@ -189,6 +189,7 @@ export class LiveChat implements BaseLiveChat {
   }
 
   public async unsubscribeUserToReminder(reminderId: string): Promise<boolean> {
+  
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
