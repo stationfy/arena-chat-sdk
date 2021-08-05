@@ -42,7 +42,7 @@ export class Liveblog implements BaseLiveBlog {
    * @param callback callback fn
    */
 
-  public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {
+  public watchEventReactions(callback: (reactions: ChannelReaction[]) => void): void {
     this.reactionsAPI.watchChannelReactions(callback);
   }
 
@@ -55,16 +55,12 @@ export class Liveblog implements BaseLiveBlog {
     this.reactionsAPI.watchUserReactions(callback);
   }
 
-  /**
-   * Watch liveblog online count
-   *
-   * @param callback callback fn
-   */
-  public watchOnlineCount(callback: (onlineCount: number) => void): void {
-    this.presenceAPI.watchOnlineCount(callback);
-  }
-
   public fetchRememberMe(): void {
     console.log(this.liveblogInfo);
+  }
+
+  public sendReaction(reaction: ServerReaction): void {
+    const reactionsAPI = ReactionsAPI.getInstance(this.liveblogInfo.key);
+    reactionsAPI.createReaction(reaction);
   }
 }

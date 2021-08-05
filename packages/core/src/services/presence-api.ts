@@ -15,6 +15,7 @@ export class PresenceAPI {
 
   private constructor(private siteId: string, private channelId: string, private channelType: ChannelType) {
     WebSocketTransport.getInstance(channelId).on('reconnect', this.onReconnect);
+    // TODO: mover para variável de instância
 
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
     this.watchOnlineCountEvent();
