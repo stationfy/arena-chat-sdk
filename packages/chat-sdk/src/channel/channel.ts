@@ -54,7 +54,7 @@ export class Channel implements BaseChannel {
 
   private initPresence(siteId: string) {
     this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
-    this.presenceAPI = PresenceAPI.getInstance(siteId, this.channel._id, 'chat_room');
+    this.presenceAPI = PresenceAPI.getInstance(siteId, this.chatRoom._id, 'chat_room');
     this.presenceAPI.joinUser();
   }
 
@@ -501,11 +501,7 @@ export class Channel implements BaseChannel {
    * Send a like reaction
    *
    */
-  public async sendReaction(
-    reaction: MessageReaction,
-    anonymousId?: string,
-    isDashboardUser = false,
-  ): Promise<void> {
+  public async sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser = false): Promise<void> {
     const userId = User.instance.data?.id || anonymousId;
 
     if (typeof userId === 'undefined') {
