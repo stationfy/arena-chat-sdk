@@ -53,7 +53,7 @@ export class Channel implements BaseChannel {
   }
 
   private initPresence(siteId: string) {
-    this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
+    this.reactionsAPI = ReactionsAPI.getInstance(this.chatRoom._id);
     this.presenceAPI = PresenceAPI.getInstance(siteId, this.chatRoom._id, 'chat_room');
     this.presenceAPI.joinUser();
   }
@@ -521,7 +521,7 @@ export class Channel implements BaseChannel {
         chatRoomId: this.chatRoom._id,
         chatRoomVersion: this.chatRoom.version,
         isDashboardUser,
-        widgetId: this.channel._id,
+        widgetId: this.chatRoom._id,
         widgetType: 'Chat Room',
       };
 
