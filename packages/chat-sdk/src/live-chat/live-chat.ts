@@ -6,17 +6,25 @@ import {
   BaseLiveChat,
   BaseChannel,
   PageRequest,
+  ExternalUser,
 } from '@arena-im/chat-types';
-import { Credentials } from '@arena-im/core';
+import { Credentials, PresenceAPI } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
 
 export class LiveChat implements BaseLiveChat {
   private static instance: Promise<LiveChat>;
+  private presenceAPI!: PresenceAPI;
 
   private constructor(private readonly chatRoom: ChatRoom) {
     this.trackPageView(chatRoom);
+    this.initPresence(chatRoom.siteId);
+  }
+
+  private initPresence(siteId: string) {
+    this.presenceAPI = PresenceAPI.getInstance(siteId, this.chatRoom._id, 'chat_room');
+    this.presenceAPI.joinUser();
   }
 
   public static getInstance(slug: string): Promise<LiveChat> {
@@ -189,7 +197,6 @@ export class LiveChat implements BaseLiveChat {
   }
 
   public async unsubscribeUserToReminder(reminderId: string): Promise<boolean> {
-  
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
@@ -199,5 +206,29 @@ export class LiveChat implements BaseLiveChat {
     } catch (e) {
       throw new Error(`Cannot unsubscribe user to reminder for this reminder: "${reminderId}".`);
     }
+  }
+
+  /**
+   * Remove all chat's listeners
+   *
+   */
+  public offAllListeners(): void {
+    this.presenceAPI.offAllListeners();
+  }
+
+  public getUserList(): Promise<ExternalUser[]> {
+    return this.presenceAPI.getAllOnlineUsers();
+  }
+
+  public watchOnlineCount(callback: (onlineCount: number) => void): void {
+    this.presenceAPI.watchOnlineCount(callback);
+  }
+
+  public watchUserJoined(callback: (user: ExternalUser) => void): void {
+    this.presenceAPI.watchUserJoined(callback);
+  }
+
+  public watchUserLeft(callback: (user: ExternalUser) => void): void {
+    this.presenceAPI.watchUserLeft(callback);
   }
 }
