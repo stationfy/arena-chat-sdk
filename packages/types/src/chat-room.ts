@@ -69,6 +69,11 @@ export interface BaseLiveChat {
   getMainChannel(): BaseChannel;
   getChannel(channelId: string): Promise<BaseChannel>;
   getMembers(page: PageRequest, searchTerm: string): Promise<PublicUser[]>;
+  getUserList(): Promise<ExternalUser[]>;
+  watchOnlineCount(callback: (onlineCount: number) => void): void;
+  watchUserJoined(callback: (ExternalUser: ExternalUser) => void): void;
+  watchUserLeft(callback: (ExternalUser: ExternalUser) => void): void;
+  offAllListeners(): void;
 }
 
 export interface BaseChannel {
@@ -107,10 +112,6 @@ export interface BaseChannel {
   sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<void>;
   watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void;
   watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
-  getUserList(): Promise<ExternalUser[]>;
-  watchOnlineCount(callback: (onlineCount: number) => void): void;
-  watchUserJoined(callback: (ExternalUser: ExternalUser) => void): void;
-  watchUserLeft(callback: (ExternalUser: ExternalUser) => void): void;
   deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean>;
   offMessageReceived(): void;
   onMessageReceived(callback: (message: ChatMessage) => void): void;
