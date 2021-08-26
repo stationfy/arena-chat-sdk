@@ -64,6 +64,7 @@
     "publish:registry": "yarn publish --access public",
     "size:check": "run-p size:check:bundle",
     "size:check:bundle": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'",
+    "test": "jest",
     "test:jest:watch": "jest --watch",
     "test:watch": "run-s copy-config:dev test:jest:watch"
   },
