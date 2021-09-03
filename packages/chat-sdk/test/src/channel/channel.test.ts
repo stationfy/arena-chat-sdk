@@ -302,7 +302,7 @@ describe('Channel', () => {
 
       try {
         await channel.sendMessage({ text: 'hey!' });
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('Cannot send this message: "hey!". Contact the Arena support team.');
       }
     });
@@ -324,7 +324,7 @@ describe('Channel', () => {
       try {
         const message = await channel.sendMessage({ text: '' });
         expect(message).toEqual(null);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('Cannot send an empty message.');
       }
     });
@@ -367,7 +367,7 @@ describe('Channel', () => {
 
       try {
         await channel.sendMonetizationMessage({ text: 'donated' });
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe('Cannot send this message: "donated". Contact the Arena support team.');
       }
     });
@@ -455,7 +455,7 @@ describe('Channel', () => {
 
       try {
         await channelI.loadRecentMessages(10);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toEqual(`Cannot load messages on "${channelI.channel._id}" channel.`);
       }
     });
@@ -650,7 +650,7 @@ describe('Channel', () => {
         channelI.onMessageReceived((message: ChatMessage) => {
           console.log({ message });
         });
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toEqual(`Cannot watch new messages on "${channelI.channel._id}" channel.`);
       }
     });
@@ -710,7 +710,7 @@ describe('Channel', () => {
         channelI.onMessageDeleted((message: ChatMessage) => {
           console.log({ message });
         });
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toEqual(`Cannot watch deleted messages on "${channelI.channel._id}" channel.`);
       }
     });
@@ -809,7 +809,7 @@ describe('Channel', () => {
 
       try {
         await channel.deleteReaction(reaction);
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe(`Cannot delete reaction from message "${reaction.messageID}"`);
       }
     });
@@ -855,7 +855,7 @@ describe('Channel', () => {
 
       try {
         await channel.fetchPinMessage();
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toBe(`Cannot fetch pin messages on "${exampleChatRoom.slug}" channel.`);
       }
     });

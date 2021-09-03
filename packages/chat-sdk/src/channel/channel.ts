@@ -17,7 +17,7 @@ import {
   BaseReaction,
   ChannelReaction,
 } from '@arena-im/chat-types';
-import { User, UserObservable, OrganizationSite, ReactionsAPI, PresenceAPI } from '@arena-im/core';
+import { User, UserObservable, OrganizationSite, ReactionsAPI } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
@@ -26,7 +26,6 @@ import { RestAPI } from '../services/rest-api';
 
 export class Channel implements BaseChannel {
   private reactionsAPI!: ReactionsAPI;
-  private presenceAPI!: PresenceAPI;
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
@@ -41,7 +40,7 @@ export class Channel implements BaseChannel {
     this.watchChatConfigChanges();
     UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
     this.markReadDebounced = debounce(this.markRead, 10000);
-    this.initPresence(chatRoom.siteId);
+    this.initPresence();
   }
 
   public static getInstance(channel: LiveChatChannel, chatRoom: ChatRoom): Channel {
@@ -52,10 +51,8 @@ export class Channel implements BaseChannel {
     return Channel.instances[channel._id];
   }
 
-  private initPresence(siteId: string) {
-    this.reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
-    this.presenceAPI = PresenceAPI.getInstance(siteId, this.chatRoom._id, 'chat_room');
-    this.presenceAPI.joinUser();
+  private initPresence() {
+    this.reactionsAPI = ReactionsAPI.getInstance(this.chatRoom._id);
   }
 
   /**
@@ -81,7 +78,7 @@ export class Channel implements BaseChannel {
     if (this.reactionI === null) {
       const { Reaction } = await import('../reaction/reaction');
 
-      this.reactionI = new Reaction(this.channel._id);
+      this.reactionI = new Reaction(this.chatRoom._id);
 
       return this.reactionI.fetchReactions(messageId);
     }
@@ -521,7 +518,7 @@ export class Channel implements BaseChannel {
         chatRoomId: this.chatRoom._id,
         chatRoomVersion: this.chatRoom.version,
         isDashboardUser,
-        widgetId: this.channel._id,
+        widgetId: this.chatRoom._id,
         widgetType: 'Chat Room',
       };
 
@@ -541,8 +538,7 @@ export class Channel implements BaseChannel {
    */
 
   private createReaction(serverReaction: ServerReaction) {
-    const reactionsAPI = ReactionsAPI.getInstance(this.channel._id);
-    reactionsAPI.createReaction(serverReaction);
+    this.reactionsAPI.createReaction(serverReaction);
   }
 
   /**
@@ -713,8 +709,7 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
-    this.presenceAPI.offAllListeners();
-    ReactionsAPI.getInstance(this.channel._id).offAllListeners();
+    this.reactionsAPI.offAllListeners();
   }
 
   /**
@@ -773,21 +768,5 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');
     }
-  }
-
-  public getUserList(): Promise<ExternalUser[]> {
-    return this.presenceAPI.getAllOnlineUsers();
-  }
-
-  public watchOnlineCount(callback: (onlineCount: number) => void): void {
-    this.presenceAPI.watchOnlineCount(callback);
-  }
-
-  public watchUserJoined(callback: (user: ExternalUser) => void): void {
-    this.presenceAPI.watchUserJoined(callback);
-  }
-
-  public watchUserLeft(callback: (user: ExternalUser) => void): void {
-    this.presenceAPI.watchUserLeft(callback);
   }
 }
