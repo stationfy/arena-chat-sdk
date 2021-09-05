@@ -24,7 +24,7 @@ jest.mock('@arena-im/core', () => ({
     apiKey: 'api_1',
   },
   ReactionsAPI: {
-    getInstance: jest.fn().mockReturnValue({
+    getInstance: () => ({
       watchUserReactions: mockWatchUserReactions,
       deleteReaction: jest.fn().mockResolvedValue(true),
     }),
