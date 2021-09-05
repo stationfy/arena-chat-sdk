@@ -53,7 +53,7 @@ test('should validate watchUserReactions method', async () => {
   expect(mockWatchUserReactions).toHaveBeenCalled();
 });
 
-test.only('should delete a reaction', async () => {
+test('should delete a reaction', async () => {
   const mockAPIInstance = jest.fn();
 
   mockAPIInstance.mockReturnValue({
