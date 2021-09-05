@@ -1,4 +1,4 @@
-import { ChannelReaction, ILiveblogInfo, ServerReaction } from '@arena-im/chat-types';
+import { ChannelReaction, ILiveblogInfo, MessageReaction, ServerReaction } from '@arena-im/chat-types';
 import { Credentials, PresenceAPI, ReactionsAPI } from '@arena-im/core';
 import { BaseLiveBlog } from '../../../types/dist/liveblog';
 import { RestAPI } from '../services/rest-api';
@@ -62,5 +62,9 @@ export class Liveblog implements BaseLiveBlog {
   public sendReaction(reaction: ServerReaction): void {
     const reactionsAPI = ReactionsAPI.getInstance(this.liveblogInfo.key);
     reactionsAPI.createReaction(reaction);
+  }
+
+  public deleteReaction(reaction: MessageReaction): Promise<boolean> {
+    return this.reactionsAPI.deleteReaction(reaction);
   }
 }

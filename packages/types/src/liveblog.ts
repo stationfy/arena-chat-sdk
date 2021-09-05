@@ -1,10 +1,12 @@
-import { ChannelReaction, ServerReaction } from "./chat-message";
+import { MessageReaction } from './chat-message';
+import { ChannelReaction, ServerReaction } from './chat-message';
 
 export interface BaseLiveBlog {
   watchEventReactions(callback: (reactions: ChannelReaction[]) => void): void;
   watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
   fetchRememberMe(): void;
   sendReaction(reaction: ServerReaction, anonymousId?: string, isDashboardUser?: boolean): void;
+  deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean>;
 }
 
 export interface ILiveblogInfo {

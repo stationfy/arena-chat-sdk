@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io-client';
 import { createObserver } from '../utils/observer';
-import { ServerReaction, ChannelReaction } from '../../../types/dist';
+import { ServerReaction, ChannelReaction, MessageReaction } from '../../../types/dist';
 import { WebSocketTransport } from '../transports/websocket-transport';
 import { PresenceObservable } from './presence-observable';
 
@@ -36,6 +36,18 @@ export class ReactionsAPI {
   private onPresenceChanged() {
     this.fetchUserReactions().then((reactions) => {
       this.userReactionsListeners.publish(reactions);
+    });
+  }
+
+  public deleteReaction(reaction: MessageReaction): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.webSocketTransport.emit('reaction.remove', reaction, (err: Record<string, unknown> | null) => {
+        if (err) {
+          return reject(false);
+        }
+
+        resolve(true);
+      });
     });
   }
 

@@ -63,6 +63,7 @@ jest.mock('@arena-im/core', () => ({
       watchChannelReactions: jest.fn(),
       offAllListeners: jest.fn(),
       createReaction: createReactionSpy,
+      deleteReaction: jest.fn().mockResolvedValue(true),
     }),
   },
   LocalStorageAPI: {},
@@ -760,7 +761,33 @@ describe('Channel', () => {
   });
 
   describe('deleteReaction()', () => {
-    it('should delete a message reaction', async () => {
+    const chatRoom = {
+      ...exampleChatRoom,
+      useNewReactionAPI: false,
+    };
+
+    it('should delete a message reaction from Websocket', async () => {
+      const fakeChannel = {
+        ...exampleLiveChatChannel,
+        _id: 'fake-channel-1',
+      };
+      const channel = Channel.getInstance(fakeChannel, exampleChatRoom);
+
+      const reaction: MessageReaction = {
+        messageID: 'fake-message',
+        type: 'like',
+      };
+
+      const result = await channel.deleteReaction(reaction);
+
+      expect(result).toEqual(true);
+    });
+
+    it('should delete a message reaction from Firebase', async () => {
+      const fakeChannel = {
+        ...exampleLiveChatChannel,
+        _id: 'fake-channel-2',
+      };
       const graphQLAPIInstanceMock = {
         deleteReaction: async () => {
           return true;
@@ -775,7 +802,7 @@ describe('Channel', () => {
         return { listenToChatConfigChanges: jest.fn() };
       });
 
-      const channel = Channel.getInstance(exampleLiveChatChannel, exampleChatRoom);
+      const channel = Channel.getInstance(fakeChannel, chatRoom);
 
       const reaction: MessageReaction = {
         messageID: 'fake-message',
@@ -788,6 +815,10 @@ describe('Channel', () => {
     });
 
     it('should receive an error when delete a message', async () => {
+      const fakeChannel = {
+        ...exampleLiveChatChannel,
+        _id: 'fake-channel-3',
+      };
       // @ts-ignore
       GraphQLAPI.instance = {
         deleteReaction: async () => {
@@ -800,7 +831,7 @@ describe('Channel', () => {
         return { listenToChatConfigChanges: jest.fn() };
       });
 
-      const channel = Channel.getInstance(exampleLiveChatChannel, exampleChatRoom);
+      const channel = Channel.getInstance(fakeChannel, chatRoom);
 
       const reaction: MessageReaction = {
         messageID: 'fake-message',

@@ -550,12 +550,20 @@ export class Channel implements BaseChannel {
     return await restAPI.sendReaction(reaction);
   }
 
+  public async deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
+    if (this.chatRoom.useNewReactionAPI) {
+      return this.reactionsAPI.deleteReaction(reaction);
+    } else {
+      return this.deleteReactionOld(reaction, anonymousId);
+    }
+  }
+
   /**
-   * Remove a reaction
-   *
+   * Remove a reaction from Firebase
+   * @deprecated
    */
 
-  public async deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
+  private async deleteReactionOld(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
     const site = await OrganizationSite.instance.getSite();
 
     if (site === null) {

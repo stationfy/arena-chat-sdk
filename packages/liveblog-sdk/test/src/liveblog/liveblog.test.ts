@@ -1,5 +1,6 @@
 import { RestAPI } from '@services/rest-api';
 import { Liveblog } from '@liveblog/liveblog';
+import { MessageReaction } from '@arena-im/chat-types';
 
 const mockJoinUser = jest.fn();
 const mockWatchUserReactions = jest.fn();
@@ -23,8 +24,9 @@ jest.mock('@arena-im/core', () => ({
     apiKey: 'api_1',
   },
   ReactionsAPI: {
-    getInstance: () => ({
+    getInstance: jest.fn().mockReturnValue({
       watchUserReactions: mockWatchUserReactions,
+      deleteReaction: jest.fn().mockResolvedValue(true),
     }),
   },
 }));
@@ -49,4 +51,20 @@ test('should validate watchUserReactions method', async () => {
   instance.watchUserReactions(jest.fn());
 
   expect(mockWatchUserReactions).toHaveBeenCalled();
+});
+
+test.only('should delete a reaction', async () => {
+  const mockAPIInstance = jest.fn();
+
+  mockAPIInstance.mockReturnValue({
+    loadLiveblog: jest.fn().mockResolvedValue({ liveblog: { name: 'blog1' } }),
+  });
+
+  RestAPI.getCachedInstance = mockAPIInstance;
+  const instance = await Liveblog.getInstance('site1');
+  const reaction = {} as MessageReaction;
+
+  const result = await instance.deleteReaction(reaction);
+
+  expect(result).toBeTruthy();
 });
