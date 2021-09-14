@@ -92,7 +92,7 @@ export class PresenceAPI {
   }
 
   public updateUser(user: PresenceUser): void {
-    this.webSocketTransport.emit('user.setdata', user);
+    this.webSocketTransport.emit('user.change', user);
     PresenceObservable.getInstance(this.channelId).updateUserSetted(true);
   }
 
