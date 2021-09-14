@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.2.4 (2021-09-03)
+
+**Note:** Version bump only for package @arena-im/core
+
+
+
+
+
+## 2.2.3 (2021-08-24)
+
+
+### Bug Fixes
+
+* types and core version ([caea94f](https://github.com/stationfy/arena-sdk/commit/caea94f22791d354c03d63f7f5a117596a36842d))
+
+
+
+
+
 ## 2.2.2 (2021-08-05)
 
 **Note:** Version bump only for package @arena-im/core
