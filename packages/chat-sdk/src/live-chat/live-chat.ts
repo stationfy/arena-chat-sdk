@@ -13,8 +13,12 @@ import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
 
+type Instance = {
+  [key: string]: Promise<LiveChat>;
+};
+
 export class LiveChat implements BaseLiveChat {
-  private static instance: Promise<LiveChat>;
+  private static instance: Instance = {};
   private presenceAPI!: PresenceAPI;
 
   private constructor(private readonly chatRoom: ChatRoom) {
@@ -29,13 +33,13 @@ export class LiveChat implements BaseLiveChat {
   }
 
   public static getInstance(slug: string): Promise<LiveChat> {
-    if (!LiveChat.instance) {
-      LiveChat.instance = this.fetchChatRoom(slug).then((chatRoom) => {
+    if (!LiveChat.instance[slug]) {
+      LiveChat.instance[slug] = this.fetchChatRoom(slug).then((chatRoom) => {
         return new LiveChat(chatRoom);
       });
     }
 
-    return LiveChat.instance;
+    return LiveChat.instance[slug];
   }
 
   private static async fetchChatRoom(chatSlug: string): Promise<ChatRoom> {
