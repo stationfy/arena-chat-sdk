@@ -1,4 +1,4 @@
-import { PresenceUser } from '@arena-im/chat-types';
+import { PresenceInfo, PresenceUser } from '@arena-im/chat-types';
 import { createObserver, Listerner } from '../utils/observer';
 
 type Instance = {
@@ -10,6 +10,7 @@ export class PresenceObservable {
   private userChangedListeners = createObserver<PresenceUser>();
   private userSettedListeners = createObserver<boolean>();
   private onlineCountListeners = createObserver<number>();
+  private presenceInfoListeners = createObserver<PresenceInfo>();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
@@ -42,7 +43,15 @@ export class PresenceObservable {
     return this.onlineCountListeners.subscribe(listener);
   }
 
+  public onPresenceInfoChanged(listener: Listerner<PresenceInfo>): () => void {
+    return this.presenceInfoListeners.subscribe(listener);
+  }
+
   public updateOnlineCount(onlineCount: number): void {
     this.onlineCountListeners.publish(onlineCount);
+  }
+
+  public updateVisitors(presenceInfo: PresenceInfo): void {
+    this.presenceInfoListeners.publish(presenceInfo);
   }
 }

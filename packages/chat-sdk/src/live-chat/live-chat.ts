@@ -7,6 +7,7 @@ import {
   BaseChannel,
   PageRequest,
   ExternalUser,
+  PresenceInfo,
 } from '@arena-im/chat-types';
 import { Credentials, PresenceAPI, ReactionsAPI } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
@@ -223,6 +224,10 @@ export class LiveChat implements BaseLiveChat {
 
   public watchOnlineCount(callback: (onlineCount: number) => void): void {
     this.presenceAPI.watchOnlineCount(callback);
+  }
+
+  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
+    this.presenceAPI.watchPresenceInfo(callback);
   }
 
   public watchUserJoined(callback: (user: ExternalUser) => void): void {

@@ -146,3 +146,15 @@ export interface PublicUserInput {
   socialLinks?: string[];
   useDefaultImage?: boolean;
 }
+
+export interface Visitors {
+  desktop: number;
+  mobile: number;
+  total: number;
+}
+
+export interface PresenceInfo {
+  channelId: string;
+  onlineCount: number;
+  visitors: Visitors;
+}
