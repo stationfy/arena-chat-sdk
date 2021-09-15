@@ -133,12 +133,12 @@ export class PresenceAPI {
   }
 
   private listenToPresenceInfo() {
-    this.webSocketTransport.on('presence.info', ({ onlineCount, visitors }) => {
-      this.cachedOnlineCount = onlineCount;
-      this.cachedPresenceInfo = visitors;
+    this.webSocketTransport.on('presence.info', (presenceInfo: PresenceInfo) => {
+      this.cachedOnlineCount = presenceInfo.onlineCount;
+      this.cachedPresenceInfo = presenceInfo;
 
-      PresenceObservable.getInstance(this.channelId).updateOnlineCount(onlineCount);
-      PresenceObservable.getInstance(this.channelId).updateVisitors(visitors);
+      PresenceObservable.getInstance(this.channelId).updateOnlineCount(this.cachedOnlineCount);
+      PresenceObservable.getInstance(this.channelId).updateVisitors(this.cachedPresenceInfo);
     });
   }
 
