@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io-client';
-import { ChannelType, ExternalUser, PresenceUser } from '@arena-im/chat-types';
+import { ChannelType, ExternalUser, PresenceInfo, PresenceUser } from '@arena-im/chat-types';
 import { isMobile } from '../utils/misc';
 import { User, UserObservable } from '../auth';
 import { WebSocketTransport } from '../transports/websocket-transport';
@@ -13,6 +13,7 @@ export class PresenceAPI {
   private static instance: Instance = {};
   private currentUser: PresenceUser | null = null;
   private cachedOnlineCount: number | null = null;
+  private cachedPresenceInfo: PresenceInfo | null = null;
   private webSocketTransport: Socket;
 
   private constructor(private siteId: string, private channelId: string, private channelType: ChannelType) {
@@ -21,7 +22,7 @@ export class PresenceAPI {
     this.webSocketTransport.on('reconnect', this.onReconnect);
 
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
-    this.watchOnlineCountEvent();
+    this.listenToPresenceInfo();
   }
 
   public static getInstance(siteId: string, channelId: string, channelType: ChannelType): PresenceAPI {
@@ -123,11 +124,21 @@ export class PresenceAPI {
     PresenceObservable.getInstance(this.channelId).onOnlineCountChanged(callback);
   }
 
-  private watchOnlineCountEvent() {
-    this.webSocketTransport.on('presence.info', ({ onlineCount }) => {
-      this.cachedOnlineCount = onlineCount;
+  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
+    if (this.cachedPresenceInfo) {
+      callback(this.cachedPresenceInfo);
+    }
 
-      PresenceObservable.getInstance(this.channelId).updateOnlineCount(onlineCount);
+    PresenceObservable.getInstance(this.channelId).onPresenceInfoChanged(callback);
+  }
+
+  private listenToPresenceInfo() {
+    this.webSocketTransport.on('presence.info', (presenceInfo: PresenceInfo) => {
+      this.cachedOnlineCount = presenceInfo.onlineCount;
+      this.cachedPresenceInfo = presenceInfo;
+
+      PresenceObservable.getInstance(this.channelId).updateOnlineCount(this.cachedOnlineCount);
+      PresenceObservable.getInstance(this.channelId).updateVisitors(this.cachedPresenceInfo);
     });
   }
 

@@ -34,6 +34,8 @@ export {
   SSOExchangeResult,
   PublicUserInput,
   PresenceUser,
+  Visitors,
+  PresenceInfo,
 } from './user';
 export { Moderation, ModeratorStatus } from './moderation';
 export { PublicUserStatus, GroupChannel, PrivateMessageInput } from './private-chat';
