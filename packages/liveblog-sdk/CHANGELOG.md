@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.2.6 (2021-09-17)
+
+
+### Bug Fixes
+
+* user observer ([62552b8](https://github.com/stationfy/arena-sdk/commit/62552b8d41bf94e47f9f6aafc12c5d9906bbed1c))
+
+
+
+
+
 ## 2.2.5 (2021-09-15)
 
 **Note:** Version bump only for package @arena-im/liveblog-sdk
