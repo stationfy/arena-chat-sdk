@@ -1,11 +1,11 @@
 import { ExternalUser } from '@arena-im/chat-types';
-import { createObserver, Listerner } from '../utils/observer';
+import { createBehaviorObserver, Listerner } from '../utils/observer';
 
 type UserEvent = ExternalUser | null;
 
 export class UserObservable {
   private static userObervableInstance: UserObservable;
-  private userChangedListeners = createObserver<UserEvent>();
+  private userChangedListeners = createBehaviorObserver<UserEvent>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}

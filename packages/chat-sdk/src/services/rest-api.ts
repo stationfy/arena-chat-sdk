@@ -15,7 +15,15 @@ import {
   ServerReaction,
   SendReactionResult,
 } from '@arena-im/chat-types';
-import { FetchTransport, XHRTransport, BaseTransport, BaseRest, BaseRestOptions, UserObservable } from '@arena-im/core';
+import {
+  FetchTransport,
+  XHRTransport,
+  BaseTransport,
+  BaseRest,
+  BaseRestOptions,
+  UserObservable,
+  User,
+} from '@arena-im/core';
 import { supportsFetch } from '../utils/supports';
 import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
 
@@ -36,7 +44,6 @@ export class RestAPI implements BaseRest {
     }
 
     this.setTransport(authToken);
-    UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
 
   private setTransport(authToken?: string) {
@@ -53,7 +60,9 @@ export class RestAPI implements BaseRest {
    */
   public static getAPIInstance(): RestAPI {
     if (!RestAPI.apiInstance) {
-      RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: DEFAULT_AUTH_TOKEN });
+      const token = User.instance.data?.token;
+      RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: token || DEFAULT_AUTH_TOKEN });
+      UserObservable.instance.onUserChanged(RestAPI.apiInstance.handleUserChange.bind(RestAPI.apiInstance));
     }
 
     return RestAPI.apiInstance;
