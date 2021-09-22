@@ -22,7 +22,6 @@ export class RestAPI {
     }
 
     this.setTransport(authToken);
-    UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
 
   private handleUserChange(user: ExternalUser | null) {
@@ -46,6 +45,7 @@ export class RestAPI {
   public static getAPIInstance(): RestAPI {
     if (!RestAPI.apiInstance) {
       RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: DEFAULT_AUTH_TOKEN });
+      UserObservable.instance.onUserChanged(RestAPI.apiInstance.handleUserChange.bind(RestAPI.apiInstance));
     }
 
     return RestAPI.apiInstance;

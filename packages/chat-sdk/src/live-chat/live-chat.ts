@@ -7,14 +7,19 @@ import {
   BaseChannel,
   PageRequest,
   ExternalUser,
+  PresenceInfo,
 } from '@arena-im/chat-types';
 import { Credentials, PresenceAPI, ReactionsAPI } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
 
+type Instance = {
+  [key: string]: Promise<LiveChat>;
+};
+
 export class LiveChat implements BaseLiveChat {
-  private static instance: Promise<LiveChat>;
+  private static instance: Instance = {};
   private presenceAPI!: PresenceAPI;
 
   private constructor(private readonly chatRoom: ChatRoom) {
@@ -29,13 +34,13 @@ export class LiveChat implements BaseLiveChat {
   }
 
   public static getInstance(slug: string): Promise<LiveChat> {
-    if (!LiveChat.instance) {
-      LiveChat.instance = this.fetchChatRoom(slug).then((chatRoom) => {
+    if (!LiveChat.instance[slug]) {
+      LiveChat.instance[slug] = this.fetchChatRoom(slug).then((chatRoom) => {
         return new LiveChat(chatRoom);
       });
     }
 
-    return LiveChat.instance;
+    return LiveChat.instance[slug];
   }
 
   private static async fetchChatRoom(chatSlug: string): Promise<ChatRoom> {
@@ -223,6 +228,10 @@ export class LiveChat implements BaseLiveChat {
 
   public watchOnlineCount(callback: (onlineCount: number) => void): void {
     this.presenceAPI.watchOnlineCount(callback);
+  }
+
+  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
+    this.presenceAPI.watchPresenceInfo(callback);
   }
 
   public watchUserJoined(callback: (user: ExternalUser) => void): void {

@@ -63,6 +63,23 @@ describe('LiveChat', () => {
       };
     });
   });
+
+  it('should return a cached instance', async () => {
+    // @ts-ignore
+    GraphQLAPI.instance = {
+      listChannels: async () => {
+        return [];
+      },
+    };
+
+    await LiveChat.getInstance(exampleSite.slug);
+    await LiveChat.getInstance(exampleSite.slug);
+
+    await LiveChat.getInstance('new-slug');
+
+    expect(RestAPI.getCachedInstance).toBeCalledTimes(2);
+  });
+
   describe('getChannels()', () => {
     it('should get all live chat channels', async () => {
       // @ts-ignore
@@ -168,7 +185,7 @@ describe('LiveChat', () => {
 
       try {
         await liveChat.getChannel('fake-main-channel');
-      } catch (e) {
+      } catch (e: any) {
         expect(e.message).toEqual('Invalid channel (fake-main-channel) id.');
       }
     });
@@ -285,7 +302,7 @@ describe('LiveChat', () => {
 
       try {
         await liveChat.fetchUserReminderSubscription('fake-reminder-id');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).toEqual('Cannot fetch user reminder subscription for this reminder: "fake-reminder-id".');
       }
     });
@@ -317,7 +334,7 @@ describe('LiveChat', () => {
 
       try {
         await liveChat.subscribeUserToReminder('fake-reminder-id', 'fake-url');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).toEqual('Cannot subscribe user to reminder for this reminder: "fake-reminder-id".');
       }
     });
@@ -349,7 +366,7 @@ describe('LiveChat', () => {
 
       try {
         await liveChat.unsubscribeUserToReminder('fake-reminder-id');
-      } catch (err) {
+      } catch (err: any) {
         expect(err.message).toEqual('Cannot unsubscribe user to reminder for this reminder: "fake-reminder-id".');
       }
     });
