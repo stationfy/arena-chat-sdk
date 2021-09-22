@@ -91,7 +91,7 @@ test('should validate updateUser method', () => {
   const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.updateUser({} as PresenceUser);
 
-  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('user.setdata', {});
+  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('user.change', {});
 });
 
 test('should validate getAllOnlineUsers method', () => {
