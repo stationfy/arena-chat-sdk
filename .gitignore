@@ -18,3 +18,6 @@ esm/
 
 # logs
 *.log
+
+# editor
+.vscode
