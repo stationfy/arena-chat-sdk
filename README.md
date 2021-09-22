@@ -531,6 +531,10 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ## Changelogs
 
+### v2.2.6(Sep 17, 2021)
+
+- Fix user request moderation.
+
 ### v2.0.22(Mar 25, 2021)
 
 - Minor adjustments to the Q&A doc
