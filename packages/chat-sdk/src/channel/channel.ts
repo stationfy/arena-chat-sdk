@@ -30,7 +30,7 @@ export class Channel implements BaseChannel {
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
-  private messageModificationListener: (() => void) | null = null;
+  private messageModificationListenerUnsubscribe: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
@@ -607,6 +607,8 @@ export class Channel implements BaseChannel {
    */
   public offMessageReceived(): void {
     this.messageModificationCallbacks[MessageChangeType.ADDED] = [];
+
+    this.unsubscribeMessageModification();
   }
 
   /**
@@ -642,6 +644,8 @@ export class Channel implements BaseChannel {
    */
   public offMessageModified(): void {
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
+
+    this.unsubscribeMessageModification();
   }
 
   /**
@@ -679,6 +683,8 @@ export class Channel implements BaseChannel {
    */
   public offMessageDeleted(): void {
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
+
+    this.unsubscribeMessageModification();
   }
 
   /**
@@ -710,6 +716,22 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
     this.reactionsAPI.offAllListeners();
+
+    this.unsubscribeMessageModification();
+  }
+
+  private unsubscribeMessageModification(): void {
+    // check if has some registered listeners
+    for (const listener of Object.values(this.messageModificationCallbacks)) {
+      if (listener.length) {
+        return;
+      }
+    }
+
+    if (this.messageModificationListenerUnsubscribe !== null) {
+      this.messageModificationListenerUnsubscribe();
+      this.messageModificationListenerUnsubscribe = null;
+    }
   }
 
   /**
@@ -731,19 +753,22 @@ export class Channel implements BaseChannel {
    *
    */
   private listenToAllTypeMessageModification() {
-    if (this.messageModificationListener !== null) {
+    if (this.messageModificationListenerUnsubscribe !== null) {
       return;
     }
 
     const realtimeAPI = RealtimeAPI.getInstance();
 
-    this.messageModificationListener = realtimeAPI.listenToMessageReceived(this.channel.dataPath, (message) => {
-      if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
-        return;
-      }
+    this.messageModificationListenerUnsubscribe = realtimeAPI.listenToMessageReceived(
+      this.channel.dataPath,
+      (message) => {
+        if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
+          return;
+        }
 
-      this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
-    });
+        this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
+      },
+    );
   }
 
   /**
