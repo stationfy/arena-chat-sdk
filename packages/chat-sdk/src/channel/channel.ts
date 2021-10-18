@@ -728,7 +728,8 @@ export class Channel implements BaseChannel {
       }
     }
 
-    if (this.messageModificationListenerUnsubscribe !== null) {
+    if (typeof this.messageModificationListenerUnsubscribe === 'function') {
+      console.log('unsubscribe', this.messageModificationListenerUnsubscribe);
       this.messageModificationListenerUnsubscribe();
       this.messageModificationListenerUnsubscribe = null;
     }

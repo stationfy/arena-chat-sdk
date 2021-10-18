@@ -97,7 +97,7 @@ export class PresenceAPI {
     PresenceObservable.getInstance(this.channelId).updateUserJoined(user);
   }
 
-  private updateUser(user: PresenceUser): void {
+  public updateUser(user: PresenceUser): void {
     this.webSocketTransport.emit('user.change', user);
     PresenceObservable.getInstance(this.channelId).updateUserSetted(true);
   }

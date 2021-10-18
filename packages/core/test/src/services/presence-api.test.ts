@@ -1,9 +1,9 @@
 import { PresenceAPI } from '@services/presence-api';
 import { WebSocketTransport } from '@transports/websocket-transport';
 import { PresenceUser } from '@arena-im/chat-types';
-import { UserObservable } from '@auth/user-observable';
 
 const mockOnOnlineCountChanged = jest.fn();
+const mockOnUserJoinedChanged = jest.fn();
 
 afterEach(() => {
   mockOnOnlineCountChanged.mockRestore();
@@ -27,6 +27,7 @@ jest.mock('@services/presence-observable', () => ({
       onOnlineCountChanged: mockOnOnlineCountChanged,
       updateUserJoined: jest.fn(),
       updateUserSetted: jest.fn(),
+      onUserJoinedChanged: mockOnUserJoinedChanged,
     }),
   },
 }));
@@ -60,7 +61,6 @@ const channelType = 'chat_room';
 test('should validate Presence constructor call', () => {
   PresenceAPI.getInstance(siteId, channelId, channelType);
 
-  expect(UserObservable.instance.onUserChanged).toHaveBeenCalled();
   expect(WebSocketTransport.getInstance(channelId).on).toHaveBeenCalledWith('reconnect', expect.any(Function));
   expect(WebSocketTransport.getInstance(channelId).on).toHaveBeenCalledWith('presence.info', expect.any(Function));
 });
