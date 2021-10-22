@@ -23,6 +23,7 @@ import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
+import { isEqualReactions } from '../utils/is';
 
 export class Channel implements BaseChannel {
   private reactionsAPI!: ReactionsAPI;
@@ -53,6 +54,8 @@ export class Channel implements BaseChannel {
 
   private initPresence() {
     this.reactionsAPI = ReactionsAPI.getInstance(this.chatRoom._id);
+    this.watchUserReactions();
+    this.watchChannelReactions();
   }
 
   /**
@@ -358,22 +361,76 @@ export class Channel implements BaseChannel {
 
     try {
       const realtimeAPI = RealtimeAPI.getInstance();
-      this.userReactionsSubscription = realtimeAPI.listenToUserReactionsOld(this.channel._id, user, (reactions) => {
-        this.cacheUserReactions = {};
-
-        reactions.forEach((reaction) => {
-          if (!this.cacheUserReactions[reaction.itemId]) {
-            this.cacheUserReactions[reaction.itemId] = [];
-          }
-
-          this.cacheUserReactions[reaction.itemId].push(reaction);
-        });
-
-        this.notifyUserReactionsVerification();
-      });
+      this.userReactionsSubscription = realtimeAPI.listenToUserReactionsOld(
+        this.channel._id,
+        user,
+        this.updateCacheUserReactions,
+      );
     } catch (e) {
       throw new Error('Cannot listen to user reactions');
     }
+  }
+
+  /**
+   * Update cached user reactions and notify message update
+   *
+   * @param reactions received user reactions from websocket or firestore
+   */
+  private updateCacheUserReactions(reactions: ServerReaction[]) {
+    this.cacheUserReactions = {};
+
+    reactions.forEach((reaction) => {
+      if (!this.cacheUserReactions[reaction.itemId]) {
+        this.cacheUserReactions[reaction.itemId] = [];
+      }
+
+      this.cacheUserReactions[reaction.itemId].push(reaction);
+    });
+
+    this.notifyUserReactionsVerification();
+  }
+
+  /**
+   * Update cached message reactions and notify message update
+   *
+   * @param reactions received user reactions from websocket
+   */
+  private updateCacheMessageReactions(reactions: ChannelReaction[]) {
+    this.cacheUserReactions = {};
+
+    reactions.forEach((reaction) => {
+      const message = this.getMessageFromCacheByKey(reaction.itemId);
+
+      if (message === null) return;
+
+      if (!message.reactions || !isEqualReactions(message.reactions, reaction.reactions)) {
+        const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
+        if (typeof modifiedCallbacks !== 'undefined') {
+          modifiedCallbacks.forEach((callback) => callback({ ...message }));
+        }
+
+        message.reactions = reaction.reactions;
+      }
+    });
+
+    this.notifyUserReactionsVerification();
+  }
+
+  /**
+   * Get message from cache
+   *
+   * @param key message key
+   * @returns
+   */
+  private getMessageFromCacheByKey(key: string): ChatMessage | null {
+    for (let i = 0; i < this.cacheCurrentMessages.length; i++) {
+      const message = this.cacheCurrentMessages[i];
+      if (message.key === key) {
+        return message;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -381,17 +438,16 @@ export class Channel implements BaseChannel {
    *
    * @param user external user
    */
-  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
-    this.reactionsAPI.watchUserReactions(callback);
+  private watchUserReactions(): void {
+    this.reactionsAPI.watchUserReactions(this.updateCacheUserReactions.bind(this));
   }
 
   /**
    * Watch Channel reactions
    *
    */
-
-  public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {
-    this.reactionsAPI.watchChannelReactions(callback);
+  private watchChannelReactions(): void {
+    this.reactionsAPI.watchChannelReactions(this.updateCacheMessageReactions.bind(this));
   }
 
   /**
