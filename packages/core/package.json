@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/core",
-  "version": "2.2.8",
+  "version": "2.2.9",
   "description": "Base implementation for all Arena JavaScript SDKs",
   "author": "Arena",
   "license": "ISC",
@@ -18,7 +18,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^2.2.8",
+    "@arena-im/chat-types": "^2.2.9",
     "firebase": "^9.0.2",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
