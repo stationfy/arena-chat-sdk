@@ -100,10 +100,10 @@ export class Channel implements BaseChannel {
     return qnaI;
   }
 
-  public async getPollsIntance(userId: string): Promise<BasePolls> {
+  public async getPollsInstance(userId: string): Promise<BasePolls> {
     const { Polls } = await import('../polls/polls');
 
-    this.polls = new Polls(this.channel);
+    this.polls = new Polls(this.channel, this.chatRoom);
 
     if (User.instance.data) {
       userId = User.instance.data.id;

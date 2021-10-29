@@ -13,6 +13,8 @@ import {
   PrivateMessageInput,
   ChannelMessageReactions,
   PageRequest,
+  CreatePollInput,
+  Poll,
 } from '@arena-im/chat-types';
 import { GraphQLTransport, User, UserObservable, OrganizationSite } from '@arena-im/core';
 import { DEFAULT_AUTH_TOKEN } from '../config';
@@ -578,6 +580,42 @@ export class GraphQLAPI {
     const data = await this.transport.client.request(mutation, { input: { anonymousId, userId } });
 
     const result = data.banUser as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async createPoll(input: CreatePollInput): Promise<Poll> {
+    const mutation = gql`
+      mutation createPoll($input: CreatePollInput!) {
+        createPoll(input: $input)
+      }
+    `;
+
+    const data = await this.transport.client.request(mutation, { input });
+
+    const result = data.createPoll as Poll;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+
+  public async deletePoll(pollId: string): Promise<Poll> {
+    const mutation = gql`
+      mutation deletePoll($id: ID!) {
+        deletePoll(id: $input)
+      }
+    `;
+
+    const data = await this.transport.client.request(mutation, { id: pollId });
+
+    const result = data.deletePoll as Poll;
 
     if (!result) {
       throw new Error(Status.Failed);
