@@ -591,7 +591,25 @@ export class GraphQLAPI {
   public async createPoll(input: CreatePollInput): Promise<Poll> {
     const mutation = gql`
       mutation createPoll($input: CreatePollInput!) {
-        createPoll(input: $input)
+        createPoll(input: $input) {
+          _id
+          chatRoomId
+          createdAt
+          createdBy
+          draft
+          duration
+          expireAt
+          options {
+            name
+            total
+          }
+          publishedAt
+          question
+          showVotes
+          siteId
+          total
+          updatedAt
+        }
       }
     `;
 
@@ -609,7 +627,25 @@ export class GraphQLAPI {
   public async deletePoll(pollId: string): Promise<Poll> {
     const mutation = gql`
       mutation deletePoll($id: ID!) {
-        deletePoll(id: $input)
+        deletePoll(id: $id) {
+          _id
+          chatRoomId
+          createdAt
+          createdBy
+          draft
+          duration
+          expireAt
+          options {
+            name
+            total
+          }
+          publishedAt
+          question
+          showVotes
+          siteId
+          total
+          updatedAt
+        }
       }
     `;
 
