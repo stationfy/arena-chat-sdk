@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 2.3.0 (2021-11-01)
+
+
+### Features
+
+* create and delete polls ([f98bf26](https://github.com/stationfy/arena-sdk/commit/f98bf261079c936b4ef28de78180accd30a36f97))
+
+
+
+
+
 ## 2.2.10 (2021-11-01)
 
 **Note:** Version bump only for package @arena-im/liveblog-sdk
