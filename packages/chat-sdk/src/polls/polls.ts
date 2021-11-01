@@ -1,4 +1,14 @@
-import { BasePolls, Poll, PollFilter, ServerReaction, LiveChatChannel, DocumentChangeType } from '@arena-im/chat-types';
+import {
+  BasePolls,
+  Poll,
+  PollFilter,
+  ServerReaction,
+  LiveChatChannel,
+  DocumentChangeType,
+  CreatePollInput,
+  ExternalPoll,
+  ChatRoom,
+} from '@arena-im/chat-types';
 import { User } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
@@ -11,8 +21,44 @@ export class Polls implements BasePolls {
   private cacheUserPollsReactions: { [key: string]: ServerReaction } = {};
   private pollModificationCallbacks: { [type: string]: ((poll: Poll) => void)[] } = {};
 
-  public constructor(private channel: LiveChatChannel) {
+  public constructor(private channel: LiveChatChannel, private chatRoom: ChatRoom) {
     this.realtimeAPI = RealtimeAPI.getInstance();
+  }
+
+  public async createPoll(poll: ExternalPoll): Promise<Poll> {
+    if (!User.instance.data?.isModerator) {
+      throw new Error('Only moderators can create a poll.');
+    }
+
+    const input: CreatePollInput = {
+      ...poll,
+      channelId: this.channel._id,
+      chatRoomId: this.chatRoom._id,
+    };
+
+    try {
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.createPoll(input);
+
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot create this poll question: "${poll.question}".`);
+    }
+  }
+
+  public async deletePoll(poll: Poll): Promise<Poll> {
+    if (!User.instance.data?.isModerator) {
+      throw new Error('Only moderators can delete a poll.');
+    }
+
+    try {
+      const graphQLAPI = await GraphQLAPI.instance;
+      const result = await graphQLAPI.deletePoll(poll._id);
+
+      return result;
+    } catch (e) {
+      throw new Error(`Cannot delete the poll with this ID: "${poll._id}".`);
+    }
   }
 
   public async loadPolls(filter?: PollFilter, limit?: number): Promise<Poll[]> {

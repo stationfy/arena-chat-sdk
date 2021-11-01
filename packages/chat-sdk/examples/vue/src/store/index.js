@@ -262,7 +262,7 @@ export default new Vuex.Store({
     },
     async getPolls({ state, commit, dispatch }) {
       try {
-        let data = await state.currentChannel.getPollsIntance();
+        let data = await state.currentChannel.getPollsInstance();
 
         commit('setPollInstance', data);
       } catch (e) {
