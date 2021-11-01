@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.2.10 (2021-11-01)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
 ## 2.2.9 (2021-10-25)
 
 
