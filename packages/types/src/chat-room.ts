@@ -78,7 +78,7 @@ export interface BaseLiveChat {
 
 export interface BaseChannel {
   markReadDebounced: () => void;
-  getPollsIntance(userId: string): Promise<BasePolls>;
+  getPollsInstance(userId: string): Promise<BasePolls>;
   banUser(user: ChatMessageSender): Promise<void>;
   deleteMessage(message: ChatMessage): Promise<boolean>;
   requestModeration(): Promise<Moderation>;
