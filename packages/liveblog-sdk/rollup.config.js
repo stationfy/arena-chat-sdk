@@ -30,7 +30,7 @@ const plugins = [
     include: ['*.ts+(|x)', '**/*.ts+(|x)', '../**/*.ts+(|x)'],
   }),
   resolve({
-    mainFields: ['module'],
+    mainFields: ['browser', 'module'],
     preferBuiltins: true,
     browser: true
   }),
