@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.3.1 (2021-11-03)
+
+
+### Bug Fixes
+
+* Minor adjustments to Polls docs ([1589c2e](https://github.com/stationfy/arena-chat-sdk/commit/1589c2e57a8cf8acf949c9a26fb6bd28be9ac0fa))
+
+
+
+
+
 # 2.3.0 (2021-11-01)
 
 
