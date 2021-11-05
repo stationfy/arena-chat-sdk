@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.3.1 (2021-11-03)
+
+
+### Bug Fixes
+
+* Minor adjustments to Polls docs ([1589c2e](https://github.com/stationfy/arena-chat-sdk/commit/1589c2e57a8cf8acf949c9a26fb6bd28be9ac0fa))
+
+
+
+
+
+# 2.3.0 (2021-11-01)
+
+
+### Features
+
+* create and delete polls ([f98bf26](https://github.com/stationfy/arena-chat-sdk/commit/f98bf261079c936b4ef28de78180accd30a36f97))
+
+
+
+
+
+## 2.2.10 (2021-11-01)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
 ## 2.2.9 (2021-10-25)
 
 

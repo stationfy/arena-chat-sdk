@@ -553,7 +553,11 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ## Changelogs
 
-### v2.3.0(Oct 29, 2021)
+### v2.3.1(Nov 3, 2021)
+
+- Minor adjustments to Polls docs
+
+### v2.3.0(Nov 1, 2021)
 
 - Feature: create and delete polls.
 - Bug fix: `channelI.getPollsInstance` typo.
