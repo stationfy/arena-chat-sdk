@@ -476,14 +476,14 @@ Adding polls to engage the user experience is quite simple since it's enabled by
 First you'll need to get the Polls instance using a channel instance.
 
 ```typescript
-const pollsI = await channelI.getPollsIntance()
+const pollsI = await channelI.getPollsInstance()
 ```
 
 Once you get a polls instance it's possible to start loading the existing polls
 The enum `PollFilter` defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) can be used to filter the list of polls to be loaded.
 
 ```typescript
-export enum PollFilter {
+enum PollFilter {
   POPULAR = 'popular', // The most voted polls
   RECENT = 'recent', // The recent polls by date
   ACTIVE = 'active', // All active polls
@@ -505,6 +505,28 @@ await pollsI.pollVote(
   pollId,
   5, // option index
   anonymousUserId // optional. Only provide this information if it's an anonymous vote.
+)
+```
+
+You can create Polls using the following method as a chat moderator:
+
+```typescript
+pollsI.createPoll(
+  poll: {
+    draft: boolean;
+    duration?: number; // seconds
+    options: string[];
+    question: string;
+    showVotes: boolean;
+  }
+)
+```
+
+You can delete Polls using the following method as a chat moderator:
+
+```typescript
+pollsI.deletePoll(
+  poll: Poll // a poll object
 )
 ```
 
@@ -530,6 +552,15 @@ development. If you're using TypeScript, take a look at the resources below:
 - [`@arena-im/types`](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types): Types used in all packages.
 
 ## Changelogs
+
+### v2.3.1(Nov 3, 2021)
+
+- Minor adjustments to Polls docs
+
+### v2.3.0(Nov 1, 2021)
+
+- Feature: create and delete polls.
+- Bug fix: `channelI.getPollsInstance` typo.
 
 ### v2.2.6(Sep 17, 2021)
 

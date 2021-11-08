@@ -1,6 +1,5 @@
 import { PresenceAPI } from '@services/presence-api';
 import { WebSocketTransport } from '@transports/websocket-transport';
-import { PresenceUser } from '@arena-im/chat-types';
 
 const mockOnOnlineCountChanged = jest.fn();
 const mockOnUserJoinedChanged = jest.fn();
@@ -87,19 +86,12 @@ test('should validate join method', async () => {
   expect(WebSocketTransport.getInstance(channelId).emit).not.toHaveBeenCalledWith('join', expectedUserToJoin);
 });
 
-test('should validate updateUser method', () => {
-  const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
-  presenceAPI.updateUser({} as PresenceUser);
-
-  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('user.change', {});
-});
-
 test('should validate getAllOnlineUsers method', () => {
   const presenceAPI = PresenceAPI.getInstance(siteId, channelId, channelType);
   presenceAPI.getAllOnlineUsers();
   const mockEmit = WebSocketTransport.getInstance(channelId).emit as jest.Mock;
 
-  expect(mockEmit.mock.calls[2]).toEqual(['list', { channelId: 'channel1', status: 'online' }, expect.any(Function)]);
+  expect(mockEmit.mock.calls[1]).toEqual(['list', { channelId: 'channel1', status: 'online' }, expect.any(Function)]);
 });
 
 test('should validate watchOnlineCount method', () => {

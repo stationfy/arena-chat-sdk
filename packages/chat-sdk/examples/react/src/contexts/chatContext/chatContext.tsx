@@ -186,7 +186,7 @@ const ChatContextProvider = ({ children }: { children: React.ReactNode }) => {
         let anonymousId = '';
         if (!user) anonymousId = v4();
 
-        const pollsConnection = await currentChannel.getPollsIntance(anonymousId);
+        const pollsConnection = await currentChannel.getPollsInstance(anonymousId);
         const newPollsList = await pollsConnection.loadPolls();
 
         setPollsI(pollsConnection);

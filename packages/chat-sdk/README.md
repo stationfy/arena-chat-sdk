@@ -203,7 +203,10 @@ channelI.offAllListeners();
 
 ### Reactions
 
-To send a message reaction first, you have to define a `MessageReaction` with a type (E.g. `like`, `dislike`, `love`, etc), and the message ID `message.key`. Then you can send a reaction on a channel.
+You have to define a `MessageReaction` with a type (E.g. `like`, `dislike`, `love`, etc), and the message ID `message.key`.
+
+Then you can send a reaction on a message.
+
 ```typescript
 import { MessageReaction } from '@arena-im/chat-types'
 
@@ -216,8 +219,23 @@ const reaction: MessageReaction = {
 
 channelI.sendReaction(reaction);
 ```
+You can also remove a reaction on a message.
+
+```typescript
+import { MessageReaction } from '@arena-im/chat-types'
+
+const reactionType = 'like';
+
+const reaction: MessageReaction = {
+  type: reactionType,
+  messageID: message.key,
+};
+
+channelI.deleteReaction(reaction);
+```
 
 In the messages, you will have the number of reactions and whether the current user has reacted to these messages.
+
 ```typescript
 // total reactions in the message
 const messageLikes: number = message.reactions[reactionType];
@@ -255,51 +273,82 @@ To verify if the current user was banned, check the property `isBanned` in the u
 
 When a Q&A session is enabled for the Chat Room, you can implement the basic Q&A functionality using this module.
 
-First you'll need to get the `qnaProps` with your `chatId`
+First you'll need to get the Q&A instance using a channel instance.
 
 ```typescript
-import Qna from '@/qna/qna.ts'
-
 // get qna props
-const qnaProps: QnaProps = await Qna.getQnaProps(chatId)
+const qnaI = await channelI.getChatQnaInstance()
 ```
 
-With props in hands, pass it to Qna constructor along with the `qnaId`, the `site` wich is defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) and the previous defined `arenaChat`
+Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the `QnaQuestionFilter`, wich is also defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types). Both parameters are optional.
 
 ```typescript
-// get instance of Qna
-const qna = new Qna(qnaProps, qnaId, site, arenaChat)
-```
-
-Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the QnaQuestionFilter, wich is also defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types). Both parameters are optional
-
-```typescript
-const questions: [QnaQuestion] = await qna.loadQuestions(50, QnaQuestionFilter.RECENT)
+const questions: [QnaQuestion] = await qnaI.loadQuestions(50, QnaQuestionFilter.RECENT)
 ```
 
 Start adding new questions just by passing its contents
 
 ```typescript
-await qna.addQuestion("Which team shall win tonight?")
+await qnaI.addQuestion("Which team shall win tonight?")
 ```
 
-It's also possible to easily awnser a question by calling the following method
+It's also possible to easily awnser a question by calling the following method with the question (`QnaQuestion`) and the answer (`string`).
 
 ```typescript
-const questionId = questions[0].key
-const isQuestionAwnsered: Boolean = await qna.awnserQuestion(questionId, "Lakers should win!")
+const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(question, "Lakers should win!")
 ```
+
+##### Upvote
+
+The current user can upvote a question by calling the following method with the question (`QnaQuestion`) and optionally an `anonymousId`:
+
+```typescript
+await qnaI.upvoteQuestion(
+  question,
+  anonymousId // optional. Only provide this information if it's an anonymous vote.
+)
+```
+
+In the questions, you will have the number of upvotes and whether the current user has upvoted to these questions.
+
+```typescript
+// total reactions in the question
+question.upvotes
+
+// whether the current user has upvoted to the message
+question.userVoted
+```
+
+##### Listeners
 
 To listen to changes to questions in real-time, some listeners can be used:
 
 - onChange: This will watch for Q&A props changes coming from dashboard and then call the passed callback with the Qna instance updating it properties
 ```typescript
-onChange(callback: (instance: BaseQna) => void): void
+qnaI.onChange(callback: (instance: BaseQna) => void): void
 ```
 
-- onQuestionReceived: Watches for new questions updating the question cache and calls the passed callback with the new question
+- onQuestionReceived: Watches for new questions received
 ```typescript
-onQuestionReceived(callback: (question: QnaQuestion) => void): void
+qnaI.onQuestionReceived(callback: (question: QnaQuestion) => void): void
+```
+
+- onQuestionModified: Watches for the questions updated
+```typescript
+qnaI.onQuestionModified(callback: (question: QnaQuestion) => void): void
+```
+
+- onQuestionDeleted: Watches for the questions deleted
+```typescript
+qnaI.onQuestionDeleted(callback: (question: QnaQuestion) => void): void
+```
+
+To stop listen the previous events you can call:
+```typescript
+qnaI.offQuestionReceived()
+qnaI.offQuestionModified()
+qnaI.offQuestionDeleted()
+qnaI.offChange()
 ```
 
 ### Direct Messages
@@ -386,18 +435,17 @@ arenaChat.offUnreadMessagesCountChanged()
 
 Adding polls to engage the user experience is quite simple since it's enabled by default in all chats
 
-To configure a polls manager you need your previously configured `chatRoom` and a `arenaChat`, please refer to [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types)
+First you'll need to get the Polls instance using a channel instance.
 
 ```typescript
-import Polls from '@/polls/polls.ts'
-
-const polls: BasePolls = new Polls(chatRoom, arenaChat)
+const pollsI = await channelI.getPollsInstance()
 ```
 
 Once you get a polls instance it's possible to start loading the existing polls
 The enum `PollFilter` defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) can be used to filter the list of polls to be loaded.
+
 ```typescript
-export enum PollFilter {
+enum PollFilter {
   POPULAR = 'popular', // The most voted polls
   RECENT = 'recent', // The recent polls by date
   ACTIVE = 'active', // All active polls
@@ -406,27 +454,42 @@ export enum PollFilter {
 ```
 
 ```typescript
-const pollsList: [Poll] = await polls.loadPolls(
-  PollFilter.RECENT, // optional
+const pollsList: [Poll] = await pollsI.loadPolls(
+  PollFilter.RECENT,
   50 // optional
 )
 ```
 
-To register a vote in a option for a poll you need to inform the `pollId` the `optionId` that is a number starting in 0 and optionaly an `anonymousId`
+To register a vote in a option for a poll you need to inform the `pollId` the `optionIndex` that is a number starting in 0 and optionally an `anonymousId`
 
 ```typescript
-const pollId = pollsList[0].pollId
-await polls.pollVote(
+await pollsI.pollVote(
   pollId,
-  5, // option 5
-  "anonUser00023"
+  5, // option index
+  anonymousUserId // optional. Only provide this information if it's an anonymous vote.
 )
 ```
 
-Within a channel context is possible to receive the polls manager so it can be presented to the current user
+You can create Polls using the following method as a chat moderator:
 
 ```typescript
-const polls: BasePolls = await channelI.getPollsInstance(userId)
+pollsI.createPoll(
+  poll: {
+    draft: boolean;
+    duration?: number; // seconds
+    options: string[];
+    question: string;
+    showVotes: boolean;
+  }
+)
+```
+
+You can delete Polls using the following method as a chat moderator:
+
+```typescript
+pollsI.deletePoll(
+  poll: Poll // a poll object
+)
 ```
 
 Event listeners are exposed to watch for changes in real-time:
@@ -434,14 +497,45 @@ Event listeners are exposed to watch for changes in real-time:
 - onPollReceived: Allows you to watch for new polls in real time to notify or display to users. The same signature works for  `onPollModified` and `onPollDeleted`
 
 ```typescript
-onPollReceived(callback: (poll: Poll) => void): void
+pollsI.onPollReceived(callback: (poll: Poll) => void): void
 ```
 
 - offPollReceived : Unregister a previous registered listener for `onPollReceived`, the same is valid for `offPollModified` and `offPollDeleted`
 
 ```typescript
-polls.offPollReceived()
+pollsI.offPollReceived()
+```
 
-### API Documentation
+## Other Packages
 
-Documentation for this JavaScript client are available at the [Arena website](https://arena.im)
+Besides the high-level SDKs, this repository contains shared packages, helpers and configuration used for SDK
+development. If you're using TypeScript, take a look at the resources below:
+
+- [`@arena-im/types`](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types): Types used in all packages.
+
+## Changelogs
+
+### v2.3.1(Nov 3, 2021)
+
+- Minor adjustments to Polls docs
+
+### v2.3.0(Oct 29, 2021)
+
+- Feature: create and delete polls.
+- Bug fix: `channelI.getPollsInstance` typo.
+
+### v2.2.6(Sep 17, 2021)
+
+- Fix user request moderation.
+
+### v2.0.22(Mar 25, 2021)
+
+- Minor adjustments to the Q&A doc
+
+### v2.0.21(Mar 15, 2021)
+
+- Minor adjustments to Polls and Q&A docs
+
+### v2.0.20(Mar 8, 2021)
+
+- Bug fix: Kaspersky antivirus was breaking the real-time feature. 

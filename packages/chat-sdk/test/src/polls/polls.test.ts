@@ -16,15 +16,17 @@ jest.mock('@services/graphql-api', () => ({
 }));
 
 jest.mock('@arena-im/core', () => ({
-  User: jest.fn(),
+  User: {
+    instance: {
+      data: jest.fn(),
+    },
+  },
 }));
 
 describe('Polls', () => {
   beforeAll(() => {
     // @ts-ignore
-    User.instance = jest.fn().mockReturnValue({
-      data: exampleUser,
-    });
+    User.instance.data = exampleUser;
   });
   describe('loadPolls()', () => {
     it('should load polls empty', async () => {
@@ -39,7 +41,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
       const items = await polls.loadPolls();
 
       expect(items).toEqual([]);
@@ -58,7 +60,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
       const items = await polls.loadPolls(PollFilter.ACTIVE, 5);
 
       expect(items.length).toEqual(5);
@@ -76,7 +78,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       try {
         await polls.loadPolls(PollFilter.ACTIVE, 5);
@@ -87,7 +89,186 @@ describe('Polls', () => {
     });
   });
 
+  describe('createPoll()', () => {
+    beforeEach(() => {
+      // @ts-ignore
+      User.instance.data = {
+        ...exampleUser,
+        isModerator: true,
+      };
+    });
+
+    afterEach(() => {
+      // @ts-ignore
+      User.instance.data = exampleUser;
+    });
+    it('should create a poll with options and a moderator user', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        createPoll: async () => {
+          return examplePoll;
+        },
+      };
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      const result = await polls.createPoll({
+        draft: false,
+        duration: 900000,
+        options: ['op 1', 'op 2'],
+        question: 'what are you doing?',
+        showVotes: true,
+      });
+
+      expect(result).toEqual(examplePoll);
+    });
+
+    it('should return an exception when the service is not working', (done) => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        createPoll: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      polls
+        .createPoll({
+          draft: false,
+          duration: 900000,
+          options: ['op 1', 'op 2'],
+          question: 'what are you doing?',
+          showVotes: true,
+        })
+        .catch((error) => {
+          expect(error.message).toEqual('Cannot create this poll question: "what are you doing?".');
+          done();
+        });
+    });
+
+    it('should return an exception when try to create a poll without a user', (done) => {
+      // @ts-ignore
+      User.instance.data = null;
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      polls
+        .createPoll({
+          draft: false,
+          duration: 900000,
+          options: ['op 1', 'op 2'],
+          question: 'what are you doing?',
+          showVotes: true,
+        })
+        .catch((error) => {
+          expect(error.message).toEqual('Only moderators can create a poll.');
+          done();
+        });
+    });
+
+    it('should return an exception when try to create a poll without a moderator user', (done) => {
+      // @ts-ignore
+      User.instance.data = {
+        ...exampleUser,
+        isModerator: false,
+      };
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      polls
+        .createPoll({
+          draft: false,
+          duration: 900000,
+          options: ['op 1', 'op 2'],
+          question: 'what are you doing?',
+          showVotes: true,
+        })
+        .catch((error) => {
+          expect(error.message).toEqual('Only moderators can create a poll.');
+          done();
+        });
+    });
+  });
+
+  describe('deletePoll()', () => {
+    beforeEach(() => {
+      // @ts-ignore
+      User.instance.data = {
+        ...exampleUser,
+        isModerator: true,
+      };
+    });
+
+    afterEach(() => {
+      // @ts-ignore
+      User.instance.data = exampleUser;
+    });
+    it('should delete a poll with a moderator user', async () => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        deletePoll: async () => {
+          return examplePoll;
+        },
+      };
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      const result = await polls.deletePoll(examplePoll);
+
+      expect(result).toEqual(examplePoll);
+    });
+
+    it('should return an exception when the service is not working', (done) => {
+      // @ts-ignore
+      GraphQLAPI.instance = {
+        createPoll: async () => {
+          throw new Error('failed');
+        },
+      };
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      polls.deletePoll(examplePoll).catch((error) => {
+        expect(error.message).toEqual('Cannot delete the poll with this ID: "fake-poll".');
+        done();
+      });
+    });
+
+    it('should return an exception when try to delete a poll without a user', (done) => {
+      // @ts-ignore
+      User.instance.data = null;
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      polls.deletePoll(examplePoll).catch((error) => {
+        expect(error.message).toEqual('Only moderators can delete a poll.');
+        done();
+      });
+    });
+
+    it('should return an exception when try to delete a poll without a moderator user', (done) => {
+      // @ts-ignore
+      User.instance.data = {
+        ...exampleUser,
+        isModerator: false,
+      };
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
+
+      polls.deletePoll(examplePoll).catch((error) => {
+        expect(error.message).toEqual('Only moderators can delete a poll.');
+        done();
+      });
+    });
+  });
+
   describe('pollVote()', () => {
+    afterEach(() => {
+      // @ts-ignore
+      User.instance.data = exampleUser;
+    });
+
     it('should vote on a poll options', async () => {
       // @ts-ignore
       GraphQLAPI.instance = {
@@ -96,7 +277,7 @@ describe('Polls', () => {
         },
       };
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       const result = await polls.pollVote('111111', 0, '1234');
 
@@ -122,7 +303,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       polls.pollVote('111111', 0, '1234').catch((error) => {
         expect(error.message).toEqual('Cannot vote for the "111111" poll question.');
@@ -131,7 +312,10 @@ describe('Polls', () => {
     });
 
     it('should return an exception when try to vote without a user', (done) => {
-      const polls = new Polls(exampleChatRoom);
+      // @ts-ignore
+      User.instance.data = null;
+
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       polls.pollVote('111111', 0).catch((error) => {
         expect(error.message).toEqual('Cannot vote without anonymoud id or user id.');
@@ -153,7 +337,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollReceived(() => {});
@@ -174,7 +358,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       polls.onPollReceived((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -194,7 +378,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       try {
         polls.onPollReceived((poll: Poll) => {
@@ -220,7 +404,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollDeleted(() => {});
@@ -241,7 +425,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       polls.onPollDeleted((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -262,7 +446,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       try {
         polls.onPollDeleted((poll: Poll) => {
@@ -288,7 +472,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       polls.watchUserPollsReactions('fake-user');
     });
@@ -307,7 +491,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollModified(() => {});
@@ -328,7 +512,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       polls.onPollModified((poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -349,7 +533,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       try {
         polls.onPollModified((poll: Poll) => {
@@ -375,7 +559,7 @@ describe('Polls', () => {
         return realtimeAPIInstanceMock;
       });
 
-      const polls = new Polls(exampleLiveChatChannel);
+      const polls = new Polls(exampleLiveChatChannel, exampleChatRoom);
 
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       polls.onPollModified(() => {});
