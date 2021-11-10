@@ -336,7 +336,7 @@ It's also possible to easily awnser a question by calling the following method w
 const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(question, "Lakers should win!")
 ```
 
-To delete questions you can use the following method as a chat moderator:
+To delete questions you can use the following method:
 
 ```typescript
 await qnaI.deleteQuestion(
