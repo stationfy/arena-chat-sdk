@@ -298,6 +298,14 @@ It's also possible to easily awnser a question by calling the following method w
 const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(question, "Lakers should win!")
 ```
 
+To delete questions you can use the following method as a chat moderator:
+
+```typescript
+await qnaI.deleteQuestion(
+  question: QnaQuestion // a qnaQuestion object
+)
+```
+
 ##### Upvote
 
 The current user can upvote a question by calling the following method with the question (`QnaQuestion`) and optionally an `anonymousId`:
