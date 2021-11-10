@@ -17,7 +17,14 @@ import {
   BaseReaction,
   ChannelReaction,
 } from '@arena-im/chat-types';
-import { User, UserObservable, OrganizationSite, ReactionsAPI } from '@arena-im/core';
+import {
+  User,
+  UserObservable,
+  OrganizationSite,
+  ReactionsAPIWS,
+  BaseReactionsAPI,
+  ReactionsAPIFirestore,
+} from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
@@ -26,22 +33,23 @@ import { RestAPI } from '../services/rest-api';
 import { isEqualReactions } from '../utils/is';
 
 export class Channel implements BaseChannel {
-  private reactionsAPI!: ReactionsAPI;
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
   private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListenerUnsubscribe: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
+  private channelReactionsSubscription: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
   private reactionI: BaseReaction | null = null;
+  private reactionsAPI: BaseReactionsAPI;
 
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
     UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
     this.markReadDebounced = debounce(this.markRead, 10000);
-    this.initPresence();
+    this.reactionsAPI = this.getReactionsAPIInstance();
   }
 
   public static getInstance(channel: LiveChatChannel, chatRoom: ChatRoom): Channel {
@@ -52,10 +60,20 @@ export class Channel implements BaseChannel {
     return Channel.instances[channel._id];
   }
 
-  private initPresence() {
-    this.reactionsAPI = ReactionsAPI.getInstance(this.chatRoom._id);
+  private async initReactions() {
+    // const channelReactions = await this.reactionsAPI.fetchChannelReactions();
+    // await this.updateCacheMessageReactions(channelReactions, true);
+
     this.watchUserReactions();
     this.watchChannelReactions();
+  }
+
+  private getReactionsAPIInstance(): BaseReactionsAPI {
+    if (this.chatRoom.useNewReactionAPI) {
+      return ReactionsAPIWS.getInstance(this.chatRoom._id);
+    } else {
+      return ReactionsAPIFirestore.getInstance(this.channel._id);
+    }
   }
 
   /**
@@ -330,44 +348,12 @@ export class Channel implements BaseChannel {
    * @param {ExternalUser} user external user
    */
   private watchUserChanged(user: ExternalUser | null) {
-    if (!this.chatRoom.useNewReactionAPI) {
-      if (user !== null) {
-        this.watchUserReactionsOld(user);
-      }
-      if (this.userReactionsSubscription !== null) {
-        this.userReactionsSubscription();
-      }
-    }
-
     if (this.polls) {
       this.polls.offAllListeners();
 
       if (user?.id) {
         this.polls.watchUserPollsReactions(user.id);
       }
-    }
-  }
-
-  /**
-   * Watch user reactions
-   * @deprecated
-   *
-   * @param user external user
-   */
-  private watchUserReactionsOld(user: ExternalUser) {
-    if (this.userReactionsSubscription !== null) {
-      this.userReactionsSubscription();
-    }
-
-    try {
-      const realtimeAPI = RealtimeAPI.getInstance();
-      this.userReactionsSubscription = realtimeAPI.listenToUserReactionsOld(
-        this.channel._id,
-        user,
-        this.updateCacheUserReactions,
-      );
-    } catch (e) {
-      throw new Error('Cannot listen to user reactions');
     }
   }
 
@@ -387,7 +373,7 @@ export class Channel implements BaseChannel {
       this.cacheUserReactions[reaction.itemId].push(reaction);
     });
 
-    this.notifyUserReactionsVerification();
+    // this.notifyUserReactionsVerification();
   }
 
   /**
@@ -395,25 +381,36 @@ export class Channel implements BaseChannel {
    *
    * @param reactions received user reactions from websocket
    */
-  private updateCacheMessageReactions(reactions: ChannelReaction[]) {
+  private async updateCacheMessageReactions(reactions: ChannelReaction[], silent = false) {
     this.cacheUserReactions = {};
+
+    const userReactions = await this.reactionsAPI.fetchUserReactions();
+    this.updateCacheUserReactions(userReactions);
 
     reactions.forEach((reaction) => {
       const message = this.getMessageFromCacheByKey(reaction.itemId);
 
       if (message === null) return;
 
-      if (!message.reactions || !isEqualReactions(message.reactions, reaction.reactions)) {
-        const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
-        if (typeof modifiedCallbacks !== 'undefined') {
-          modifiedCallbacks.forEach((callback) => callback({ ...message }));
-        }
+      let shouldNotifyMessageModified = false;
 
+      if (!message.reactions || !isEqualReactions(message.reactions, reaction.reactions)) {
         message.reactions = reaction.reactions;
+
+        shouldNotifyMessageModified = true;
+      }
+
+      if (this.addUserReactions(message)) {
+        shouldNotifyMessageModified = true;
+      }
+
+      const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
+      if (shouldNotifyMessageModified && !silent && typeof modifiedCallbacks !== 'undefined') {
+        modifiedCallbacks.forEach((callback) => callback({ ...message }));
       }
     });
 
-    this.notifyUserReactionsVerification();
+    // this.notifyUserReactionsVerification();
   }
 
   /**
@@ -433,13 +430,55 @@ export class Channel implements BaseChannel {
     return null;
   }
 
+  // TODO: reset user reactions
+  private async resetUserReactions(userReactions: ServerReaction[]) {
+    const messagesToNotify: { [messageKey: string]: ChatMessage } = {};
+
+    // remove all user reactions from messages
+    for (const message of this.cacheCurrentMessages) {
+      if (message.currentUserReactions) {
+        delete message.currentUserReactions;
+        messagesToNotify[message.key!] = message;
+      }
+    }
+
+    this.updateCacheUserReactions(userReactions);
+
+    // send notifycation
+    const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
+
+    for (const userReaction of userReactions) {
+      const message = this.getMessageFromCacheByKey(userReaction.itemId);
+
+      if (message === null) continue;
+
+      if (typeof message.currentUserReactions === 'undefined') {
+        message.currentUserReactions = {};
+      }
+
+      message.currentUserReactions[userReaction.reaction] = true;
+
+      messagesToNotify[message.key!] = message;
+    }
+
+    if (typeof modifiedCallbacks !== 'undefined') {
+      for (const message of Object.values(messagesToNotify)) {
+        modifiedCallbacks.forEach((callback) => callback({ ...message }));
+      }
+    }
+  }
+
   /**
    * Watch user reactions
    *
    * @param user external user
    */
   private watchUserReactions(): void {
-    this.reactionsAPI.watchUserReactions(this.updateCacheUserReactions.bind(this));
+    if (this.userReactionsSubscription !== null) {
+      this.userReactionsSubscription();
+    }
+
+    this.userReactionsSubscription = this.reactionsAPI.watchUserReactions(this.resetUserReactions.bind(this));
   }
 
   /**
@@ -447,35 +486,34 @@ export class Channel implements BaseChannel {
    *
    */
   private watchChannelReactions(): void {
-    this.reactionsAPI.watchChannelReactions(this.updateCacheMessageReactions.bind(this));
+    if (this.channelReactionsSubscription !== null) {
+      this.channelReactionsSubscription();
+    }
+
+    this.channelReactionsSubscription = this.reactionsAPI.watchChannelReactions(
+      this.updateCacheMessageReactions.bind(this),
+    );
   }
 
   /**
    * Notify User Reaction Verication
    */
-  private notifyUserReactionsVerification() {
-    this.cacheCurrentMessages.forEach((message) => {
-      if (typeof message.key === 'undefined') {
-        return;
-      }
+  private addUserReactions(message: ChatMessage) {
+    let shouldNotifyMessageModified = false;
+    const reactions = this.cacheUserReactions[message.key!];
 
-      const reactions = this.cacheUserReactions[message.key];
-
-      if (reactions && this.shouldCurrentUserReactionToNotify(message, reactions)) {
-        reactions.forEach((reaction) => {
-          if (typeof message.currentUserReactions === 'undefined') {
-            message.currentUserReactions = {};
-          }
-
-          message.currentUserReactions[reaction.reaction] = true;
-        });
-
-        const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
-        if (typeof modifiedCallbacks !== 'undefined') {
-          modifiedCallbacks.forEach((callback) => callback({ ...message }));
+    if (reactions && this.shouldCurrentUserReactionToNotify(message, reactions)) {
+      for (const reaction of reactions) {
+        if (typeof message.currentUserReactions === 'undefined') {
+          message.currentUserReactions = {};
         }
+
+        message.currentUserReactions[reaction.reaction] = true;
       }
-    });
+      shouldNotifyMessageModified = true;
+    }
+
+    return shouldNotifyMessageModified;
   }
 
   private shouldCurrentUserReactionToNotify(message: ChatMessage, serverReactions: ServerReaction[]) {
@@ -503,7 +541,9 @@ export class Channel implements BaseChannel {
   private updateCacheCurrentMessages(messages: ChatMessage[]): void {
     this.cacheCurrentMessages = messages;
 
-    this.notifyUserReactionsVerification();
+    this.reactionsAPI.fetchChannelReactions().then((channelReactions) => {
+      this.updateCacheMessageReactions(channelReactions, true);
+    });
   }
 
   /**
@@ -520,7 +560,9 @@ export class Channel implements BaseChannel {
 
       this.markReadDebounced();
 
-      return messages;
+      await this.initReactions();
+
+      return this.cacheCurrentMessages;
     } catch (e) {
       throw new Error(`Cannot load messages on "${this.channel._id}" channel.`);
     }
@@ -578,11 +620,7 @@ export class Channel implements BaseChannel {
         widgetType: 'Chat Room',
       };
 
-      if (this.chatRoom.useNewReactionAPI) {
-        this.createReaction(serverReaction);
-      } else {
-        this.createReactionOld(serverReaction);
-      }
+      await this.createReaction(serverReaction);
     } catch (e) {
       throw new Error(`Cannot react to the message "${reaction.messageID}"`);
     }
@@ -595,15 +633,6 @@ export class Channel implements BaseChannel {
 
   private createReaction(serverReaction: ServerReaction) {
     this.reactionsAPI.createReaction(serverReaction);
-  }
-
-  /**
-   * Create a reaction on Firebase
-   * @deprecated
-   */
-  private async createReactionOld(reaction: ServerReaction) {
-    const restAPI = RestAPI.getAPIInstance();
-    return await restAPI.sendReaction(reaction);
   }
 
   /**
@@ -674,6 +703,7 @@ export class Channel implements BaseChannel {
    */
   public onMessageReceived(callback: (message: ChatMessage) => void): void {
     try {
+      this.initReactions();
       this.registerMessageModificationCallback((newMessage) => {
         if (this.cacheCurrentMessages.some((message) => newMessage.key === message.key)) {
           return;
@@ -771,7 +801,7 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
-    this.reactionsAPI.offAllListeners();
+    // this.reactionsAPI.offAllListeners();
 
     this.unsubscribeMessageModification();
   }

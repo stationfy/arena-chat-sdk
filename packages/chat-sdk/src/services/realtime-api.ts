@@ -13,7 +13,8 @@ import {
   QnaQuestionFilter,
   LiveChatChannel,
 } from '@arena-im/chat-types';
-import { FirestoreAPI, BaseRealtime } from '@arena-im/core';
+import { FirestoreAPI } from '@arena-im/core';
+import { BaseRealtime } from '../interfaces/base-realtime';
 
 /** Base realtime class implementation */
 export class RealtimeAPI implements BaseRealtime {
@@ -412,51 +413,6 @@ export class RealtimeAPI implements BaseRealtime {
       },
       (data) => {
         callback(data as ChatMessage);
-      },
-    );
-
-    this.unsbscribeFunctions.push(unsubscribe);
-
-    return unsubscribe;
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public async sendReaction(reaction: ServerReaction): Promise<ServerReaction> {
-    try {
-      return (await FirestoreAPI.addItem('reactions', reaction)) as ServerReaction;
-    } catch (e) {
-      throw new Error('failed');
-    }
-  }
-
-  /**
-   * @inheritdoc
-   */
-  public listenToUserReactionsOld(
-    channelId: string,
-    user: ExternalUser,
-    callback: (reactions: ServerReaction[]) => void,
-  ): () => void {
-    const unsubscribe = FirestoreAPI.listenToCollectionChange(
-      {
-        path: 'reactions',
-        where: [
-          {
-            fieldPath: 'userId',
-            opStr: '==',
-            value: user.id,
-          },
-          {
-            fieldPath: 'openChannelId',
-            opStr: '==',
-            value: channelId,
-          },
-        ],
-      },
-      (response) => {
-        callback(response as ServerReaction[]);
       },
     );
 
