@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.3.2 (2021-11-10)
+
+
+### Bug Fixes
+
+* Add qna delete information to docs ([a2d01b1](https://github.com/stationfy/arena-sdk/commit/a2d01b1e0f6d96901454cd8cf7f5e9a63cd807be))
+
+
+
+
+
 ## 2.3.1 (2021-11-03)
 
 
