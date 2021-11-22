@@ -11,6 +11,7 @@ export {
   MessageReaction,
   SendReactionResult,
   ChannelReaction,
+  ChatMessageToSend,
 } from './chat-message';
 export {
   ChatRoom,

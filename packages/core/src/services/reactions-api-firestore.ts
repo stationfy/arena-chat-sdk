@@ -4,6 +4,7 @@ import { BaseReactionsAPI } from '../interfaces/base-reactions-api';
 import { RealtimeAPI } from './realtime-api';
 import { RestAPI } from './rest-api';
 import { createObserver } from '../utils/observer';
+import { GraphQLAPI } from './graphql-api';
 
 type Instance = {
   [key: string]: ReactionsAPIFirestore;
@@ -41,8 +42,17 @@ export class ReactionsAPIFirestore implements BaseReactionsAPI {
    * @deprecated
    */
   public async createReaction(reaction: ServerReaction): Promise<void> {
-    const restAPI = RestAPI.getAPIInstance();
-    await restAPI.sendReaction(reaction);
+    if (reaction.itemType === 'poll') {
+      const graphQLAPI = await GraphQLAPI.instance;
+      await graphQLAPI.pollVote({
+        pollId: reaction.itemId,
+        userId: reaction.userId,
+        optionId: parseInt(reaction.reaction),
+      });
+    } else {
+      const restAPI = RestAPI.getAPIInstance();
+      await restAPI.sendReaction(reaction);
+    }
   }
 
   public async fetchUserReactions(): Promise<ServerReaction[]> {

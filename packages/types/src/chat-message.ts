@@ -1,11 +1,11 @@
 export interface ChatMessage {
-  createdAt?: number;
-  key?: string;
+  createdAt: number;
+  key: string;
   message: ChatMessageContent;
   publisherId?: string;
   referer?: string;
   replyMessage?: ChatMessage;
-  sender?: ChatMessageSender;
+  sender: ChatMessageSender;
   changeType?: string;
   reactions?: ChatMessageReaction;
   currentUserReactions?: ChatMessageCurrentUserReactions;
@@ -16,6 +16,8 @@ export interface ChatMessage {
   slowMode?: boolean;
   type?: MessageType;
 }
+
+export type ChatMessageToSend = Omit<ChatMessage, 'createdAt' | 'key'>;
 
 enum MessageType {
   POLL = 'POLL_PUBLISHED',
@@ -87,7 +89,7 @@ export interface DeleteChatMessageRequest {
 }
 
 export interface ServerReaction {
-  itemType: string;
+  itemType: 'poll' | 'chatMessage' | 'post';
   reaction: string;
   publisherId: string;
   itemId: string;
@@ -98,7 +100,7 @@ export interface ServerReaction {
   chatRoomVersion?: string;
   isDashboardUser?: boolean;
   widgetId?: string;
-  widgetType?: 'Content Wall' | 'Chat Room' | 'Liveblog'
+  widgetType?: 'Content Wall' | 'Chat Room' | 'Liveblog';
 }
 
 export interface ChannelReaction {
@@ -107,7 +109,7 @@ export interface ChannelReaction {
   itemType: string;
   reactions: {
     [key: string]: number;
-  }
+  };
 }
 
 export interface MessageReaction {

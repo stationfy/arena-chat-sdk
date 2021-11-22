@@ -13,9 +13,8 @@ import {
   BaseQna,
   ChatMessageReportedBy,
   ChatRoom,
-  ChannelMessageReactions,
-  BaseReaction,
   ChannelReaction,
+  ChatMessageToSend,
 } from '@arena-im/chat-types';
 import {
   User,
@@ -35,15 +34,16 @@ import { isEqualReactions } from '../utils/is';
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
-  private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
+  private cacheUserReactions: { [key: string]: ServerReaction } = {};
+  private cacheChannelReactions: { [key: string]: ChannelReaction } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListenerUnsubscribe: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
   private channelReactionsSubscription: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
-  private reactionI: BaseReaction | null = null;
   private reactionsAPI: BaseReactionsAPI;
+  private fetchPreviousMessagesPromise: Promise<ChatMessage[]> | null = null;
 
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
@@ -60,10 +60,7 @@ export class Channel implements BaseChannel {
     return Channel.instances[channel._id];
   }
 
-  private async initReactions() {
-    // const channelReactions = await this.reactionsAPI.fetchChannelReactions();
-    // await this.updateCacheMessageReactions(channelReactions, true);
-
+  private async initReactionsListeners() {
     this.watchUserReactions();
     this.watchChannelReactions();
   }
@@ -88,23 +85,6 @@ export class Channel implements BaseChannel {
     } catch (e) {
       throw new Error('Cannot set group channel read.');
     }
-  }
-
-  /**
-   * Get the user profile by a user id
-   *
-   * @param messageId Message id
-   */
-  public async fetchReactions(messageId: string): Promise<ChannelMessageReactions> {
-    if (this.reactionI === null) {
-      const { Reaction } = await import('../reaction/reaction');
-
-      this.reactionI = new Reaction(this.chatRoom._id);
-
-      return this.reactionI.fetchReactions(messageId);
-    }
-
-    return this.reactionI.fetchReactions(messageId);
   }
 
   public async getChatQnaInstance(): Promise<BaseQna> {
@@ -267,7 +247,19 @@ export class Channel implements BaseChannel {
       throw new Error('Cannot send message without a user');
     }
 
-    const chatMessage: ChatMessage = {
+    if (!sender) {
+      sender = {
+        uid: User.instance.data?.id,
+        displayName: User.instance.data?.name,
+        photoURL: User.instance.data?.image,
+        isPublisher: false,
+        _id: User.instance.data?.id,
+        name: User.instance.data?.name,
+        image: User.instance.data?.image,
+      };
+    }
+
+    const chatMessage: ChatMessageToSend = {
       message: {
         text: text || '',
       },
@@ -357,112 +349,11 @@ export class Channel implements BaseChannel {
     }
   }
 
-  /**
-   * Update cached user reactions and notify message update
-   *
-   * @param reactions received user reactions from websocket or firestore
-   */
-  private updateCacheUserReactions(reactions: ServerReaction[]) {
-    this.cacheUserReactions = {};
-
-    reactions.forEach((reaction) => {
-      if (!this.cacheUserReactions[reaction.itemId]) {
-        this.cacheUserReactions[reaction.itemId] = [];
-      }
-
-      this.cacheUserReactions[reaction.itemId].push(reaction);
-    });
-
-    // this.notifyUserReactionsVerification();
-  }
-
-  /**
-   * Update cached message reactions and notify message update
-   *
-   * @param reactions received user reactions from websocket
-   */
-  private async updateCacheMessageReactions(reactions: ChannelReaction[], silent = false) {
-    this.cacheUserReactions = {};
-
-    const userReactions = await this.reactionsAPI.fetchUserReactions();
-    this.updateCacheUserReactions(userReactions);
-
-    reactions.forEach((reaction) => {
-      const message = this.getMessageFromCacheByKey(reaction.itemId);
-
-      if (message === null) return;
-
-      let shouldNotifyMessageModified = false;
-
-      if (!message.reactions || !isEqualReactions(message.reactions, reaction.reactions)) {
-        message.reactions = reaction.reactions;
-
-        shouldNotifyMessageModified = true;
-      }
-
-      if (this.addUserReactions(message)) {
-        shouldNotifyMessageModified = true;
-      }
-
-      const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
-      if (shouldNotifyMessageModified && !silent && typeof modifiedCallbacks !== 'undefined') {
-        modifiedCallbacks.forEach((callback) => callback({ ...message }));
-      }
-    });
-
-    // this.notifyUserReactionsVerification();
-  }
-
-  /**
-   * Get message from cache
-   *
-   * @param key message key
-   * @returns
-   */
-  private getMessageFromCacheByKey(key: string): ChatMessage | null {
-    for (let i = 0; i < this.cacheCurrentMessages.length; i++) {
-      const message = this.cacheCurrentMessages[i];
-      if (message.key === key) {
-        return message;
-      }
-    }
-
-    return null;
-  }
-
-  // TODO: reset user reactions
-  private async resetUserReactions(userReactions: ServerReaction[]) {
-    const messagesToNotify: { [messageKey: string]: ChatMessage } = {};
-
-    // remove all user reactions from messages
-    for (const message of this.cacheCurrentMessages) {
-      if (message.currentUserReactions) {
-        delete message.currentUserReactions;
-        messagesToNotify[message.key!] = message;
-      }
-    }
-
-    this.updateCacheUserReactions(userReactions);
-
-    // send notifycation
+  private emitMessagesChange(messages: ChatMessage[]) {
     const modifiedCallbacks = this.messageModificationCallbacks[MessageChangeType.MODIFIED];
 
-    for (const userReaction of userReactions) {
-      const message = this.getMessageFromCacheByKey(userReaction.itemId);
-
-      if (message === null) continue;
-
-      if (typeof message.currentUserReactions === 'undefined') {
-        message.currentUserReactions = {};
-      }
-
-      message.currentUserReactions[userReaction.reaction] = true;
-
-      messagesToNotify[message.key!] = message;
-    }
-
     if (typeof modifiedCallbacks !== 'undefined') {
-      for (const message of Object.values(messagesToNotify)) {
+      for (const message of messages) {
         modifiedCallbacks.forEach((callback) => callback({ ...message }));
       }
     }
@@ -478,7 +369,18 @@ export class Channel implements BaseChannel {
       this.userReactionsSubscription();
     }
 
-    this.userReactionsSubscription = this.reactionsAPI.watchUserReactions(this.resetUserReactions.bind(this));
+    this.userReactionsSubscription = this.reactionsAPI.watchUserReactions((userReactions: ServerReaction[]) => {
+      const userReactionsMap = this.getUserReactionsMap(userReactions);
+
+      this.cacheUserReactions = userReactionsMap;
+
+      const messages = this.mergeMessagesAndReactions(this.cacheCurrentMessages, {
+        userReactionsMap: this.cacheUserReactions,
+        channelReactionsMap: this.cacheChannelReactions,
+      });
+
+      this.updateCacheCurrentMessages(messages);
+    });
   }
 
   /**
@@ -491,46 +393,19 @@ export class Channel implements BaseChannel {
     }
 
     this.channelReactionsSubscription = this.reactionsAPI.watchChannelReactions(
-      this.updateCacheMessageReactions.bind(this),
+      (channelReactions: ChannelReaction[]) => {
+        const channelReactionsMap = this.getChannelReactionsMap(channelReactions);
+
+        this.cacheChannelReactions = channelReactionsMap;
+
+        const messages = this.mergeMessagesAndReactions(this.cacheCurrentMessages, {
+          userReactionsMap: this.cacheUserReactions,
+          channelReactionsMap: this.cacheChannelReactions,
+        });
+
+        this.updateCacheCurrentMessages(messages);
+      },
     );
-  }
-
-  /**
-   * Notify User Reaction Verication
-   */
-  private addUserReactions(message: ChatMessage) {
-    let shouldNotifyMessageModified = false;
-    const reactions = this.cacheUserReactions[message.key!];
-
-    if (reactions && this.shouldCurrentUserReactionToNotify(message, reactions)) {
-      for (const reaction of reactions) {
-        if (typeof message.currentUserReactions === 'undefined') {
-          message.currentUserReactions = {};
-        }
-
-        message.currentUserReactions[reaction.reaction] = true;
-      }
-      shouldNotifyMessageModified = true;
-    }
-
-    return shouldNotifyMessageModified;
-  }
-
-  private shouldCurrentUserReactionToNotify(message: ChatMessage, serverReactions: ServerReaction[]) {
-    const currentUserReactions = message.currentUserReactions;
-
-    if (typeof currentUserReactions === 'undefined') {
-      return true;
-    }
-
-    for (let i = 0; i < serverReactions.length; i++) {
-      const reactionName = serverReactions[i].reaction;
-      if (!currentUserReactions[reactionName]) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**
@@ -541,9 +416,9 @@ export class Channel implements BaseChannel {
   private updateCacheCurrentMessages(messages: ChatMessage[]): void {
     this.cacheCurrentMessages = messages;
 
-    this.reactionsAPI.fetchChannelReactions().then((channelReactions) => {
-      this.updateCacheMessageReactions(channelReactions, true);
-    });
+    // this.reactionsAPI.fetchChannelReactions().then((channelReactions) => {
+    //   this.updateCacheMessageReactions(channelReactions, true);
+    // });
   }
 
   /**
@@ -553,19 +428,118 @@ export class Channel implements BaseChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      const realtimeAPI = RealtimeAPI.getInstance();
-      const messages = await realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);
+      const [loadedMessages, reactions] = await Promise.all([this.fetchRecentMessages(limit), this.fetchReactions()]);
+
+      const messages = this.mergeMessagesAndReactions(loadedMessages, reactions, true);
 
       this.updateCacheCurrentMessages(messages);
 
       this.markReadDebounced();
 
-      await this.initReactions();
+      this.initReactionsListeners();
 
-      return this.cacheCurrentMessages;
+      return messages;
     } catch (e) {
       throw new Error(`Cannot load messages on "${this.channel._id}" channel.`);
     }
+  }
+
+  private fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
+    const realtimeAPI = RealtimeAPI.getInstance();
+
+    return realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);
+  }
+
+  private async fetchReactions() {
+    const [channelReactionsMap, userReactionsMap] = await Promise.all([
+      this.fetchChannelReactionsMap(),
+      this.fetchUserReactionsMap(),
+    ]);
+
+    return { channelReactionsMap, userReactionsMap };
+  }
+
+  private async fetchChannelReactionsMap() {
+    const channelReactions = await this.reactionsAPI.fetchChannelReactions();
+
+    this.cacheChannelReactions = this.getChannelReactionsMap(channelReactions);
+
+    return this.cacheChannelReactions;
+  }
+
+  private async fetchUserReactionsMap() {
+    const userReactions = await this.reactionsAPI.fetchUserReactions();
+
+    this.cacheUserReactions = this.getUserReactionsMap(userReactions);
+
+    return this.cacheUserReactions;
+  }
+
+  private getUserReactionsMap(userReactions: ServerReaction[]) {
+    const map: { [messageId: string]: ServerReaction } = {};
+
+    for (const userReaction of userReactions) {
+      map[userReaction.itemId] = userReaction;
+    }
+
+    return map;
+  }
+
+  private getChannelReactionsMap(channelReactions: ChannelReaction[]) {
+    const map: { [messageId: string]: ChannelReaction } = {};
+
+    for (const channelReaction of channelReactions) {
+      map[channelReaction.itemId] = channelReaction;
+    }
+
+    return map;
+  }
+
+  private mergeMessagesAndReactions(
+    messages: ChatMessage[],
+    {
+      userReactionsMap,
+      channelReactionsMap,
+    }: {
+      userReactionsMap: {
+        [messageKey: string]: ServerReaction;
+      };
+      channelReactionsMap: {
+        [messageKey: string]: ChannelReaction;
+      };
+    },
+    silent?: boolean,
+  ): ChatMessage[] {
+    const updatedMessages: ChatMessage[] = [];
+
+    for (const message of messages) {
+      const userReaction = userReactionsMap[message.key];
+      let isMessageUpdated = false;
+      if (userReaction && (!message.currentUserReactions || !message.currentUserReactions[userReaction.reaction])) {
+        if (!message.currentUserReactions) {
+          message.currentUserReactions = {};
+        }
+
+        isMessageUpdated = true;
+        message.currentUserReactions[userReaction.reaction] = true;
+      }
+
+      const channelReaction = channelReactionsMap[message.key];
+      if (channelReaction && (!message.reactions || !isEqualReactions(channelReaction.reactions, message.reactions))) {
+        isMessageUpdated = true;
+        message.reactions = channelReaction.reactions;
+      }
+
+      if (isMessageUpdated) {
+        updatedMessages.push(message);
+      }
+    }
+
+    if (!silent) {
+      this.emitMessagesChange(updatedMessages);
+    }
+
+    return messages;
   }
 
   /**
@@ -574,6 +548,10 @@ export class Channel implements BaseChannel {
    * @param limit number of previous messages
    */
   public async loadPreviousMessages(limit?: number): Promise<ChatMessage[]> {
+    if (this.fetchPreviousMessagesPromise !== null) {
+      throw new Error('Another request is already in progress');
+    }
+
     if (!this.cacheCurrentMessages.length) {
       return [];
     }
@@ -582,11 +560,24 @@ export class Channel implements BaseChannel {
       const firstMessage = this.cacheCurrentMessages[0];
 
       const realtimeAPI = RealtimeAPI.getInstance();
-      const messages = await realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
+      this.fetchPreviousMessagesPromise = realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
 
-      this.updateCacheCurrentMessages(messages.concat(this.cacheCurrentMessages));
+      const previousMessages = await this.fetchPreviousMessagesPromise;
 
-      return messages;
+      const nextMessages = this.mergeMessagesAndReactions(
+        previousMessages,
+        {
+          userReactionsMap: this.cacheUserReactions,
+          channelReactionsMap: this.cacheChannelReactions,
+        },
+        true,
+      );
+
+      this.updateCacheCurrentMessages(nextMessages.concat(this.cacheCurrentMessages));
+
+      this.fetchPreviousMessagesPromise = null;
+
+      return nextMessages;
     } catch (e) {
       throw new Error(`Cannot load previous messages on "${this.channel._id}" channel.`);
     }
@@ -620,10 +611,42 @@ export class Channel implements BaseChannel {
         widgetType: 'Chat Room',
       };
 
+      this.updateUserReactionsCachedWithSendReaction(serverReaction);
+
       await this.createReaction(serverReaction);
     } catch (e) {
       throw new Error(`Cannot react to the message "${reaction.messageID}"`);
     }
+  }
+
+  private updateUserReactionsCachedWithSendReaction(userReaction: ServerReaction) {
+    const message = this.getMessageFromCacheByKey(userReaction.itemId);
+
+    if (
+      message &&
+      userReaction &&
+      (!message.currentUserReactions || !message.currentUserReactions[userReaction.reaction])
+    ) {
+      if (!message.currentUserReactions) {
+        message.currentUserReactions = {};
+      }
+
+      message.currentUserReactions[userReaction.reaction] = true;
+
+      this.emitMessagesChange([message]);
+    }
+  }
+
+  private getMessageFromCacheByKey(messageKey: string) {
+    const messages = this.cacheCurrentMessages;
+
+    for (const message of messages) {
+      if (message.key === messageKey) {
+        return message;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -703,7 +726,7 @@ export class Channel implements BaseChannel {
    */
   public onMessageReceived(callback: (message: ChatMessage) => void): void {
     try {
-      this.initReactions();
+      this.initReactionsListeners();
       this.registerMessageModificationCallback((newMessage) => {
         if (this.cacheCurrentMessages.some((message) => newMessage.key === message.key)) {
           return;
@@ -815,7 +838,6 @@ export class Channel implements BaseChannel {
     }
 
     if (typeof this.messageModificationListenerUnsubscribe === 'function') {
-      console.log('unsubscribe', this.messageModificationListenerUnsubscribe);
       this.messageModificationListenerUnsubscribe();
       this.messageModificationListenerUnsubscribe = null;
     }
