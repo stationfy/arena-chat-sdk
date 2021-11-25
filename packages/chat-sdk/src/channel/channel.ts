@@ -415,10 +415,6 @@ export class Channel implements BaseChannel {
    */
   private updateCacheCurrentMessages(messages: ChatMessage[]): void {
     this.cacheCurrentMessages = messages;
-
-    // this.reactionsAPI.fetchChannelReactions().then((channelReactions) => {
-    //   this.updateCacheMessageReactions(channelReactions, true);
-    // });
   }
 
   /**
@@ -444,7 +440,7 @@ export class Channel implements BaseChannel {
     }
   }
 
-  private fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
+  private async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
     const realtimeAPI = RealtimeAPI.getInstance();
 
     return realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);

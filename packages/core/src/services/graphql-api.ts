@@ -1,6 +1,8 @@
 import { gql } from 'graphql-request';
 import { ExternalUser, Site, Status } from '@arena-im/chat-types';
-import { GraphQLTransport, User, UserObservable, OrganizationSite } from '@arena-im/core';
+import { GraphQLTransport } from '../transports';
+import { User, UserObservable } from '../auth';
+import { OrganizationSite } from '../organization';
 import { DEFAULT_AUTH_TOKEN } from '../config';
 
 export class GraphQLAPI {
