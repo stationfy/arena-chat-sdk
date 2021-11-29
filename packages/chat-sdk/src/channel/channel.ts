@@ -34,7 +34,7 @@ import { isEqualReactions } from '../utils/is';
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
   private cacheCurrentMessages: ChatMessage[] = [];
-  private cacheUserReactions: { [key: string]: ServerReaction } = {};
+  private cacheUserReactions: { [key: string]: ServerReaction[] } = {};
   private cacheChannelReactions: { [key: string]: ChannelReaction } = {};
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListenerUnsubscribe: (() => void) | null = null;
@@ -472,10 +472,13 @@ export class Channel implements BaseChannel {
   }
 
   private getUserReactionsMap(userReactions: ServerReaction[]) {
-    const map: { [messageId: string]: ServerReaction } = {};
+    const map: { [messageId: string]: ServerReaction[] } = {};
 
     for (const userReaction of userReactions) {
-      map[userReaction.itemId] = userReaction;
+      if (!map[userReaction.itemId]) {
+        map[userReaction.itemId] = [];
+      }
+      map[userReaction.itemId].push(userReaction);
     }
 
     return map;
@@ -498,7 +501,7 @@ export class Channel implements BaseChannel {
       channelReactionsMap,
     }: {
       userReactionsMap: {
-        [messageKey: string]: ServerReaction;
+        [messageKey: string]: ServerReaction[];
       };
       channelReactionsMap: {
         [messageKey: string]: ChannelReaction;
@@ -509,24 +512,7 @@ export class Channel implements BaseChannel {
     const updatedMessages: ChatMessage[] = [];
 
     for (const message of messages) {
-      const userReaction = userReactionsMap[message.key];
-      let isMessageUpdated = false;
-      if (userReaction && (!message.currentUserReactions || !message.currentUserReactions[userReaction.reaction])) {
-        if (!message.currentUserReactions) {
-          message.currentUserReactions = {};
-        }
-
-        isMessageUpdated = true;
-        message.currentUserReactions[userReaction.reaction] = true;
-      }
-
-      const channelReaction = channelReactionsMap[message.key];
-      if (channelReaction && (!message.reactions || !isEqualReactions(channelReaction.reactions, message.reactions))) {
-        isMessageUpdated = true;
-        message.reactions = channelReaction.reactions;
-      }
-
-      if (isMessageUpdated) {
+      if (this.updateMessageWithReactions(message, userReactionsMap, channelReactionsMap)) {
         updatedMessages.push(message);
       }
     }
@@ -536,6 +522,45 @@ export class Channel implements BaseChannel {
     }
 
     return messages;
+  }
+
+  private updateMessageWithReactions(
+    message: ChatMessage,
+    userReactionsMap?: {
+      [messageKey: string]: ServerReaction[];
+    },
+    channelReactionsMap?: {
+      [messageKey: string]: ChannelReaction;
+    },
+  ) {
+    let isMessageUpdated = false;
+
+    if (userReactionsMap) {
+      const userReactions = userReactionsMap[message.key];
+      if (userReactions) {
+        for (const userReaction of userReactions) {
+          if (!message.currentUserReactions || !message.currentUserReactions[userReaction.reaction]) {
+            if (!message.currentUserReactions) {
+              message.currentUserReactions = {};
+            }
+
+            isMessageUpdated = true;
+            message.currentUserReactions[userReaction.reaction] = true;
+          }
+        }
+      }
+    }
+
+    if (channelReactionsMap) {
+      const channelReaction = channelReactionsMap[message.key];
+
+      if (channelReaction && (!message.reactions || !isEqualReactions(channelReaction.reactions, message.reactions))) {
+        isMessageUpdated = true;
+        message.reactions = channelReaction.reactions;
+      }
+    }
+
+    return isMessageUpdated ? message : null;
   }
 
   /**
@@ -618,6 +643,12 @@ export class Channel implements BaseChannel {
   private updateUserReactionsCachedWithSendReaction(userReaction: ServerReaction) {
     const message = this.getMessageFromCacheByKey(userReaction.itemId);
 
+    if (!this.cacheUserReactions[userReaction.itemId]) {
+      this.cacheUserReactions[userReaction.itemId] = [];
+    }
+
+    this.cacheUserReactions[userReaction.itemId].push(userReaction);
+
     if (
       message &&
       userReaction &&
@@ -626,6 +657,12 @@ export class Channel implements BaseChannel {
       if (!message.currentUserReactions) {
         message.currentUserReactions = {};
       }
+
+      if (!message.reactions) {
+        message.reactions = {};
+      }
+
+      message.reactions[userReaction.reaction] = (message.reactions[userReaction.reaction] ?? 0) + 1;
 
       message.currentUserReactions[userReaction.reaction] = true;
 
@@ -871,7 +908,10 @@ export class Channel implements BaseChannel {
           return;
         }
 
-        this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
+        this.messageModificationCallbacks[message.changeType].forEach((callback) => {
+          this.updateMessageWithReactions(message, this.cacheUserReactions, this.cacheChannelReactions);
+          callback(message);
+        });
       },
     );
   }
