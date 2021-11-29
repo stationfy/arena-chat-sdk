@@ -36,6 +36,14 @@ jest.mock('@services/realtime-api', () => ({
 
 const createReactionSpy = jest.fn();
 
+const reactionsAPIMock = {
+  fetchUserReactions: () => [],
+  fetchChannelReactions: () => [],
+  watchUserReactions: jest.fn(),
+  watchChannelReactions: jest.fn(),
+  createReaction: createReactionSpy,
+};
+
 jest.mock('@arena-im/core', () => ({
   User: {
     instance: {
@@ -57,13 +65,11 @@ jest.mock('@arena-im/core', () => ({
       offAllListeners: jest.fn(),
     }),
   },
-  ReactionsAPI: {
-    getInstance: () => ({
-      retrieveUserReactions: jest.fn(),
-      watchChannelReactions: jest.fn(),
-      offAllListeners: jest.fn(),
-      createReaction: createReactionSpy,
-    }),
+  ReactionsAPIWS: {
+    getInstance: () => reactionsAPIMock,
+  },
+  ReactionsAPIFirestore: {
+    getInstance: () => reactionsAPIMock,
   },
   LocalStorageAPI: {},
 }));

@@ -1,4 +1,4 @@
-import { ReactionsAPI } from '@services/reactions-api';
+import { ReactionsAPIWS } from '@services/reactions-api-ws';
 import { WebSocketTransport } from '@transports/websocket-transport';
 import { ServerReaction } from '@arena-im/chat-types';
 
@@ -14,26 +14,20 @@ jest.mock('@transports/websocket-transport', () => ({
 const channelId = '1';
 
 test('should validate getInstance method', () => {
-  const instance = ReactionsAPI.getInstance(channelId);
+  const instance = ReactionsAPIWS.getInstance(channelId);
 
-  expect(instance).toBeInstanceOf(ReactionsAPI);
+  expect(instance).toBeInstanceOf(ReactionsAPIWS);
 });
 
 test('should validate createReaction method', () => {
-  ReactionsAPI.getInstance(channelId).createReaction({} as ServerReaction);
+  ReactionsAPIWS.getInstance(channelId).createReaction({} as ServerReaction);
 
   expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('reaction.create', {});
 });
 
-test('should validate retrieveUserReactions method', () => {
-  ReactionsAPI.getInstance(channelId).retrieveUserReactions();
-
-  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('reaction.retrieve', {}, expect.any(Function));
-});
-
 test('should validate watchChannelReactions method', () => {
   const callback = jest.fn();
-  ReactionsAPI.getInstance(channelId).watchChannelReactions(callback);
+  ReactionsAPIWS.getInstance(channelId).watchChannelReactions(callback);
 
   expect(callback).not.toHaveBeenCalled();
 });

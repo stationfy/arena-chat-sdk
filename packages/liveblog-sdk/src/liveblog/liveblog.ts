@@ -1,12 +1,12 @@
 import { ChannelReaction, ILiveblogInfo, ServerReaction } from '@arena-im/chat-types';
-import { Credentials, PresenceAPI, ReactionsAPI } from '@arena-im/core';
+import { BaseReactionsAPI, Credentials, PresenceAPI, ReactionsAPIWS } from '@arena-im/core';
 import { BaseLiveBlog } from '../../../types/dist/liveblog';
 import { RestAPI } from '../services/rest-api';
 
 export class Liveblog implements BaseLiveBlog {
   private static instance: Promise<Liveblog>;
   private presenceAPI!: PresenceAPI;
-  private reactionsAPI!: ReactionsAPI;
+  private reactionsAPI!: BaseReactionsAPI;
 
   private constructor(private readonly liveblogInfo: ILiveblogInfo) {
     this.initPresence();
@@ -23,9 +23,13 @@ export class Liveblog implements BaseLiveBlog {
   }
 
   private initPresence() {
-    this.reactionsAPI = ReactionsAPI.getInstance(this.liveblogInfo.key);
+    this.reactionsAPI = this.getReactionsAPIInstance();
     this.presenceAPI = PresenceAPI.getInstance(this.liveblogInfo.siteId, this.liveblogInfo.key, 'liveblog');
     this.presenceAPI.joinUser();
+  }
+
+  private getReactionsAPIInstance(): BaseReactionsAPI {
+    return ReactionsAPIWS.getInstance(this.liveblogInfo.key);
   }
 
   private static async fetchLiveblogInfo(slug: string): Promise<ILiveblogInfo> {
@@ -60,7 +64,6 @@ export class Liveblog implements BaseLiveBlog {
   }
 
   public sendReaction(reaction: ServerReaction): void {
-    const reactionsAPI = ReactionsAPI.getInstance(this.liveblogInfo.key);
-    reactionsAPI.createReaction(reaction);
+    this.reactionsAPI.createReaction(reaction);
   }
 }

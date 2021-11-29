@@ -1,0 +1,64 @@
+import { gql } from 'graphql-request';
+import { ExternalUser, Site, Status } from '@arena-im/chat-types';
+import { GraphQLTransport } from '../transports';
+import { User, UserObservable } from '../auth';
+import { OrganizationSite } from '../organization';
+import { DEFAULT_AUTH_TOKEN } from '../config';
+
+export class GraphQLAPI {
+  private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;
+  private transport: GraphQLTransport;
+
+  private constructor(site: Site) {
+    const user = User.instance.data;
+
+    this.transport = new GraphQLTransport(user?.token || DEFAULT_AUTH_TOKEN, site._id, site.settings.graphqlPubApiKey);
+
+    UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
+  }
+
+  public static get instance(): Promise<GraphQLAPI> {
+    if (!GraphQLAPI.graphQLAPIInstance) {
+      GraphQLAPI.graphQLAPIInstance = OrganizationSite.instance.getSite().then((site) => {
+        return new GraphQLAPI(site);
+      });
+    }
+
+    return GraphQLAPI.graphQLAPIInstance;
+  }
+
+  public static cleanInstance(): void {
+    GraphQLAPI.graphQLAPIInstance = undefined;
+  }
+
+  private handleUserChange(user: ExternalUser | null) {
+    const token = user?.token || DEFAULT_AUTH_TOKEN;
+
+    this.transport.setToken(token);
+  }
+
+  public async pollVote({
+    pollId,
+    userId,
+    optionId,
+  }: {
+    pollId: string;
+    userId: string;
+    optionId: number;
+  }): Promise<boolean> {
+    const mutation = gql`
+      mutation pollVote($input: PollVoteInput!) {
+        pollVote(input: $input)
+      }
+    `;
+    const data = await this.transport.client.request(mutation, { input: { pollId, userId, optionId } });
+
+    const result = data.pollVote as boolean;
+
+    if (!result) {
+      throw new Error(Status.Failed);
+    }
+
+    return result;
+  }
+}
