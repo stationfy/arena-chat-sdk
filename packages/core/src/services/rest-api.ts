@@ -1,4 +1,11 @@
-import { ProviderUser, ExternalUser, SSOExchangeResult, Site } from '@arena-im/chat-types';
+import {
+  ProviderUser,
+  ExternalUser,
+  SSOExchangeResult,
+  Site,
+  ServerReaction,
+  SendReactionResult,
+} from '@arena-im/chat-types';
 import { FetchTransport, XHRTransport } from '../transports';
 import { BaseTransport, BaseRestOptions } from '../interfaces';
 import { supportsFetch } from '../utils/supports';
@@ -114,6 +121,15 @@ export class RestAPI {
   public loadViewerCountry(): PromiseLike<string> {
     return this.transport.get<{ country: string }>('/viewercountry').then((data) => {
       return data.country;
+    });
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public sendReaction(reaction: ServerReaction): PromiseLike<string> {
+    return this.transport.post<SendReactionResult, ServerReaction>('/data/reactions', reaction).then((data) => {
+      return data.result;
     });
   }
 }

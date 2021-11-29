@@ -9,7 +9,7 @@ import {
   ExternalUser,
   PresenceInfo,
 } from '@arena-im/chat-types';
-import { Credentials, PresenceAPI, ReactionsAPI } from '@arena-im/core';
+import { Credentials, PresenceAPI } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
@@ -28,7 +28,6 @@ export class LiveChat implements BaseLiveChat {
   }
 
   private initPresence(siteId: string) {
-    ReactionsAPI.getInstance(this.chatRoom._id);
     this.presenceAPI = PresenceAPI.getInstance(siteId, this.chatRoom._id, 'chat_room');
     this.presenceAPI.joinUser();
   }

@@ -42,3 +42,20 @@ export function isPlainObject(wat: any): boolean {
 export function isThenable(wat: any): boolean {
   return Boolean(wat && wat.then && typeof wat.then === 'function');
 }
+
+export function isEqualReactions(reactionA: { [key: string]: number }, reactionB: { [key: string]: number }): boolean {
+  const reactionAKeys = Object.keys(reactionA);
+  const reactionBKeys = Object.keys(reactionB);
+
+  if (reactionAKeys.length !== reactionBKeys.length) {
+    return false;
+  }
+
+  for (const key of reactionAKeys) {
+    if (reactionA[key] !== reactionB[key]) {
+      return false;
+    }
+  }
+
+  return true;
+}

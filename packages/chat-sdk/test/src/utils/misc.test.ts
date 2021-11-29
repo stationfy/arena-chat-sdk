@@ -3,6 +3,7 @@ import { getGlobalObject, getRequestURL } from '@utils/misc';
 describe('getGlobalObject()', () => {
   test('should return the same object', () => {
     const backup = global.process;
+    // @ts-expect-error
     delete global.process;
     const first = getGlobalObject();
     const second = getGlobalObject();

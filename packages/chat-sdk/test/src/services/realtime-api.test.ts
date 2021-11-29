@@ -1,14 +1,5 @@
 import { RealtimeAPI } from '@services/realtime-api';
-import {
-  ChatMessage,
-  ServerReaction,
-  ExternalUser,
-  QnaQuestion,
-  QnaQuestionFilter,
-  PollFilter,
-  Poll,
-  LiveChatChannel,
-} from '@arena-im/chat-types';
+import { ChatMessage, QnaQuestion, QnaQuestionFilter, PollFilter, Poll, LiveChatChannel } from '@arena-im/chat-types';
 import { FirestoreAPI } from '@arena-im/core';
 
 import {
@@ -61,40 +52,6 @@ describe('RealtimeAPI', () => {
         },
         20,
       );
-    });
-  });
-
-  describe('listenToUserReactions()', () => {
-    it('should call the callback function with a list of reactions', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
-
-      // @ts-ignore
-      FirestoreAPI.listenToCollectionChange.mockImplementation((_, callback) => {
-        const reaction: ServerReaction = {
-          itemType: 'chatMessage',
-          reaction: 'love',
-          publisherId: 'fake-site-id',
-          itemId: 'fake-message-key',
-          chatRoomId: 'fake-chat-room-key',
-          userId: 'fake-user-uid',
-        };
-
-        const reactions: ServerReaction[] = new Array(20).fill(reaction);
-
-        callback(reactions);
-      });
-
-      const user: ExternalUser = {
-        id: 'fake-user',
-        name: 'Face user',
-        image: 'https://www.google.com',
-      };
-
-      realtimeAPI.listenToUserReactionsOld('my-channel', user, (reactions: ServerReaction[]) => {
-        expect(reactions.length).toBe(20);
-
-        done();
-      });
     });
   });
 
@@ -327,53 +284,6 @@ describe('RealtimeAPI', () => {
           key: 'fake-key-1',
         },
       ]);
-    });
-  });
-
-  describe('sendReaction()', () => {
-    it('should react to a message', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
-
-      const reaction: ServerReaction = {
-        itemType: 'chatMessage',
-        reaction: 'love',
-        publisherId: 'fake-site-id',
-        itemId: 'fake-message-key',
-        chatRoomId: 'fake-chat-room-key',
-        userId: 'fake-user-uid',
-      };
-
-      // @ts-ignore
-      FirestoreAPI.addItem.mockImplementation(async () => {
-        return;
-      });
-
-      realtimeAPI.sendReaction(reaction).then(() => {
-        done();
-      });
-    });
-
-    it('should handle a react error', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
-
-      const reaction: ServerReaction = {
-        itemType: 'chatMessage',
-        reaction: 'love',
-        publisherId: 'fake-site-id',
-        itemId: 'fake-message-key',
-        chatRoomId: 'fake-chat-room-key',
-        userId: 'fake-user-uid',
-      };
-
-      // @ts-ignore
-      FirestoreAPI.addItem.mockImplementation(async () => {
-        throw new Error('cannot set this doc');
-      });
-
-      realtimeAPI.sendReaction(reaction).catch((e) => {
-        expect(e.message).toEqual('failed');
-        done();
-      });
     });
   });
 

@@ -1,14 +1,23 @@
 import { Socket } from 'socket.io-client';
 import { createObserver } from '../utils/observer';
-import { ServerReaction, ChannelReaction } from '../../../types/dist';
+import { ServerReaction, ChannelReaction } from '@arena-im/chat-types';
 import { WebSocketTransport } from '../transports/websocket-transport';
 import { PresenceObservable } from './presence-observable';
+import { BaseReactionsAPI } from '../interfaces';
 
 type Instance = {
-  [key: string]: ReactionsAPI;
+  [key: string]: ReactionsAPIWS;
 };
 
-export class ReactionsAPI {
+const EVENT_TYPES = {
+  REACTION_CREATE: 'reaction.create',
+  REACTION_RETRIEVE: 'reaction.retrieve',
+  REACTION_CHANNEL: 'reaction.channel',
+  REACTION_USER: 'reaction.user',
+  REACTION_CHANNEL_RETRIEVE: 'reaction.channel.retrieve',
+};
+
+export class ReactionsAPIWS implements BaseReactionsAPI {
   private static instance: Instance = {};
   private cachedUserReactions: ServerReaction[] | null = null;
   private cachedChannelReactions: ChannelReaction[] | null = null;
@@ -16,7 +25,7 @@ export class ReactionsAPI {
   private channelReactionsListeners = createObserver<ChannelReaction[]>();
   private webSocketTransport: Socket;
 
-  constructor(channelId: string) {
+  private constructor(channelId: string) {
     this.webSocketTransport = WebSocketTransport.getInstance(channelId);
 
     PresenceObservable.getInstance(channelId).onUserJoinedChanged(this.onPresenceChanged.bind(this));
@@ -25,9 +34,9 @@ export class ReactionsAPI {
     this.watchChannelReactionsEvent();
   }
 
-  public static getInstance(channelId: string): ReactionsAPI {
+  public static getInstance(channelId: string): ReactionsAPIWS {
     if (!this.instance[channelId]) {
-      this.instance[channelId] = new ReactionsAPI(channelId);
+      this.instance[channelId] = new ReactionsAPIWS(channelId);
     }
 
     return this.instance[channelId];
@@ -39,16 +48,16 @@ export class ReactionsAPI {
     });
   }
 
-  public createReaction(reaction: ServerReaction): void {
-    this.webSocketTransport.emit('reaction.create', reaction);
+  public async createReaction(reaction: ServerReaction): Promise<void> {
+    this.webSocketTransport.emit(EVENT_TYPES.REACTION_CREATE, reaction);
   }
 
-  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
+  public watchUserReactions(callback: (reactions: ServerReaction[]) => void): () => void {
     if (this.cachedUserReactions) {
       callback(this.cachedUserReactions);
     }
 
-    this.userReactionsListeners.subscribe(callback);
+    return this.userReactionsListeners.subscribe(callback);
   }
 
   public async fetchUserReactions(): Promise<ServerReaction[]> {
@@ -62,10 +71,10 @@ export class ReactionsAPI {
     }
   }
 
-  public retrieveUserReactions(): Promise<ServerReaction[]> {
+  private retrieveUserReactions(): Promise<ServerReaction[]> {
     return new Promise((resolve, reject) => {
       this.webSocketTransport.emit(
-        'reaction.retrieve',
+        EVENT_TYPES.REACTION_RETRIEVE,
         {},
         (err: Record<string, unknown> | null, data: ServerReaction[]) => {
           if (err) {
@@ -78,16 +87,32 @@ export class ReactionsAPI {
     });
   }
 
-  public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): void {
+  public fetchChannelReactions(): Promise<ChannelReaction[]> {
+    return new Promise((resolve, reject) => {
+      this.webSocketTransport.emit(
+        EVENT_TYPES.REACTION_CHANNEL_RETRIEVE,
+        {},
+        (err: Record<string, unknown> | null, data: ChannelReaction[]) => {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve(data);
+        },
+      );
+    });
+  }
+
+  public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): () => void {
     if (this.cachedChannelReactions) {
       callback(this.cachedChannelReactions);
     }
 
-    this.channelReactionsListeners.subscribe(callback);
+    return this.channelReactionsListeners.subscribe(callback);
   }
 
   private watchChannelReactionsEvent(): void {
-    this.webSocketTransport.on('reaction.channel', (reactions: ChannelReaction[]) => {
+    this.webSocketTransport.on(EVENT_TYPES.REACTION_CHANNEL, (reactions: ChannelReaction[]) => {
       this.cachedChannelReactions = reactions;
 
       this.channelReactionsListeners.publish(reactions);
@@ -95,8 +120,8 @@ export class ReactionsAPI {
   }
 
   public offAllListeners(): void {
-    this.webSocketTransport.off('reaction.create');
-    this.webSocketTransport.off('reaction.user');
-    this.webSocketTransport.off('reaction.channel');
+    this.webSocketTransport.off(EVENT_TYPES.REACTION_CREATE);
+    this.webSocketTransport.off(EVENT_TYPES.REACTION_USER);
+    this.webSocketTransport.off(EVENT_TYPES.REACTION_CHANNEL);
   }
 }

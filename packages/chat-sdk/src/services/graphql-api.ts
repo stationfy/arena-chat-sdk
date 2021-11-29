@@ -15,6 +15,7 @@ import {
   PageRequest,
   CreatePollInput,
   Poll,
+  ChatMessageToSend,
 } from '@arena-im/chat-types';
 import { GraphQLTransport, User, UserObservable, OrganizationSite } from '@arena-im/core';
 import { DEFAULT_AUTH_TOKEN } from '../config';
@@ -685,7 +686,7 @@ export class GraphQLAPI {
     return result;
   }
 
-  public async sendMessaToChannel(input: ChatMessage): Promise<string> {
+  public async sendMessaToChannel(input: ChatMessageToSend): Promise<string> {
     const mutation = gql`
       mutation sendMessage($input: SendMessageInput!) {
         sendMessage(input: $input)

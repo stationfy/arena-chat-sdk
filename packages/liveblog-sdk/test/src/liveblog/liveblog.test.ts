@@ -22,7 +22,12 @@ jest.mock('@arena-im/core', () => ({
   Credentials: {
     apiKey: 'api_1',
   },
-  ReactionsAPI: {
+  ReactionsAPIWS: {
+    getInstance: () => ({
+      watchUserReactions: mockWatchUserReactions,
+    }),
+  },
+  ReactionsAPIFirestore: {
     getInstance: () => ({
       watchUserReactions: mockWatchUserReactions,
     }),
