@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/chat-sdk",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "arena-chat-sdk is the official JavaScript client for Arena Chat, a service for building chat applications.",
   "author": "Arena",
   "license": "ISC",
@@ -18,8 +18,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^2.3.1",
-    "@arena-im/core": "^2.3.1"
+    "@arena-im/chat-types": "^2.4.0",
+    "@arena-im/core": "^2.4.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^19.0.0",
