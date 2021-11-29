@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 2.4.0 (2021-11-29)
+
+
+### Features
+
+* add reactions within messsages ([78ab7b3](https://github.com/stationfy/arena-sdk/commit/78ab7b3232fdd5ed694266b5c07e8b71a453bee8))
+
+
+
+
+
 ## 2.3.2 (2021-11-10)
 
 
