@@ -2,18 +2,25 @@ import { ExternalUser } from '@arena-im/chat-types';
 import { RestAPI } from '../services/rest-api';
 import { Credentials } from './credentials';
 import { UserObservable } from './user-observable';
-import { LocalStorageAPI } from '../services/local-storage-api';
+import { StorageAPI } from '../services/storage-api';
+import { ARENA_URL } from '../config';
+import { getGlobalObject } from '../utils/misc';
 
 const userCountryCacheKey = 'arenaUserCountry';
+
+const ARENA_HUB_ANONYMOUS_ID = 'arena_hub_anonymous_id';
+const ASK_ARENA_HUB_ANONYMOUS_ID = 'ask_arena_hub_anonymous_id';
 
 export class User {
   private static userInstance: User;
   public data: ExternalUser | null = null;
-  public anonymousId = `${+new Date()}`;
-  private localStorage: LocalStorageAPI;
+  private anonymousIdValue = `${+new Date()}`;
+  private localStorage: StorageAPI;
+  private global = getGlobalObject<Window>();
 
   private constructor() {
-    this.localStorage = new LocalStorageAPI();
+    this.localStorage = new StorageAPI();
+    this.generateTrackIframe();
   }
 
   public static get instance(): User {
@@ -101,5 +108,61 @@ export class User {
     this.cacheCountry = country;
 
     return country;
+  }
+
+  public get anonymousId(): string {
+    return this.anonymousIdValue;
+  }
+
+  public set anonymousId(value: string) {
+    this.anonymousIdValue = value;
+  }
+
+  private generateTrackIframe() {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const url = ARENA_URL;
+
+    this.global.addEventListener(
+      'message',
+      (event) => {
+        if (event.origin === url && event.data.type === ARENA_HUB_ANONYMOUS_ID) {
+          this.anonymousId = event.data.value;
+        }
+      },
+      false,
+    );
+
+    this.askHubFrameForAnonymousId();
+  }
+
+  private askHubFrameForAnonymousId() {
+    // check whether track frame already exists
+    const arenaHubFrame = this.global.document.querySelector('[name="arena-hub-frame"]') as HTMLIFrameElement;
+
+    if (arenaHubFrame) {
+      arenaHubFrame.contentWindow?.postMessage({ type: ASK_ARENA_HUB_ANONYMOUS_ID }, '*');
+    } else {
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        this.createArenaHubIframe();
+      }
+
+      this.global.addEventListener('DOMContentLoaded', () => {
+        this.createArenaHubIframe();
+      });
+    }
+  }
+
+  private createArenaHubIframe() {
+    const url = ARENA_URL;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = url + '/arenahubframe';
+    iframe.name = 'arena-hub-frame';
+
+    document.body.appendChild(iframe);
   }
 }

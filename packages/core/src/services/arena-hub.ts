@@ -1,5 +1,6 @@
 import { ChatRoom, TrackPayload, EventMap } from '@arena-im/chat-types';
-import { User, OrganizationSite } from '@arena-im/core';
+import { OrganizationSite } from '../organization';
+import { User } from '../auth';
 import { getGlobalObject } from '../utils/misc';
 import { RestAPI } from './rest-api';
 

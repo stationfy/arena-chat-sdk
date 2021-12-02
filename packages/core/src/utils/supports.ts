@@ -30,3 +30,13 @@ export function supportsFetch(): boolean {
 export function supportsLocalStorage(): boolean {
   return 'localStorage' in getGlobalObject<Window>();
 }
+
+/**
+ * Tells whether current enviroment supports Cookies
+ * {@link supportsCookies}
+ *
+ * @returns Answer to the given question.
+ */
+export function supportsCookies(): boolean {
+  return !!getGlobalObject<Window>()?.navigator?.cookieEnabled;
+}

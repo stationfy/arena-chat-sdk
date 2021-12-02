@@ -609,7 +609,7 @@ export class Channel implements BaseChannel {
    *
    */
   public async sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser = false): Promise<void> {
-    const userId = User.instance.data?.id || anonymousId;
+    const userId = User.instance.data?.id || anonymousId || User.instance.anonymousId;
 
     if (typeof userId === 'undefined') {
       throw new Error('Cannot react to a message without a user');

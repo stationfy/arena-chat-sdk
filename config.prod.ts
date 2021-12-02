@@ -7,3 +7,4 @@ export const FIREBASE_AUTHDOMAIN = 'arena-im-prd.firebaseapp.com';
 export const FIREBASE_PROJECT_ID = 'arena-im-prd';
 export const GRAPHQL_ENDPOINT = 'https://svwasfrojfhtvajv3re6mulzse.appsync-api.us-west-2.amazonaws.com/graphql';
 export const ARENA_REALTIME_URL = 'https://realtime.arena.im';
+export const ARENA_URL = 'https://go.arena.im';

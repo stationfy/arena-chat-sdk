@@ -5,6 +5,7 @@ import {
   Site,
   ServerReaction,
   SendReactionResult,
+  TrackPayload,
 } from '@arena-im/chat-types';
 import { FetchTransport, XHRTransport } from '../transports';
 import { BaseTransport, BaseRestOptions } from '../interfaces';
@@ -131,5 +132,12 @@ export class RestAPI {
     return this.transport.post<SendReactionResult, ServerReaction>('/data/reactions', reaction).then((data) => {
       return data.result;
     });
+  }
+
+  /**
+   * @inheritdoc
+   */
+  public collect(trackObj: TrackPayload): PromiseLike<{ success: boolean }> {
+    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, trackObj);
   }
 }
