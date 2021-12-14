@@ -425,6 +425,8 @@ export class Channel implements BaseChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
+      this.totalLimit = null;
+
       const [loadedMessages, reactions] = await Promise.all([this.fetchRecentMessages(limit), this.fetchReactions()]);
 
       const messages = this.mergeMessagesAndReactions(loadedMessages, reactions, true);
