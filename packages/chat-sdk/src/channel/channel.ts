@@ -43,7 +43,8 @@ export class Channel implements BaseChannel {
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
   private reactionsAPI: BaseReactionsAPI;
-  private fetchPreviousMessagesPromise: Promise<ChatMessage[]> | null = null;
+  private fetchPreviousMessagesPromise = false;
+  private totalLimit: number | null = null;
 
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
@@ -441,9 +442,11 @@ export class Channel implements BaseChannel {
   }
 
   private async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
-    const realtimeAPI = RealtimeAPI.getInstance();
-
-    return realtimeAPI.fetchRecentMessages(this.channel.dataPath, limit);
+    return new Promise((resolve) => {
+      this.listenToAllTypeMessageModification((messages) => {
+        resolve(messages);
+      }, limit);
+    });
   }
 
   private async fetchReactions() {
@@ -569,9 +572,11 @@ export class Channel implements BaseChannel {
    * @param limit number of previous messages
    */
   public async loadPreviousMessages(limit?: number): Promise<ChatMessage[]> {
-    if (this.fetchPreviousMessagesPromise !== null) {
+    if (this.fetchPreviousMessagesPromise) {
       throw new Error('Another request is already in progress');
     }
+
+    this.fetchPreviousMessagesPromise = true;
 
     if (!this.cacheCurrentMessages.length) {
       return [];
@@ -580,25 +585,39 @@ export class Channel implements BaseChannel {
     try {
       const firstMessage = this.cacheCurrentMessages[0];
 
-      const realtimeAPI = RealtimeAPI.getInstance();
-      this.fetchPreviousMessagesPromise = realtimeAPI.fetchPreviousMessages(this.channel.dataPath, firstMessage, limit);
+      if (this.messageModificationListenerUnsubscribe !== null) {
+        this.messageModificationListenerUnsubscribe();
+        this.messageModificationListenerUnsubscribe = null;
+      }
 
-      const previousMessages = await this.fetchPreviousMessagesPromise;
+      return new Promise((resolve) => {
+        this.listenToAllTypeMessageModification((messages) => {
+          const previousMessages: ChatMessage[] = [];
 
-      const nextMessages = this.mergeMessagesAndReactions(
-        previousMessages,
-        {
-          userReactionsMap: this.cacheUserReactions,
-          channelReactionsMap: this.cacheChannelReactions,
-        },
-        true,
-      );
+          for (const message of messages) {
+            if (message.key === firstMessage.key) {
+              break;
+            }
 
-      this.updateCacheCurrentMessages(nextMessages.concat(this.cacheCurrentMessages));
+            previousMessages.push(message);
+          }
 
-      this.fetchPreviousMessagesPromise = null;
+          const nextMessages = this.mergeMessagesAndReactions(
+            previousMessages,
+            {
+              userReactionsMap: this.cacheUserReactions,
+              channelReactionsMap: this.cacheChannelReactions,
+            },
+            true,
+          );
 
-      return nextMessages;
+          this.updateCacheCurrentMessages(nextMessages.concat(this.cacheCurrentMessages));
+
+          this.fetchPreviousMessagesPromise = false;
+
+          resolve(nextMessages);
+        }, limit);
+      });
     } catch (e) {
       throw new Error(`Cannot load previous messages on "${this.channel._id}" channel.`);
     }
@@ -894,9 +913,15 @@ export class Channel implements BaseChannel {
    * Listen to all type message modification
    *
    */
-  private listenToAllTypeMessageModification() {
+  private listenToAllTypeMessageModification(callback?: (initialMessages: ChatMessage[]) => void, limit?: number) {
     if (this.messageModificationListenerUnsubscribe !== null) {
       return;
+    }
+
+    if (this.totalLimit === null && limit) {
+      this.totalLimit = limit;
+    } else if (this.totalLimit && limit) {
+      this.totalLimit = this.totalLimit + limit;
     }
 
     const realtimeAPI = RealtimeAPI.getInstance();
@@ -908,11 +933,14 @@ export class Channel implements BaseChannel {
           return;
         }
 
-        this.messageModificationCallbacks[message.changeType].forEach((callback) => {
-          this.updateMessageWithReactions(message, this.cacheUserReactions, this.cacheChannelReactions);
-          callback(message);
+        this.updateMessageWithReactions(message, this.cacheUserReactions, this.cacheChannelReactions);
+
+        this.messageModificationCallbacks[message.changeType].forEach((messageModificationCallback) => {
+          messageModificationCallback(message);
         });
       },
+      callback,
+      this.totalLimit ?? undefined,
     );
   }
 

@@ -1,6 +1,7 @@
 import { RealtimeAPI } from '@services/realtime-api';
 import { ChatMessage, QnaQuestion, QnaQuestionFilter, PollFilter, Poll, LiveChatChannel } from '@arena-im/chat-types';
 import { FirestoreAPI } from '@arena-im/core';
+import { DocumentData, DocumentChange } from 'firebase/firestore';
 
 import {
   exampleChatMessage,
@@ -142,9 +143,20 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
-        callback(exampleChatMessage);
-      });
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation(
+        (_: string, callback: (changes: DocumentChange<DocumentData>[]) => void) => {
+          callback([]);
+          callback([
+            {
+              doc: {
+                data: () => exampleChatMessage,
+                // @ts-ignore
+                type: 'added',
+              },
+            },
+          ]);
+        },
+      );
 
       realtimeAPI.listenToMessageReceived(exampleLiveChatChannel.dataPath, (message: ChatMessage) => {
         expect(message.key).toEqual('fake-message');
@@ -211,9 +223,19 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (poll: Poll) => void) => {
-        callback(examplePoll);
-      });
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation(
+        (_: string, callback: (changes: DocumentChange<DocumentData>[]) => void) => {
+          callback([
+            {
+              doc: {
+                data: () => examplePoll,
+                // @ts-ignore
+                type: 'added',
+              },
+            },
+          ]);
+        },
+      );
 
       realtimeAPI.listenToPollReceived(exampleLiveChatChannel._id, (poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
@@ -228,9 +250,20 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (message: ChatMessage) => void) => {
-        callback(exampleChatMessage);
-      });
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation(
+        (_: string, callback: (changes: DocumentChange<DocumentData>[]) => void) => {
+          callback([]);
+          callback([
+            {
+              doc: {
+                data: () => exampleChatMessage,
+                // @ts-ignore
+                type: 'added',
+              },
+            },
+          ]);
+        },
+      );
 
       realtimeAPI.listenToGroupMessageReceived(exampleLiveChatChannel._id, (message: ChatMessage) => {
         expect(message.key).toEqual('fake-message');
@@ -390,9 +423,19 @@ describe('RealtimeAPI', () => {
       const realtimeAPI = RealtimeAPI.getInstance();
 
       // @ts-ignore
-      FirestoreAPI.listenToCollectionItemChange.mockImplementation((_, callback: (question: QnaQuestion) => void) => {
-        callback({ ...exampleQnaQuestion, changeType: 'added' });
-      });
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation(
+        (_, callback: (changes: DocumentChange<DocumentData>[]) => void) => {
+          callback([
+            {
+              doc: {
+                data: () => exampleQnaQuestion,
+                // @ts-ignore
+                type: 'added',
+              },
+            },
+          ]);
+        },
+      );
 
       realtimeAPI.listenToQuestionReceived('my-channel', (question: QnaQuestion) => {
         expect(question.key).toEqual('fake-qna-question');
