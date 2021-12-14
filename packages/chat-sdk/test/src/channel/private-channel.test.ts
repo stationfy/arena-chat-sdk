@@ -440,8 +440,15 @@ describe('PrivateChannel', () => {
       };
 
       const realtimeAPIInstanceMock = {
-        fetchGroupRecentMessages: () => {
-          return Promise.resolve([]);
+        listenToGroupMessageReceived: (
+          _channelId: string,
+          _callback: () => void,
+          callback: (message: ChatMessage[]) => void,
+        ) => {
+          callback([]);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -466,7 +473,11 @@ describe('PrivateChannel', () => {
       };
 
       const realtimeAPIInstanceMock = {
-        fetchGroupRecentMessages: () => {
+        listenToGroupMessageReceived: (
+          _channelId: string,
+          _callback: () => void,
+          callback: (message: ChatMessage[]) => void,
+        ) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -482,7 +493,10 @@ describe('PrivateChannel', () => {
 
           const messages: ChatMessage[] = new Array(5).fill(message);
 
-          return Promise.resolve(messages);
+          callback(messages);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -528,9 +542,53 @@ describe('PrivateChannel', () => {
 
   describe('loadPreviousMessages()', () => {
     it('should load 5 previous message', async () => {
+      // const realtimeAPIInstanceMock = {
+      //   listenToChatConfigChanges: jest.fn(),
+      //   fetchGroupRecentMessages: () => {
+      //     const message: ChatMessage = {
+      //       createdAt: 1592342151026,
+      //       key: 'fake-key',
+      //       message: {
+      //         text: 'testing',
+      //       },
+      //       publisherId: 'site-id',
+      //       sender: {
+      //         displayName: 'Test User',
+      //         photoURL: 'http://www.google.com',
+      //       },
+      //     };
+
+      //     const messages: ChatMessage[] = new Array(5).fill(message);
+
+      //     return Promise.resolve(messages);
+      //   },
+      //   fetchGroupPreviousMessages: () => {
+      //     const message: ChatMessage = {
+      //       createdAt: 1592342151026,
+      //       key: 'fake-key',
+      //       message: {
+      //         text: 'testing',
+      //       },
+      //       publisherId: 'site-id',
+      //       sender: {
+      //         displayName: 'Test User',
+      //         photoURL: 'http://www.google.com',
+      //       },
+      //     };
+
+      //     const messages: ChatMessage[] = new Array(5).fill(message);
+
+      //     return Promise.resolve(messages);
+      //   },
+      // };
+
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        fetchGroupRecentMessages: () => {
+        listenToGroupMessageReceived: (
+          _channelId: string,
+          _callback: () => void,
+          callback: (message: ChatMessage[]) => void,
+        ) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -546,25 +604,10 @@ describe('PrivateChannel', () => {
 
           const messages: ChatMessage[] = new Array(5).fill(message);
 
-          return Promise.resolve(messages);
-        },
-        fetchGroupPreviousMessages: () => {
-          const message: ChatMessage = {
-            createdAt: 1592342151026,
-            key: 'fake-key',
-            message: {
-              text: 'testing',
-            },
-            publisherId: 'site-id',
-            sender: {
-              displayName: 'Test User',
-              photoURL: 'http://www.google.com',
-            },
-          };
+          callback(messages);
 
-          const messages: ChatMessage[] = new Array(5).fill(message);
-
-          return Promise.resolve(messages);
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -620,11 +663,15 @@ describe('PrivateChannel', () => {
     it('should load 0 previous message', async () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        fetchGroupRecentMessages: () => {
-          return Promise.resolve([]);
-        },
-        fetchGroupPreviousMessages: () => {
-          return Promise.resolve([]);
+        listenToGroupMessageReceived: (
+          _channelId: string,
+          _callback: () => void,
+          callback: (message: ChatMessage[]) => void,
+        ) => {
+          callback([]);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -662,6 +709,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -700,6 +750,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -735,6 +788,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -775,6 +831,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -840,6 +899,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -875,6 +937,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -936,6 +1001,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 
@@ -974,6 +1042,9 @@ describe('PrivateChannel', () => {
           };
 
           callback(message);
+
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          return () => {};
         },
       };
 

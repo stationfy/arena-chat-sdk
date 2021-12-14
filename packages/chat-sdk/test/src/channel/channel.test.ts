@@ -392,8 +392,14 @@ describe('Channel', () => {
     it('should load recent messages empty', async () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        fetchRecentMessages: () => {
-          return Promise.resolve([]);
+        listenToMessageReceived: (
+          _: string,
+          _callback: (message: ChatMessage) => void,
+          callback: (messages: ChatMessage[]) => void,
+        ) => {
+          callback([]);
+
+          return null;
         },
       };
 
@@ -412,7 +418,11 @@ describe('Channel', () => {
     it('should load 5 recent messages', async () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        fetchRecentMessages: () => {
+        listenToMessageReceived: (
+          _: string,
+          _callback: (message: ChatMessage) => void,
+          callback: (messages: ChatMessage[]) => void,
+        ) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -428,7 +438,9 @@ describe('Channel', () => {
 
           const messages: ChatMessage[] = new Array(5).fill(message);
 
-          return Promise.resolve(messages);
+          callback(messages);
+
+          return null;
         },
       };
 
@@ -439,7 +451,7 @@ describe('Channel', () => {
 
       const channel = Channel.getInstance(exampleLiveChatChannel, exampleChatRoom);
 
-      const messages = await channel.loadRecentMessages(10);
+      const messages = await channel.loadRecentMessages(11);
 
       expect(messages.length).toEqual(5);
     });
@@ -544,6 +556,8 @@ describe('Channel', () => {
           };
 
           callback(message);
+
+          return null;
         },
       };
 
@@ -583,6 +597,8 @@ describe('Channel', () => {
           };
 
           callback(message);
+
+          return null;
         },
       };
 
@@ -621,6 +637,8 @@ describe('Channel', () => {
           };
 
           callback(message);
+
+          return null;
         },
       };
 
@@ -684,6 +702,9 @@ describe('Channel', () => {
             };
 
             callback(message);
+
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            return () => {};
           },
         };
       });

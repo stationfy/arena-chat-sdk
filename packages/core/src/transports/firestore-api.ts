@@ -16,6 +16,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  DocumentChange,
 } from 'firebase/firestore';
 import { SyncPromise } from '../utils/syncpromise';
 import { FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_PROJECT_ID } from '../config';
@@ -71,6 +72,8 @@ export function listenToCollectionChange(
 
   if (listenChangeConfig.limit) {
     contraints.push(limit(listenChangeConfig.limit));
+  } else {
+    contraints.push(limit(1));
   }
 
   if (listenChangeConfig.where) {
@@ -166,6 +169,8 @@ export function fetchCollectionItems(listenChangeConfig: ListenChangeConfig): Pr
 
     if (listenChangeConfig.limit) {
       contraints.push(limit(listenChangeConfig.limit));
+    } else {
+      contraints.push(limit(1));
     }
 
     if (listenChangeConfig.where) {
@@ -226,7 +231,7 @@ export function fetchDocument(path: string): PromiseLike<DocumentData> {
  */
 export function listenToCollectionItemChange(
   listenChangeConfig: ListenChangeConfig,
-  callback: (response: DocumentData) => void,
+  callback: (response: DocumentChange<DocumentData>[]) => void,
 ): () => void {
   const queryRef = collection(firestore, listenChangeConfig.path);
 
@@ -248,6 +253,8 @@ export function listenToCollectionItemChange(
 
   if (listenChangeConfig.limit) {
     contraints.push(limit(listenChangeConfig.limit));
+  } else {
+    contraints.push(limit(1));
   }
 
   if (listenChangeConfig.where) {
@@ -264,14 +271,7 @@ export function listenToCollectionItemChange(
     (querySnapshot) => {
       const changes = querySnapshot.docChanges();
 
-      if (changes.length === 1) {
-        const change = changes[0];
-        const data = change.doc.data();
-
-        data.changeType = change.type;
-
-        callback(data);
-      }
+      callback(changes);
     },
     function (err) {
       console.error('listen error', err, listenChangeConfig.path);

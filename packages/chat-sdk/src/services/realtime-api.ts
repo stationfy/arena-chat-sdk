@@ -70,7 +70,7 @@ export class RealtimeAPI implements BaseRealtime {
     const config: ListenChangeConfig = {
       path: `qnas/${qnaId}/questions`,
       orderBy: [orderBy],
-      limit,
+      limit: limit ?? 100,
     };
 
     if (where.fieldPath.length > 0) {
@@ -137,7 +137,7 @@ export class RealtimeAPI implements BaseRealtime {
     const config: ListenChangeConfig = {
       path: 'polls',
       orderBy: [orderBy],
-      limit,
+      limit: limit ?? 100,
       where,
     };
 
@@ -340,9 +340,16 @@ export class RealtimeAPI implements BaseRealtime {
     const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `qnas/${channelId}/questions`,
+        limit: 100,
       },
-      (data) => {
-        callback(data as QnaQuestion);
+      (changes) => {
+        for (const change of changes) {
+          const data = change.doc.data();
+
+          data.changeType = change.type;
+
+          callback(data as QnaQuestion);
+        }
       },
     );
 
@@ -354,17 +361,55 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToMessageReceived(dataPath: string, callback: (message: ChatMessage) => void): () => void {
+  public listenToMessageReceived(
+    dataPath: string,
+    callback: (message: ChatMessage) => void,
+    callbackInitialMessages?: (messages: ChatMessage[]) => void,
+    limit?: number,
+  ): () => void {
     if (!dataPath) {
       throw new Error('failed');
     }
 
+    let initialData = true;
+
     const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `${dataPath}/messages`,
+        orderBy: [
+          {
+            field: 'createdAt',
+            desc: true,
+          },
+        ],
+        limit,
       },
-      (data) => {
-        callback(data as ChatMessage);
+      (changes) => {
+        if (initialData) {
+          initialData = false;
+          let messages: ChatMessage[] = [];
+
+          for (const change of changes) {
+            const data = change.doc.data();
+
+            data.changeType = change.type;
+
+            messages.push(data as ChatMessage);
+          }
+
+          messages = messages.reverse();
+
+          if (callbackInitialMessages) {
+            callbackInitialMessages(messages);
+          }
+        } else {
+          for (const change of changes) {
+            const data = change.doc.data();
+            data.changeType = change.type;
+
+            callback(data as ChatMessage);
+          }
+        }
       },
     );
 
@@ -376,7 +421,14 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToPollReceived(channelId: string, callback: (poll: Poll) => void): () => void {
+  public listenToPollReceived(
+    channelId: string,
+    callback: (poll: Poll) => void,
+    callbackInitialPolls?: (polls: Poll[]) => void,
+    limit?: number,
+  ): () => void {
+    let initialData = true;
+
     const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `polls`,
@@ -392,9 +444,40 @@ export class RealtimeAPI implements BaseRealtime {
             value: false,
           },
         ],
+        limit: limit ?? 100,
       },
-      (data) => {
-        callback(data as Poll);
+      (changes) => {
+        if (initialData) {
+          initialData = false;
+          const polls: Poll[] = [];
+
+          for (const change of changes) {
+            const data = change.doc.data();
+
+            data.changeType = change.type;
+
+            polls.push(data as Poll);
+          }
+
+          if (callbackInitialPolls) {
+            callbackInitialPolls(polls);
+          }
+        } else {
+          for (const change of changes) {
+            const data = change.doc.data();
+            data.changeType = change.type;
+
+            callback(data as Poll);
+          }
+        }
+
+        for (const change of changes) {
+          const data = change.doc.data();
+
+          data.changeType = change.type;
+
+          callback(data as Poll);
+        }
       },
     );
 
@@ -406,13 +489,51 @@ export class RealtimeAPI implements BaseRealtime {
   /**
    * @inheritdoc
    */
-  public listenToGroupMessageReceived(channelId: string, callback: (message: ChatMessage) => void): () => void {
+  public listenToGroupMessageReceived(
+    channelId: string,
+    callback: (message: ChatMessage) => void,
+    callbackInitialMessages?: (messages: ChatMessage[]) => void,
+    limit?: number,
+  ): () => void {
+    let initialData = true;
+
     const unsubscribe = FirestoreAPI.listenToCollectionItemChange(
       {
         path: `group-channels/${channelId}/messages`,
+        orderBy: [
+          {
+            field: 'createdAt',
+            desc: true,
+          },
+        ],
+        limit,
       },
-      (data) => {
-        callback(data as ChatMessage);
+      (changes) => {
+        if (initialData) {
+          initialData = false;
+          let messages: ChatMessage[] = [];
+
+          for (const change of changes) {
+            const data = change.doc.data();
+
+            data.changeType = change.type;
+
+            messages.push(data as ChatMessage);
+          }
+
+          messages = messages.reverse();
+
+          if (callbackInitialMessages) {
+            callbackInitialMessages(messages);
+          }
+        } else {
+          for (const change of changes) {
+            const data = change.doc.data();
+            data.changeType = change.type;
+
+            callback(data as ChatMessage);
+          }
+        }
       },
     );
 

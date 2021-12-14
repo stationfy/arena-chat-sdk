@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.4.1 (2021-11-29)
+
+
+### Bug Fixes
+
+* user reactions ([942a932](https://github.com/stationfy/arena-sdk/commit/942a9320b9186f23e839350017e7110eeb0213d8))
+
+
+
+
+
 # 2.4.0 (2021-11-29)
 
 

@@ -13,8 +13,10 @@ import { RealtimeAPI } from '../services/realtime-api';
 export class PrivateChannel implements BasePrivateChannel {
   private cacheCurrentMessages: ChatMessage[] = [];
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
-  private messageModificationListener: (() => void) | null = null;
+  private messageModificationListenerUnsubscribe: (() => void) | null = null;
   private loadRecentMessagesCalled = false;
+  private totalLimit: number | null = null;
+  private fetchPreviousMessagesPromise = false;
 
   public constructor(private groupChannel: GroupChannel) {}
 
@@ -262,12 +264,7 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      const realtimeAPI = RealtimeAPI.getInstance();
-      const messages = await realtimeAPI.fetchGroupRecentMessages(
-        this.groupChannel._id,
-        limit,
-        this.groupChannel.lastClearedTimestamp,
-      );
+      const messages = await this.fetchRecentMessages(limit);
 
       this.updateCacheCurrentMessages(messages);
 
@@ -281,6 +278,14 @@ export class PrivateChannel implements BasePrivateChannel {
     }
   }
 
+  private async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
+    return new Promise((resolve) => {
+      this.listenToAllTypeMessageModification((messages) => {
+        resolve(messages);
+      }, limit);
+    });
+  }
+
   /**
    * Load previous messages on channel
    *
@@ -291,6 +296,12 @@ export class PrivateChannel implements BasePrivateChannel {
       throw new Error('You should call the loadRecentMessages method first.');
     }
 
+    if (this.fetchPreviousMessagesPromise) {
+      throw new Error('Another request is already in progress');
+    }
+
+    this.fetchPreviousMessagesPromise = true;
+
     if (!this.cacheCurrentMessages.length) {
       return [];
     }
@@ -298,17 +309,30 @@ export class PrivateChannel implements BasePrivateChannel {
     try {
       const firstMessage = this.cacheCurrentMessages[0];
 
-      const realtimeAPI = RealtimeAPI.getInstance();
-      const messages = await realtimeAPI.fetchGroupPreviousMessages(
-        this.groupChannel._id,
-        firstMessage,
-        this.groupChannel.lastClearedTimestamp,
-        limit,
-      );
+      if (this.messageModificationListenerUnsubscribe !== null) {
+        this.messageModificationListenerUnsubscribe();
+        this.messageModificationListenerUnsubscribe = null;
+      }
 
-      this.updateCacheCurrentMessages(messages.concat(this.cacheCurrentMessages));
+      return new Promise((resolve) => {
+        this.listenToAllTypeMessageModification((messages) => {
+          const previousMessages: ChatMessage[] = [];
 
-      return messages;
+          for (const message of messages) {
+            if (message.key === firstMessage.key) {
+              break;
+            }
+
+            previousMessages.push(message);
+          }
+
+          this.updateCacheCurrentMessages(messages.concat(this.cacheCurrentMessages));
+
+          this.fetchPreviousMessagesPromise = false;
+
+          resolve(messages);
+        }, limit);
+      });
     } catch (e) {
       throw new Error(`Cannot load previous messages on "${this.groupChannel._id}" channel.`);
     }
@@ -437,19 +461,32 @@ export class PrivateChannel implements BasePrivateChannel {
    * Listen to all type message modification
    *
    */
-  private listenToAllTypeMessageModification() {
-    if (this.messageModificationListener !== null) {
+  private listenToAllTypeMessageModification(callback?: (initialMessages: ChatMessage[]) => void, limit?: number) {
+    if (this.messageModificationListenerUnsubscribe !== null) {
       return;
     }
 
-    const realtimeAPI = RealtimeAPI.getInstance();
-    this.messageModificationListener = realtimeAPI.listenToGroupMessageReceived(this.groupChannel._id, (message) => {
-      if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
-        return;
-      }
+    if (this.totalLimit === null && limit) {
+      this.totalLimit = limit;
+    } else if (this.totalLimit && limit) {
+      this.totalLimit = this.totalLimit + limit;
+    }
 
-      this.messageModificationCallbacks[message.changeType].forEach((callback) => callback(message));
-    });
+    const realtimeAPI = RealtimeAPI.getInstance();
+    this.messageModificationListenerUnsubscribe = realtimeAPI.listenToGroupMessageReceived(
+      this.groupChannel._id,
+      (message) => {
+        if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
+          return;
+        }
+
+        this.messageModificationCallbacks[message.changeType].forEach((messageModificationCallback) =>
+          messageModificationCallback(message),
+        );
+      },
+      callback,
+      this.totalLimit ?? undefined,
+    );
   }
 
   /**
