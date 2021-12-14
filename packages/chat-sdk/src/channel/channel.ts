@@ -250,13 +250,15 @@ export class Channel implements BaseChannel {
 
     if (!sender) {
       sender = {
-        uid: User.instance.data?.id,
-        displayName: User.instance.data?.name,
-        photoURL: User.instance.data?.image,
-        isPublisher: false,
         _id: User.instance.data?.id,
         name: User.instance.data?.name,
         image: User.instance.data?.image,
+      };
+    } else {
+      sender = {
+        _id: sender._id,
+        name: sender.name,
+        image: sender.image,
       };
     }
 
