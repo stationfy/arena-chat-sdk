@@ -115,6 +115,16 @@ export class Channel implements BaseChannel {
       this.polls.watchUserPollsReactions(userId);
     }
 
+    this.polls.onPollModified((poll) => {
+      for (const message of this.cacheCurrentMessages) {
+        if (message.poll?._id === poll._id) {
+          message.poll = poll;
+          this.emitMessagesChange([message]);
+          break;
+        }
+      }
+    });
+
     return this.polls;
   }
 

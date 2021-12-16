@@ -1,3 +1,5 @@
+import { Poll } from './polls';
+
 export interface ChatMessage {
   createdAt: number;
   key: string;
@@ -15,6 +17,7 @@ export interface ChatMessage {
   replyTo?: string;
   slowMode?: boolean;
   type?: MessageType;
+  poll?: Poll;
 }
 
 export type ChatMessageToSend = Omit<ChatMessage, 'createdAt' | 'key'>;

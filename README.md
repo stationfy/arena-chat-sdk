@@ -561,6 +561,10 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ## Changelogs
 
+### v2.4.5(Dec 15, 2021)
+
+- Bug fix: polls object update
+
 ### v2.4.4(Dec 14, 2021)
 
 - Bug fix: send a message with a pre defined sender
