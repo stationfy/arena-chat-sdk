@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.4.4 (2021-12-14)
+
+
+### Bug Fixes
+
+* send a message with a pre defined sender ([4100280](https://github.com/stationfy/arena-chat-sdk/commit/41002800a0ee198310ec9937e846188346c47754))
+
+
+
+
+
 ## 2.4.3 (2021-12-14)
 
 **Note:** Version bump only for package @arena-im/chat-types
