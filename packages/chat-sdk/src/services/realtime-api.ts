@@ -570,6 +570,7 @@ export class RealtimeAPI implements BaseRealtime {
             value: 'poll',
           },
         ],
+        limit: 100,
       },
       (response) => {
         callback(response as ServerReaction[]);

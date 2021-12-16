@@ -115,6 +115,16 @@ export class Channel implements BaseChannel {
       this.polls.watchUserPollsReactions(userId);
     }
 
+    this.polls.onPollModified((poll) => {
+      for (const message of this.cacheCurrentMessages) {
+        if (message.poll?._id === poll._id) {
+          message.poll = poll;
+          this.emitMessagesChange([message]);
+          break;
+        }
+      }
+    });
+
     return this.polls;
   }
 
@@ -250,13 +260,15 @@ export class Channel implements BaseChannel {
 
     if (!sender) {
       sender = {
-        uid: User.instance.data?.id,
-        displayName: User.instance.data?.name,
-        photoURL: User.instance.data?.image,
-        isPublisher: false,
         _id: User.instance.data?.id,
         name: User.instance.data?.name,
         image: User.instance.data?.image,
+      };
+    } else {
+      sender = {
+        _id: sender._id,
+        name: sender.name,
+        image: sender.image,
       };
     }
 
@@ -425,6 +437,8 @@ export class Channel implements BaseChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
+      this.totalLimit = null;
+
       const [loadedMessages, reactions] = await Promise.all([this.fetchRecentMessages(limit), this.fetchReactions()]);
 
       const messages = this.mergeMessagesAndReactions(loadedMessages, reactions, true);

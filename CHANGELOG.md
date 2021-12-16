@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.4.5 (2021-12-16)
+
+
+### Bug Fixes
+
+* polls object update ([8d299e6](https://github.com/stationfy/arena-chat-sdk/commit/8d299e60c68706419930c9f4f598c71a944305ba))
+
+
+
+
+
+## 2.4.4 (2021-12-14)
+
+
+### Bug Fixes
+
+* send a message with a pre defined sender ([4100280](https://github.com/stationfy/arena-chat-sdk/commit/41002800a0ee198310ec9937e846188346c47754))
+
+
+
+
+
+## 2.4.3 (2021-12-14)
+
+**Note:** Version bump only for package arena-chat-sdk
+
+
+
+
+
+## 2.4.2 (2021-12-14)
+
+
+### Bug Fixes
+
+* load chat messages ([0f33b00](https://github.com/stationfy/arena-chat-sdk/commit/0f33b00d7250b46c7c4be27a276652c2aee1011a))
+
+
+
+
+
 ## 2.4.1 (2021-11-29)
 
 

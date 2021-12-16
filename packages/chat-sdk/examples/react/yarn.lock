@@ -6,22 +6,22 @@
   version "0.0.0"
   uid ""
 
-"@arena-im/chat-types@^2.2.5":
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.2.5.tgz#8ab1b0811c86230548f8f9a225a7bca45cc325df"
-  integrity sha512-16cbiakJcoifoccqdY6KMZZzz3Jwr6EoJiOI8+W24WaYtKMqhlBnXReGsnqOttxJxjYEAvuNP2HvLjhdOeAZ8Q==
+"@arena-im/chat-types@^2.4.3":
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.3.tgz#388f8f5a3feb192d0492cd6ec4ea80b5f1f66adb"
+  integrity sha512-3JZBcTLaPqGbXLnJ+PMtT5eDdbIyGpiHnXgMza6gOfJ2+/SjAe0LQKubuuJ2d+2cCY/EA9GxWKnl138dSBAjyA==
 
 "@arena-im/chat-types@link:../../../types":
   version "0.0.0"
   uid ""
 
-"@arena-im/core@^2.2.5":
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.2.5.tgz#d9fb85f7f67dbce34e3fb240f794d07fe67e95ec"
-  integrity sha512-MsA8Jbw2lI2yfrw8CG0k330I6tJFp1hXfAuCE8yp3Xjfxy3D2r2MX3o6KweXB+bd3+mJ/oYDbQWfkgX7ILdvUA==
+"@arena-im/core@^2.4.3":
+  version "2.4.3"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.3.tgz#523b96e5dc582896aeacdc1a079b6a894b357e52"
+  integrity sha512-ews/YXmvl5DF9g/BRnH9sEO60HIuSvd8r9sm0F+IzAdWWlN9uJgC5vrY+2BPqwSzxWlINbPACnkfkBMcguMxPw==
   dependencies:
-    "@arena-im/chat-types" "^2.2.5"
-    firebase "^9.0.0-beta.5"
+    "@arena-im/chat-types" "^2.4.3"
+    firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
     socket.io-client "^4.1.2"
@@ -5779,7 +5779,7 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
-firebase@^9.0.0-beta.5:
+firebase@9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/firebase/-/firebase-9.0.2.tgz#092019326f1c9a67ec00ec78d50f80244581c705"
   integrity sha512-+wdsD3Sk3fOgplzv4yzBmJ3Pdr01QiFF38Zq+8hzd+Dv6ZKMrgiq5CRljCaWenhZ/j8nuvHlq82u64ZARaXC+w==
