@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.4.5 (2021-12-16)
+
+
+### Bug Fixes
+
+* polls object update ([8d299e6](https://github.com/stationfy/arena-sdk/commit/8d299e60c68706419930c9f4f598c71a944305ba))
+
+
+
+
+
 ## 2.4.4 (2021-12-14)
 
 
