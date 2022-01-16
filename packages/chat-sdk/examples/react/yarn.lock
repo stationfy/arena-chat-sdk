@@ -3,24 +3,25 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.0.0"
-  uid ""
+  version "2.4.5"
+  dependencies:
+    "@arena-im/chat-types" "^2.4.5"
+    "@arena-im/core" "^2.4.5"
 
-"@arena-im/chat-types@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.3.tgz#388f8f5a3feb192d0492cd6ec4ea80b5f1f66adb"
-  integrity sha512-3JZBcTLaPqGbXLnJ+PMtT5eDdbIyGpiHnXgMza6gOfJ2+/SjAe0LQKubuuJ2d+2cCY/EA9GxWKnl138dSBAjyA==
+"@arena-im/chat-types@^2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.5.tgz#7dc13e5b5cdf9f3f6b9f708d256fbfb7e1815a46"
+  integrity sha512-rWEFecz971X//ublraD5kesureiqV5Dtk/xnD3zXOqn48/m8ubYtE2hyzKr/2aVC7lbqz3hQAKy49HkBtsudSA==
 
 "@arena-im/chat-types@link:../../../types":
-  version "0.0.0"
-  uid ""
+  version "2.4.5"
 
-"@arena-im/core@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.3.tgz#523b96e5dc582896aeacdc1a079b6a894b357e52"
-  integrity sha512-ews/YXmvl5DF9g/BRnH9sEO60HIuSvd8r9sm0F+IzAdWWlN9uJgC5vrY+2BPqwSzxWlINbPACnkfkBMcguMxPw==
+"@arena-im/core@^2.4.5":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.5.tgz#d234d5cf76f20808f981ea07b0b5feee9026c6bf"
+  integrity sha512-W4y1jfI/r2jkfq2cVkWbexVCAz+Umdn7GEhB0yc5rY02i6CnOYEOOJf0+Ss+vkAlrrGajwIQbYEmW86mayxazA==
   dependencies:
-    "@arena-im/chat-types" "^2.4.3"
+    "@arena-im/chat-types" "^2.4.5"
     firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
@@ -5838,9 +5839,9 @@ flush-write-stream@^1.0.0:
     readable-stream "^2.3.6"
 
 follow-redirects@^1.0.0:
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.1.tgz#d9114ded0a1cfdd334e164e6662ad02bfd91ff43"
-  integrity sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
+  version "1.14.7"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
+  integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
 
 for-in@^1.0.2:
   version "1.0.2"
