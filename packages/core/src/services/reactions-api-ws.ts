@@ -69,7 +69,7 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
     try {
       const reactions = await this.retrieveUserReactions();
 
-      if (isUserReactions(reactions)) {
+      if (!isUserReactions(reactions)) {
         throw new Error('It is not user reactions');
       }
 
