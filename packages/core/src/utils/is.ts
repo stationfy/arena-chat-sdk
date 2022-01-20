@@ -42,3 +42,22 @@ export function isPlainObject(wat: any): boolean {
 export function isThenable(wat: any): boolean {
   return Boolean(wat && wat.then && typeof wat.then === 'function');
 }
+
+/**
+ * Checks whether given value type is a ServerReaction.
+ * @param wat A value to be checked.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isUserReactions(wat: any): boolean {
+  if (!Array.isArray(wat)) {
+    return false;
+  }
+
+  for (const reaction of wat) {
+    if (!(reaction && reaction.reaction)) {
+      return false;
+    }
+  }
+
+  return true;
+}
