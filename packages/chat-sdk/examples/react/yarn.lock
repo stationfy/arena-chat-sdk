@@ -3,24 +3,25 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.0.0"
-  uid ""
+  version "2.4.6"
+  dependencies:
+    "@arena-im/chat-types" "^2.4.6"
+    "@arena-im/core" "^2.4.6"
 
-"@arena-im/chat-types@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.3.tgz#388f8f5a3feb192d0492cd6ec4ea80b5f1f66adb"
-  integrity sha512-3JZBcTLaPqGbXLnJ+PMtT5eDdbIyGpiHnXgMza6gOfJ2+/SjAe0LQKubuuJ2d+2cCY/EA9GxWKnl138dSBAjyA==
+"@arena-im/chat-types@^2.4.6":
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.6.tgz#b927db2a9fcafce447c272fdad54556bc7865050"
+  integrity sha512-TfGQju9CWVTU6p5CNnOxmEHaABM6StqSlg/5SqGKmwDIp2ZeHUgUnqdF1Dwp+TcD6XfXAjbAGEl/HeXHUumOxw==
 
 "@arena-im/chat-types@link:../../../types":
-  version "0.0.0"
-  uid ""
+  version "2.4.6"
 
-"@arena-im/core@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.3.tgz#523b96e5dc582896aeacdc1a079b6a894b357e52"
-  integrity sha512-ews/YXmvl5DF9g/BRnH9sEO60HIuSvd8r9sm0F+IzAdWWlN9uJgC5vrY+2BPqwSzxWlINbPACnkfkBMcguMxPw==
+"@arena-im/core@^2.4.6":
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.6.tgz#ac6938b6be1ad95b0508e44c204335f0a854cb60"
+  integrity sha512-hXYx5aWt4KGZumZsKNUdf9yYxLrQvx5N6Sv7+czdf8HNMEXGzLtIMinQe9LPMMY+ITQRkAKt1czq8pxTNrj0ow==
   dependencies:
-    "@arena-im/chat-types" "^2.4.3"
+    "@arena-im/chat-types" "^2.4.6"
     firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
@@ -8189,9 +8190,9 @@ nan@^2.12.1:
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
 
 nanoid@^3.1.23:
-  version "3.1.23"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.23.tgz#f744086ce7c2bc47ee0a8472574d5c78e4183a81"
-  integrity sha512-FiB0kzdP0FFVGDKlRLEQ1BgDzU87dy5NnzjeW9YZNt+/c3+q82EQDUwniSAUxp/F0gFNI1ZhKU1FqYsMuqZVnw==
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.2.0.tgz#62667522da6673971cca916a6d3eff3f415ff80c"
+  integrity sha512-fmsZYa9lpn69Ad5eDn7FMcnnSR+8R34W9qJEijxYhTbfOWzr22n1QxCMzXLK+ODyW2973V3Fux959iQoUxzUIA==
 
 nanomatch@^1.2.9:
   version "1.2.13"
