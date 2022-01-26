@@ -4,6 +4,7 @@ import { ServerReaction, ChannelReaction } from '@arena-im/chat-types';
 import { WebSocketTransport } from '../transports/websocket-transport';
 import { PresenceObservable } from './presence-observable';
 import { BaseReactionsAPI } from '../interfaces';
+import { isUserReactions } from '../utils/is';
 
 type Instance = {
   [key: string]: ReactionsAPIWS;
@@ -43,9 +44,13 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
   }
 
   private onPresenceChanged() {
-    this.fetchUserReactions().then((reactions) => {
-      this.userReactionsListeners.publish(reactions);
-    });
+    this.fetchUserReactions()
+      .then((reactions) => {
+        this.userReactionsListeners.publish(reactions);
+      })
+      .catch(() => {
+        console.error('Cannot fetch user reactions');
+      });
   }
 
   public async createReaction(reaction: ServerReaction): Promise<void> {
@@ -63,6 +68,11 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
   public async fetchUserReactions(): Promise<ServerReaction[]> {
     try {
       const reactions = await this.retrieveUserReactions();
+
+      if (!isUserReactions(reactions)) {
+        throw new Error('It is not user reactions');
+      }
+
       this.cachedUserReactions = reactions;
 
       return reactions;

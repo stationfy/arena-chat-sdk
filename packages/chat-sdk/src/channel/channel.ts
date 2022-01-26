@@ -464,41 +464,57 @@ export class Channel implements BaseChannel {
   }
 
   private async fetchReactions() {
-    const [channelReactionsMap, userReactionsMap] = await Promise.all([
-      this.fetchChannelReactionsMap(),
-      this.fetchUserReactionsMap(),
-    ]);
+    try {
+      const [channelReactionsMap, userReactionsMap] = await Promise.all([
+        this.fetchChannelReactionsMap(),
+        this.fetchUserReactionsMap(),
+      ]);
 
-    return { channelReactionsMap, userReactionsMap };
+      return { channelReactionsMap, userReactionsMap };
+    } catch (e) {
+      return { channelReactionsMap: {}, userReactionsMap: {} };
+    }
   }
 
   private async fetchChannelReactionsMap() {
-    const channelReactions = await this.reactionsAPI.fetchChannelReactions();
+    try {
+      const channelReactions = await this.reactionsAPI.fetchChannelReactions();
 
-    this.cacheChannelReactions = this.getChannelReactionsMap(channelReactions);
+      this.cacheChannelReactions = this.getChannelReactionsMap(channelReactions);
 
-    return this.cacheChannelReactions;
+      return this.cacheChannelReactions;
+    } catch (e) {
+      return {};
+    }
   }
 
   private async fetchUserReactionsMap() {
-    const userReactions = await this.reactionsAPI.fetchUserReactions();
+    try {
+      const userReactions = await this.reactionsAPI.fetchUserReactions();
 
-    this.cacheUserReactions = this.getUserReactionsMap(userReactions);
+      this.cacheUserReactions = this.getUserReactionsMap(userReactions);
 
-    return this.cacheUserReactions;
+      return this.cacheUserReactions;
+    } catch (e) {
+      return {};
+    }
   }
 
   private getUserReactionsMap(userReactions: ServerReaction[]) {
     const map: { [messageId: string]: ServerReaction[] } = {};
 
-    for (const userReaction of userReactions) {
-      if (!map[userReaction.itemId]) {
-        map[userReaction.itemId] = [];
+    try {
+      for (const userReaction of userReactions) {
+        if (!map[userReaction.itemId]) {
+          map[userReaction.itemId] = [];
+        }
+        map[userReaction.itemId].push(userReaction);
       }
-      map[userReaction.itemId].push(userReaction);
-    }
 
-    return map;
+      return map;
+    } catch (e) {
+      return {};
+    }
   }
 
   private getChannelReactionsMap(channelReactions: ChannelReaction[]) {
