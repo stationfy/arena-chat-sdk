@@ -78,6 +78,7 @@ export const exampleGroupChannel: GroupChannel = {
   _id: 'fake-channel',
   createdAt: 12342134323,
   lastMessage: {
+    key: 'fake-message',
     createdAt: 123412341234,
     message: {
       text: 'hey!',

@@ -424,7 +424,7 @@ describe('RealtimeAPI', () => {
 
       // @ts-ignore
       FirestoreAPI.listenToCollectionItemChange.mockImplementation(
-        (_, callback: (changes: DocumentChange<DocumentData>[]) => void) => {
+        (_: any, callback: (changes: DocumentChange<DocumentData>[]) => void) => {
           callback([
             {
               doc: {

@@ -1,4 +1,4 @@
-import { ChannelReaction, ILiveblogInfo, ServerReaction } from '@arena-im/chat-types';
+import { ChannelReaction, ILiveblogInfo, ServerReaction, PresenceInfo } from '@arena-im/chat-types';
 import { BaseReactionsAPI, Credentials, PresenceAPI, ReactionsAPIWS } from '@arena-im/core';
 import { BaseLiveBlog } from '../../../types/dist/liveblog';
 import { RestAPI } from '../services/rest-api';
@@ -58,6 +58,16 @@ export class Liveblog implements BaseLiveBlog {
   public watchUserReactions(callback: (reactions: ServerReaction[]) => void): void {
     this.reactionsAPI.watchUserReactions(callback);
   }
+
+    /**
+   * Watch liveblog presence
+   *
+   * @param callback callback fn
+   */
+
+     public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
+      this.presenceAPI.watchPresenceInfo(callback);
+    }
 
   public fetchRememberMe(): void {
     console.log(this.liveblogInfo);
