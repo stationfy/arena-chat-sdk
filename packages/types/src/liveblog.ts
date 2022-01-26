@@ -1,8 +1,10 @@
 import { ChannelReaction, ServerReaction } from "./chat-message";
+import { PresenceInfo } from "./user";
 
 export interface BaseLiveBlog {
   watchEventReactions(callback: (reactions: ChannelReaction[]) => void): void;
   watchUserReactions(callback: (reactions: ServerReaction[]) => void): void;
+  watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void;
   fetchRememberMe(): void;
   sendReaction(reaction: ServerReaction, anonymousId?: string, isDashboardUser?: boolean): void;
 }
