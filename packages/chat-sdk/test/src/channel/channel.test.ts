@@ -1,5 +1,5 @@
 import { Channel } from '@channel/channel';
-import { User, OrganizationSite } from '@arena-im/core';
+import { User, OrganizationSite, ArenaHub } from '@arena-im/core';
 import { ChatRoom, Moderation, ModeratorStatus, MessageReaction, ChatMessageSender } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
@@ -7,7 +7,6 @@ import { GraphQLAPI } from '@services/graphql-api';
 import { RestAPI } from '@services/rest-api';
 import { ChatMessage } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
-import { ArenaHub } from '@services/arena-hub';
 import {
   exampleChatMessage,
   exampleChatRoom,
@@ -18,10 +17,6 @@ import {
 
 jest.mock('@services/rest-api', () => ({
   RestAPI: jest.fn(),
-}));
-
-jest.mock('@services/arena-hub', () => ({
-  ArenaHub: jest.fn(),
 }));
 
 jest.mock('@services/graphql-api', () => ({
@@ -45,6 +40,7 @@ const reactionsAPIMock = {
 };
 
 jest.mock('@arena-im/core', () => ({
+  ArenaHub: jest.fn(),
   User: {
     instance: {
       data: jest.fn(),
