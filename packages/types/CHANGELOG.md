@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.4.7 (2022-02-07)
+
+
+### Bug Fixes
+
+* Implement presence listener ([50a4f51](https://github.com/stationfy/arena-chat-sdk/commit/50a4f51fd922e543e03d2030853f45117d7087cf))
+
+
+
+
+
 ## 2.4.6 (2022-01-20)
 
 
