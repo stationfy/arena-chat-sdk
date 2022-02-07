@@ -397,7 +397,7 @@ export class Channel implements BaseChannel {
     });
   }
 
-  public watchReactionErrors(callback: (error: any) => void): void {
+  public watchReactionsErrors(callback: (error: any) => void): void {
     if (this.reactionsErrorsSubscription !== null) {
       this.reactionsErrorsSubscription();
     }

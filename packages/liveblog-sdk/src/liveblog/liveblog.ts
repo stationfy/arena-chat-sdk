@@ -59,7 +59,7 @@ export class Liveblog implements BaseLiveBlog {
     this.reactionsAPI.watchUserReactions(callback);
   }
 
-  public watchReactionErrors(callback: (error: any) => void): void {
+  public watchReactionsErrors(callback: (error: any) => void): void {
    this.reactionsAPI.watchReactionsErrors(callback);
   }
 
