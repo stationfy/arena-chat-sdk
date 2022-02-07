@@ -31,3 +31,9 @@ test('should validate watchChannelReactions method', () => {
 
   expect(callback).not.toHaveBeenCalled();
 });
+test('should validate watchChannelReactions method', () => {
+  const callback = jest.fn();
+  ReactionsAPIWS.getInstance(channelId).watchReactionsErrors(callback);
+
+  expect(callback).not.toHaveBeenCalled();
+});

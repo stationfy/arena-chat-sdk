@@ -6,5 +6,6 @@ export interface BaseReactionsAPI {
   fetchChannelReactions(): Promise<ChannelReaction[]>;
   watchUserReactions(callback: (reactions: ServerReaction[]) => void): () => void;
   watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): () => void;
+  watchReactionsErrors(callback: (error: any) => void): () => void;
   offAllListeners(): void;
 }

@@ -44,7 +44,7 @@ export function isThenable(wat: any): boolean {
 }
 
 /**
- * Checks whether given value type is a ServerReaction.
+ * Checks whether given value type is a ServerReaction[].
  * @param wat A value to be checked.
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -54,7 +54,74 @@ export function isUserReactions(wat: any): boolean {
   }
 
   for (const reaction of wat) {
-    if (!(reaction && reaction.reaction)) {
+    if (
+      !(
+        reaction &&
+        reaction.itemType &&
+        reaction.reaction &&
+        reaction.publisherId &&
+        reaction.itemId &&
+        reaction.userId
+      )
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Checks whether given value type is a ChannelReaction[].
+ * @param wat A value to be checked.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isChannelReactions(wat: any): boolean {
+  if (!Array.isArray(wat)) {
+    return false;
+  }
+
+  for (const reaction of wat) {
+    if (
+      !(reaction && reaction.widgetId && reaction.itemId && reaction.reactions)
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+/**
+ * Checks whether given value type is a Poll[].
+ * @param wat A value to be checked.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isPolls(wat: any): boolean {
+  if (!Array.isArray(wat)) {
+    return false;
+  }
+
+  for (const poll of wat) {
+    if (
+      !(poll &&
+        poll._id &&
+        poll.chatRoomId && 
+        poll.createdAt &&
+        poll.createBy &&
+        poll.draft &&
+        poll.duration &&
+        poll.options && 
+        poll.publishedAt &&
+        poll.question &&
+        poll.showVotes &&
+        poll.siteId &&
+        poll.total &&
+        poll.updatedAt &&
+        poll.expireAt &&
+        poll.options.name &&
+        poll.options.total
+        )
+    ) {
       return false;
     }
   }
