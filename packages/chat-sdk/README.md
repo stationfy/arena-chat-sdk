@@ -22,7 +22,8 @@ yarn add arena-chat-sdk
 
 ### Initialize
 
-To initialize the SDK you'll need your site slug and a chat room slug and both can be obtained from the Arena Dashboard or using the Platform API.
+To initialize the SDK you'll need your site slug and a chat room slug and both can be obtained from the Arena Dashboard
+or using the Platform API.
 
 ```javascript
 import ArenaChat from '@arena-im/chat-sdk';
@@ -31,7 +32,9 @@ const arenaChat = new ArenaChat('my-site-slug');
 ```
 
 ### Get Live Chat
-A Live Chat is the main Chat Room that holds the channels. To get a Live Chat, use the exported methods of `arenaChat`. It will return a `LiveChat` instance.
+
+A Live Chat is the main Chat Room that holds the channels. To get a Live Chat, use the exported methods of `arenaChat`.
+It will return a `LiveChat` instance.
 
 ```javascript
 // get a Live Chat with chat slug
@@ -48,19 +51,22 @@ const channelI = await liveChatI.getMainChannel();
 ```
 
 You can use a channel ID to retrieve a `Channel` object.
+
 ```javascript
 // get a channel by id
 const channelI = await liveChatI.getChannel(YOUR_CHANNEL_ID);
 ```
 
-The channel ID can be either, the Arena Channel ID or the External ID that you set when you are creating the Channel over the Arena API.
+The channel ID can be either, the Arena Channel ID or the External ID that you set when you are creating the Channel
+over the Arena API.
 
 ### List all Live Chat's Channels
 
-You can get the list of all channels data in your Live Chat using the export methods of `liveChat`. It will return a list of `LiveChatChannel` object.
+You can get the list of all channels data in your Live Chat using the export methods of `liveChat`. It will return a
+list of `LiveChatChannel` object.
 
 ```javascript
-const channels = await liveChatI.getChannels()
+const channels = await liveChatI.getChannels();
 ```
 
 ### Get Live Chat's Members
@@ -80,14 +86,14 @@ To set a user, use the exported functions of `arenaChat`
 // set current user
 await arenaChat.setUser({
   // ID of the user on your authentication system
-  id: "user-id",
-  name: "Ruby Sims",
-  image: "https://randomuser.me/api/portraits/women/21.jpg",
+  id: 'user-id',
+  name: 'Ruby Sims',
+  image: 'https://randomuser.me/api/portraits/women/21.jpg',
   // User metadata attached to the user object
   metaData: {
-    'key1': 'value1',
-    'key2': 'value2'
-  }
+    key1: 'value1',
+    key2: 'value2',
+  },
 });
 ```
 
@@ -97,14 +103,14 @@ To send a simple text message, you need to have a channel and a set user.
 
 ```javascript
 // send message
-await channelI.sendMessage({text: 'Hello World!'});
+await channelI.sendMessage({ text: 'Hello World!' });
 ```
 
 You can send a message with a media URL attached to it.
 
 ```javascript
 // send message
-await channelI.sendMessage({mediaURL: 'https://ps.w.org/arena-liveblog-and-chat-tool/assets/icon-256x256.png'});
+await channelI.sendMessage({ mediaURL: 'https://ps.w.org/arena-liveblog-and-chat-tool/assets/icon-256x256.png' });
 ```
 
 ### Replying to a Message
@@ -113,7 +119,7 @@ To reply a message, you will inform the message ID you want to reply.
 
 ```javascript
 // replying to a message
-await channelI.sendMessage({text: 'My reply', replyTo: MESSAGE_ID});
+await channelI.sendMessage({ text: 'My reply', replyTo: MESSAGE_ID });
 ```
 
 #### Example:
@@ -121,7 +127,7 @@ await channelI.sendMessage({text: 'My reply', replyTo: MESSAGE_ID});
 If you want to reply to a message with `message.key = "Y1D7o00QbXDaapcjoBDH"` you have to call:
 
 ```javascript
-await channelI.sendMessage({text: 'My reply', replyTo: 'Y1D7o00QbXDaapcjoBDH'});
+await channelI.sendMessage({ text: 'My reply', replyTo: 'Y1D7o00QbXDaapcjoBDH' });
 ```
 
 And then you will receive in the `onMessageReceived` listener the following message with a `replyMessage` property:
@@ -160,7 +166,8 @@ And then you will receive in the `onMessageReceived` listener the following mess
 
 ### Events
 
-To fetch recent messages, load previous messages, or listen to channel events, use the exported functions on `channel` object.
+To fetch recent messages, load previous messages, or listen to channel events, use the exported functions on `channel`
+object.
 
 ```javascript
 // receive the last 20 messages
@@ -182,7 +189,7 @@ channelI.onMessageDeleted((message) => {
 // watch modified messages
 channelI.onMessageModified((message) => {
   // update message on the UI
-})
+});
 ```
 
 #### Remove Listeners
@@ -203,12 +210,13 @@ channelI.offAllListeners();
 
 ### Reactions
 
-You have to define a `MessageReaction` with a type (E.g. `like`, `dislike`, `love`, etc), and the message ID `message.key`.
+You have to define a `MessageReaction` with a type (E.g. `like`, `dislike`, `love`, etc), and the message ID
+`message.key`.
 
 Then you can send a reaction on a message.
 
 ```typescript
-import { MessageReaction } from '@arena-im/chat-types'
+import { MessageReaction } from '@arena-im/chat-types';
 
 const reactionType = 'like';
 
@@ -219,10 +227,11 @@ const reaction: MessageReaction = {
 
 channelI.sendReaction(reaction);
 ```
+
 You can also remove a reaction on a message.
 
 ```typescript
-import { MessageReaction } from '@arena-im/chat-types'
+import { MessageReaction } from '@arena-im/chat-types';
 
 const reactionType = 'like';
 
@@ -241,21 +250,24 @@ In the messages, you will have the number of reactions and whether the current u
 const messageLikes: number = message.reactions[reactionType];
 
 // whether the current user has reacted to the message
-const currentUserReacted: boolean = message.currentUserReactions[reactionType]
+const currentUserReacted: boolean = message.currentUserReactions[reactionType];
 ```
 
 ### Moderation
 
 If the "Request Moderator" option is enabled for your chat, users will be able to request to be moderators.
 
-To understand how this flow works on the embedded chat room you can refer to this [article](https://help.arena.im/en/articles/4092833-how-to-turn-on-a-volunteer-moderator-request-on-a-live-chat).
+To understand how this flow works on the embedded chat room you can refer to this
+[article](https://help.arena.im/en/articles/4092833-how-to-turn-on-a-volunteer-moderator-request-on-a-live-chat).
 
 You can "Request Moderator" by calling this function (it will request moderation for the logged-in user):
+
 ```typescript
 channelI.requestModeration();
 ```
 
-When moderation is granted to the user (via Dashboard or API), the user object will contain the `isModerator` property set to `true`. The current user, who's now a moderator, will be able to delete messages or ban users.
+When moderation is granted to the user (via Dashboard or API), the user object will contain the `isModerator` property
+set to `true`. The current user, who's now a moderator, will be able to delete messages or ban users.
 
 Note: The `isModerator` property will only be `true` after the next page refresh.
 
@@ -277,28 +289,32 @@ First you'll need to get the Q&A instance using a channel instance.
 
 ```typescript
 // get qna props
-const qnaI = await channelI.getChatQnaInstance()
+const qnaI = await channelI.getChatQnaInstance();
 ```
 
-Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the `QnaQuestionFilter`, wich is also defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types). Both parameters are optional.
+Now is possible to start loading the previously created questions. Just pass a limit of questions to be loaded and the
+`QnaQuestionFilter`, wich is also defined in
+[types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types). Both parameters are optional.
 
 ```typescript
-const questions: [QnaQuestion] = await qnaI.loadQuestions(50, QnaQuestionFilter.RECENT)
+const questions: [QnaQuestion] = await qnaI.loadQuestions(50, QnaQuestionFilter.RECENT);
 ```
 
 Start adding new questions just by passing its contents
 
 ```typescript
-await qnaI.addQuestion("Which team shall win tonight?")
+await qnaI.addQuestion('Which team shall win tonight?');
 ```
 
-It's also possible to easily awnser a question by calling the following method with the question (`QnaQuestion`) and the answer (`string`).
+It's also possible to easily awnser a question by calling the following method with the question (`QnaQuestion`) and the
+answer (`string`).
 
 ```typescript
-const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(question, "Lakers should win!")
+const isQuestionAwnsered: Boolean = await qnaI.answerQuestion(question, 'Lakers should win!');
 ```
 
-To delete questions you can use the following method. It's important to mention that the user who sent the question can delete it and moderators can delete any message. 
+To delete questions you can use the following method. It's important to mention that the user who sent the question can
+delete it and moderators can delete any message.
 
 ```typescript
 await qnaI.deleteQuestion(
@@ -308,62 +324,70 @@ await qnaI.deleteQuestion(
 
 ##### Upvote
 
-The current user can upvote a question by calling the following method with the question (`QnaQuestion`) and optionally an `anonymousId`:
+The current user can upvote a question by calling the following method with the question (`QnaQuestion`) and optionally
+an `anonymousId`:
 
 ```typescript
 await qnaI.upvoteQuestion(
   question,
-  anonymousId // optional. Only provide this information if it's an anonymous vote.
-)
+  anonymousId, // optional. Only provide this information if it's an anonymous vote.
+);
 ```
 
 In the questions, you will have the number of upvotes and whether the current user has upvoted to these questions.
 
 ```typescript
 // total reactions in the question
-question.upvotes
+question.upvotes;
 
 // whether the current user has upvoted to the message
-question.userVoted
+question.userVoted;
 ```
 
 ##### Listeners
 
 To listen to changes to questions in real-time, some listeners can be used:
 
-- onChange: This will watch for Q&A props changes coming from dashboard and then call the passed callback with the Qna instance updating it properties
+- onChange: This will watch for Q&A props changes coming from dashboard and then call the passed callback with the Qna
+  instance updating it properties
+
 ```typescript
 qnaI.onChange(callback: (instance: BaseQna) => void): void
 ```
 
 - onQuestionReceived: Watches for new questions received
+
 ```typescript
 qnaI.onQuestionReceived(callback: (question: QnaQuestion) => void): void
 ```
 
 - onQuestionModified: Watches for the questions updated
+
 ```typescript
 qnaI.onQuestionModified(callback: (question: QnaQuestion) => void): void
 ```
 
 - onQuestionDeleted: Watches for the questions deleted
+
 ```typescript
 qnaI.onQuestionDeleted(callback: (question: QnaQuestion) => void): void
 ```
 
 To stop listen the previous events you can call:
+
 ```typescript
-qnaI.offQuestionReceived()
-qnaI.offQuestionModified()
-qnaI.offQuestionDeleted()
-qnaI.offChange()
+qnaI.offQuestionReceived();
+qnaI.offQuestionModified();
+qnaI.offQuestionDeleted();
+qnaI.offChange();
 ```
 
 ### Direct Messages
 
 When you enable the "Private Messages" option in your chat, members can chat directly with each other.
 
-To create a private channel with a user start calling the following method with the given options. See [types]('https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types')
+To create a private channel with a user start calling the following method with the given options. See
+[types]('https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types')
 
 ```typescript
 import PrivateChannel from '@/channel/private-channel.ts'
@@ -376,22 +400,23 @@ const peterChannel: BasePrivateChannel = await PrivateChannel.createUserChannel(
 })
 
 ```
+
 To list all private channels for the current user you can do like
 
 ```typescript
-const userChannels: BasePrivateChannel[] = await PrivateChannel.getUserChannels(currentUser, currentSite)
+const userChannels: BasePrivateChannel[] = await PrivateChannel.getUserChannels(currentUser, currentSite);
 ```
 
 To allow your users to block another users inside a private channel context use
 
 ```typescript
-const userBlocked: Boolean = await PrivateChannel.blockPrivateUser(currentUser, currentSite, targetUserId)
+const userBlocked: Boolean = await PrivateChannel.blockPrivateUser(currentUser, currentSite, targetUserId);
 ```
 
 The same is valid to unblock another blocked user
 
 ```typescript
-const userUnblocked: Boolean = await PrivateChannel.unblockPrivateUser(currentUser, currentSite, targetUserId)
+const userUnblocked: Boolean = await PrivateChannel.unblockPrivateUser(currentUser, currentSite, targetUserId);
 ```
 
 To send a private message on a specific channel you can call the following method
@@ -407,36 +432,39 @@ await peterChannel.sendMessage(
 It's also possible to obtain an already created private channel directly throught the sdk by passing the `channelId`
 
 ```typescript
-const aliceChannel: BasePrivateChannel = await arenaChat.getPrivateChannel("alice-channel")
+const aliceChannel: BasePrivateChannel = await arenaChat.getPrivateChannel('alice-channel');
 ```
 
 In the same way we can list only the private channels that are not group channels for the current user
 
 ```typescript
-const userPrivateChannels: BasePrivateChannel[] = await arenaChat.getUserPrivateChannel()
+const userPrivateChannels: BasePrivateChannel[] = await arenaChat.getUserPrivateChannel();
 ```
 
 Also, it's possible to create a channel via `ArenaChat` instance or return an existing one for a userId
 
 ```typescript
 const bobChannel: BasePrivateChannel = await arenaChat.createUserPrivateChannel(
-  "bobUserId",
-  new ChatMessageContent(messageParams) // optional
-)
+  'bobUserId',
+  new ChatMessageContent(messageParams), // optional
+);
 ```
 
-About the event listeners this one deserves attention, types are defined here [types]('https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types')
+About the event listeners this one deserves attention, types are defined here
+[types]('https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types')
 
-- onUnreadMessagesCountChanged : Watchs for unread messages within a private channel so you can display it for the user in real time, callback will hold the unread count
+- onUnreadMessagesCountChanged : Watchs for unread messages within a private channel so you can display it for the user
+  in real time, callback will hold the unread count
 
 ```typescript
 onUnreadMessagesCountChanged(user: ExternalUser, site: Site, callback: (total: number) => void): () => void
 ```
 
-- offUnreadMessagesCountChanged : From the sdk you can unsubscribe the a previous setted listener for `onUnreadMessagesCountChanged`
+- offUnreadMessagesCountChanged : From the sdk you can unsubscribe the a previous setted listener for
+  `onUnreadMessagesCountChanged`
 
 ```typescript
-arenaChat.offUnreadMessagesCountChanged()
+arenaChat.offUnreadMessagesCountChanged();
 ```
 
 ### Polls
@@ -446,11 +474,12 @@ Adding polls to engage the user experience is quite simple since it's enabled by
 First you'll need to get the Polls instance using a channel instance.
 
 ```typescript
-const pollsI = await channelI.getPollsInstance()
+const pollsI = await channelI.getPollsInstance();
 ```
 
-Once you get a polls instance it's possible to start loading the existing polls
-The enum `PollFilter` defined in [types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) can be used to filter the list of polls to be loaded.
+Once you get a polls instance it's possible to start loading the existing polls The enum `PollFilter` defined in
+[types](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types) can be used to filter the list of polls
+to be loaded.
 
 ```typescript
 enum PollFilter {
@@ -464,18 +493,19 @@ enum PollFilter {
 ```typescript
 const pollsList: [Poll] = await pollsI.loadPolls(
   PollFilter.RECENT,
-  50 // optional
-)
+  50, // optional
+);
 ```
 
-To register a vote in a option for a poll you need to inform the `pollId` the `optionIndex` that is a number starting in 0 and optionally an `anonymousId`
+To register a vote in a option for a poll you need to inform the `pollId` the `optionIndex` that is a number starting in
+0 and optionally an `anonymousId`
 
 ```typescript
 await pollsI.pollVote(
   pollId,
   5, // option index
-  anonymousUserId // optional. Only provide this information if it's an anonymous vote.
-)
+  anonymousUserId, // optional. Only provide this information if it's an anonymous vote.
+);
 ```
 
 You can create Polls using the following method as a chat moderator:
@@ -502,16 +532,18 @@ pollsI.deletePoll(
 
 Event listeners are exposed to watch for changes in real-time:
 
-- onPollReceived: Allows you to watch for new polls in real time to notify or display to users. The same signature works for  `onPollModified` and `onPollDeleted`
+- onPollReceived: Allows you to watch for new polls in real time to notify or display to users. The same signature works
+  for `onPollModified` and `onPollDeleted`
 
 ```typescript
 pollsI.onPollReceived(callback: (poll: Poll) => void): void
 ```
 
-- offPollReceived : Unregister a previous registered listener for `onPollReceived`, the same is valid for `offPollModified` and `offPollDeleted`
+- offPollReceived : Unregister a previous registered listener for `onPollReceived`, the same is valid for
+  `offPollModified` and `offPollDeleted`
 
 ```typescript
-pollsI.offPollReceived()
+pollsI.offPollReceived();
 ```
 
 ## Other Packages
@@ -519,9 +551,14 @@ pollsI.offPollReceived()
 Besides the high-level SDKs, this repository contains shared packages, helpers and configuration used for SDK
 development. If you're using TypeScript, take a look at the resources below:
 
-- [`@arena-im/types`](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types): Types used in all packages.
+- [`@arena-im/types`](https://github.com/stationfy/arena-chat-sdk/tree/master/packages/types): Types used in all
+  packages.
 
 ## Changelogs
+
+### v2.5.0(Feb 7, 2022)
+
+- Implement presence listener
 
 ### v2.3.1(Nov 3, 2021)
 
@@ -546,4 +583,4 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ### v2.0.20(Mar 8, 2021)
 
-- Bug fix: Kaspersky antivirus was breaking the real-time feature. 
+- Bug fix: Kaspersky antivirus was breaking the real-time feature.

@@ -561,6 +561,10 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ## Changelogs
 
+### v2.4.7(Feb 7, 2022)
+
+- Implement presence listener
+
 ### v2.4.6(Jan 19, 2022)
 
 - Bug fix: handle reactions errors
