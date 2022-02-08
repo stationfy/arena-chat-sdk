@@ -6,13 +6,15 @@ const fallbackGlobalObject = {};
  * @returns Global scope object
  */
 export function getGlobalObject<T>(): T {
-  return (isNodeEnv()
-    ? global
-    : typeof window !== 'undefined'
-    ? window
-    : typeof self !== 'undefined'
-    ? self
-    : fallbackGlobalObject) as T;
+  return (
+    isNodeEnv()
+      ? global
+      : typeof window !== 'undefined'
+      ? window
+      : typeof self !== 'undefined'
+      ? self
+      : fallbackGlobalObject
+  ) as T;
 }
 
 /**
@@ -79,6 +81,17 @@ export function debounce<F extends Procedure>(
 /**
  * Whether the SDK is running on mobile device
  */
-export function isMobile () {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+export function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+export function promiseTimeout(promise: Promise<any>, time: number): Promise<any> {
+  return Promise.race([
+    promise,
+    new Promise((_resolve, reject) =>
+      setTimeout(() => {
+        reject(new Error('Timeout'));
+      }, time),
+    ),
+  ]);
 }

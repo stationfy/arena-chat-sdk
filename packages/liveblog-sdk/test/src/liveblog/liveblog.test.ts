@@ -3,10 +3,12 @@ import { Liveblog } from '@liveblog/liveblog';
 
 const mockJoinUser = jest.fn();
 const mockWatchUserReactions = jest.fn();
+const mockWatchReactionsErrors = jest.fn();
 
 afterEach(() => {
   mockJoinUser.mockRestore();
   mockWatchUserReactions.mockRestore();
+  mockWatchReactionsErrors.mockRestore();
 });
 
 jest.mock('@services/rest-api', () => ({
@@ -25,11 +27,13 @@ jest.mock('@arena-im/core', () => ({
   ReactionsAPIWS: {
     getInstance: () => ({
       watchUserReactions: mockWatchUserReactions,
+      watchReactionsErrors: mockWatchReactionsErrors
     }),
   },
   ReactionsAPIFirestore: {
     getInstance: () => ({
       watchUserReactions: mockWatchUserReactions,
+      watchReactionsErrors: mockWatchReactionsErrors
     }),
   },
 }));
@@ -54,4 +58,11 @@ test('should validate watchUserReactions method', async () => {
   instance.watchUserReactions(jest.fn());
 
   expect(mockWatchUserReactions).toHaveBeenCalled();
+});
+test('should validate watchReactionsErrors method', async () => {
+  const instance = await Liveblog.getInstance('site1');
+
+  instance.watchReactionsErrors(jest.fn());
+
+  expect(mockWatchReactionsErrors).toHaveBeenCalled();
 });

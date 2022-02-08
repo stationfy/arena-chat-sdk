@@ -9,9 +9,10 @@ import {
   ExternalPoll,
   ChatRoom,
 } from '@arena-im/chat-types';
-import { User } from '@arena-im/core';
+import { LogApi, User } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
+import { createObserver, isPolls } from '@arena-im/core';
 
 export class Polls implements BasePolls {
   private realtimeAPI: RealtimeAPI;
@@ -20,8 +21,12 @@ export class Polls implements BasePolls {
   private userReactionsPollSubscription: (() => void) | null = null;
   private cacheUserPollsReactions: { [key: string]: ServerReaction } = {};
   private pollModificationCallbacks: { [type: string]: ((poll: Poll) => void)[] } = {};
+  private pollErrorsListeners = createObserver<string>();
+  private pollErrorsSubscription: (() => void) | null = null;
+  private logger: LogApi;
 
   public constructor(private channel: LiveChatChannel, private chatRoom: ChatRoom) {
+    this.logger = new LogApi(Polls.name);
     this.realtimeAPI = RealtimeAPI.getInstance();
   }
 
@@ -65,10 +70,16 @@ export class Polls implements BasePolls {
     try {
       const polls = await this.realtimeAPI.fetchAllPolls(this.channel._id, filter, limit);
 
+      if (!isPolls(polls)) {
+        throw new Error(`params of Polls incomplete`);
+      }
+
       this.updateCacheCurrentPolls(polls);
 
       return this.cacheCurrentPolls;
     } catch (e) {
+      this.logger.error(`Cannot load polls on "${this.channel._id}" chat channel: ${e}`);
+      this.pollErrorsListeners.publish(`Cannot load polls on "${this.channel._id}" chat channel: ${e}`);
       throw new Error(`Cannot load polls on "${this.channel._id}" chat channel.`);
     }
   }
@@ -90,8 +101,17 @@ export class Polls implements BasePolls {
 
       return result;
     } catch (e) {
+      this.logger.error(`Cannot vote for the "${pollId}" poll question: ${e}`);
+      this.pollErrorsListeners.publish(`Cannot vote for the "${pollId}" poll question: ${e}`);
       throw new Error(`Cannot vote for the "${pollId}" poll question.`);
     }
+  }
+
+  public watchPollErrors(callback: (error: any) => void): void {
+    if (this.pollErrorsSubscription !== null) {
+      this.pollErrorsSubscription();
+    }
+    this.pollErrorsSubscription = this.pollErrorsListeners.subscribe(callback);
   }
 
   /**

@@ -4,3 +4,4 @@ export { ReactionsAPIFirestore } from './reactions-api-firestore';
 export { StorageAPI } from './storage-api';
 export { PresenceObservable } from './presence-observable';
 export { ArenaHub } from './arena-hub';
+export { LogApi } from './log-api';
