@@ -5,6 +5,8 @@ import { RealtimeAPI } from './realtime-api';
 import { RestAPI } from './rest-api';
 import { createObserver } from '../utils/observer';
 import { GraphQLAPI } from './graphql-api';
+import { isUserReactions } from '../utils/is';
+import { LogApi } from '.';
 
 type Instance = {
   [key: string]: ReactionsAPIFirestore;
@@ -13,8 +15,11 @@ type Instance = {
 export class ReactionsAPIFirestore implements BaseReactionsAPI {
   private static instance: Instance = {};
   private userReactionsListeners = createObserver<ServerReaction[]>();
+  private reactionsErrorsListeners = createObserver<string>();
+  private logger: LogApi;
 
   private constructor(private channelId: string) {
+    this.logger = new LogApi(ReactionsAPIFirestore.name);
     UserObservable.instance.onUserChanged(() => this.watchUserChanged());
   }
 
@@ -42,16 +47,22 @@ export class ReactionsAPIFirestore implements BaseReactionsAPI {
    * @deprecated
    */
   public async createReaction(reaction: ServerReaction): Promise<void> {
-    if (reaction.itemType === 'poll') {
-      const graphQLAPI = await GraphQLAPI.instance;
-      await graphQLAPI.pollVote({
-        pollId: reaction.itemId,
-        userId: reaction.userId,
-        optionId: parseInt(reaction.reaction),
-      });
-    } else {
-      const restAPI = RestAPI.getAPIInstance();
-      await restAPI.sendReaction(reaction);
+    try {
+      if (reaction.itemType === 'poll') {
+        const graphQLAPI = await GraphQLAPI.instance;
+        await graphQLAPI.pollVote({
+          pollId: reaction.itemId,
+          userId: reaction.userId,
+          optionId: parseInt(reaction.reaction),
+        });
+      } else {
+        const restAPI = RestAPI.getAPIInstance();
+        await restAPI.sendReaction(reaction);
+      }
+    } catch (err) {
+      this.logger.error(`Error to create reaction: ${err}`);
+      this.reactionsErrorsListeners.publish(`Error to create reaction: ${err}`);
+      throw new Error(`Error to create reaction: ${err}`);
     }
   }
 
@@ -60,7 +71,15 @@ export class ReactionsAPIFirestore implements BaseReactionsAPI {
 
     const realtimeAPI = RealtimeAPI.getInstance();
 
-    return realtimeAPI.fetchUserReactions(this.channelId, userId);
+    const userReactions = await realtimeAPI.fetchUserReactions(this.channelId, userId);
+
+    if (!isUserReactions(userReactions)) {
+      this.reactionsErrorsListeners.publish('params of ServerReaction incomplete');
+      this.logger.error('params of ServerReaction incomplete');
+      throw new Error('params of ServerReaction incomplete');
+    }
+
+    return userReactions;
   }
 
   public async fetchChannelReactions(): Promise<ChannelReaction[]> {
@@ -75,6 +94,10 @@ export class ReactionsAPIFirestore implements BaseReactionsAPI {
   public watchChannelReactions(): () => void {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     return () => {};
+  }
+
+  public watchReactionsErrors(callback: (error: any) => void): () => void {
+    return this.reactionsErrorsListeners.subscribe(callback);
   }
 
   public offAllListeners(): void {

@@ -22,12 +22,18 @@ test('should validate getInstance method', () => {
 test('should validate createReaction method', () => {
   ReactionsAPIWS.getInstance(channelId).createReaction({} as ServerReaction);
 
-  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalledWith('reaction.create', {});
+  expect(WebSocketTransport.getInstance(channelId).emit).toHaveBeenCalled();
 });
 
 test('should validate watchChannelReactions method', () => {
   const callback = jest.fn();
   ReactionsAPIWS.getInstance(channelId).watchChannelReactions(callback);
+
+  expect(callback).not.toHaveBeenCalled();
+});
+test('should validate watchReactionsErrors method', () => {
+  const callback = jest.fn();
+  ReactionsAPIWS.getInstance(channelId).watchReactionsErrors(callback);
 
   expect(callback).not.toHaveBeenCalled();
 });

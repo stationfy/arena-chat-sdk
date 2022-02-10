@@ -4,7 +4,9 @@ import { ServerReaction, ChannelReaction } from '@arena-im/chat-types';
 import { WebSocketTransport } from '../transports/websocket-transport';
 import { PresenceObservable } from './presence-observable';
 import { BaseReactionsAPI } from '../interfaces';
-import { isUserReactions } from '../utils/is';
+import { isChannelReactions, isUserReactions } from '../utils/is';
+import { LogApi } from '.';
+import { promiseTimeout } from '../utils/misc';
 
 type Instance = {
   [key: string]: ReactionsAPIWS;
@@ -17,16 +19,20 @@ const EVENT_TYPES = {
   REACTION_USER: 'reaction.user',
   REACTION_CHANNEL_RETRIEVE: 'reaction.channel.retrieve',
 };
-
+const WS_PROMISE_TIMEOUT = 3000;
 export class ReactionsAPIWS implements BaseReactionsAPI {
   private static instance: Instance = {};
   private cachedUserReactions: ServerReaction[] | null = null;
   private cachedChannelReactions: ChannelReaction[] | null = null;
   private userReactionsListeners = createObserver<ServerReaction[]>();
   private channelReactionsListeners = createObserver<ChannelReaction[]>();
+  private reactionsErrorsListeners = createObserver<string>();
   private webSocketTransport: Socket;
+  private logger: LogApi;
 
   private constructor(channelId: string) {
+    this.logger = new LogApi(ReactionsAPIWS.name);
+
     this.webSocketTransport = WebSocketTransport.getInstance(channelId);
 
     PresenceObservable.getInstance(channelId).onUserJoinedChanged(this.onPresenceChanged.bind(this));
@@ -54,7 +60,20 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
   }
 
   public async createReaction(reaction: ServerReaction): Promise<void> {
-    this.webSocketTransport.emit(EVENT_TYPES.REACTION_CREATE, reaction);
+    return promiseTimeout(
+      new Promise((resolve, reject) => {
+        this.webSocketTransport.emit(EVENT_TYPES.REACTION_CREATE, reaction, (err: Record<string, unknown> | null) => {
+          if (err) {
+            this.logger.error(`Error to create reaction: ${err}`);
+            this.reactionsErrorsListeners.publish(`Error to create reaction: ${err}`);
+            return reject(err);
+          }
+
+          resolve({});
+        });
+      }),
+      WS_PROMISE_TIMEOUT,
+    );
   }
 
   public watchUserReactions(callback: (reactions: ServerReaction[]) => void): () => void {
@@ -65,52 +84,73 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
     return this.userReactionsListeners.subscribe(callback);
   }
 
+  public watchReactionsErrors(callback: (error: any) => void): () => void {
+    return this.reactionsErrorsListeners.subscribe(callback);
+  }
+
   public async fetchUserReactions(): Promise<ServerReaction[]> {
     try {
       const reactions = await this.retrieveUserReactions();
-
-      if (!isUserReactions(reactions)) {
-        throw new Error('It is not user reactions');
-      }
 
       this.cachedUserReactions = reactions;
 
       return reactions;
     } catch (e) {
+      this.logger.error(`Could not retrieve user reactions: ${e}`);
       throw new Error('Could not retrieve user reactions');
     }
   }
 
   private retrieveUserReactions(): Promise<ServerReaction[]> {
-    return new Promise((resolve, reject) => {
-      this.webSocketTransport.emit(
-        EVENT_TYPES.REACTION_RETRIEVE,
-        {},
-        (err: Record<string, unknown> | null, data: ServerReaction[]) => {
-          if (err) {
-            return reject(err);
-          }
+    return promiseTimeout(
+      new Promise((resolve, reject) => {
+        this.webSocketTransport.emit(
+          EVENT_TYPES.REACTION_RETRIEVE,
+          {},
+          (err: Record<string, unknown> | null, data: ServerReaction[]) => {
+            if (err) {
+              this.logger.error(`Could not retrieve user reactions: ${err}`);
+              this.reactionsErrorsListeners.publish(`Could not retrieve user reactions: ${err}`);
+              return reject(err);
+            }
 
-          resolve(data);
-        },
-      );
-    });
+            if (!isUserReactions(data)) {
+              this.reactionsErrorsListeners.publish('params of ServerReaction incomplete');
+              return reject('params of ServerReaction incomplete');
+            }
+
+            resolve(data);
+          },
+        );
+      }),
+      WS_PROMISE_TIMEOUT,
+    );
   }
 
   public fetchChannelReactions(): Promise<ChannelReaction[]> {
-    return new Promise((resolve, reject) => {
-      this.webSocketTransport.emit(
-        EVENT_TYPES.REACTION_CHANNEL_RETRIEVE,
-        {},
-        (err: Record<string, unknown> | null, data: ChannelReaction[]) => {
-          if (err) {
-            return reject(err);
-          }
+    return promiseTimeout(
+      new Promise((resolve, reject) => {
+        this.webSocketTransport.emit(
+          EVENT_TYPES.REACTION_CHANNEL_RETRIEVE,
+          {},
+          (err: Record<string, unknown> | null, data: ChannelReaction[]) => {
+            if (err) {
+              this.logger.error(`Could not fetch channel reactions: ${err}`);
+              this.reactionsErrorsListeners.publish(`Could not fetch channel reactions: ${err}`);
+              return reject(err);
+            }
 
-          resolve(data);
-        },
-      );
-    });
+            if (!isChannelReactions(data)) {
+              this.reactionsErrorsListeners.publish('params of ChannelReaction incomplete');
+              return reject('params of ChannelReaction incomplete');
+            }
+
+            resolve(data);
+          },
+        );
+      }),
+      WS_PROMISE_TIMEOUT,
+    );
   }
 
   public watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): () => void {
@@ -123,9 +163,14 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
 
   private watchChannelReactionsEvent(): void {
     this.webSocketTransport.on(EVENT_TYPES.REACTION_CHANNEL, (reactions: ChannelReaction[]) => {
-      this.cachedChannelReactions = reactions;
-
-      this.channelReactionsListeners.publish(reactions);
+      
+      if (!isChannelReactions(reactions)) {
+        this.logger.error('params of ChannelReaction incomplete');
+        this.reactionsErrorsListeners.publish('params of ChannelReaction incomplete');
+      } else {
+        this.cachedChannelReactions = reactions;
+        this.channelReactionsListeners.publish(reactions);
+      }
     });
   }
 

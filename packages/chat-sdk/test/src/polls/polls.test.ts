@@ -5,6 +5,7 @@ import { exampleChatRoom, exampleLiveChatChannel, examplePoll, exampleUser } fro
 import { Poll, PollFilter, ServerReaction } from '@arena-im/chat-types';
 import { User } from '@arena-im/core';
 
+
 jest.mock('@services/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
@@ -21,6 +22,15 @@ jest.mock('@arena-im/core', () => ({
       data: jest.fn(),
     },
   },
+  createObserver: jest.fn().mockImplementation(() => ({
+    subscribe: jest.fn(),
+    publish: jest.fn(),
+  })),
+  LogApi: jest.fn().mockImplementation(() => ({
+    createContext: jest.fn(),
+    error: jest.fn(),
+  })),
+  isPolls: () => true,
 }));
 
 describe('Polls', () => {

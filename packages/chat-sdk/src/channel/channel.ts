@@ -40,6 +40,7 @@ export class Channel implements BaseChannel {
   private messageModificationListenerUnsubscribe: (() => void) | null = null;
   private userReactionsSubscription: (() => void) | null = null;
   private channelReactionsSubscription: (() => void) | null = null;
+  private reactionsErrorsSubscription: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
   private reactionsAPI: BaseReactionsAPI;
@@ -396,6 +397,14 @@ export class Channel implements BaseChannel {
     });
   }
 
+  public watchReactionsErrors(callback: (error: any) => void): void {
+    if (this.reactionsErrorsSubscription !== null) {
+      this.reactionsErrorsSubscription();
+    }
+
+    this.reactionsErrorsSubscription = this.reactionsAPI.watchReactionsErrors(callback);
+  }
+
   /**
    * Watch Channel reactions
    *
@@ -736,8 +745,8 @@ export class Channel implements BaseChannel {
    *
    */
 
-  private createReaction(serverReaction: ServerReaction) {
-    this.reactionsAPI.createReaction(serverReaction);
+  private async createReaction(serverReaction: ServerReaction) {
+    await this.reactionsAPI.createReaction(serverReaction);
   }
 
   /**
