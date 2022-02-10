@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 2.5.0 (2022-02-10)
+
+
+### Features
+
+* handle realtime errors ([7038f7a](https://github.com/stationfy/arena-chat-sdk/commit/7038f7abee8d021b807bb848f30c2a1044dd2520))
+
+
+
+
+
 ## 2.4.7 (2022-02-07)
 
 
