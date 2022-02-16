@@ -452,8 +452,6 @@ export class PrivateChannel implements BasePrivateChannel {
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
-    // this.reactionsAPI.offAllListeners();
-
     this.unsubscribeMessageModification();
   }
 
