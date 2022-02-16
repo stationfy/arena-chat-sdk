@@ -444,6 +444,32 @@ export class PrivateChannel implements BasePrivateChannel {
   }
 
   /**
+   * Remove all private channel's listeners
+   *
+   */
+  public offAllListeners(): void {
+    this.messageModificationCallbacks[MessageChangeType.ADDED] = [];
+    this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
+    this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
+
+    this.unsubscribeMessageModification();
+  }
+
+  private unsubscribeMessageModification(): void {
+    // check if has some registered listeners
+    for (const listener of Object.values(this.messageModificationCallbacks)) {
+      if (listener.length) {
+        return;
+      }
+    }
+
+    if (typeof this.messageModificationListenerUnsubscribe === 'function') {
+      this.messageModificationListenerUnsubscribe();
+      this.messageModificationListenerUnsubscribe = null;
+    }
+  }
+
+  /**
    * Register message modification callback
    *
    */
