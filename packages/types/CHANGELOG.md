@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.2 (2022-02-17)
+
+
+### Bug Fixes
+
+* merge with develop ([5b5cf8c](https://github.com/stationfy/arena-chat-sdk/commit/5b5cf8c3d537c6a19fb913947c1f194c6de81bff))
+
+
+
+
+
 ## 2.5.1 (2022-02-17)
 
 
