@@ -7,6 +7,7 @@ import {
   PrivateMessageInput,
 } from '@arena-im/chat-types';
 import { User, OrganizationSite } from '@arena-im/core';
+import { debounce } from '../utils/misc';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
 
@@ -17,8 +18,11 @@ export class PrivateChannel implements BasePrivateChannel {
   private loadRecentMessagesCalled = false;
   private totalLimit: number | null = null;
   private fetchPreviousMessagesPromise = false;
+  public markReadDebounced: () => void;
 
-  public constructor(private groupChannel: GroupChannel) {}
+  public constructor(private groupChannel: GroupChannel) {
+    this.markReadDebounced = debounce(this.markRead, 10000);
+  }
 
   /**
    * Get a group channel by id
@@ -268,7 +272,7 @@ export class PrivateChannel implements BasePrivateChannel {
 
       this.updateCacheCurrentMessages(messages);
 
-      this.markRead();
+      this.markReadDebounced();
 
       this.loadRecentMessagesCalled = true;
 
@@ -369,7 +373,7 @@ export class PrivateChannel implements BasePrivateChannel {
         this.updateCacheCurrentMessages(messages);
 
         if (user.id !== newMessage.sender?._id) {
-          this.markRead();
+          this.markReadDebounced();
         }
 
         callback(newMessage);

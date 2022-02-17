@@ -50,7 +50,7 @@ export class Channel implements BaseChannel {
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
     UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
-    this.markReadDebounced = debounce(this.markRead, 10000);
+    this.markReadDebounced = debounce(this.markRead, 120000);
     this.reactionsAPI = this.getReactionsAPIInstance();
   }
 
@@ -454,7 +454,9 @@ export class Channel implements BaseChannel {
 
       this.updateCacheCurrentMessages(messages);
 
-      this.markReadDebounced();
+      if (this.chatRoom?.numChannels > 1) {
+        this.markReadDebounced();
+      }
 
       this.initReactionsListeners();
 
@@ -827,7 +829,7 @@ export class Channel implements BaseChannel {
 
         this.updateCacheCurrentMessages(messages);
 
-        if (User.instance.data?.id !== newMessage.sender?._id) {
+        if (User.instance.data?.id !== newMessage.sender?._id && this.chatRoom?.numChannels > 1) {
           this.markReadDebounced();
         }
 

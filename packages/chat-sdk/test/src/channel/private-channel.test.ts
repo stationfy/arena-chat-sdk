@@ -801,7 +801,7 @@ describe('PrivateChannel', () => {
 
       const privateChannel = new PrivateChannel(exampleGroupChannel);
 
-      const spy = jest.spyOn(privateChannel, 'markRead');
+      const spy = jest.spyOn(privateChannel, 'markReadDebounced');
 
       // @ts-ignore
       User.instance.data = exampleUser;
