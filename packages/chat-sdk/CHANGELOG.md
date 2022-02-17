@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.1 (2022-02-17)
+
+
+### Bug Fixes
+
+* send mark read only for chat that has more than 1 channel ([5f21206](https://github.com/stationfy/arena-chat-sdk/commit/5f21206aa124463bcf1b828988ece8889427c39a))
+
+
+
+
+
 # 2.5.0 (2022-02-10)
 
 
