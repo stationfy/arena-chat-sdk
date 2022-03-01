@@ -81,7 +81,7 @@ export function debounce<F extends Procedure>(
 /**
  * Whether the SDK is running on mobile device
  */
-export function isMobile() {
+export function isMobile(): boolean {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 

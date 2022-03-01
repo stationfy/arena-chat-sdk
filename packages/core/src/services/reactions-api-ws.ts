@@ -62,11 +62,11 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
   public async createReaction(reaction: ServerReaction): Promise<void> {
     return promiseTimeout(
       new Promise((resolve, reject) => {
-        this.webSocketTransport.emit(EVENT_TYPES.REACTION_CREATE, reaction, (err: Record<string, unknown> | null) => {
-          if (err) {
-            this.logger.error(`Error to create reaction: ${err}`);
-            this.reactionsErrorsListeners.publish(`Error to create reaction: ${err}`);
-            return reject(err);
+        this.webSocketTransport.emit(EVENT_TYPES.REACTION_CREATE, reaction, (error: Record<string, unknown> | null) => {
+          if (error) {
+            this.logger.error(`Error to create reaction.`, { error });
+            this.reactionsErrorsListeners.publish(`Error to create reaction.`);
+            return reject(error);
           }
 
           resolve({});
@@ -95,8 +95,8 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
       this.cachedUserReactions = reactions;
 
       return reactions;
-    } catch (e) {
-      this.logger.error(`Could not retrieve user reactions: ${e}`);
+    } catch (error) {
+      this.logger.error(`Could not retrieve user reactions.`, { error });
       throw new Error('Could not retrieve user reactions');
     }
   }
@@ -107,11 +107,11 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
         this.webSocketTransport.emit(
           EVENT_TYPES.REACTION_RETRIEVE,
           {},
-          (err: Record<string, unknown> | null, data: ServerReaction[]) => {
-            if (err) {
-              this.logger.error(`Could not retrieve user reactions: ${err}`);
-              this.reactionsErrorsListeners.publish(`Could not retrieve user reactions: ${err}`);
-              return reject(err);
+          (error: Record<string, unknown> | null, data: ServerReaction[]) => {
+            if (error) {
+              this.logger.error('Could not retrieve user reactions.', { error });
+              this.reactionsErrorsListeners.publish('Could not retrieve user reactions.');
+              return reject(error);
             }
 
             if (!isUserReactions(data)) {
@@ -133,11 +133,11 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
         this.webSocketTransport.emit(
           EVENT_TYPES.REACTION_CHANNEL_RETRIEVE,
           {},
-          (err: Record<string, unknown> | null, data: ChannelReaction[]) => {
-            if (err) {
-              this.logger.error(`Could not fetch channel reactions: ${err}`);
-              this.reactionsErrorsListeners.publish(`Could not fetch channel reactions: ${err}`);
-              return reject(err);
+          (error: Record<string, unknown> | null, data: ChannelReaction[]) => {
+            if (error) {
+              this.logger.error(`Could not fetch channel reactions.`, { error });
+              this.reactionsErrorsListeners.publish(`Could not fetch channel reactions.`);
+              return reject(error);
             }
 
             if (!isChannelReactions(data)) {
@@ -163,7 +163,6 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
 
   private watchChannelReactionsEvent(): void {
     this.webSocketTransport.on(EVENT_TYPES.REACTION_CHANNEL, (reactions: ChannelReaction[]) => {
-      
       if (!isChannelReactions(reactions)) {
         this.logger.error('params of ChannelReaction incomplete');
         this.reactionsErrorsListeners.publish('params of ChannelReaction incomplete');

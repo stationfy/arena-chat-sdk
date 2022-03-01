@@ -59,3 +59,34 @@ export function isEqualReactions(reactionA: { [key: string]: number }, reactionB
 
   return true;
 }
+
+/**
+ * Checks whether given value type is a Poll[].
+ * @param wat A value to be checked.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function isPolls(wat: any): boolean {
+  if (!Array.isArray(wat)) {
+    return false;
+  }
+
+  for (const poll of wat) {
+    if (
+      !(
+        poll &&
+        poll._id &&
+        poll.chatRoomId &&
+        poll.createdAt &&
+        poll.options &&
+        poll.publishedAt &&
+        poll.question &&
+        poll.siteId &&
+        typeof poll.total !== 'undefined'
+      )
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
