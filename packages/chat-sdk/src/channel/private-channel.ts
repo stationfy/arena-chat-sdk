@@ -330,11 +330,11 @@ export class PrivateChannel implements BasePrivateChannel {
             previousMessages.push(message);
           }
 
-          this.updateCacheCurrentMessages(messages.concat(this.cacheCurrentMessages));
+          this.updateCacheCurrentMessages(previousMessages.concat(this.cacheCurrentMessages));
 
           this.fetchPreviousMessagesPromise = false;
 
-          resolve(messages);
+          resolve(previousMessages);
         }, limit);
       });
     } catch (e) {
