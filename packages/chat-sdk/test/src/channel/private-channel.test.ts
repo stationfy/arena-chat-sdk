@@ -582,6 +582,8 @@ describe('PrivateChannel', () => {
       //   },
       // };
 
+      let messagesCounter = 0
+      
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
         listenToGroupMessageReceived: (
@@ -591,7 +593,7 @@ describe('PrivateChannel', () => {
         ) => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
-            key: 'fake-key',
+            key: '',
             message: {
               text: 'testing',
             },
@@ -602,8 +604,16 @@ describe('PrivateChannel', () => {
             },
           };
 
-          const messages: ChatMessage[] = new Array(5).fill(message);
-
+          const messages: ChatMessage[] = [1,2,3,4,5].map(() => {
+            const messageWithDifferentKeys = {
+              ...message,
+              key: `fake-key-${messagesCounter}`
+            }
+            
+            messagesCounter++
+            return messageWithDifferentKeys
+          })
+          
           callback(messages);
 
           // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -621,7 +631,6 @@ describe('PrivateChannel', () => {
       await privateChannel.loadRecentMessages(5);
 
       const messages = await privateChannel.loadPreviousMessages(5);
-
       expect(messages.length).toEqual(5);
     });
     it('should receive an error when try to get previous message without call recent messages first', (done) => {
