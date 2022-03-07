@@ -21,6 +21,7 @@ export const exampleLiveChatChannel: LiveChatChannel = {
   chatPreModerationIsEnabled: true,
   chatRequestModeratorIsEnabled: true,
   dataPath: '/chat-room/fake-main-channel',
+  pinnedMessageId: '23422d32fd23f23ff23r2',
   hasPolls: true,
   name: 'Fake Main Channel',
   qnaId: 'fake-qna',

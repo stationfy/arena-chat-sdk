@@ -30,6 +30,7 @@ import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
 import { isEqualReactions } from '../utils/is';
+import { ChatConfigType } from '@arena-im/chat-types/dist/chat-message';
 
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
@@ -41,11 +42,14 @@ export class Channel implements BaseChannel {
   private userReactionsSubscription: (() => void) | null = null;
   private channelReactionsSubscription: (() => void) | null = null;
   private reactionsErrorsSubscription: (() => void) | null = null;
+  private chatConfigListenerUnsubscribe: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
   private reactionsAPI: BaseReactionsAPI;
   private fetchPreviousMessagesPromise = false;
   private totalLimit: number | null = null;
+  private chatConfigChangesCallbacks: { [type: string]: ((item: any) => void)[] } = {};
+  private pinnedMessageId: string | null = null;
 
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges();
@@ -915,8 +919,6 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
-    // this.reactionsAPI.offAllListeners();
-
     this.unsubscribeMessageModification();
   }
 
@@ -984,26 +986,121 @@ export class Channel implements BaseChannel {
   }
 
   /**
+   * Remove chat cofig changes listener
+   *
+   */
+  private offChatConfigListener(callback?: (item: any) => void, type?: ChatConfigType): void {
+    if (
+      this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES].length === 0 &&
+      this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES].length === 0 &&
+      this.chatConfigListenerUnsubscribe
+    ) {
+      this.chatConfigListenerUnsubscribe();
+      this.chatConfigListenerUnsubscribe = null;
+    }
+
+    if (callback && type) {
+      if (this.chatConfigChangesCallbacks[type].indexOf(callback)) {
+        const newCallbacksList = this.chatConfigChangesCallbacks[type].filter((item) => item !== callback);
+        this.chatConfigChangesCallbacks[type] = newCallbacksList;
+      }
+    }
+  }
+
+
+  /**
    * Watch chat config changes
    *
    */
-  public watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void {
+  public watchChatConfigChanges(callback?: (item: any) => void, type?: ChatConfigType): () => void {
     try {
-      const realtimeAPI = RealtimeAPI.getInstance();
-      const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
-      return realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
-        this.channel = {
-          ...nextChatRoom,
-          _id: this.channel._id,
-          dataPath: this.channel.dataPath,
-        };
+      if (callback) {
+        const callbackType = type || ChatConfigType.ALL_CHAT_CHANGES;
 
-        if (callback) {
-          callback(this.channel);
+        if (this.chatConfigChangesCallbacks[callbackType]) {
+          this.chatConfigChangesCallbacks[callbackType].push(callback);
+        } else {
+          this.chatConfigChangesCallbacks[callbackType] = [callback];
         }
-      });
+      }
+
+      if (!this.chatConfigListenerUnsubscribe) {
+        const realtimeAPI = RealtimeAPI.getInstance();
+        const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
+
+        this.chatConfigListenerUnsubscribe = realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
+          this.onChatChanges(nextChatRoom);
+
+          if (this.pinnedMessageId !== nextChatRoom.pinnedMessageId) {
+            const newPinnedMessageId = nextChatRoom.pinnedMessageId || null;
+
+            this.pinnedMessageId = newPinnedMessageId;
+            this.onPinMessageChanges(newPinnedMessageId);
+          }
+        });
+      }
+
+      return () => {
+        this.offChatConfigListener(callback, type);
+      };
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');
+    }
+  }
+
+
+  /**
+   * Remove all chat config listeners
+   *
+   */
+   public offAllChatConfigListeners(): void {
+    try {
+      if (this.chatConfigListenerUnsubscribe) {
+        this.chatConfigListenerUnsubscribe();
+        this.chatConfigListenerUnsubscribe = null;
+      }
+
+      this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES] = [];
+      this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES] = [];
+
+    } catch (err) {
+      throw new Error('Cannot off chat config changes');
+    }
+  }
+
+  /**
+   * Watch new config changes on chat
+   *
+   */
+  private onChatChanges(nextChatRoom: LiveChatChannel): void {
+    this.channel = {
+      ...nextChatRoom,
+      _id: this.channel._id,
+      dataPath: this.channel.dataPath,
+    };
+
+    if (this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES]) {
+      this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES].forEach((callback) => {
+        callback(this.channel);
+      });
+    }
+  }
+
+  /**
+   * Watch pin message changes on chat
+   *
+   */
+  private async onPinMessageChanges(pinnedMessageId: string | null): Promise<void> {
+    let pinnedMessage: ChatMessage | null = null;
+
+    if (pinnedMessageId) {
+      pinnedMessage = await this.fetchPinMessage();
+    }
+
+    if (this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES]) {
+      this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES].forEach((callback) => {
+        callback(pinnedMessage);
+      });
     }
   }
 }
