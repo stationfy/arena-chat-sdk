@@ -1,4 +1,4 @@
-import { ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
+import { ChatConfigType, ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
 import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
@@ -43,6 +43,7 @@ export interface LiveChatChannel {
   name: string;
   qnaId?: string;
   qnaIsEnabled?: boolean;
+  pinnedMessageId?: string;
   reactionsEnabled: boolean;
   showEmojiButton: boolean;
   unreadCount: number;
@@ -120,7 +121,8 @@ export interface BaseChannel {
   offAllListeners(): void;
   getChatQnaInstance(): Promise<BaseQna>;
   reportMessage(message: ChatMessage, anonymousId?: string): Promise<boolean>;
-  watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void;
+  watchChatConfigChanges(callback: (item: ChatMessage | LiveChatChannel) => void, type?: ChatConfigType ): () => void;
+  offAllChatConfigListeners(): void
 }
 
 export type ChannelType = 'liveblog' | 'chat_room';

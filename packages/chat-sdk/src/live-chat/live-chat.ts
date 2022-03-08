@@ -154,7 +154,7 @@ export class LiveChat implements BaseLiveChat {
       if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid channel (${channelId}) id.`;
       }
-
+     
       throw new Error(erroMessage);
     }
   }

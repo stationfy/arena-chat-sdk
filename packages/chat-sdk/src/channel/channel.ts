@@ -30,6 +30,7 @@ import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
 import { isEqualReactions } from '../utils/is';
+import { ChatConfigType } from '@arena-im/chat-types/dist/chat-message';
 
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
@@ -41,14 +42,20 @@ export class Channel implements BaseChannel {
   private userReactionsSubscription: (() => void) | null = null;
   private channelReactionsSubscription: (() => void) | null = null;
   private reactionsErrorsSubscription: (() => void) | null = null;
+  private chatConfigListenerUnsubscribe: (() => void) | null = null;
   public markReadDebounced: () => void;
   public polls: BasePolls | null = null;
   private reactionsAPI: BaseReactionsAPI;
   private fetchPreviousMessagesPromise = false;
   private totalLimit: number | null = null;
+  private chatConfigChangesCallbacks: { [type: string]: ((item: LiveChatChannel | ChatMessage) => void)[] } = {};
+  private pinnedMessageId: string | null = null;
 
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
-    this.watchChatConfigChanges();
+    this.watchChatConfigChanges(
+      this.updateChannelChatConfig as (item: ChatMessage | LiveChatChannel) => void,
+      ChatConfigType.ALL_CHAT_CHANGES,
+    );
     UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
     this.markReadDebounced = debounce(this.markRead, 120000);
     this.reactionsAPI = this.getReactionsAPIInstance();
@@ -917,8 +924,6 @@ export class Channel implements BaseChannel {
     this.messageModificationCallbacks[MessageChangeType.MODIFIED] = [];
     this.messageModificationCallbacks[MessageChangeType.REMOVED] = [];
 
-    // this.reactionsAPI.offAllListeners();
-
     this.unsubscribeMessageModification();
   }
 
@@ -986,26 +991,121 @@ export class Channel implements BaseChannel {
   }
 
   /**
+   * Remove chat cofig changes listener
+   *
+   */
+  private offChatConfigListener(callback: (item: LiveChatChannel | ChatMessage) => void, type: ChatConfigType): void {
+    if (
+      this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES].length === 0 &&
+      this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES].length === 0 &&
+      this.chatConfigListenerUnsubscribe
+    ) {
+      this.chatConfigListenerUnsubscribe();
+      this.chatConfigListenerUnsubscribe = null;
+    }
+
+    const newCallbacksList = this.chatConfigChangesCallbacks[type].filter((item) => item !== callback);
+    this.chatConfigChangesCallbacks[type] = newCallbacksList;
+  }
+
+  /**
    * Watch chat config changes
    *
    */
-  public watchChatConfigChanges(callback?: (channel: LiveChatChannel) => void): () => void {
+  public watchChatConfigChanges(
+    callback: (item: LiveChatChannel | ChatMessage) => void,
+    type?: ChatConfigType,
+  ): () => void {
+    const callbackType = type || ChatConfigType.ALL_CHAT_CHANGES
+    
     try {
-      const realtimeAPI = RealtimeAPI.getInstance();
-      const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
-      return realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
-        this.channel = {
-          ...nextChatRoom,
-          _id: this.channel._id,
-          dataPath: this.channel.dataPath,
-        };
+      if (this.chatConfigChangesCallbacks[callbackType]) {
+        this.chatConfigChangesCallbacks[callbackType].push(callback);
+      } else {
+        this.chatConfigChangesCallbacks[callbackType] = [callback];
+      }
 
-        if (callback) {
-          callback(this.channel);
-        }
-      });
+      if (!this.chatConfigListenerUnsubscribe) {
+        const realtimeAPI = RealtimeAPI.getInstance();
+        const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
+
+        this.chatConfigListenerUnsubscribe = realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
+          this.onChatChanges(nextChatRoom);
+          this.onPinMessageChanges(nextChatRoom.pinnedMessageId || null);
+        });
+      }
+
+      return () => {
+        this.offChatConfigListener(callback, callbackType);
+      };
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');
+    }
+  }
+
+  /**
+   * Update channel
+   *
+   */
+  private updateChannelChatConfig(newChannel: LiveChatChannel): void {
+    this.channel = newChannel;
+  }
+
+  /**
+   * Remove all chat config listeners
+   *
+   */
+  public offAllChatConfigListeners(): void {
+    try {
+      if (this.chatConfigListenerUnsubscribe) {
+        this.chatConfigListenerUnsubscribe();
+        this.chatConfigListenerUnsubscribe = null;
+      }
+
+      this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES] = [];
+      this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES] = [];
+    } catch (err) {
+      throw new Error('Cannot off chat config changes');
+    }
+  }
+
+  /**
+   * Watch new config changes on chat
+   *
+   */
+  private onChatChanges(nextChatRoom: LiveChatChannel): void {
+    const newChannel = {
+      ...nextChatRoom,
+      _id: this.channel._id,
+      dataPath: this.channel.dataPath,
+    };
+
+    if (this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES]) {
+      this.chatConfigChangesCallbacks[ChatConfigType.ALL_CHAT_CHANGES].forEach((callback) => {
+        callback(newChannel);
+      });
+    }
+  }
+
+  /**
+   * Watch pin message changes on chat
+   *
+   */
+  private async onPinMessageChanges(newPinnedMessageId: string | null): Promise<void> {
+    let pinnedMessageData: ChatMessage | null = null;
+
+    if (this.pinnedMessageId !== newPinnedMessageId) {
+      this.pinnedMessageId = newPinnedMessageId;
+
+      if (newPinnedMessageId) {
+        pinnedMessageData = await this.fetchPinMessage();
+      }
+
+      if (this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES]) {
+        this.chatConfigChangesCallbacks[ChatConfigType.PIN_MESSAGES].forEach((callback) => {
+          callback(pinnedMessageData as ChatMessage);
+        });
+      }
     }
   }
 }

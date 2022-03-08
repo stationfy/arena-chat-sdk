@@ -42,6 +42,11 @@ export enum MessageChangeType {
   MODIFIED = 'modified',
 }
 
+export enum ChatConfigType{
+  ALL_CHAT_CHANGES = 'ALL_CHAT_CHANGES',
+  PIN_MESSAGES = 'PIN_MESSAGES'
+}
+
 export interface ChatMessageSender {
   anonymousId?: string;
   label?: string;
