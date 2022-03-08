@@ -121,7 +121,7 @@ export interface BaseChannel {
   offAllListeners(): void;
   getChatQnaInstance(): Promise<BaseQna>;
   reportMessage(message: ChatMessage, anonymousId?: string): Promise<boolean>;
-  watchChatConfigChanges(callback?: (item: any) => void, type?: string ): () => void;
+  watchChatConfigChanges(callback: (item: ChatMessage | LiveChatChannel) => void, type: ChatConfigType ): () => void;
   offAllChatConfigListeners(): void
 }
 
