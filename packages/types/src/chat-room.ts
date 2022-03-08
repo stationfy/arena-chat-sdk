@@ -1,4 +1,4 @@
-import { ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
+import { ChatConfigType, ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
 import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
