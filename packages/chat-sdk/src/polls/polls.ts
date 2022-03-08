@@ -12,7 +12,8 @@ import {
 import { LogApi, User } from '@arena-im/core';
 import { RealtimeAPI } from '../services/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
-import { createObserver, isPolls } from '@arena-im/core';
+import { createObserver } from '@arena-im/core';
+import { isPolls } from '../utils/is';
 
 export class Polls implements BasePolls {
   private realtimeAPI: RealtimeAPI;
@@ -78,8 +79,8 @@ export class Polls implements BasePolls {
 
       return this.cacheCurrentPolls;
     } catch (e) {
-      this.logger.error(`Cannot load polls on "${this.channel._id}" chat channel: ${e}`);
-      this.pollErrorsListeners.publish(`Cannot load polls on "${this.channel._id}" chat channel: ${e}`);
+      this.logger.error(`Cannot load polls on "${this.channel._id}" chat channel`, { error: e });
+      this.pollErrorsListeners.publish(`Cannot load polls on "${this.channel._id}" chat channel.`);
       throw new Error(`Cannot load polls on "${this.channel._id}" chat channel.`);
     }
   }
@@ -101,7 +102,7 @@ export class Polls implements BasePolls {
 
       return result;
     } catch (e) {
-      this.logger.error(`Cannot vote for the "${pollId}" poll question: ${e}`);
+      this.logger.error(`Cannot vote for the "${pollId}" poll question.`, { error: e });
       this.pollErrorsListeners.publish(`Cannot vote for the "${pollId}" poll question: ${e}`);
       throw new Error(`Cannot vote for the "${pollId}" poll question.`);
     }
