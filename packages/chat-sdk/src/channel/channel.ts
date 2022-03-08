@@ -1012,13 +1012,15 @@ export class Channel implements BaseChannel {
    */
   public watchChatConfigChanges(
     callback: (item: LiveChatChannel | ChatMessage) => void,
-    type: ChatConfigType,
+    type?: ChatConfigType,
   ): () => void {
+    const callbackType = type || ChatConfigType.ALL_CHAT_CHANGES
+    
     try {
-      if (this.chatConfigChangesCallbacks[type]) {
-        this.chatConfigChangesCallbacks[type].push(callback);
+      if (this.chatConfigChangesCallbacks[callbackType]) {
+        this.chatConfigChangesCallbacks[callbackType].push(callback);
       } else {
-        this.chatConfigChangesCallbacks[type] = [callback];
+        this.chatConfigChangesCallbacks[callbackType] = [callback];
       }
 
       if (!this.chatConfigListenerUnsubscribe) {
@@ -1032,7 +1034,7 @@ export class Channel implements BaseChannel {
       }
 
       return () => {
-        this.offChatConfigListener(callback, type);
+        this.offChatConfigListener(callback, callbackType);
       };
     } catch (e) {
       throw new Error('Cannot listen to chat config changes');
