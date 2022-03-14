@@ -59,10 +59,10 @@ export class ReactionsAPIFirestore implements BaseReactionsAPI {
         const restAPI = RestAPI.getAPIInstance();
         await restAPI.sendReaction(reaction);
       }
-    } catch (err) {
-      this.logger.error(`Error to create reaction: ${err}`);
-      this.reactionsErrorsListeners.publish(`Error to create reaction: ${err}`);
-      throw new Error(`Error to create reaction: ${err}`);
+    } catch (error) {
+      this.logger.error(`Error to create reaction.`, { error });
+      this.reactionsErrorsListeners.publish(`Error to create reaction.`);
+      throw new Error(`Error to create reaction.`);
     }
   }
 
