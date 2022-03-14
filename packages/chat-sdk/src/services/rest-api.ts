@@ -23,6 +23,7 @@ import {
   BaseRestOptions,
   UserObservable,
   User,
+  fetchCachedAPIData,
 } from '@arena-im/core';
 import { supportsFetch } from '../utils/supports';
 import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
@@ -165,25 +166,19 @@ export class RestAPI implements BaseRest {
   public loadChatRoom(
     siteSlug: string,
     channel: string,
-  ): PromiseLike<{ chatRoom: ChatRoom; site: Site; settings: EmbedSettings }> {
-    return this.transport
-      .get<{ chatInfo: ChatRoom; publisher: Site; settings: EmbedSettings }>(`/chatroom/${siteSlug}/${channel}`)
-      .then((cached) => {
-        return {
-          chatRoom: cached.chatInfo,
-          site: cached.publisher,
-          settings: cached.settings,
-        };
-      });
-  }
+  ): PromiseLike<{ chatRoom: ChatRoom; site: Site; settings: EmbedSettings } | null> {
+    return fetchCachedAPIData<{ chatInfo: ChatRoom; publisher: Site; settings: EmbedSettings }>(
+      `/chatroom/${siteSlug}/${channel}`,
+    ).then((cached) => {
+      if (cached === null) {
+        return null;
+      }
 
-  /**
-   *
-   * @inheritdoc
-   */
-  public loadSite(siteSlug: string): PromiseLike<Site> {
-    return this.transport.get<Site>(`/sites/${siteSlug}`).then((site) => {
-      return site;
+      return {
+        chatRoom: cached.chatInfo,
+        site: cached.publisher,
+        settings: cached.settings,
+      };
     });
   }
 

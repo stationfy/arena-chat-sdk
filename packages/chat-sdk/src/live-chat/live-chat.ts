@@ -35,6 +35,10 @@ export class LiveChat implements BaseLiveChat {
   public static getInstance(slug: string): Promise<LiveChat> {
     if (!LiveChat.instance[slug]) {
       LiveChat.instance[slug] = this.fetchChatRoom(slug).then((chatRoom) => {
+        if (chatRoom === null) {
+          throw new Error('Cannot load chat instance.');
+        }
+
         return new LiveChat(chatRoom);
       });
     }
@@ -42,12 +46,16 @@ export class LiveChat implements BaseLiveChat {
     return LiveChat.instance[slug];
   }
 
-  private static async fetchChatRoom(chatSlug: string): Promise<ChatRoom> {
+  private static async fetchChatRoom(chatSlug: string): Promise<ChatRoom | null> {
     const restAPI = RestAPI.getCachedInstance();
 
-    const { chatRoom } = await restAPI.loadChatRoom(Credentials.apiKey, chatSlug);
+    const response = await restAPI.loadChatRoom(Credentials.apiKey, chatSlug);
 
-    return chatRoom;
+    if (response === null) {
+      return null;
+    }
+
+    return response.chatRoom;
   }
 
   private async trackPageView(chatRoom: ChatRoom) {
@@ -154,7 +162,7 @@ export class LiveChat implements BaseLiveChat {
       if (e instanceof Error && e.message === Status.Invalid) {
         erroMessage = `Invalid channel (${channelId}) id.`;
       }
-     
+
       throw new Error(erroMessage);
     }
   }

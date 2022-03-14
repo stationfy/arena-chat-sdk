@@ -2,7 +2,6 @@ import {
   ProviderUser,
   ExternalUser,
   SSOExchangeResult,
-  Site,
   ServerReaction,
   SendReactionResult,
   TrackPayload,
@@ -109,12 +108,8 @@ export class RestAPI {
     });
   }
 
-  /**
-   *
-   * @inheritdoc
-   */
-  public loadSite(siteSlug: string): PromiseLike<Site> {
-    return this.transport.get<Site>(`/sites/${siteSlug}`).then((site) => {
+  public fetchCachedAPI<T>(path: string): PromiseLike<T> {
+    return this.transport.get<T>(path).then((site) => {
       return site;
     });
   }

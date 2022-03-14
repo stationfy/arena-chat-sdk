@@ -33,11 +33,15 @@ export class Liveblog implements BaseLiveBlog {
   }
 
   private static async fetchLiveblogInfo(slug: string): Promise<ILiveblogInfo> {
-    const restAPI = RestAPI.getCachedInstance();
+    const restAPI = RestAPI.getAPIInstance();
 
-    const { liveblog } = await restAPI.loadLiveblog(Credentials.apiKey, slug);
+    const response = await restAPI.loadLiveblog(Credentials.apiKey, slug);
 
-    return liveblog;
+    if (response === null) {
+      throw new Error('Cannot fetch liveblog data');
+    }
+
+    return response.liveblog;
   }
 
   /**
@@ -60,18 +64,18 @@ export class Liveblog implements BaseLiveBlog {
   }
 
   public watchReactionsErrors(callback: (error: any) => void): void {
-   this.reactionsAPI.watchReactionsErrors(callback);
+    this.reactionsAPI.watchReactionsErrors(callback);
   }
 
-    /**
+  /**
    * Watch liveblog presence
    *
    * @param callback callback fn
    */
 
-     public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
-      this.presenceAPI.watchPresenceInfo(callback);
-    }
+  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
+    this.presenceAPI.watchPresenceInfo(callback);
+  }
 
   public fetchRememberMe(): void {
     console.log(this.liveblogInfo);

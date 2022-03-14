@@ -1,6 +1,6 @@
 import { Site } from '@arena-im/chat-types';
+import { fetchCachedAPIData } from '../services/cached-api';
 import { Credentials } from '../auth';
-import { RestAPI } from '../services/rest-api';
 
 export class OrganizationSite {
   private static organizationSiteInstance: OrganizationSite;
@@ -23,9 +23,11 @@ export class OrganizationSite {
   }
 
   private async fetchSiteData(apiKey: string): Promise<Site> {
-    const restAPI = RestAPI.getCachedInstance();
+    const site = await fetchCachedAPIData<Site>(`/sites/${apiKey}`);
 
-    const site = await restAPI.loadSite(apiKey);
+    if (site === null) {
+      throw new Error('Cannot fetch site data');
+    }
 
     return site;
   }

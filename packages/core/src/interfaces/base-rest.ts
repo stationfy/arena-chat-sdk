@@ -54,14 +54,7 @@ export interface BaseRest {
   loadChatRoom(
     siteSlug: string,
     channel: string,
-  ): PromiseLike<{ chatRoom: ChatRoom; site: Site; settings: EmbedSettings }>;
-
-  /**
-   * Load Site
-   *
-   * @param {string} siteSlug
-   */
-  loadSite(siteSlug: string): PromiseLike<Site>;
+  ): PromiseLike<{ chatRoom: ChatRoom; site: Site; settings: EmbedSettings } | null>;
 
   /**
    * Get Arena User - SSO Exchange
@@ -80,7 +73,7 @@ export interface BaseRest {
 
   /**
    * Send chat reactions
-   * @param reaction 
+   * @param reaction
    */
   sendReaction(reaction: ServerReaction): PromiseLike<string>;
 }

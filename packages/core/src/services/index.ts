@@ -5,3 +5,4 @@ export { StorageAPI } from './storage-api';
 export { PresenceObservable } from './presence-observable';
 export { ArenaHub } from './arena-hub';
 export { LogApi } from './log-api';
+export { fetchCachedAPIData } from './cached-api';
