@@ -27,13 +27,13 @@ jest.mock('@arena-im/core', () => ({
   ReactionsAPIWS: {
     getInstance: () => ({
       watchUserReactions: mockWatchUserReactions,
-      watchReactionsErrors: mockWatchReactionsErrors
+      watchReactionsErrors: mockWatchReactionsErrors,
     }),
   },
   ReactionsAPIFirestore: {
     getInstance: () => ({
       watchUserReactions: mockWatchUserReactions,
-      watchReactionsErrors: mockWatchReactionsErrors
+      watchReactionsErrors: mockWatchReactionsErrors,
     }),
   },
 }));
@@ -45,7 +45,7 @@ test('should validate getInstance method', async () => {
     loadLiveblog: jest.fn().mockResolvedValue({ liveblog: { name: 'blog1' } }),
   });
 
-  RestAPI.getCachedInstance = mockAPIInstance;
+  RestAPI.getAPIInstance = mockAPIInstance;
   const instance = await Liveblog.getInstance('site1');
 
   expect(instance).toBeInstanceOf(Liveblog);
