@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.5 (2022-03-14)
+
+
+### Bug Fixes
+
+* version of sdk ([6efd36d](https://github.com/stationfy/arena-sdk/commit/6efd36d713cdfcd88019e674a7112c956b06e7c9))
+
+
+
+
+
 ## 2.5.4 (2022-03-14)
 
 
