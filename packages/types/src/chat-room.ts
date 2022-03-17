@@ -1,4 +1,4 @@
-import { ChatConfigType, ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
+import { ChannelReaction, ChatConfigType, ChatMessage, ChatMessageSender, MessageReaction } from './chat-message';
 import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
@@ -111,7 +111,7 @@ export interface BaseChannel {
   fetchPinMessage(): Promise<ChatMessage>;
   loadPreviousMessages(limit?: number): Promise<ChatMessage[]>;
   sendReaction(reaction: MessageReaction, anonymousId?: string, isDashboardUser?: boolean): Promise<void>;
-  deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean>;
+  deleteReaction(reaction: MessageReaction, isDashboardUser?: boolean): Promise<ChannelReaction[]>;
   offMessageReceived(): void;
   onMessageReceived(callback: (message: ChatMessage) => void): void;
   offMessageModified(): void;
@@ -121,8 +121,8 @@ export interface BaseChannel {
   offAllListeners(): void;
   getChatQnaInstance(): Promise<BaseQna>;
   reportMessage(message: ChatMessage, anonymousId?: string): Promise<boolean>;
-  watchChatConfigChanges(callback: (item: ChatMessage | LiveChatChannel) => void, type?: ChatConfigType ): () => void;
-  offAllChatConfigListeners(): void
+  watchChatConfigChanges(callback: (item: ChatMessage | LiveChatChannel) => void, type?: ChatConfigType): () => void;
+  offAllChatConfigListeners(): void;
 }
 
 export type ChannelType = 'liveblog' | 'chat_room';

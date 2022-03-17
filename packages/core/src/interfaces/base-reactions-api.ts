@@ -8,4 +8,5 @@ export interface BaseReactionsAPI {
   watchChannelReactions(callback: (reactions: ChannelReaction[]) => void): () => void;
   watchReactionsErrors(callback: (error: any) => void): () => void;
   offAllListeners(): void;
+  removeReaction(reaction: ServerReaction): Promise<ChannelReaction[]>;
 }

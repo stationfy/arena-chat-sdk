@@ -763,28 +763,51 @@ export class Channel implements BaseChannel {
    *
    */
 
-  public async deleteReaction(reaction: MessageReaction, anonymousId?: string): Promise<boolean> {
+  public async deleteReaction(reaction: MessageReaction, isDashboardUser = false): Promise<ChannelReaction[]> {
     const site = await OrganizationSite.instance.getSite();
 
     if (site === null) {
       throw new Error('Cannot react to a message without a site id');
     }
 
-    const userId = User.instance.data?.id || anonymousId;
+    const userId = User.instance.data?.id || User.instance.anonymousId;
 
     if (typeof userId === 'undefined') {
       throw new Error('Cannot react to a message without a user');
     }
 
-    const graphQLAPI = await GraphQLAPI.instance;
-
     try {
-      const result = await graphQLAPI.deleteReaction(userId, reaction.messageID, reaction.type);
+      const serverReaction = await this.convertMessageReactionToServerReaction(reaction, isDashboardUser);
+
+      const result = await this.reactionsAPI.removeReaction(serverReaction);
+      console.log({ result });
 
       return result;
     } catch (e) {
       throw new Error(`Cannot delete reaction from message "${reaction.messageID}"`);
     }
+  }
+
+  private async convertMessageReactionToServerReaction(
+    messageReaction: MessageReaction,
+    isDashboardUser = false,
+  ): Promise<ServerReaction> {
+    const site = await OrganizationSite.instance.getSite();
+    const userId = User.instance.data?.id || User.instance.anonymousId;
+
+    return {
+      itemType: 'chatMessage',
+      reaction: messageReaction.type,
+      publisherId: site._id,
+      itemId: messageReaction.messageID,
+      userId,
+      openChannelId: this.channel._id,
+      chatRoomId: this.chatRoom._id,
+      chatRoomVersion: this.chatRoom.version,
+      isDashboardUser,
+      widgetId: this.chatRoom._id,
+      widgetType: 'Chat Room',
+    };
   }
 
   /**
@@ -1016,8 +1039,8 @@ export class Channel implements BaseChannel {
     callback: (item: LiveChatChannel | ChatMessage) => void,
     type?: ChatConfigType,
   ): () => void {
-    const callbackType = type || ChatConfigType.ALL_CHAT_CHANGES
-    
+    const callbackType = type || ChatConfigType.ALL_CHAT_CHANGES;
+
     try {
       if (this.chatConfigChangesCallbacks[callbackType]) {
         this.chatConfigChangesCallbacks[callbackType].push(callback);

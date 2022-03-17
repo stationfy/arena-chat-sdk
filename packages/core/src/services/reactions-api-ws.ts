@@ -18,6 +18,7 @@ const EVENT_TYPES = {
   REACTION_CHANNEL: 'reaction.channel',
   REACTION_USER: 'reaction.user',
   REACTION_CHANNEL_RETRIEVE: 'reaction.channel.retrieve',
+  REACTION_REMOVE: 'reaction.remove',
 };
 const WS_PROMISE_TIMEOUT = 3000;
 export class ReactionsAPIWS implements BaseReactionsAPI {
@@ -177,5 +178,29 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
     this.webSocketTransport.off(EVENT_TYPES.REACTION_CREATE);
     this.webSocketTransport.off(EVENT_TYPES.REACTION_USER);
     this.webSocketTransport.off(EVENT_TYPES.REACTION_CHANNEL);
+  }
+
+  public removeReaction(reaction: ServerReaction): Promise<ChannelReaction[]> {
+    return promiseTimeout(
+      new Promise((resolve, reject) => {
+        this.webSocketTransport.emit(
+          EVENT_TYPES.REACTION_REMOVE,
+          reaction,
+          (error: Record<string, unknown> | null, nextReactions: ChannelReaction[]) => {
+            if (error) {
+              this.logger.error(`Could not remove the reaction from ${reaction.itemId}`, { error });
+              return reject(error);
+            }
+
+            if (!isChannelReactions(nextReactions)) {
+              return reject('Reactions received are incompleted');
+            }
+
+            resolve(nextReactions);
+          },
+        );
+      }),
+      WS_PROMISE_TIMEOUT,
+    );
   }
 }

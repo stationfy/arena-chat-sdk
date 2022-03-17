@@ -37,6 +37,7 @@ const reactionsAPIMock = {
   watchUserReactions: jest.fn(),
   watchChannelReactions: jest.fn(),
   createReaction: createReactionSpy,
+  removeReaction: () => Promise.resolve([]),
 };
 
 jest.mock('@arena-im/core', () => ({
@@ -784,15 +785,6 @@ describe('Channel', () => {
 
   describe('deleteReaction()', () => {
     it('should delete a message reaction', async () => {
-      const graphQLAPIInstanceMock = {
-        deleteReaction: async () => {
-          return true;
-        },
-      };
-
-      // @ts-ignore
-      GraphQLAPI.instance = graphQLAPIInstanceMock;
-
       // @ts-ignore
       RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return { listenToChatConfigChanges: jest.fn() };
@@ -807,34 +799,7 @@ describe('Channel', () => {
 
       const result = await channel.deleteReaction(reaction);
 
-      expect(result).toEqual(true);
-    });
-
-    it('should receive an error when delete a message', async () => {
-      // @ts-ignore
-      GraphQLAPI.instance = {
-        deleteReaction: async () => {
-          return Promise.reject('failed');
-        },
-      };
-
-      // @ts-ignore
-      RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
-        return { listenToChatConfigChanges: jest.fn() };
-      });
-
-      const channel = Channel.getInstance(exampleLiveChatChannel, exampleChatRoom);
-
-      const reaction: MessageReaction = {
-        messageID: 'fake-message',
-        type: 'like',
-      };
-
-      try {
-        await channel.deleteReaction(reaction);
-      } catch (e: any) {
-        expect(e.message).toBe(`Cannot delete reaction from message "${reaction.messageID}"`);
-      }
+      expect(result).toEqual([]);
     });
   });
 

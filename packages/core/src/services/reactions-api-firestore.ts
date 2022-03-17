@@ -103,4 +103,16 @@ export class ReactionsAPIFirestore implements BaseReactionsAPI {
   public offAllListeners(): void {
     // There is no listeners in this implementation
   }
+
+  public async removeReaction(reaction: ServerReaction): Promise<ChannelReaction[]> {
+    const graphQLAPI = await GraphQLAPI.instance;
+
+    try {
+      await graphQLAPI.deleteReaction(reaction.userId, reaction.itemId, reaction.reaction);
+
+      return [];
+    } catch (e) {
+      throw new Error(`Cannot delete reaction from message "${reaction.itemId}"`);
+    }
+  }
 }
