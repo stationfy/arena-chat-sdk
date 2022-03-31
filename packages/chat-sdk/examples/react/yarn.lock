@@ -3,24 +3,25 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.0.0"
-  uid ""
+  version "2.5.6"
+  dependencies:
+    "@arena-im/chat-types" "^2.5.6"
+    "@arena-im/core" "^2.5.6"
 
-"@arena-im/chat-types@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.3.tgz#388f8f5a3feb192d0492cd6ec4ea80b5f1f66adb"
-  integrity sha512-3JZBcTLaPqGbXLnJ+PMtT5eDdbIyGpiHnXgMza6gOfJ2+/SjAe0LQKubuuJ2d+2cCY/EA9GxWKnl138dSBAjyA==
+"@arena-im/chat-types@^2.5.6":
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.5.6.tgz#25c780adb18ffa7d2e324e0ee00fee696ae515e3"
+  integrity sha512-r45LRXXWygM/IIQfKF05saE5WquX7V0DseRUQMmfvyQcly54eZh7dW35PtHmKYiwiF8p7K42Rv2y9O1xlYOwQw==
 
 "@arena-im/chat-types@link:../../../types":
-  version "0.0.0"
-  uid ""
+  version "2.5.6"
 
-"@arena-im/core@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.3.tgz#523b96e5dc582896aeacdc1a079b6a894b357e52"
-  integrity sha512-ews/YXmvl5DF9g/BRnH9sEO60HIuSvd8r9sm0F+IzAdWWlN9uJgC5vrY+2BPqwSzxWlINbPACnkfkBMcguMxPw==
+"@arena-im/core@^2.5.6":
+  version "2.5.6"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.6.tgz#e51be5a4d69f42687e79bb283bf0cf95cf16b45e"
+  integrity sha512-FgeIzePlO/zOtX4v+NXI7M++zSd4ONArpPAJT1x/BRzqYsKywucZFGMmluAYPOwhD4L0pVPF9/eSNuHr4wLMTw==
   dependencies:
-    "@arena-im/chat-types" "^2.4.3"
+    "@arena-im/chat-types" "^2.5.6"
     firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
@@ -8062,9 +8063,9 @@ minimatch@3.0.4, minimatch@^3.0.4:
     brace-expansion "^1.1.7"
 
 minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
+  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 minipass-collect@^1.0.2:
   version "1.0.2"
