@@ -370,7 +370,9 @@ export class PrivateChannel implements BasePrivateChannel {
 
         const messages = this.cacheCurrentMessages.concat(newMessage);
 
-        this.updateCacheCurrentMessages(messages);
+        const sortedMessages = messages.sort((a, b) => a.createdAt - b.createdAt)
+
+        this.updateCacheCurrentMessages(sortedMessages);
 
         if (user.id !== newMessage.sender?._id) {
           this.markReadDebounced();
