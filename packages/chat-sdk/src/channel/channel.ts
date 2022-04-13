@@ -53,7 +53,7 @@ export class Channel implements BaseChannel {
 
   private constructor(public channel: LiveChatChannel, private readonly chatRoom: ChatRoom) {
     this.watchChatConfigChanges(
-      this.updateChannelChatConfig as (item: ChatMessage | LiveChatChannel) => void,
+      this.updateChannelChatConfig.bind(this) as (item: ChatMessage | LiveChatChannel) => void,
       ChatConfigType.ALL_CHAT_CHANGES,
     );
     UserObservable.instance.onUserChanged((user: ExternalUser | null) => this.watchUserChanged(user));
