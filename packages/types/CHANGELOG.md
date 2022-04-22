@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.6 (2022-03-15)
+
+
+### Bug Fixes
+
+* handle cached api errors ([2c321a7](https://github.com/stationfy/arena-chat-sdk/commit/2c321a75f5ac5161e16ab2b85c9403f5490f7a1e))
+
+
+
+
+
 ## 2.5.5 (2022-03-14)
 
 
