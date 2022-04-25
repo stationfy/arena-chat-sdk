@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.7 (2022-04-22)
+
+
+### Bug Fixes
+
+* **CU-#22hcqqw:** update binded channel instance ([77fbccc](https://github.com/stationfy/arena-chat-sdk/commit/77fbcccfd5acc13be5c588cfba026815d8e1e9d9)), closes [CU-#22](https://github.com/CU-/issues/22)
+
+
+
+
+
 ## 2.5.6 (2022-03-15)
 
 
