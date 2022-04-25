@@ -134,19 +134,21 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
         this.webSocketTransport.emit(
           EVENT_TYPES.REACTION_CHANNEL_RETRIEVE,
           {},
-          (error: Record<string, unknown> | null, data: ChannelReaction[]) => {
+          (error: Record<string, unknown> | null, reactions: ChannelReaction[]) => {
             if (error) {
               this.logger.error(`Could not fetch channel reactions.`, { error });
               this.reactionsErrorsListeners.publish(`Could not fetch channel reactions.`);
               return reject(error);
             }
 
-            if (!isChannelReactions(data)) {
+            if (!isChannelReactions(reactions)) {
               this.reactionsErrorsListeners.publish('params of ChannelReaction incomplete');
               return reject('params of ChannelReaction incomplete');
             }
 
-            resolve(data);
+            this.cachedChannelReactions = reactions;
+
+            resolve(reactions);
           },
         );
       }),
@@ -168,10 +170,37 @@ export class ReactionsAPIWS implements BaseReactionsAPI {
         this.logger.error('params of ChannelReaction incomplete');
         this.reactionsErrorsListeners.publish('params of ChannelReaction incomplete');
       } else {
-        this.cachedChannelReactions = reactions;
-        this.channelReactionsListeners.publish(reactions);
+        this.cachedChannelReactions = this.updateCachedChannelReactions(reactions);
+        this.channelReactionsListeners.publish(this.cachedChannelReactions);
       }
     });
+  }
+
+  private updateCachedChannelReactions(reactions: ChannelReaction[]): ChannelReaction[] {
+    if (this.cachedChannelReactions === null) {
+      return reactions;
+    }
+
+    const cachedReactionsObj = this.cachedChannelReactions.reduce<{ [itemId: string]: ChannelReaction }>(
+      (reactionsObj, reaction) => {
+        reactionsObj[reaction.itemId] = reaction;
+
+        return reactionsObj;
+      },
+      {},
+    );
+
+    for (const newReaction of reactions) {
+      cachedReactionsObj[newReaction.itemId] = { ...newReaction };
+    }
+
+    const newCachedReactions: ChannelReaction[] = [];
+
+    for (const itemId in cachedReactionsObj) {
+      newCachedReactions.push(cachedReactionsObj[itemId]);
+    }
+
+    return newCachedReactions;
   }
 
   public offAllListeners(): void {

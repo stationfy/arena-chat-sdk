@@ -7,6 +7,7 @@ export class Liveblog implements BaseLiveBlog {
   private static instance: Promise<Liveblog>;
   private presenceAPI!: PresenceAPI;
   private reactionsAPI!: BaseReactionsAPI;
+  private cacheChannelReactions: { [key: string]: ChannelReaction } = {};
 
   private constructor(private readonly liveblogInfo: ILiveblogInfo) {
     this.initPresence();
@@ -42,6 +43,40 @@ export class Liveblog implements BaseLiveBlog {
     }
 
     return response.liveblog;
+  }
+
+  public async fetchChannelReactions(): Promise<ChannelReaction[]> {
+    try {
+      const channelReactions = await this.reactionsAPI.fetchChannelReactions();
+
+      return channelReactions;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  public async fetchChannelReactionsMap(): Promise<{
+    [key: string]: ChannelReaction;
+  }> {
+    try {
+      const channelReactions = await this.reactionsAPI.fetchChannelReactions();
+
+      this.cacheChannelReactions = this.getChannelReactionsMap(channelReactions);
+
+      return this.cacheChannelReactions;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  private getChannelReactionsMap(channelReactions: ChannelReaction[]) {
+    const map: { [messageId: string]: ChannelReaction } = {};
+
+    for (const channelReaction of channelReactions) {
+      map[channelReaction.itemId] = channelReaction;
+    }
+
+    return map;
   }
 
   /**
