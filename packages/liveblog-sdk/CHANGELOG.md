@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.8 (2022-04-25)
+
+
+### Bug Fixes
+
+* load liveblog reactions ([c52a519](https://github.com/stationfy/arena-sdk/commit/c52a519ba08b35da8e539b4cf37a75815db10e70))
+
+
+
+
+
 ## 2.5.7 (2022-04-22)
 
 
