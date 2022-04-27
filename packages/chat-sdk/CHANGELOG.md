@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.9 (2022-04-27)
+
+
+### Bug Fixes
+
+* load private chat messages ([0ccfdea](https://github.com/stationfy/arena-chat-sdk/commit/0ccfdeabfe4463a658f2baf070c8572a73f2ae48))
+
+
+
+
+
 ## 2.5.8 (2022-04-25)
 
 
