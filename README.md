@@ -561,6 +561,10 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ## Changelogs
 
+### v2.5.9 (Apr 27, 2022)
+
+- Bug fix: load private chat messages
+
 ### v2.5.8(Apr 25, 2022)
 
 - Bug fix: load liveblog reactions
