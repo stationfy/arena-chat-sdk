@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.10 (2022-07-16)
+
+
+### Bug Fixes
+
+* receive private channel ([e79cd08](https://github.com/stationfy/arena-chat-sdk/commit/e79cd08a2e9c1f8afc61fa46a774221db212d178))
+
+
+
+
+
 ## 2.5.9 (2022-04-27)
 
 
