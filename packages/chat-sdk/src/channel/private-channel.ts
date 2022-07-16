@@ -283,6 +283,11 @@ export class PrivateChannel implements BasePrivateChannel {
   }
 
   private async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
+    if (typeof this.messageModificationListenerUnsubscribe === 'function') {
+      this.messageModificationListenerUnsubscribe();
+      this.messageModificationListenerUnsubscribe = null;
+    }
+
     return new Promise((resolve) => {
       this.listenToAllTypeMessageModification((messages) => {
         resolve(messages);
@@ -370,7 +375,7 @@ export class PrivateChannel implements BasePrivateChannel {
 
         const messages = this.cacheCurrentMessages.concat(newMessage);
 
-        const sortedMessages = messages.sort((a, b) => a.createdAt - b.createdAt)
+        const sortedMessages = messages.sort((a, b) => a.createdAt - b.createdAt);
 
         this.updateCacheCurrentMessages(sortedMessages);
 
@@ -495,6 +500,9 @@ export class PrivateChannel implements BasePrivateChannel {
    */
   private listenToAllTypeMessageModification(callback?: (initialMessages: ChatMessage[]) => void, limit?: number) {
     if (this.messageModificationListenerUnsubscribe !== null) {
+      if (callback) {
+        callback(this.cacheCurrentMessages);
+      }
       return;
     }
 
