@@ -3,7 +3,6 @@ import {
   ExternalUser,
   GroupChannel,
   ChatMessageContent,
-  BasePrivateChannel,
   BaseUserProfile,
   PublicUser,
   PublicUserInput,
@@ -145,7 +144,8 @@ export class ArenaChat {
    *
    * @param channelId
    */
-  public async getPrivateChannel(channelId: string): Promise<BasePrivateChannel> {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public async getPrivateChannel(channelId: string) {
     if (User.instance.data === null) {
       throw new Error('Cannot get a private channel without a current user.');
     }
@@ -176,10 +176,8 @@ export class ArenaChat {
    * @param userId
    * @param firstMessage
    */
-  public async createUserPrivateChannel(
-    userId: string,
-    firstMessage?: ChatMessageContent,
-  ): Promise<BasePrivateChannel> {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public async createUserPrivateChannel(userId: string, firstMessage?: ChatMessageContent) {
     if (User.instance.data === null) {
       throw new Error('Cannot create a private channel without a current user.');
     }

@@ -61,7 +61,7 @@ function setClientCache<T>(path: string, value: T): void {
     const payloadCached = { timestamp: new Date().getTime().toString(), value } as PayloadCached<T>;
     localStorage.setItem(`${CACHED_API_LOCAL_STORAGE_PREFIX}${path}`, JSON.stringify(payloadCached));
   } catch (e) {
-    console.log('Cannot set cached-api cache.');
+    console.error('Cannot set cached-api cache.');
   }
 }
 

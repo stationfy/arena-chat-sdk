@@ -3,15 +3,16 @@ import {
   ChatMessage,
   MessageChangeType,
   ChatMessageContent,
-  BasePrivateChannel,
+  BasePrivateChannelStatic,
   PrivateMessageInput,
 } from '@arena-im/chat-types';
 import { User, OrganizationSite } from '@arena-im/core';
-import { debounce } from '../utils/misc';
+import { debounce, staticImplements } from '../utils/misc';
 import { GraphQLAPI } from '../services/graphql-api';
 import { RealtimeAPI } from '../services/realtime-api';
 
-export class PrivateChannel implements BasePrivateChannel {
+@staticImplements<BasePrivateChannelStatic>()
+export class PrivateChannel {
   private cacheCurrentMessages: ChatMessage[] = [];
   private messageModificationCallbacks: { [type: string]: ((message: ChatMessage) => void)[] } = {};
   private messageModificationListenerUnsubscribe: (() => void) | null = null;
@@ -29,7 +30,7 @@ export class PrivateChannel implements BasePrivateChannel {
    *
    * @param id GroupChannel id
    */
-  static async getGroupChannel(id: string): Promise<GroupChannel> {
+  public static async getGroupChannel(id: string): Promise<GroupChannel> {
     const graphQLAPI = await GraphQLAPI.instance;
 
     try {
@@ -76,7 +77,7 @@ export class PrivateChannel implements BasePrivateChannel {
    * Get User Channels
    *
    */
-  static async getUserChannels(): Promise<GroupChannel[]> {
+  public static async getUserChannels(): Promise<GroupChannel[]> {
     const user = User.instance.data;
 
     if (user === null) {
@@ -99,7 +100,7 @@ export class PrivateChannel implements BasePrivateChannel {
    *
    * @param callback callback with total
    */
-  static onUnreadMessagesCountChanged(callback: (total: number) => void): () => void {
+  public static onUnreadMessagesCountChanged(callback: (total: number) => void): () => void {
     const user = User.instance.data;
 
     if (user === null) {
@@ -127,10 +128,8 @@ export class PrivateChannel implements BasePrivateChannel {
    *
    * @param options create user options
    */
-  static async createUserChannel(options: {
-    userId: string;
-    firstMessage?: ChatMessageContent | undefined;
-  }): Promise<BasePrivateChannel> {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  static async createUserChannel(options: { userId: string; firstMessage?: ChatMessageContent | undefined }) {
     const user = User.instance.data;
 
     if (user === null) {

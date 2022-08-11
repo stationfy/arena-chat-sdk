@@ -103,7 +103,7 @@ export class PresenceAPI {
     });
   }
 
-  public getAllOnlineUsers(): Promise<ExternalUser[]> {
+  public getAllOnlineUsers(): Promise<PresenceUser[]> {
     return new Promise((resolve, reject) => {
       this.webSocketTransport.emit(
         'list',
@@ -111,7 +111,7 @@ export class PresenceAPI {
           channelId: this.channelId,
           status: 'online',
         },
-        (err: Record<string, unknown> | null, data: ExternalUser[]) => {
+        (err: Record<string, unknown> | null, data: PresenceUser[]) => {
           if (err) {
             return reject(err);
           }
@@ -122,20 +122,20 @@ export class PresenceAPI {
     });
   }
 
-  public watchOnlineCount(callback: (onlineCount: number) => void): void {
+  public watchOnlineCount(callback: (onlineCount: number) => void): () => void {
     if (this.cachedOnlineCount) {
       callback(this.cachedOnlineCount);
     }
 
-    PresenceObservable.getInstance(this.channelId).onOnlineCountChanged(callback);
+    return PresenceObservable.getInstance(this.channelId).onOnlineCountChanged(callback);
   }
 
-  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
+  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): () => void {
     if (this.cachedPresenceInfo) {
       callback(this.cachedPresenceInfo);
     }
 
-    PresenceObservable.getInstance(this.channelId).onPresenceInfoChanged(callback);
+    return PresenceObservable.getInstance(this.channelId).onPresenceInfoChanged(callback);
   }
 
   private listenToPresenceInfo() {
@@ -148,12 +148,20 @@ export class PresenceAPI {
     });
   }
 
-  public watchUserJoined(callback: (user: ExternalUser) => void): void {
+  public watchUserJoined(callback: (user: PresenceUser) => void): () => void {
     this.webSocketTransport.on('user.joined', callback);
+
+    return () => {
+      this.webSocketTransport.off('user.joined', callback);
+    };
   }
 
-  public watchUserLeft(callback: (user: ExternalUser) => void): void {
+  public watchUserLeft(callback: (user: PresenceUser) => void): () => void {
     this.webSocketTransport.on('user.left', callback);
+
+    return () => {
+      this.webSocketTransport.off('user.left', callback);
+    };
   }
 
   public offAllListeners(): void {
