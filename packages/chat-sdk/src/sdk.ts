@@ -116,14 +116,17 @@ export class ArenaChat {
    *
    * @param callback
    */
-  public async onUnreadPrivateMessagesCountChanged(callback: (total: number) => void): Promise<void> {
+  public async onUnreadPrivateMessagesCountChanged(callback: (total: number) => void): Promise<() => void> {
     if (User.instance.data === null) {
       throw new Error('Cannot listen to unread private messages without a current user.');
     }
 
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    this.unsubscribeOnUnreadMessagesCountChanged = PrivateChannel.onUnreadMessagesCountChanged(callback);
+    const unsubscribe = PrivateChannel.onUnreadMessagesCountChanged(callback);
+    this.unsubscribeOnUnreadMessagesCountChanged = unsubscribe;
+
+    return unsubscribe;
   }
 
   /**
