@@ -40,7 +40,7 @@ export {
 } from './user';
 export { Moderation, ModeratorStatus } from './moderation';
 export { PublicUserStatus, GroupChannel, PrivateMessageInput } from './private-chat';
-export { BasePrivateChannel } from './base-private-channel';
+export { BasePrivateChannelStatic } from './base-private-channel';
 export { BaseQna, QnaQuestion, QnaQuestionFilter, QnaProps } from './qna';
 export { BasePolls, Poll, PollFilter, CreatePollInput, ExternalPoll } from './polls';
 export { TrackPayload, EventMap } from './arena-hub';

@@ -9,24 +9,27 @@ export class Liveblog implements BaseLiveBlog {
   private reactionsAPI!: BaseReactionsAPI;
   private cacheChannelReactions: { [key: string]: ChannelReaction } = {};
 
-  private constructor(private readonly liveblogInfo: ILiveblogInfo) {
-    this.initPresence();
-  }
+  private constructor(private readonly liveblogInfo: ILiveblogInfo) {}
 
   public static getInstance(slug: string): Promise<Liveblog> {
     if (!Liveblog.instance) {
-      Liveblog.instance = this.fetchLiveblogInfo(slug).then((liveblogInfo) => {
-        return new Liveblog(liveblogInfo);
-      });
+      Liveblog.instance = this.fetchLiveblogInfo(slug)
+        .then((liveblogInfo) => {
+          return new Liveblog(liveblogInfo);
+        })
+        .then(async (liveblog: Liveblog) => {
+          await liveblog.initPresence();
+          return liveblog;
+        });
     }
 
     return Liveblog.instance;
   }
 
-  private initPresence() {
+  private initPresence(): Promise<boolean> {
     this.reactionsAPI = this.getReactionsAPIInstance();
     this.presenceAPI = PresenceAPI.getInstance(this.liveblogInfo.siteId, this.liveblogInfo.key, 'liveblog');
-    this.presenceAPI.joinUser();
+    return this.presenceAPI.joinUser();
   }
 
   private getReactionsAPIInstance(): BaseReactionsAPI {

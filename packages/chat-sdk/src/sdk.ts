@@ -3,7 +3,6 @@ import {
   ExternalUser,
   GroupChannel,
   ChatMessageContent,
-  BasePrivateChannel,
   BaseUserProfile,
   PublicUser,
   PublicUserInput,
@@ -117,14 +116,17 @@ export class ArenaChat {
    *
    * @param callback
    */
-  public async onUnreadPrivateMessagesCountChanged(callback: (total: number) => void): Promise<void> {
+  public async onUnreadPrivateMessagesCountChanged(callback: (total: number) => void): Promise<() => void> {
     if (User.instance.data === null) {
       throw new Error('Cannot listen to unread private messages without a current user.');
     }
 
     const { PrivateChannel } = await import('./channel/private-channel');
 
-    this.unsubscribeOnUnreadMessagesCountChanged = PrivateChannel.onUnreadMessagesCountChanged(callback);
+    const unsubscribe = PrivateChannel.onUnreadMessagesCountChanged(callback);
+    this.unsubscribeOnUnreadMessagesCountChanged = unsubscribe;
+
+    return unsubscribe;
   }
 
   /**
@@ -145,7 +147,8 @@ export class ArenaChat {
    *
    * @param channelId
    */
-  public async getPrivateChannel(channelId: string): Promise<BasePrivateChannel> {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public async getPrivateChannel(channelId: string) {
     if (User.instance.data === null) {
       throw new Error('Cannot get a private channel without a current user.');
     }
@@ -176,10 +179,8 @@ export class ArenaChat {
    * @param userId
    * @param firstMessage
    */
-  public async createUserPrivateChannel(
-    userId: string,
-    firstMessage?: ChatMessageContent,
-  ): Promise<BasePrivateChannel> {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  public async createUserPrivateChannel(userId: string, firstMessage?: ChatMessageContent) {
     if (User.instance.data === null) {
       throw new Error('Cannot create a private channel without a current user.');
     }

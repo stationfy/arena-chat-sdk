@@ -1,6 +1,5 @@
 import { LiveChat } from '@live-chat/live-chat';
 import { GraphQLAPI } from '@services/graphql-api';
-import { ArenaHub } from '@arena-im/core';
 import { exampleChatRoom, exampleLiveChatChannel, exampleSite } from '../../fixtures/examples';
 import { PublicUser, PublicUserStatus, Status } from '@arena-im/chat-types';
 import * as RealtimeAPI from '@services/realtime-api';
@@ -14,7 +13,11 @@ jest.mock('@services/graphql-api', () => ({
 }));
 
 jest.mock('@arena-im/core', () => ({
-  ArenaHub: jest.fn(),
+  ArenaHub: {
+    getInstance: () => ({
+      trackPage: jest.fn(),
+    }),
+  },
   Credentials: jest.fn(),
   PresenceAPI: {
     getInstance: () => ({
@@ -55,13 +58,6 @@ jest.mock('@channel/channel', () => ({
 
 describe('LiveChat', () => {
   beforeEach(() => {
-    // @ts-ignore
-    ArenaHub.mockImplementation(() => {
-      return {
-        track: jest.fn(),
-      };
-    });
-
     // @ts-ignore
     RestAPI.getCachedInstance = jest.fn(() => {
       return {

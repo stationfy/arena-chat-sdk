@@ -6,13 +6,15 @@ const fallbackGlobalObject = {};
  * @returns Global scope object
  */
 export function getGlobalObject<T>(): T {
-  return (isNodeEnv()
-    ? global
-    : typeof window !== 'undefined'
-    ? window
-    : typeof self !== 'undefined'
-    ? self
-    : fallbackGlobalObject) as T;
+  return (
+    isNodeEnv()
+      ? global
+      : typeof window !== 'undefined'
+      ? window
+      : typeof self !== 'undefined'
+      ? self
+      : fallbackGlobalObject
+  ) as T;
 }
 
 /**
@@ -73,5 +75,11 @@ export function debounce<F extends Procedure>(
     if (shouldCallNow) {
       func.apply(this, args);
     }
+  };
+}
+
+export function staticImplements<T>(): <U extends T>(constructor: U) => void {
+  return <U extends T>(constructor: U) => {
+    constructor;
   };
 }
