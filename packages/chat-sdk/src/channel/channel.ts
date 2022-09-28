@@ -386,7 +386,7 @@ export class Channel implements BaseChannel {
    * @param user external user
    */
   private watchUserReactions(): void {
-    if (this.userReactionsSubscription !== null) {
+    if (typeof this.userReactionsSubscription === 'function') {
       this.userReactionsSubscription();
     }
 
@@ -417,7 +417,7 @@ export class Channel implements BaseChannel {
    *
    */
   private watchChannelReactions(): void {
-    if (this.channelReactionsSubscription !== null) {
+    if (typeof this.channelReactionsSubscription === 'function') {
       this.channelReactionsSubscription();
     }
 
@@ -780,7 +780,6 @@ export class Channel implements BaseChannel {
       const serverReaction = await this.convertMessageReactionToServerReaction(reaction, isDashboardUser);
 
       const result = await this.reactionsAPI.removeReaction(serverReaction);
-      console.log({ result });
 
       return result;
     } catch (e) {

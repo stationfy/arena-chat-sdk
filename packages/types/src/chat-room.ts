@@ -2,7 +2,7 @@ import { ChannelReaction, ChatConfigType, ChatMessage, ChatMessageSender, Messag
 import { Moderation } from './moderation';
 import { BasePolls } from './polls';
 import { BaseQna } from './qna';
-import { ExternalUser, PublicUser } from './user';
+import { PresenceInfo, PresenceUser, PublicUser } from './user';
 import { ChannelMessageReactions } from './reaction';
 
 export interface ChatRoom extends LiveChatChannel {
@@ -70,11 +70,16 @@ export interface BaseLiveChat {
   getMainChannel(): BaseChannel;
   getChannel(channelId: string): Promise<BaseChannel>;
   getMembers(page: PageRequest, searchTerm: string): Promise<PublicUser[]>;
-  getUserList(): Promise<ExternalUser[]>;
-  watchOnlineCount(callback: (onlineCount: number) => void): void;
-  watchUserJoined(callback: (ExternalUser: ExternalUser) => void): void;
-  watchUserLeft(callback: (ExternalUser: ExternalUser) => void): void;
+  getUserList(): Promise<PresenceUser[]>;
+  watchOnlineCount(callback: (onlineCount: number) => void): () => void;
+  watchUserJoined(callback: (user: PresenceUser) => void): () => void;
+  watchUserLeft(callback: (externalUser: PresenceUser) => void): () => void;
   offAllListeners(): void;
+  getChannelData(channelId: string): Promise<LiveChatChannel>;
+  fetchUserReminderSubscription(reminderId: string): Promise<boolean>;
+  subscribeUserToReminder(reminderId: string, url: string): Promise<boolean>;
+  unsubscribeUserToReminder(reminderId: string): Promise<boolean>;
+  watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void;
 }
 
 export interface BaseChannel {

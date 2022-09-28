@@ -6,8 +6,8 @@ import {
   BaseLiveChat,
   BaseChannel,
   PageRequest,
-  ExternalUser,
   PresenceInfo,
+  PresenceUser,
 } from '@arena-im/chat-types';
 import { Credentials, PresenceAPI, ArenaHub } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
@@ -228,23 +228,23 @@ export class LiveChat implements BaseLiveChat {
     this.presenceAPI.offAllListeners();
   }
 
-  public getUserList(): Promise<ExternalUser[]> {
+  public getUserList(): Promise<PresenceUser[]> {
     return this.presenceAPI.getAllOnlineUsers();
   }
 
-  public watchOnlineCount(callback: (onlineCount: number) => void): void {
-    this.presenceAPI.watchOnlineCount(callback);
+  public watchOnlineCount(callback: (onlineCount: number) => void): () => void {
+    return this.presenceAPI.watchOnlineCount(callback);
   }
 
-  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): void {
-    this.presenceAPI.watchPresenceInfo(callback);
+  public watchPresenceInfo(callback: (presenceInfo: PresenceInfo) => void): () => void {
+    return this.presenceAPI.watchPresenceInfo(callback);
   }
 
-  public watchUserJoined(callback: (user: ExternalUser) => void): void {
-    this.presenceAPI.watchUserJoined(callback);
+  public watchUserJoined(callback: (user: PresenceUser) => void): () => void {
+    return this.presenceAPI.watchUserJoined(callback);
   }
 
-  public watchUserLeft(callback: (user: ExternalUser) => void): void {
-    this.presenceAPI.watchUserLeft(callback);
+  public watchUserLeft(callback: (user: PresenceUser) => void): () => void {
+    return this.presenceAPI.watchUserLeft(callback);
   }
 }
