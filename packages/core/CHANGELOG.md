@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.12 (2022-10-13)
+
+
+### Bug Fixes
+
+* permissive cross-domain policy ([ae5ae9f](https://github.com/stationfy/arena-sdk/commit/ae5ae9f568750b5100b4feef3b1b41a5356b3e12))
+
+
+
+
+
 ## 2.5.11 (2022-09-28)
 
 
