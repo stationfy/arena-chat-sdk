@@ -143,7 +143,7 @@ export class User {
     const arenaHubFrame = this.global.document.querySelector('[name="arena-hub-frame"]') as HTMLIFrameElement;
 
     if (arenaHubFrame) {
-      arenaHubFrame.contentWindow?.postMessage({ type: ASK_ARENA_HUB_ANONYMOUS_ID }, '*');
+      arenaHubFrame.contentWindow?.postMessage({ type: ASK_ARENA_HUB_ANONYMOUS_ID }, ARENA_URL);
     } else {
       if (document.readyState === 'complete' || document.readyState === 'interactive') {
         this.createArenaHubIframe();
