@@ -1034,4 +1034,22 @@ export class GraphQLAPI {
 
     return result;
   }
+
+  public async fetchTotalAnonymousUsers(chatId: string): Promise<number> {
+    const query = gql`
+      query chatRoom($id: ID!) {
+        chatRoom(id: $id) {
+          memberCount(userType: "anonymous") {
+            total
+          }
+        }
+      }
+    `;
+
+    const data = await this.transport.client.request(query, { id: chatId });
+
+    const total = data.chatRoom.memberCount.total as number;
+
+    return total;
+  }
 }

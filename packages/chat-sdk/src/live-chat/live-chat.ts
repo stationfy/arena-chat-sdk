@@ -167,6 +167,17 @@ export class LiveChat implements BaseLiveChat {
     }
   }
 
+  public async getTotalAnonymousUser(): Promise<number> {
+    try {
+      const graphQLAPI = await GraphQLAPI.instance;
+      const total = await graphQLAPI.fetchTotalAnonymousUsers(this.chatRoom._id);
+
+      return total;
+    } catch (e) {
+      throw new Error(`Cannot fetch total anonymous user on "${this.chatRoom.slug}" chat.`);
+    }
+  }
+
   /**
    * Get all online and offline chat members
    */
