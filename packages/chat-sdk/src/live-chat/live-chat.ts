@@ -144,7 +144,7 @@ export class LiveChat implements BaseLiveChat {
   }
 
   /**
-   * Get an specific channel by id
+   * Get a specific channel by id
    *
    * @param channelId
    */
@@ -167,10 +167,10 @@ export class LiveChat implements BaseLiveChat {
     }
   }
 
-  public async getTotalAnonymousUser(): Promise<number> {
+  public async getTotalAnonymousUser(isOnline?: boolean): Promise<number> {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
-      const total = await graphQLAPI.fetchTotalAnonymousUsers(this.chatRoom._id);
+      const total = await graphQLAPI.fetchTotalAnonymousUsers(this.chatRoom._id, isOnline);
 
       return total;
     } catch (e) {

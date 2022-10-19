@@ -1035,18 +1035,24 @@ export class GraphQLAPI {
     return result;
   }
 
-  public async fetchTotalAnonymousUsers(chatId: string): Promise<number> {
+  public async fetchTotalAnonymousUsers(chatId: string, isOnline?: boolean): Promise<number> {
     const query = gql`
-      query chatRoom($id: ID!) {
+      query chatRoom($id: ID!${typeof isOnline === 'boolean' ? ', $isOnline: Boolean' : ''}) {
         chatRoom(id: $id) {
-          memberCount(userType: "anonymous") {
+          memberCount(userType: "anonymous"${typeof isOnline === 'boolean' ? ', isOnline: $isOnline' : ''}) {
             total
           }
         }
       }
     `;
 
-    const data = await this.transport.client.request(query, { id: chatId });
+    const variables: { id: string; isOnline?: boolean } = { id: chatId };
+
+    if (typeof isOnline === 'boolean') {
+      variables.isOnline = isOnline;
+    }
+
+    const data = await this.transport.client.request(query, variables);
 
     const total = data.chatRoom.memberCount.total as number;
 
