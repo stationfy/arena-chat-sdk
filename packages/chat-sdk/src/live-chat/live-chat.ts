@@ -144,7 +144,7 @@ export class LiveChat implements BaseLiveChat {
   }
 
   /**
-   * Get an specific channel by id
+   * Get a specific channel by id
    *
    * @param channelId
    */
@@ -164,6 +164,17 @@ export class LiveChat implements BaseLiveChat {
       }
 
       throw new Error(erroMessage);
+    }
+  }
+
+  public async getTotalAnonymousUser(isOnline?: boolean): Promise<number> {
+    try {
+      const graphQLAPI = await GraphQLAPI.instance;
+      const total = await graphQLAPI.fetchTotalAnonymousUsers(this.chatRoom._id, isOnline);
+
+      return total;
+    } catch (e) {
+      throw new Error(`Cannot fetch total anonymous user on "${this.chatRoom.slug}" chat.`);
     }
   }
 
