@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.13 (2022-10-21)
+
+
+### Bug Fixes
+
+* update graphql endpoints ([a2d196c](https://github.com/stationfy/arena-sdk/commit/a2d196cc8e9ac3ec0f49e5c9cbce648647d987ea))
+
+
+
+
+
 ## 2.5.12 (2022-10-13)
 
 
