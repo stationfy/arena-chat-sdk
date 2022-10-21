@@ -5,6 +5,6 @@ export const DEFAULT_AUTH_TOKEN =
 export const FIREBASE_APIKEY = 'AIzaSyBYdUhOc3KUsoX4ACgGd4LtJPKpNCsAgHs';
 export const FIREBASE_AUTHDOMAIN = 'arena-im-stg.firebaseapp.com';
 export const FIREBASE_PROJECT_ID = 'arena-im-stg';
-export const GRAPHQL_ENDPOINT = 'https://je65tljztzaeho3krdvfdyzooi.appsync-api.us-west-2.amazonaws.com/graphql';
+export const GRAPHQL_ENDPOINT = 'https://public-stg.arena.im/graphql';
 export const ARENA_REALTIME_URL = 'https://realtime-stg.arena.im';
 export const ARENA_URL = 'https://go-stg.arena.im';
