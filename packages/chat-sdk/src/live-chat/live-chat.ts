@@ -21,7 +21,7 @@ type Instance = {
 export class LiveChat implements BaseLiveChat {
   private static instance: Instance = {};
   private presenceAPI!: PresenceAPI;
-  private channelDataCache: {[id: string]: LiveChatChannel} = {};
+  private channelDataCachePromiseMap = new Map<string, Promise<LiveChatChannel>>();
 
   private constructor(private readonly chatRoom: ChatRoom) {
     this.trackPageView(chatRoom);
@@ -131,14 +131,15 @@ export class LiveChat implements BaseLiveChat {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
-      if (this.channelDataCache[channelId]) {
-        return this.channelDataCache[channelId];
+      if (this.channelDataCachePromiseMap.has(channelId)) {
+        return this.channelDataCachePromiseMap.get(channelId)!;
       }
 
-      const channel = await graphQLAPI.fetchChannel(channelId);
-      
+      const channelPromise = graphQLAPI.fetchChannel(channelId);
 
-      return channel;
+      this.channelDataCachePromiseMap.set(channelId, channelPromise)
+      
+      return channelPromise;
     } catch (e: unknown) {
       let erroMessage = 'Internal Server Error. Contact the Arena support team.';
 
@@ -159,13 +160,16 @@ export class LiveChat implements BaseLiveChat {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
 
-      let channel: LiveChatChannel;
+      let channelPromise: Promise<LiveChatChannel>;
       
-      if (this.channelDataCache[channelId]) {
-        channel = this.channelDataCache[channelId];
+      if (this.channelDataCachePromiseMap.has(channelId)) {
+        channelPromise = this.channelDataCachePromiseMap.get(channelId)!;
       } else {
-        channel = await graphQLAPI.fetchChannel(channelId);
+        channelPromise = graphQLAPI.fetchChannel(channelId);
+        this.channelDataCachePromiseMap.set(channelId, channelPromise);
       }
+
+      const channel = await channelPromise;
 
       const channelI = Channel.getInstance(channel, this.chatRoom);
 
