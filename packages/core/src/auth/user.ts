@@ -7,6 +7,7 @@ import { ARENA_URL } from '../config';
 import { getGlobalObject } from '../utils/misc';
 
 const userCountryCacheKey = 'arenaUserCountry';
+const anonymousIdCacheKey = 'anonymousUserId';
 
 const ARENA_HUB_ANONYMOUS_ID = 'arena_hub_anonymous_id';
 const ASK_ARENA_HUB_ANONYMOUS_ID = 'ask_arena_hub_anonymous_id';
@@ -20,6 +21,7 @@ export class User {
 
   private constructor() {
     this.localStorage = new StorageAPI();
+    this.handleAnonymousId();
     this.generateTrackIframe();
   }
 
@@ -88,6 +90,14 @@ export class User {
     this.data = null;
 
     UserObservable.instance.updateUser(null);
+  }
+
+  private handleAnonymousId() {
+    const anonymousIdFromCache = this.localStorage.getItem(anonymousIdCacheKey);
+
+    if (anonymousIdFromCache) {
+      this.anonymousIdValue = anonymousIdFromCache;
+    }
   }
 
   private get countryFromCache() {
