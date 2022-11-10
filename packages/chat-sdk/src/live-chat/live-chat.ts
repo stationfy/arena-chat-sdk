@@ -21,6 +21,7 @@ type Instance = {
 export class LiveChat implements BaseLiveChat {
   private static instance: Instance = {};
   private presenceAPI!: PresenceAPI;
+  private channelDataCache: {[id: string]: LiveChatChannel} = {};
 
   private constructor(private readonly chatRoom: ChatRoom) {
     this.trackPageView(chatRoom);
@@ -129,7 +130,13 @@ export class LiveChat implements BaseLiveChat {
   public async getChannelData(channelId: string): Promise<LiveChatChannel> {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
+
+      if (this.channelDataCache[channelId]) {
+        return this.channelDataCache[channelId];
+      }
+
       const channel = await graphQLAPI.fetchChannel(channelId);
+      
 
       return channel;
     } catch (e: unknown) {
@@ -151,7 +158,14 @@ export class LiveChat implements BaseLiveChat {
   public async getChannel(channelId: string): Promise<BaseChannel> {
     try {
       const graphQLAPI = await GraphQLAPI.instance;
-      const channel = await graphQLAPI.fetchChannel(channelId);
+
+      let channel: LiveChatChannel;
+      
+      if (this.channelDataCache[channelId]) {
+        channel = this.channelDataCache[channelId];
+      } else {
+        channel = await graphQLAPI.fetchChannel(channelId);
+      }
 
       const channelI = Channel.getInstance(channel, this.chatRoom);
 
