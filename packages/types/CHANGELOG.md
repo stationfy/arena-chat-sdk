@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.14 (2022-11-10)
+
+
+### Bug Fixes
+
+* add a cache to fetch channels ([eeea707](https://github.com/stationfy/arena-chat-sdk/commit/eeea7071affec52fb3592950e39db22de7f0dd28))
+
+
+
+
+
 ## 2.5.13 (2022-10-21)
 
 
