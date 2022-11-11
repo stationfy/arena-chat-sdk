@@ -3,6 +3,50 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.14 (2022-11-10)
+
+
+### Bug Fixes
+
+* add a cache to fetch channels ([eeea707](https://github.com/stationfy/arena-chat-sdk/commit/eeea7071affec52fb3592950e39db22de7f0dd28))
+
+
+
+
+
+## 2.5.13 (2022-10-21)
+
+
+### Bug Fixes
+
+* update graphql endpoints ([a2d196c](https://github.com/stationfy/arena-chat-sdk/commit/a2d196cc8e9ac3ec0f49e5c9cbce648647d987ea))
+
+
+
+
+
+## 2.5.12 (2022-10-13)
+
+
+### Bug Fixes
+
+* permissive cross-domain policy ([ae5ae9f](https://github.com/stationfy/arena-chat-sdk/commit/ae5ae9f568750b5100b4feef3b1b41a5356b3e12))
+
+
+
+
+
+## 2.5.11 (2022-09-28)
+
+
+### Bug Fixes
+
+* load liveblog reactions ([c0fc171](https://github.com/stationfy/arena-chat-sdk/commit/c0fc171a0ac6577c0917f79c3ca05c24c201d1e3))
+
+
+
+
+
 ## 2.5.10 (2022-07-16)
 
 
