@@ -32,7 +32,7 @@ $ yarn build
 From the root directory, you have to change to the example directory (`packages/sdk/examples/react`) again, and then, install the dependencies:
 
 ```sh
-$ cd packages/sdk/examples/react
+$ cd packages/chat-sdk/examples/react
 $ yarn
 ```
 
