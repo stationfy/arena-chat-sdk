@@ -107,7 +107,10 @@ export class RestAPI implements BaseRest {
    * @inheritdoc
    */
   public collect(trackObj: TrackPayload): PromiseLike<{ success: boolean }> {
-    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, trackObj);
+    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, {
+      ...trackObj,
+      arenaUserId: trackObj?.arenaUserId ? `${trackObj.arenaUserId}` : undefined,
+    });
   }
 
   /**
