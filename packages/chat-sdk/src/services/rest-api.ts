@@ -104,10 +104,21 @@ export class RestAPI implements BaseRest {
   }
 
   /**
+   *
+   * @returns track object and formats it correclty
+   */
+  private handleCollectPayload(payload: TrackPayload): TrackPayload {
+    return {
+      ...payload,
+      arenaUserId: payload?.arenaUserId ? `${payload.arenaUserId}` : undefined,
+    };
+  }
+
+  /**
    * @inheritdoc
    */
   public collect(trackObj: TrackPayload): PromiseLike<{ success: boolean }> {
-    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, trackObj);
+    return this.transport.post<{ success: boolean }, TrackPayload>(`/collect`, this.handleCollectPayload(trackObj));
   }
 
   /**
