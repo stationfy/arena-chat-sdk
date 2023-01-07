@@ -3,24 +3,25 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.0.0"
-  uid ""
+  version "2.5.15"
+  dependencies:
+    "@arena-im/chat-types" "^2.5.15"
+    "@arena-im/core" "^2.5.15"
 
-"@arena-im/chat-types@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.3.tgz#388f8f5a3feb192d0492cd6ec4ea80b5f1f66adb"
-  integrity sha512-3JZBcTLaPqGbXLnJ+PMtT5eDdbIyGpiHnXgMza6gOfJ2+/SjAe0LQKubuuJ2d+2cCY/EA9GxWKnl138dSBAjyA==
+"@arena-im/chat-types@^2.5.15":
+  version "2.5.15"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.5.15.tgz#132ee0c697aa24d2e9976fda6f51872d1125e51c"
+  integrity sha512-xfiRs1JAyx1K6lU6YfuXOE2E93uu7Q/ApL+GfCJIUYljJa6MJP79KBvTsBQfW+ugNSYtw7vHOy6mgyIo2KpgDA==
 
 "@arena-im/chat-types@link:../../../types":
-  version "0.0.0"
-  uid ""
+  version "2.5.15"
 
-"@arena-im/core@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.3.tgz#523b96e5dc582896aeacdc1a079b6a894b357e52"
-  integrity sha512-ews/YXmvl5DF9g/BRnH9sEO60HIuSvd8r9sm0F+IzAdWWlN9uJgC5vrY+2BPqwSzxWlINbPACnkfkBMcguMxPw==
+"@arena-im/core@^2.5.15":
+  version "2.5.15"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.15.tgz#ffdd9cb7ef225e1844ff27849909296f631baaf9"
+  integrity sha512-NDz3ZmDzpviVYzlpbB0Rt+S0BJr+1jZnAMWu1rIrVy9ufBsq0+j6trbE89N2+o7LTUG5laMkVMPZ/LcoJ3s81Q==
   dependencies:
-    "@arena-im/chat-types" "^2.4.3"
+    "@arena-im/chat-types" "^2.5.15"
     firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
@@ -7554,9 +7555,9 @@ json3@^3.3.3:
   integrity sha512-c7/8mbUsKigAbLkD5B010BK4D9LZm7A1pNItkEwiUZRpIN66exu/e7YQWysGun+TRKaJp8MhemM+VkfWv42aCA==
 
 json5@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/json5/-/json5-1.0.1.tgz#779fb0018604fa854eacbf6252180d83543e3dbe"
-  integrity sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/json5/-/json5-1.0.2.tgz#63d98d60f21b313b77c4d6da18bfa69d80e1d593"
+  integrity sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==
   dependencies:
     minimist "^1.2.0"
 
@@ -8062,9 +8063,9 @@ minimatch@3.0.4, minimatch@^3.0.4:
     brace-expansion "^1.1.7"
 
 minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.7.tgz#daa1c4d91f507390437c6a8bc01078e7000c4d18"
+  integrity sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==
 
 minipass-collect@^1.0.2:
   version "1.0.2"
