@@ -795,6 +795,7 @@ export class GraphQLAPI {
               }
               text
             }
+            card
             sender {
               anonymousId
               displayName
