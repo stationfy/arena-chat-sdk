@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/liveblog-sdk",
-  "version": "3.0.0-beta.19",
+  "version": "2.5.15",
   "description": "arena-liveblog-sdk is the official JavaScript client for Arena Liveblog, a service for building liveblog applications.",
   "author": "Arena",
   "license": "ISC",
@@ -18,7 +18,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^3.0.0-beta.19",
+    "@arena-im/chat-types": "^2.5.15",
     "@arena-im/core": "^3.0.0-beta.18"
   },
   "devDependencies": {
