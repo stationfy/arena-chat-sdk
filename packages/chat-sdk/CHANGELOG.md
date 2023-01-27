@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.16 (2023-01-27)
+
+
+### Bug Fixes
+
+* anonymous user id ([071761f](https://github.com/stationfy/arena-chat-sdk/commit/071761f21881de2b0cc862fa87ca0514e3a40773))
+
+
+
+
+
 ## 2.5.15 (2022-12-03)
 
 **Note:** Version bump only for package @arena-im/chat-sdk
