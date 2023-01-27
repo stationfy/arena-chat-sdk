@@ -4,9 +4,10 @@ import { Credentials } from './credentials';
 import { UserObservable } from './user-observable';
 import { StorageAPI } from '../services/storage-api';
 import { ARENA_URL } from '../config';
-import { getGlobalObject } from '../utils/misc';
+import { generateUUIDV4, getGlobalObject } from '../utils/misc';
 
 const userCountryCacheKey = 'arenaUserCountry';
+const anonymousIdCacheKey = 'anonymousUserId';
 
 const ARENA_HUB_ANONYMOUS_ID = 'arena_hub_anonymous_id';
 const ASK_ARENA_HUB_ANONYMOUS_ID = 'ask_arena_hub_anonymous_id';
@@ -14,13 +15,18 @@ const ASK_ARENA_HUB_ANONYMOUS_ID = 'ask_arena_hub_anonymous_id';
 export class User {
   private static userInstance: User;
   public data: ExternalUser | null = null;
-  private anonymousIdValue = `${+new Date()}`;
+  private anonymousIdValue = this.generateUserId();
   private localStorage: StorageAPI;
   private global = getGlobalObject<Window>();
 
   private constructor() {
     this.localStorage = new StorageAPI();
+    this.handleAnonymousId();
     this.generateTrackIframe();
+  }
+
+  private generateUserId(): string {
+    return generateUUIDV4();
   }
 
   public static get instance(): User {
@@ -88,6 +94,14 @@ export class User {
     this.data = null;
 
     UserObservable.instance.updateUser(null);
+  }
+
+  private handleAnonymousId() {
+    const anonymousIdFromCache = this.localStorage.getItem(anonymousIdCacheKey);
+
+    if (anonymousIdFromCache) {
+      this.anonymousIdValue = anonymousIdFromCache;
+    }
   }
 
   private get countryFromCache() {
