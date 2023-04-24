@@ -2,6 +2,7 @@
   "private": true,
   "scripts": {
     "build": "lerna run --stream --concurrency 1 --sort build",
+    "build:prd-eu": "lerna run --stream --concurrency 1 --sort build:prd-eu",
     "build:dev": "lerna run --stream --concurrency 1 --sort build:dev",
     "build:stg": "lerna run --stream --concurrency 1 --sort build:stg",
     "build:es5": "lerna run --stream --concurrency 1 --sort build:es5",
@@ -13,6 +14,7 @@
     "lint": "lerna run --stream --concurrency 1 lint",
     "lint:json": "lerna run --stream --concurrency 1 lint:tslint:json",
     "publish:all": "lerna publish",
+    "publish:prd-eu": "run-s build:prd-eu",
     "publish:beta": "lerna publish --ignore-prepublish --ignore-scripts --canary --preid beta --dist-tag beta",
     "publish:dev": "run-s build:dev publish:beta",
     "publish:stg": "run-s build:stg",

@@ -44,6 +44,7 @@
   },
   "scripts": {
     "build": "run-s copy-config:prod build:es5 build:esm",
+    "build:prd-eu": "run-s copy-config:prd-eu build:es5 build:esm",
     "build:dev": "run-s copy-config:dev build:es5 build:esm",
     "build:stg": "run-s copy-config:stg build:es5 build:esm",
     "build:es5": "tsc -p tsconfig.build.json",
@@ -52,6 +53,7 @@
     "build:watch:es5": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
     "build:watch:esm": "tsc -p tsconfig.esm.json -w --preserveWatchOutput",
     "clean": "rimraf dist esm",
+    "copy-config:prd-eu": "cp ../../config.prd-eu.ts ./src/config.ts",
     "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
     "copy-config:stg": "cp ../../config.stg.ts ./src/config.ts",
     "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
