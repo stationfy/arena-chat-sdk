@@ -19,6 +19,8 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@arena-im/chat-types": "^2.5.16",
+    "@datadog/browser-logs": "^4.31.0",
+    "@datadog/browser-rum": "^4.31.0",
     "firebase": "9.0.2",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",

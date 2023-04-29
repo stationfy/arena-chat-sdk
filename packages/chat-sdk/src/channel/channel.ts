@@ -23,14 +23,17 @@ import {
   ReactionsAPIWS,
   BaseReactionsAPI,
   ReactionsAPIFirestore,
+  Credentials,
 } from '@arena-im/core';
-import { RealtimeAPI } from '../services/realtime-api';
+import { RealtimeAPI } from '../services/realtime-api/realtime-api';
 import { GraphQLAPI } from '../services/graphql-api';
 import { debounce } from '../utils/misc';
 import { Reaction } from '../reaction/reaction';
 import { RestAPI } from '../services/rest-api';
 import { isEqualReactions } from '../utils/is';
 import { ChatConfigType } from '@arena-im/chat-types/dist/chat-message';
+import { Site, EmbedSettings } from '@arena-im/chat-types';
+import { getClientCache } from '@arena-im/core/dist/services/cached-api';
 
 export class Channel implements BaseChannel {
   private static instances: { [key: string]: Channel } = {};
@@ -47,7 +50,7 @@ export class Channel implements BaseChannel {
   public polls: BasePolls | null = null;
   private reactionsAPI: BaseReactionsAPI;
   private fetchPreviousMessagesPromise = false;
-  private totalLimit: number | null = null;
+  private totalLimit = 10
   private chatConfigChangesCallbacks: { [type: string]: ((item: LiveChatChannel | ChatMessage) => void)[] } = {};
   private pinnedMessageId: string | null = null;
 
@@ -453,7 +456,11 @@ export class Channel implements BaseChannel {
    */
   public async loadRecentMessages(limit?: number): Promise<ChatMessage[]> {
     try {
-      this.totalLimit = null;
+      if(!limit) {
+        limit = this.totalLimit;
+      }
+
+      this.totalLimit = limit;
 
       const [loadedMessages, reactions] = await Promise.all([this.fetchRecentMessages(limit), this.fetchReactions()]);
 
@@ -473,12 +480,8 @@ export class Channel implements BaseChannel {
     }
   }
 
-  private async fetchRecentMessages(limit?: number): Promise<ChatMessage[]> {
-    return new Promise((resolve) => {
-      this.listenToAllTypeMessageModification((messages) => {
-        resolve(messages);
-      }, limit);
-    });
+  private async fetchRecentMessages(limit = 20): Promise<ChatMessage[]> {
+    return this.realtimeAPIInstance.fetchRecentMessages(limit);
   }
 
   private async fetchReactions() {
@@ -619,7 +622,7 @@ export class Channel implements BaseChannel {
    *
    * @param limit number of previous messages
    */
-  public async loadPreviousMessages(limit?: number): Promise<ChatMessage[]> {
+  public async loadPreviousMessages(limit = 50): Promise<ChatMessage[]> {
     if (this.fetchPreviousMessagesPromise) {
       throw new Error('Another request is already in progress');
     }
@@ -632,40 +635,27 @@ export class Channel implements BaseChannel {
 
     try {
       const firstMessage = this.cacheCurrentMessages[0];
-
       if (this.messageModificationListenerUnsubscribe !== null) {
         this.messageModificationListenerUnsubscribe();
         this.messageModificationListenerUnsubscribe = null;
       }
 
-      return new Promise((resolve) => {
-        this.listenToAllTypeMessageModification((messages) => {
-          const previousMessages: ChatMessage[] = [];
+      const previousMessages = await this.realtimeAPIInstance.fetchPreviousMessages(limit, firstMessage.createdAt);
 
-          for (const message of messages) {
-            if (message.key === firstMessage.key) {
-              break;
-            }
+      const currentPreviousMessages = this.mergeMessagesAndReactions(
+        previousMessages,
+        {
+          userReactionsMap: this.cacheUserReactions,
+          channelReactionsMap: this.cacheChannelReactions,
+        },
+        true,
+      );
 
-            previousMessages.push(message);
-          }
+      this.updateCacheCurrentMessages(currentPreviousMessages.concat(this.cacheCurrentMessages));
 
-          const nextMessages = this.mergeMessagesAndReactions(
-            previousMessages,
-            {
-              userReactionsMap: this.cacheUserReactions,
-              channelReactionsMap: this.cacheChannelReactions,
-            },
-            true,
-          );
+      this.fetchPreviousMessagesPromise = false;
 
-          this.updateCacheCurrentMessages(nextMessages.concat(this.cacheCurrentMessages));
-
-          this.fetchPreviousMessagesPromise = false;
-
-          resolve(nextMessages);
-        }, limit);
-      });
+      return previousMessages;
     } catch (e) {
       throw new Error(`Cannot load previous messages on "${this.channel._id}" channel.`);
     }
@@ -853,7 +843,6 @@ export class Channel implements BaseChannel {
         if (this.cacheCurrentMessages.some((message) => newMessage.key === message.key)) {
           return;
         }
-
         const messages = this.cacheCurrentMessages.concat(newMessage);
 
         this.updateCacheCurrentMessages(messages);
@@ -977,39 +966,50 @@ export class Channel implements BaseChannel {
     this.listenToAllTypeMessageModification();
   }
 
+  private listenToMessageCallback() {
+    this.messageModificationListenerUnsubscribe = this.realtimeAPIInstance.listenToMessage((message) => {
+      if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
+        return;
+      }
+
+      if(message.changeType === MessageChangeType.ADDED && this.cacheCurrentMessages.length >= this.totalLimit) {
+        this.removeFirstMessage()
+      }
+      
+      this.updateMessageWithReactions(message, this.cacheUserReactions, this.cacheChannelReactions);
+
+      this.messageModificationCallbacks[message.changeType].forEach((messageModificationCallback) => {
+        messageModificationCallback(message);
+      });
+    });
+  }
+
+  private removeFirstMessage() {
+    const firstMessage = this.cacheCurrentMessages.shift();
+    
+    if(!firstMessage) {
+      return;
+    }
+
+    this.messageModificationCallbacks[MessageChangeType.REMOVED].forEach((messageModificationCallback) => {
+      messageModificationCallback(firstMessage);
+    });
+  }
+
   /**
    * Listen to all type message modification
    *
    */
-  private listenToAllTypeMessageModification(callback?: (initialMessages: ChatMessage[]) => void, limit?: number) {
+  private listenToAllTypeMessageModification() {
     if (this.messageModificationListenerUnsubscribe !== null) {
       return;
     }
 
-    if (this.totalLimit === null && limit) {
-      this.totalLimit = limit;
-    } else if (this.totalLimit && limit) {
-      this.totalLimit = this.totalLimit + limit;
-    }
+    this.realtimeAPIInstance.on('change', () => {
+      this.listenToMessageCallback();
+    });
 
-    const realtimeAPI = RealtimeAPI.getInstance();
-
-    this.messageModificationListenerUnsubscribe = realtimeAPI.listenToMessageReceived(
-      this.channel.dataPath,
-      (message) => {
-        if (message.changeType === undefined || !this.messageModificationCallbacks[message.changeType]) {
-          return;
-        }
-
-        this.updateMessageWithReactions(message, this.cacheUserReactions, this.cacheChannelReactions);
-
-        this.messageModificationCallbacks[message.changeType].forEach((messageModificationCallback) => {
-          messageModificationCallback(message);
-        });
-      },
-      callback,
-      this.totalLimit ?? undefined,
-    );
+    this.listenToMessageCallback();
   }
 
   /**
@@ -1048,13 +1048,15 @@ export class Channel implements BaseChannel {
       }
 
       if (!this.chatConfigListenerUnsubscribe) {
-        const realtimeAPI = RealtimeAPI.getInstance();
         const path = `/chat-rooms/${this.chatRoom._id}/channels/${this.channel._id}`;
 
-        this.chatConfigListenerUnsubscribe = realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
-          this.onChatChanges(nextChatRoom);
-          this.onPinMessageChanges(nextChatRoom.pinnedMessageId || null);
-        });
+        this.chatConfigListenerUnsubscribe = this.realtimeAPIInstance.listenToChatConfigChanges(
+          path,
+          (nextChatRoom) => {
+            this.onChatChanges(nextChatRoom);
+            this.onPinMessageChanges(nextChatRoom.pinnedMessageId || null);
+          },
+        );
       }
 
       return () => {
@@ -1129,5 +1131,11 @@ export class Channel implements BaseChannel {
         });
       }
     }
+  }
+
+  private get realtimeAPIInstance(): RealtimeAPI {
+    const response = getClientCache(`/chatroom/${Credentials.apiKey}/${this.chatRoom.slug}`) as { chatInfo: ChatRoom; publisher: Site; settings: EmbedSettings };
+
+    return RealtimeAPI.getInstance(this.chatRoom._id, this.channel._id, this.channel.dataPath, response.publisher);
   }
 }
