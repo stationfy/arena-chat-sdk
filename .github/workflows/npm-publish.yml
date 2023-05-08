@@ -25,6 +25,9 @@ jobs:
     name: Publish
     needs: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [build, build-eu]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
       - name: Checkout
@@ -37,10 +40,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install
+        run: yarn clean
+      - name: Install
         run: yarn install
       - name: Build
-        run: yarn build
-      - name: Setup Node ${{ matrix.node_version }}
+        run: yarn ${{ matrix.target }}
+      - name: Setup Node
         uses: actions/setup-node@v1
         with:
           node-version: 14.x

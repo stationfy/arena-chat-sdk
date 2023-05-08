@@ -25,6 +25,7 @@
   },
   "scripts": {
     "build": "run-p build:es5 build:esm",
+    "build:eu": "run-p build:es5 build:esm",
     "build:dev": "run-p build:es5 build:esm",
     "build:stg": "run-p build:es5 build:esm",
     "build:es5": "tsc -p tsconfig.build.json",
