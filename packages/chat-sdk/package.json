@@ -49,6 +49,7 @@
   },
   "scripts": {
     "build": "run-s copy-config:prod build:dist build:bundle",
+    "build:eu": "run-s copy-config:prod-eu build:dist build:bundle",
     "build:bundle": "rollup --config",
     "build:bundle:watch": "rollup --config --watch",
     "build:dev": "run-s copy-config:dev build:dist build:bundle",
@@ -60,6 +61,7 @@
     "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
     "copy-config:stg": "cp ../../config.stg.ts ./src/config.ts",
     "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
+    "copy-config:prod-eu": "cp ../../config.prod-eu.ts ./src/config.ts",
     "link:yarn": "yarn link",
     "lint": "eslint . --ext .js,.ts",
     "pre-commit": "yarn lint-staged",

@@ -44,6 +44,7 @@
   },
   "scripts": {
     "build": "run-s copy-config:prod build:es5 build:esm",
+    "build:eu": "run-s copy-config:prod-eu build:es5 build:esm",
     "build:dev": "run-s copy-config:dev build:es5 build:esm",
     "build:stg": "run-s copy-config:stg build:es5 build:esm",
     "build:es5": "tsc -p tsconfig.build.json",
@@ -55,6 +56,7 @@
     "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
     "copy-config:stg": "cp ../../config.stg.ts ./src/config.ts",
     "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
+    "copy-config:prod-eu": "cp ../../config.prod-eu.ts ./src/config.ts",
     "link:yarn": "yarn link",
     "lint": "eslint . --ext .js,.ts",
     "pre-commit": "yarn lint-staged",
