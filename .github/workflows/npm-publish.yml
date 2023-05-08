@@ -40,8 +40,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install
-        run: yarn clean
-      - name: Install
         run: yarn install
       - name: Build
         run: yarn ${{ matrix.target }}
