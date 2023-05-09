@@ -14,7 +14,7 @@
     "lint": "lerna run --stream --concurrency 1 lint",
     "lint:json": "lerna run --stream --concurrency 1 lint:tslint:json",
     "publish:all:build": "lerna publish",
-    "publish:all:build:eu": "lerna publish --no-git-reset --preid prd-eu --dist-tag prd-eu",
+    "publish:all:build:eu": "lerna publish --no-git-reset --canary --preid prd-eu --dist-tag prd-eu",
     "publish:beta": "lerna publish --ignore-prepublish --ignore-scripts --canary --preid beta --dist-tag beta",
     "publish:dev": "run-s build:dev publish:beta",
     "publish:stg": "run-s build:stg",
