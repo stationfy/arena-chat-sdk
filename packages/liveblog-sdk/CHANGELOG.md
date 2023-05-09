@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.17](https://github.com/stationfy/arena-sdk/compare/v2.5.19...v2.5.17) (2023-05-09)
+
+
+### Bug Fixes
+
+* add eu package ([83ef03a](https://github.com/stationfy/arena-sdk/commit/83ef03a6a69ade8a666b3830175bb4afc8c9c90d))
+
+
+
+
+
 ## 2.5.16 (2023-01-27)
 
 

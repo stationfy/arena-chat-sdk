@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.17](https://github.com/stationfy/arena-chat-sdk/compare/v2.5.19...v2.5.17) (2023-05-09)
+
+
+### Bug Fixes
+
+* add eu package ([04aad80](https://github.com/stationfy/arena-chat-sdk/commit/04aad807d30ba1d3ed0d817978ef12cf8c986e27))
+* add eu package ([a75a2ae](https://github.com/stationfy/arena-chat-sdk/commit/a75a2ae434972d3e47dc9d3af7e7b64541876d5c))
+* add eu package ([83ef03a](https://github.com/stationfy/arena-chat-sdk/commit/83ef03a6a69ade8a666b3830175bb4afc8c9c90d))
+
+
+
+
+
 ## 2.5.16 (2023-01-27)
 
 
