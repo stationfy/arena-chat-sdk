@@ -49,6 +49,6 @@ jobs:
           node-version: 14.x
           registry-url: 'https://registry.npmjs.org'
       - name: Publish
-        run: yarn publish:all
+        run: yarn publish:all:${{ matrix.target }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
