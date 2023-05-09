@@ -556,6 +556,10 @@ development. If you're using TypeScript, take a look at the resources below:
 
 ## Changelogs
 
+### v2.5.16 (May 9, 2023)
+
+- EU package
+
 ### v2.5.0(Feb 7, 2022)
 
 - Implement presence listener

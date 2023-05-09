@@ -3,32 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## 2.5.19 (2023-05-09)
-
-**Note:** Version bump only for package @arena-im/core
-
-
-
-
-
-## 2.5.18 (2023-05-09)
-
-**Note:** Version bump only for package @arena-im/core
-
-
-
-
-
-## 2.5.17 (2023-05-09)
-
-
-### Bug Fixes
-
-* update rollup typescript plugin ([7ef75d2](https://github.com/stationfy/arena-sdk/commit/7ef75d216ffed7b3244dacd2cc7c3e442ff3754e))
-
-
-
-
 
 ## 2.5.16 (2023-01-27)
 
