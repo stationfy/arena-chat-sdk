@@ -30,7 +30,7 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@rollup/plugin-replace": "^2.4.2",
+    "@rollup/plugin-replace": "^5.0.2",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.3",
     "@types/sinon": "^10.0.2",
