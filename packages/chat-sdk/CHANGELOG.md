@@ -3,6 +3,86 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.22 (2023-05-10)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+## 2.5.21 (2023-05-10)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+## 2.5.20 (2023-05-10)
+
+
+### Bug Fixes
+
+* add eu package ([813b47a](https://github.com/stationfy/arena-chat-sdk/commit/813b47acb07c6535b0cd294c26a0e4cbab167189))
+
+
+
+
+
+## 2.5.19 (2023-05-10)
+
+
+### Bug Fixes
+
+* add eu package ([225c988](https://github.com/stationfy/arena-chat-sdk/commit/225c988cdec3c528b5a438db09f66a356704d4e4))
+
+
+
+
+
+## [2.5.18](https://github.com/stationfy/arena-chat-sdk/compare/v2.5.19...v2.5.18) (2023-05-09)
+
+
+### Bug Fixes
+
+* add eu package ([83ef03a](https://github.com/stationfy/arena-chat-sdk/commit/83ef03a6a69ade8a666b3830175bb4afc8c9c90d))
+* Update version for latest tag (temporary) ([ff8da51](https://github.com/stationfy/arena-chat-sdk/commit/ff8da517852d08589c3fb97aa5fce4b715a80f9f))
+
+
+
+
+
+## [2.5.17](https://github.com/stationfy/arena-chat-sdk/compare/v2.5.19...v2.5.17) (2023-05-09)
+
+
+### Bug Fixes
+
+* add eu package ([83ef03a](https://github.com/stationfy/arena-chat-sdk/commit/83ef03a6a69ade8a666b3830175bb4afc8c9c90d))
+
+
+
+
+
+## 2.5.18 (2023-05-09)
+
+**Note:** Version bump only for package @arena-im/chat-sdk
+
+
+
+
+
+## 2.5.17 (2023-05-09)
+
+
+### Bug Fixes
+
+* update rollup typescript plugin ([7ef75d2](https://github.com/stationfy/arena-chat-sdk/commit/7ef75d216ffed7b3244dacd2cc7c3e442ff3754e))
+
+
+
+
+
 ## 2.5.16 (2023-01-27)
 
 

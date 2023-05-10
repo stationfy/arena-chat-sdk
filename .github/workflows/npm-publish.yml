@@ -4,15 +4,12 @@ jobs:
   test:
     name: Build & Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x, 14.x]
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 16.x
       - name: Install
         run: yarn install
       - name: Build
@@ -40,12 +37,54 @@ jobs:
         run: yarn install
       - name: Build
         run: yarn build
-      - name: Setup Node ${{ matrix.node_version }}
+      - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 16.x
           registry-url: 'https://registry.npmjs.org'
       - name: Publish
-        run: yarn publish:all
+        run: yarn publish:all:build
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      - name: Setup Prd EU
+        run: node update-version.js prd-eu
+      - name: Build EU
+        run: yarn build:eu
+      - name: Publish Prd EU
+        run:
+          cd packages/types && npm publish --tag prd-eu && cd ../core && npm publish --tag prd-eu && cd ../chat-sdk &&
+          npm publish --tag prd-eu  && cd ../liveblog-sdk && npm publish --tag prd-eu
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+  publish-beta:
+    name: Publish Beta
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Git Identity
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/$GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install
+        run: yarn install
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+          registry-url: 'https://registry.npmjs.org'
+      - name: Setup Dev
+        run: node update-version.js beta
+      - name: Build Dev
+        run: yarn build:dev
+      - name: Publish Beta
+        run:
+          cd packages/types && npm publish --tag beta && cd ../core && npm publish --tag beta && cd ../chat-sdk && npm
+          publish --tag beta  && cd ../liveblog-sdk && npm publish --tag beta
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

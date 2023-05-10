@@ -1053,7 +1053,7 @@ export class Channel implements BaseChannel {
 
         this.chatConfigListenerUnsubscribe = realtimeAPI.listenToChatConfigChanges(path, (nextChatRoom) => {
           this.onChatChanges(nextChatRoom);
-          this.onPinMessageChanges(nextChatRoom.pinnedMessageId || null);
+          this.onPinMessageChanges(nextChatRoom?.pinnedMessageId || null);
         });
       }
 

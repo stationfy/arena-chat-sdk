@@ -19,6 +19,7 @@ const plugins = [
     preventAssignment: true
   }),
   typescript({
+    clean: true,
     tsconfig: 'tsconfig.build.json',
     tsconfigOverride: {
       compilerOptions: {
