@@ -51,6 +51,8 @@ jobs:
       - name: Build EU
         run: yarn build:eu
       - name: Publish Prd EU
-        run: npm publish --tag prd-eu
+        run:
+          cd packages/types && npm publish --tag prd-eu && cd ../core && npm publish --tag prd-eu && cd ../chat-sdk &&
+          npm publish --tag prd-eu  && cd ../liveblog-sdk && npm publish --tag prd-eu
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
