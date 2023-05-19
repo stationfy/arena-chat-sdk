@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.5.23 (2023-05-17)
+
+
+### Bug Fixes
+
+* change action workflow ([c954ccf](https://github.com/stationfy/arena-chat-sdk/commit/c954ccf399dd552185394c05215956120b8f7e0d))
+
+
+
+
+
 ## 2.5.22 (2023-05-10)
 
 **Note:** Version bump only for package @arena-im/chat-sdk

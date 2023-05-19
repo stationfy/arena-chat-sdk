@@ -1,10 +1,9 @@
 {
   "name": "@arena-im/chat-sdk",
-  "version": "2.5.22",
+  "version": "2.5.23",
   "description": "arena-chat-sdk is the official JavaScript client for Arena Chat, a service for building chat applications.",
   "author": "Arena",
   "license": "ISC",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stationfy/arena-chat-sdk.git"
@@ -19,13 +18,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^2.5.22",
-    "@arena-im/core": "^2.5.22"
+    "@arena-im/chat-types": "^2.5.23",
+    "@arena-im/core": "^2.5.23"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^24.1.0",
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "@rollup/plugin-replace": "^5.0.2",
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-replace": "^2.4.2",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.12.3",
     "@types/sinon": "^10.0.2",
@@ -41,10 +40,10 @@
     "prettier-check": "2.0.0",
     "process": "^0.11.10",
     "rimraf": "3.0.2",
-    "rollup": "3.21.6",
+    "rollup": "2.52.3",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-typescript2": "0.34.1",
+    "rollup-plugin-typescript2": "0.30.0",
     "ts-jest": "^27.0.3",
     "typescript": "4.3.4"
   },
