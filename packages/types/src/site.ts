@@ -18,7 +18,9 @@ interface SiteConfig {
 }
 
 interface SiteFeatureFlags {
-  [key: string]: string;
+  [key: string]: {
+    status: string;
+  };
 }
 
 export interface EmbedSettings {

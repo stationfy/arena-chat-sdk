@@ -2,7 +2,7 @@ import { LiveChat } from '@live-chat/live-chat';
 import { GraphQLAPI } from '@services/graphql-api';
 import { exampleChatRoom, exampleLiveChatChannel, exampleSite } from '../../fixtures/examples';
 import { PublicUser, PublicUserStatus, Status } from '@arena-im/chat-types';
-import * as RealtimeAPI from '@services/realtime-api';
+import * as RealtimeAPI from '../../../src/services/realtime-api/realtime-api';
 import { RestAPI } from '@services/rest-api';
 import { Channel } from '@channel/channel';
 
@@ -44,7 +44,7 @@ jest.mock('../../../src/sdk', () => ({
   })),
 }));
 
-jest.mock('@services/realtime-api', () => ({
+jest.mock('@services/realtime-api/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 

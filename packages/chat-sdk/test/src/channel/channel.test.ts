@@ -1,12 +1,14 @@
-import { Channel } from '@channel/channel';
-import { User, OrganizationSite, ArenaHub } from '@arena-im/core';
+import { Channel } from '../../../src/channel/channel';
+import { User, OrganizationSite, ArenaHub, FirestoreAPI } from '@arena-im/core';
 import { ChatRoom, Moderation, ModeratorStatus, MessageReaction, ChatMessageSender } from '@arena-im/chat-types';
 import { Site } from '@arena-im/chat-types';
 
-import { GraphQLAPI } from '@services/graphql-api';
-import { RestAPI } from '@services/rest-api';
+import { GraphQLAPI } from '../../../src/services/graphql-api';
+import { RestAPI } from '../../../src/services/rest-api';
 import { ChatMessage } from '@arena-im/chat-types';
-import * as RealtimeAPI from '@services/realtime-api';
+import * as RealtimeAPI from '../../../src/services/realtime-api/realtime-api';
+import * as CachedApi from '@arena-im/core/dist/services/cached-api';
+
 import {
   exampleChatMessage,
   exampleChatRoom,
@@ -25,7 +27,7 @@ jest.mock('@services/graphql-api', () => ({
   },
 }));
 
-jest.mock('@services/realtime-api', () => ({
+jest.mock('@services/realtime-api/realtime-api', () => ({
   RealtimeAPI: jest.fn(),
 }));
 
@@ -42,6 +44,9 @@ const reactionsAPIMock = {
 
 jest.mock('@arena-im/core', () => ({
   ArenaHub: jest.fn(),
+  Credentials: {
+    apiKey: 'test-key',
+  },
   User: {
     instance: {
       data: jest.fn(),
@@ -67,6 +72,13 @@ jest.mock('@arena-im/core', () => ({
   },
   ReactionsAPIFirestore: {
     getInstance: () => reactionsAPIMock,
+  },
+  FirestoreAPI: {
+    listenToCollectionChange: jest.fn(),
+    listenToDocumentChange: jest.fn(),
+    fetchCollectionItems: jest.fn(),
+    listenToCollectionItemChange: jest.fn(),
+    addItem: jest.fn(),
   },
   LocalStorageAPI: {},
 }));
@@ -95,6 +107,38 @@ describe('Channel', () => {
     RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
       return {
         listenToChatConfigChanges: jest.fn(),
+      };
+    });
+
+    // @ts-ignore
+    FirestoreAPI.listenToCollectionChange.mockImplementation((_, callback) => {
+      const message: ChatMessage = {
+        createdAt: 1592342151026,
+        key: 'fake-key',
+        message: {
+          text: 'testing',
+        },
+        publisherId: 'site-id',
+        sender: {
+          displayName: 'Test User',
+          photoURL: 'http://www.google.com',
+        },
+      };
+      const messages: ChatMessage[] = new Array(20).fill(message);
+
+      callback(messages);
+    });
+
+    // @ts-ignore
+    CachedApi.getClientCache = jest.fn(() => {
+      return {
+        publisher: {
+          featureFlags: {
+            chat_fireproxy: {
+              status: 'active',
+            },
+          },
+        },
       };
     });
 
@@ -389,14 +433,8 @@ describe('Channel', () => {
     it('should load recent messages empty', async () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (
-          _: string,
-          _callback: (message: ChatMessage) => void,
-          callback: (messages: ChatMessage[]) => void,
-        ) => {
-          callback([]);
-
-          return null;
+        fetchRecentMessages: async () => {
+          return [];
         },
       };
 
@@ -415,11 +453,7 @@ describe('Channel', () => {
     it('should load 5 recent messages', async () => {
       const realtimeAPIInstanceMock = {
         listenToChatConfigChanges: jest.fn(),
-        listenToMessageReceived: (
-          _: string,
-          _callback: (message: ChatMessage) => void,
-          callback: (messages: ChatMessage[]) => void,
-        ) => {
+        fetchRecentMessages: async () => {
           const message: ChatMessage = {
             createdAt: 1592342151026,
             key: 'fake-key',
@@ -435,9 +469,7 @@ describe('Channel', () => {
 
           const messages: ChatMessage[] = new Array(5).fill(message);
 
-          callback(messages);
-
-          return null;
+          return messages;
         },
       };
 
@@ -682,8 +714,9 @@ describe('Channel', () => {
       // @ts-ignore
       RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
         return {
+          on: jest.fn(),
           listenToChatConfigChanges: jest.fn(),
-          listenToMessageReceived: (_: string, callback: (message: ChatMessage) => void) => {
+          listenToMessage: (callback: (message: ChatMessage) => void) => {
             const message: ChatMessage = {
               createdAt: 1592342151026,
               key: 'fake-key',
@@ -716,16 +749,15 @@ describe('Channel', () => {
     });
 
     it('should receive an error', () => {
-      const realtimeAPIInstanceMock = {
-        listenToChatConfigChanges: jest.fn(),
-        listenToChatNewMessage: () => {
-          throw new Error('invalid');
-        },
-      };
-
       // @ts-ignore
       RealtimeAPI.RealtimeAPI.getInstance = jest.fn(() => {
-        return realtimeAPIInstanceMock;
+        return {
+          on: jest.fn(),
+          listenToChatConfigChanges: jest.fn(),
+          listenToMessage: () => {
+            throw new Error('invalid');
+          },
+        };
       });
 
       const channelI = Channel.getInstance(exampleLiveChatChannel, exampleChatRoom);

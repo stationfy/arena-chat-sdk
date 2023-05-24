@@ -1,3 +1,4 @@
+export { ArenaSocketMessage } from './arena-socket';
 export {
   ChatMessage,
   MessageChangeType,
@@ -47,3 +48,5 @@ export { TrackPayload, EventMap } from './arena-hub';
 export { BaseUserProfile } from './user-profile';
 export { BaseReaction, MessageReactions, ChannelMessageReactions } from './reaction';
 export { ILiveblogInfo, BaseLiveBlog } from './liveblog';
+export { Env } from './logger';
+export { BaseRealtimeAPI } from './realtime';

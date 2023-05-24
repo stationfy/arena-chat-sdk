@@ -299,6 +299,33 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@datadog/browser-core@4.42.1":
+  version "4.42.1"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-4.42.1.tgz#f237f6f536d242d36e6d5aa8c92f6e6f44889eea"
+  integrity sha512-7jrTdocLhziILGQdQJV8AbO/33QRkoUrDHgmshRGxP1Byw8sf3rkftWBoXTzY/Vy0GPD42ngZt0qD46eiIlT3A==
+
+"@datadog/browser-logs@^4.31.0":
+  version "4.42.1"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-logs/-/browser-logs-4.42.1.tgz#771078e53c663be80b48ff3e21e2abc68bbc88d3"
+  integrity sha512-cEHluHJ/PDuvkBdgkHfWtPOaQ6VcGOurUpuLASHsHgXKMgp/CzskBwX7+TXAgigfFx4xCJIAn3r+AzMOYAklQw==
+  dependencies:
+    "@datadog/browser-core" "4.42.1"
+
+"@datadog/browser-rum-core@4.42.1":
+  version "4.42.1"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-4.42.1.tgz#f0e81962b50682c7c8ae5a72df5c48da69c9c4dd"
+  integrity sha512-6nw3mCJSMxGSmWWPq/0AkAZNCLEgzG3LxinpLMAsU38PNo3/RkGN3GnfwrqbBoe6oDchA5SrLqby09I1TGwvmw==
+  dependencies:
+    "@datadog/browser-core" "4.42.1"
+
+"@datadog/browser-rum@^4.31.0":
+  version "4.42.1"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-4.42.1.tgz#b3f0ab6b1662df06a7b51aa62170e23a8deaa3cb"
+  integrity sha512-uHv3oOpbfvrCIbL6Fpkma418TK1ZUnms/gM+BWcS3j7kQPGTuz4uajuJy0vIi+W6/Ap+srFSlmG13DYS1gjBiA==
+  dependencies:
+    "@datadog/browser-core" "4.42.1"
+    "@datadog/browser-rum-core" "4.42.1"
+
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"
