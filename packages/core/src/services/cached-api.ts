@@ -34,7 +34,7 @@ export async function fetchCachedAPIData<T>(path: string): Promise<T | null> {
   return payload;
 }
 
-function getClientCache<T>(path: string, expired = false): T | null {
+export function getClientCache<T>(path: string, expired = false): T | null {
   try {
     const cachedPayload = localStorage.getItem(`${CACHED_API_LOCAL_STORAGE_PREFIX}${path}`);
 

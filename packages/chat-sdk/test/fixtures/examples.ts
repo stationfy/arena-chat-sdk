@@ -72,6 +72,7 @@ export const exampleSite: Site = {
   settings: {
     graphqlPubApiKey: '1234',
   },
+  featureFlags: { chat_fireproxy: { status: 'inactive' } },
   slug: 'site-slug',
 };
 

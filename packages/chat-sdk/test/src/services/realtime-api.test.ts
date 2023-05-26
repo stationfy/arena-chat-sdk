@@ -1,4 +1,4 @@
-import { RealtimeAPI } from '@services/realtime-api';
+import { RealtimeAPI } from '../../../src/services/realtime-api/realtime-api';
 import { ChatMessage, QnaQuestion, QnaQuestionFilter, PollFilter, Poll, LiveChatChannel } from '@arena-im/chat-types';
 import { FirestoreAPI } from '@arena-im/core';
 import { DocumentData, DocumentChange } from 'firebase/firestore';
@@ -9,7 +9,9 @@ import {
   exampleLiveChatChannel,
   examplePoll,
   exampleQnaQuestion,
+  exampleSite,
 } from '../../fixtures/examples';
+import { exampleChannelId, exampleChatroomId, exampleFirestoreChatroomPath } from '../../fixtures/chat-examples';
 
 jest.mock('@arena-im/core', () => ({
   FirestoreAPI: {
@@ -23,42 +25,44 @@ jest.mock('@arena-im/core', () => ({
 
 describe('RealtimeAPI', () => {
   describe('listenToMessage()', () => {
-    it('should call the callback function with a list of chat message', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+    it('should call the callback function with a list of chat message', async () => {
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
-      FirestoreAPI.listenToCollectionChange.mockImplementation((_, callback) => {
-        const message: ChatMessage = {
-          createdAt: 1592342151026,
-          key: 'fake-key',
-          message: {
-            text: 'testing',
-          },
-          publisherId: 'site-id',
-          sender: {
-            displayName: 'Test User',
-            photoURL: 'http://www.google.com',
-          },
-        };
-        const messages: ChatMessage[] = new Array(20).fill(message);
-
-        callback(messages);
-      });
-
-      realtimeAPI.listenToMessage(
-        'my-channel',
-        (messages: ChatMessage[]) => {
-          expect(messages.length).toEqual(20);
-          done();
+      FirestoreAPI.listenToCollectionItemChange.mockImplementation(
+        (_: string, callback: (changes: DocumentChange<DocumentData>[]) => void) => {
+          callback([]);
+          callback([
+            {
+              doc: {
+                data: () => exampleChatMessage,
+                // @ts-ignore
+                type: 'added',
+              },
+            },
+          ]);
         },
-        20,
       );
+
+      realtimeAPI.listenToMessage((message: ChatMessage) => {
+        expect(message.key).toEqual('fake-message');
+      });
     });
   });
 
   describe('listenToChatConfigChanges()', () => {
-    it('should call the callback function with the chat config', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+    it('should call the callback function with the chat config', async () => {
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.listenToDocumentChange.mockImplementation((_, callback) => {
@@ -69,7 +73,6 @@ describe('RealtimeAPI', () => {
         `/chat-rooms/${exampleChatRoom._id}/channels/${exampleLiveChatChannel._id}`,
         (channel: LiveChatChannel) => {
           expect(channel._id).toEqual('new-chatroom');
-          done();
         },
       );
     });
@@ -77,28 +80,21 @@ describe('RealtimeAPI', () => {
 
   describe('fetchRecentMessages()', () => {
     it('should fetch recent messages', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
-        const message: ChatMessage = {
-          createdAt: 1592342151026,
-          key: 'fake-key',
-          message: {
-            text: 'testing',
-          },
-          publisherId: 'site-id',
-          sender: {
-            displayName: 'Test User',
-            photoURL: 'http://www.google.com',
-          },
-        };
-        const messages: ChatMessage[] = new Array(10).fill(message);
+        const messages: ChatMessage[] = new Array(10).fill(exampleChatMessage);
 
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchRecentMessages(exampleLiveChatChannel.dataPath, 10);
+      const messages = await realtimeAPI.fetchRecentMessages(10);
 
       expect(messages.length).toBe(10);
     });
@@ -106,7 +102,12 @@ describe('RealtimeAPI', () => {
 
   describe('fetchGroupRecentMessages()', () => {
     it('should featch group channel recent messages', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -122,7 +123,12 @@ describe('RealtimeAPI', () => {
     });
 
     it('should featch group channel recent messages from the last cleared timestamp', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -139,8 +145,13 @@ describe('RealtimeAPI', () => {
   });
 
   describe('listenToMessageReceived()', () => {
-    it('should receive a added message', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+    it('should receive a added message', async () => {
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.listenToCollectionItemChange.mockImplementation(
@@ -160,15 +171,18 @@ describe('RealtimeAPI', () => {
 
       realtimeAPI.listenToMessageReceived(exampleLiveChatChannel.dataPath, (message: ChatMessage) => {
         expect(message.key).toEqual('fake-message');
-
-        done();
       });
     });
   });
 
   describe('fetchGroupPreviousMessages', () => {
     it('f', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -219,8 +233,13 @@ describe('RealtimeAPI', () => {
   });
 
   describe('listenToPollReceived()', () => {
-    it('should receive a added poll', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+    it('should receive a added poll', async () => {
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.listenToCollectionItemChange.mockImplementation(
@@ -239,15 +258,18 @@ describe('RealtimeAPI', () => {
 
       realtimeAPI.listenToPollReceived(exampleLiveChatChannel._id, (poll: Poll) => {
         expect(poll._id).toEqual('fake-poll');
-
-        done();
       });
     });
   });
 
   describe('listenToGroupMessageReceived()', () => {
-    it('should receive a added group message', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+    it('should receive a added group message', async () => {
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.listenToCollectionItemChange.mockImplementation(
@@ -267,23 +289,22 @@ describe('RealtimeAPI', () => {
 
       realtimeAPI.listenToGroupMessageReceived(exampleLiveChatChannel._id, (message: ChatMessage) => {
         expect(message.key).toEqual('fake-message');
-
-        done();
       });
     });
   });
 
   describe('fetchPreviousMessages()', () => {
     it('should fetch previous messages', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
         const messages: ChatMessage[] = [
-          {
-            ...exampleChatMessage,
-            key: 'fake-key',
-          },
           {
             ...exampleChatMessage,
             key: 'fake-key-1',
@@ -301,7 +322,7 @@ describe('RealtimeAPI', () => {
         return messages;
       });
 
-      const messages = await realtimeAPI.fetchPreviousMessages(exampleLiveChatChannel.dataPath, exampleChatMessage, 3);
+      const messages = await realtimeAPI.fetchPreviousMessages(3, exampleChatMessage.createdAt);
 
       expect(messages).toEqual([
         {
@@ -322,7 +343,12 @@ describe('RealtimeAPI', () => {
 
   describe('fetchAllQnaQuestions()', () => {
     it('should fetch qna questions', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -337,7 +363,12 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch popular qna questions', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -354,7 +385,12 @@ describe('RealtimeAPI', () => {
 
   describe('fetchAllPolls()', () => {
     it('should fetch chat polls', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -370,7 +406,12 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch all active chat polls', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -386,7 +427,12 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch all ended chat polls', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -402,7 +448,12 @@ describe('RealtimeAPI', () => {
     });
 
     it('should fetch all recent chat polls', async () => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.fetchCollectionItems.mockImplementation(async () => {
@@ -419,8 +470,13 @@ describe('RealtimeAPI', () => {
   });
 
   describe('listenToQuestionReceived()', () => {
-    it('should receive a added question', (done) => {
-      const realtimeAPI = RealtimeAPI.getInstance();
+    it('should receive a added question', async () => {
+      const realtimeAPI = await RealtimeAPI.getInstance(
+        exampleChatroomId,
+        exampleChannelId,
+        exampleFirestoreChatroomPath,
+        exampleSite,
+      );
 
       // @ts-ignore
       FirestoreAPI.listenToCollectionItemChange.mockImplementation(
@@ -439,8 +495,6 @@ describe('RealtimeAPI', () => {
 
       realtimeAPI.listenToQuestionReceived('my-channel', (question: QnaQuestion) => {
         expect(question.key).toEqual('fake-qna-question');
-
-        done();
       });
     });
   });
