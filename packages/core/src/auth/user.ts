@@ -5,6 +5,7 @@ import { UserObservable } from './user-observable';
 import { StorageAPI } from '../services/storage-api';
 import { ARENA_URL } from '../config';
 import { generateUUIDV4, getGlobalObject } from '../utils/misc';
+import { Logger } from '../services/logger';
 
 const userCountryCacheKey = 'arenaUserCountry';
 const anonymousIdCacheKey = 'anonymousUserId';
@@ -153,19 +154,23 @@ export class User {
   }
 
   private askHubFrameForAnonymousId() {
-    // check whether track frame already exists
-    const arenaHubFrame = this.global.document.querySelector('[name="arena-hub-frame"]') as HTMLIFrameElement;
+    try {
+      // check whether track frame already exists
+      const arenaHubFrame = this.global.document.querySelector('[name="arena-hub-frame"]') as HTMLIFrameElement;
 
-    if (arenaHubFrame) {
-      arenaHubFrame.contentWindow?.postMessage({ type: ASK_ARENA_HUB_ANONYMOUS_ID }, ARENA_URL);
-    } else {
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        this.createArenaHubIframe();
+      if (arenaHubFrame) {
+        arenaHubFrame.contentWindow?.postMessage({ type: ASK_ARENA_HUB_ANONYMOUS_ID }, ARENA_URL);
+      } else {
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          this.createArenaHubIframe();
+        }
+
+        this.global.addEventListener('DOMContentLoaded', () => {
+          this.createArenaHubIframe();
+        });
       }
-
-      this.global.addEventListener('DOMContentLoaded', () => {
-        this.createArenaHubIframe();
-      });
+    } catch (error) {
+      Logger.instance.log('error', 'ArenaWebSDK - Could not get AnonymousId', { error: error });
     }
   }
 
