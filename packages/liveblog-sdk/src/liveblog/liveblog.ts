@@ -4,7 +4,7 @@ import { BaseLiveBlog } from '../../../types/dist/liveblog';
 import { RestAPI } from '../services/rest-api';
 
 export class Liveblog implements BaseLiveBlog {
-  private static instance: Promise<Liveblog>;
+  private static instances: { [key: string]: Promise<Liveblog> } = {};
   private presenceAPI!: PresenceAPI;
   private reactionsAPI!: BaseReactionsAPI;
   private cacheChannelReactions: { [key: string]: ChannelReaction } = {};
@@ -12,18 +12,22 @@ export class Liveblog implements BaseLiveBlog {
   private constructor(private readonly liveblogInfo: ILiveblogInfo) {}
 
   public static getInstance(slug: string): Promise<Liveblog> {
-    if (!Liveblog.instance) {
-      Liveblog.instance = this.fetchLiveblogInfo(slug)
+    if (!Liveblog.instances[slug]) {
+      Liveblog.instances[slug] = this.fetchLiveblogInfo(slug)
         .then((liveblogInfo) => {
           return new Liveblog(liveblogInfo);
         })
         .then(async (liveblog: Liveblog) => {
+          if (liveblog.presenceAPI) {
+            liveblog.presenceAPI.offAllListeners();
+          }
+
           await liveblog.initPresence();
           return liveblog;
         });
     }
 
-    return Liveblog.instance;
+    return Liveblog.instances[slug];
   }
 
   private initPresence(): Promise<boolean> {

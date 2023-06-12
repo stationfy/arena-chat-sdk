@@ -21,4 +21,4 @@ export const DD_RUM_APLICATION_ID = '980b1eb2-c2b7-4fef-b48b-7d69adc9c283';
 export const DD_RUM_CLIENT_TOKEN = 'pub24ce7b1f01dcfe6a52633f4154d16859';
 export const DD_SERVICE = 'web-app';
 export const ENV = 'prd';
-export const ARENA_CHAT_WS = 'wss://chat-proxy-dev.arena.im/ws';
+export const ARENA_CHAT_WS = 'wss://chat-proxy.arena.im/ws';
