@@ -6,8 +6,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Doc Sdk',
-  tagline: 'Dinosaurs are cool',
+  title: 'Arena Documentation',
+  tagline: 'Choose the toll',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -21,7 +21,7 @@ const config = {
   organizationName: 'facebook', // Usually your GitHub org/user name.
   projectName: 'docusaurus', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn', // throw
   onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internalization, you can use this field to set useful
@@ -33,18 +33,47 @@ const config = {
   },
 
   presets: [
+    // [
+    //   'classic',
+    //   /** @type {import('@docusaurus/preset-classic').Options} */
+    //   ({
+    //     docs: {
+    //       sidebarPath: require.resolve('./sidebars.js'),
+    //       // Please change this to your repo.
+    //     },
+    //     theme: {
+    //       customCss: require.resolve('./src/css/custom.css'),
+    //     },
+    //   }),
+    // ],
+    // [
+    //   '@docusaurus/plugin-content-docs',
+    //   {
+    //     // id: 'product', // omitted => default instance
+    //     path: 'apiv1',
+    //     routeBasePath: 'apiv1',
+    //     version: '1.0.0',
+    //     // sidebarPath: require.resolve('./sidebarsProduct.js'),
+    //     // ... other options
+    //   },
+    // ],
+
     [
-      'classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      "docusaurus-preset-openapi",
+      /** @type {import('docusaurus-preset-openapi').Options} */
+      {
+        api: {
+          path: "apiv3.json",
+          routeBasePath: "/api",
+        },
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
+          sidebarPath: require.resolve("./sidebars.js"),
+          routeBasePath: "/",
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: require.resolve("./src/css/custom.css"),
         },
-      }),
+      },
     ],
   ],
 
@@ -64,7 +93,13 @@ const config = {
             type: 'doc',
             docId: 'intro',
             position: 'left',
-            label: 'Get Started',
+            label: 'Node SDK',
+          },
+          {
+            type: 'doc',
+            docId: 'api',
+            position: 'left',
+            label: 'API V3',
           },
           {
             href: 'https://github.com/stationfy/arena-chat-sdk',
