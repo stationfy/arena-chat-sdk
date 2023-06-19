@@ -1,0 +1,25 @@
+.docs {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.featureSvg {
+  height: 200px;
+  width: 200px;
+}
+
+.docCards {
+  gap: 24px;
+}
+
+.docCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 40px;
+  background-color: rgba(145, 36, 255, 0.1);
+  flex: 0 0 424px !important;
+  border-radius: 8px;
+}
