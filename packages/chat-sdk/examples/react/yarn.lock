@@ -3,24 +3,25 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "0.0.0"
-  uid ""
+  version "2.5.16"
+  dependencies:
+    "@arena-im/chat-types" "^2.5.16"
+    "@arena-im/core" "^2.5.16"
 
-"@arena-im/chat-types@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.4.3.tgz#388f8f5a3feb192d0492cd6ec4ea80b5f1f66adb"
-  integrity sha512-3JZBcTLaPqGbXLnJ+PMtT5eDdbIyGpiHnXgMza6gOfJ2+/SjAe0LQKubuuJ2d+2cCY/EA9GxWKnl138dSBAjyA==
+"@arena-im/chat-types@^2.5.16":
+  version "2.5.16"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.5.16.tgz#981f4b4b0873473e8c3e049d81ea5bede1c9d305"
+  integrity sha512-7gtD/qvjy6qzU+9aVZHtyMon5mL5GMSr+rwSqp49AufzAciinrPDT9PnIkWGbND9WVcTjEgjmMscChKy3ehktg==
 
 "@arena-im/chat-types@link:../../../types":
-  version "0.0.0"
-  uid ""
+  version "2.5.16"
 
-"@arena-im/core@^2.4.3":
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.4.3.tgz#523b96e5dc582896aeacdc1a079b6a894b357e52"
-  integrity sha512-ews/YXmvl5DF9g/BRnH9sEO60HIuSvd8r9sm0F+IzAdWWlN9uJgC5vrY+2BPqwSzxWlINbPACnkfkBMcguMxPw==
+"@arena-im/core@^2.5.16":
+  version "2.5.16"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.16.tgz#bee1afdbb76984df21538ae96b6f3afb94454118"
+  integrity sha512-oApgLLvSvhs+mjMtt4qt5Lw/Cb55r7sT4N6Jz5fQnRNaTPDJ6euXd8b7/WC9MXcw2H4QBSMWGT5GhPzlUJ6CWw==
   dependencies:
-    "@arena-im/chat-types" "^2.4.3"
+    "@arena-im/chat-types" "^2.5.16"
     firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
@@ -8062,9 +8063,9 @@ minimatch@3.0.4, minimatch@^3.0.4:
     brace-expansion "^1.1.7"
 
 minimist@^1.1.1, minimist@^1.2.0, minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
+  integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
 
 minipass-collect@^1.0.2:
   version "1.0.2"
