@@ -3,25 +3,25 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "2.5.16"
+  version "2.5.24"
   dependencies:
-    "@arena-im/chat-types" "^2.5.16"
-    "@arena-im/core" "^2.5.16"
+    "@arena-im/chat-types" "^2.5.24"
+    "@arena-im/core" "^2.5.24"
 
-"@arena-im/chat-types@^2.5.16":
-  version "2.5.16"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.5.16.tgz#981f4b4b0873473e8c3e049d81ea5bede1c9d305"
-  integrity sha512-7gtD/qvjy6qzU+9aVZHtyMon5mL5GMSr+rwSqp49AufzAciinrPDT9PnIkWGbND9WVcTjEgjmMscChKy3ehktg==
+"@arena-im/chat-types@^2.5.24":
+  version "2.5.24"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.5.24.tgz#0b077e4effd5e424219cca4d88d2ce777de06c98"
+  integrity sha512-7C9MGxquJBRiw29yBi8q7VJTe8FgwwM07zJyy7h0MuatxyCpF3GKyuc7kOaOCKY8MATVi3Q/zoODJpD1zDZZXA==
 
 "@arena-im/chat-types@link:../../../types":
-  version "2.5.16"
+  version "2.5.24"
 
-"@arena-im/core@^2.5.16":
-  version "2.5.16"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.16.tgz#bee1afdbb76984df21538ae96b6f3afb94454118"
-  integrity sha512-oApgLLvSvhs+mjMtt4qt5Lw/Cb55r7sT4N6Jz5fQnRNaTPDJ6euXd8b7/WC9MXcw2H4QBSMWGT5GhPzlUJ6CWw==
+"@arena-im/core@^2.5.24":
+  version "2.5.24"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.24.tgz#9d6ece686f9a30c30c5f63f5d96c23a16aa962f5"
+  integrity sha512-NsFTilrLu+Lh3E1Luz6NKH8MjR9sCgn56fq9nThL32DCfSWe+wq6UEkTgE0AoTBaJl9l8zby1r7pfEE/XkRsOw==
   dependencies:
-    "@arena-im/chat-types" "^2.5.16"
+    "@arena-im/chat-types" "^2.5.24"
     firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
@@ -12117,9 +12117,9 @@ which@^2.0.1, which@^2.0.2:
     isexe "^2.0.0"
 
 word-wrap@^1.2.3, word-wrap@~1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
-  integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.4.tgz#cb4b50ec9aca570abd1f52f33cd45b6c61739a9f"
+  integrity sha512-2V81OA4ugVo5pRo46hAoD2ivUJx8jXmWXfUkY4KFNw0hEptvN0QfH3K4nHiwzGeKl5rFKedV48QVoqYavy4YpA==
 
 workbox-background-sync@^5.1.4:
   version "5.1.4"
