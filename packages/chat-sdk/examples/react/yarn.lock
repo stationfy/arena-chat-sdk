@@ -3,25 +3,25 @@
 
 
 "@arena-im/chat-sdk@link:../..":
-  version "2.5.16"
+  version "2.5.24"
   dependencies:
-    "@arena-im/chat-types" "^2.5.16"
-    "@arena-im/core" "^2.5.16"
+    "@arena-im/chat-types" "^2.5.24"
+    "@arena-im/core" "^2.5.24"
 
-"@arena-im/chat-types@^2.5.16":
-  version "2.5.16"
-  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.5.16.tgz#981f4b4b0873473e8c3e049d81ea5bede1c9d305"
-  integrity sha512-7gtD/qvjy6qzU+9aVZHtyMon5mL5GMSr+rwSqp49AufzAciinrPDT9PnIkWGbND9WVcTjEgjmMscChKy3ehktg==
+"@arena-im/chat-types@^2.5.24":
+  version "2.5.24"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.5.24.tgz#0b077e4effd5e424219cca4d88d2ce777de06c98"
+  integrity sha512-7C9MGxquJBRiw29yBi8q7VJTe8FgwwM07zJyy7h0MuatxyCpF3GKyuc7kOaOCKY8MATVi3Q/zoODJpD1zDZZXA==
 
 "@arena-im/chat-types@link:../../../types":
-  version "2.5.16"
+  version "2.5.24"
 
-"@arena-im/core@^2.5.16":
-  version "2.5.16"
-  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.16.tgz#bee1afdbb76984df21538ae96b6f3afb94454118"
-  integrity sha512-oApgLLvSvhs+mjMtt4qt5Lw/Cb55r7sT4N6Jz5fQnRNaTPDJ6euXd8b7/WC9MXcw2H4QBSMWGT5GhPzlUJ6CWw==
+"@arena-im/core@^2.5.24":
+  version "2.5.24"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.24.tgz#9d6ece686f9a30c30c5f63f5d96c23a16aa962f5"
+  integrity sha512-NsFTilrLu+Lh3E1Luz6NKH8MjR9sCgn56fq9nThL32DCfSWe+wq6UEkTgE0AoTBaJl9l8zby1r7pfEE/XkRsOw==
   dependencies:
-    "@arena-im/chat-types" "^2.5.16"
+    "@arena-im/chat-types" "^2.5.24"
     firebase "9.0.2"
     graphql "^15.5.0"
     graphql-request "^3.4.0"
@@ -9709,9 +9709,9 @@ prop-types@^15.6.2, prop-types@^15.7.2:
     react-is "^16.8.1"
 
 protobufjs@^6.10.0:
-  version "6.11.2"
-  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.2.tgz#de39fabd4ed32beaa08e9bb1e30d08544c1edf8b"
-  integrity sha512-4BQJoPooKJl2G9j3XftkIXjoC9C0Av2NOrWmbLWT1vH32GcSUHjM0Arra6UfTsVyfMAuFzaLucXn1sadxJydAw==
+  version "6.11.4"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-6.11.4.tgz#29a412c38bf70d89e537b6d02d904a6f448173aa"
+  integrity sha512-5kQWPaJHi1WoCpjTGszzQ32PG2F4+wRY6BmAT4Vfw56Q2FZ4YZzK20xUYQH4YkfehY1e6QSICrJquM6xXZNcrw==
   dependencies:
     "@protobufjs/aspromise" "^1.1.2"
     "@protobufjs/base64" "^1.1.2"
