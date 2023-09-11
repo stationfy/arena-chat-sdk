@@ -5,7 +5,7 @@
   "author": "Arena",
   "license": "BSD-3-Clause",
   "engines": {
-    "node": ">=6"
+    "node": ">=18"
   },
   "main": "dist/index.js",
   "module": "esm/index.js",
