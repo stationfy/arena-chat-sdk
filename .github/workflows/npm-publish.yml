@@ -46,8 +46,8 @@ jobs:
         run: yarn publish:all:build
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      - name: Setup Prd EU
-        run: node update-version.js
+      # - name: Setup Prd EU
+      #   run: node update-version.js
       - name: Build EU
         run: yarn build:eu
       - name: Publish Prd EU
