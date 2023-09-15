@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/chat-types",
-  "version": "2.5.32",
+  "version": "2.5.32-prd-eu-prd-eu",
   "description": "Types for Arena Chat SDK",
   "author": "Arena",
   "license": "BSD-3-Clause",
@@ -48,5 +48,5 @@
     "size:check:bundle": "cat dist/*.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'"
   },
   "sideEffects": false,
-  "gitHead": "bb0e57d8150cd4f139e43865110d7ab60609e371"
+  "gitHead": "d48616fa4ca29d0f8f5b5084ea8523c0929feca2"
 }
