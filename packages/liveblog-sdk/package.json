@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/liveblog-sdk",
-  "version": "2.5.31",
+  "version": "2.5.31-prd-eu",
   "description": "arena-liveblog-sdk is the official JavaScript client for Arena Liveblog, a service for building liveblog applications.",
   "author": "Arena",
   "license": "ISC",
@@ -18,8 +18,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^2.5.31",
-    "@arena-im/core": "^2.5.31"
+    "@arena-im/chat-types": "2.5.31-prd-eu",
+    "@arena-im/core": "2.5.31-prd-eu"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^19.0.0",
@@ -72,5 +72,5 @@
     "test:jest:watch": "jest --watch",
     "test:watch": "run-s copy-config:dev test:jest:watch"
   },
-  "gitHead": "cb29bd7dc2659f90a864f4855cb05355904774f5"
+  "gitHead": "bb0e57d8150cd4f139e43865110d7ab60609e371"
 }
