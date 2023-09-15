@@ -72,5 +72,5 @@
     "test:jest:watch": "jest --watch",
     "test:watch": "run-s copy-config:dev test:jest:watch"
   },
-  "gitHead": "769b1a9a457e24ac16f0a90ea827b55a1a86f07b"
+  "gitHead": "cb29bd7dc2659f90a864f4855cb05355904774f5"
 }

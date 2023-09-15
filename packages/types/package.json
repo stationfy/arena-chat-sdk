@@ -48,5 +48,5 @@
     "size:check:bundle": "cat dist/*.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'"
   },
   "sideEffects": false,
-  "gitHead": "769b1a9a457e24ac16f0a90ea827b55a1a86f07b"
+  "gitHead": "cb29bd7dc2659f90a864f4855cb05355904774f5"
 }
