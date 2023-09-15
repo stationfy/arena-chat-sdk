@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 2.6.0 (2023-09-15)
+
+
+### Features
+
+* chanage pip to use this branch ([2d0e013](https://github.com/stationfy/arena-sdk/commit/2d0e013e0d40c7ad4bedf6653cb0fecc0260afef))
+
+
+
+
+
 ## 2.5.24 (2023-07-12)
 
 **Note:** Version bump only for package @arena-im/core
