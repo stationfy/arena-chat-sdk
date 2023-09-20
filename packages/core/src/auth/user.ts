@@ -21,9 +21,6 @@ export class User {
   private arena_url: string;
 
   private constructor() {
-    console.log('\n\n\n Core User constructor check...')
-    console.log(CoreConfig.enviroment)
-    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
     this.arena_url = CoreConfig.enviroment?.ARENA_URL || ''
     this.localStorage = new StorageAPI();
     this.handleAnonymousId();
@@ -48,7 +45,6 @@ export class User {
    * @param user external user
    */
   public async setNewUser(user: ExternalUser): Promise<ExternalUser> {
-    console.log('set new user')
     const [givenName, ...familyName] = user.name.split(' ');
 
     const restAPI = RestAPI.getAPIInstance();
@@ -80,7 +76,6 @@ export class User {
     };
 
     UserObservable.instance.updateUser(this.data);
-    console.log('set new user done')
 
     return this.data;
   }

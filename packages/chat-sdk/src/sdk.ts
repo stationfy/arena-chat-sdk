@@ -36,14 +36,9 @@ export class ArenaChat {
     Config.instance.region = region
     CoreConfig.instance.region = region
     if(envs){
-      console.log('Setando custom envs...', envs)
       Config.instance.enviroment = envs
       CoreConfig.instance.enviroment = envs
     }
-    console.log('\n\n\n ArenaChat constructor check...')
-    console.log(Config.enviroment)
-    console.log(CoreConfig.enviroment)
-    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
     Credentials.apiKey = apiKey;
   }
 

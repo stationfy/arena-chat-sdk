@@ -24,12 +24,8 @@ export class ArenaLiveblog {
   public constructor({apiKey, region = 'USA', envs} : { apiKey: string, region: AreaProperties, envs?: EnvType}) {
     LiveConfig.instance.region = region
     if(envs){
-      console.log('Setando custom envs...', envs)
       LiveConfig.instance.enviroment = envs
     }
-    console.log('\n\n\n LiveConfig constructor check...')
-    console.log(LiveConfig.enviroment)
-    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
     Credentials.apiKey = apiKey;
   }
 

@@ -60,7 +60,6 @@ export class Config {
             }
         }
         Config._enviroment = region === 'EU' ? enviroments.EU :  enviroments.USA; 
-        console.log(Config._enviroment )
     }
 
     public set enviroment(envs: EnvType){

@@ -12,9 +12,6 @@ export class GraphQLAPI {
   private default_auth_token: string;
 
   private constructor(site: Site) {
-    console.log('\n\n\n Core GraphQLAPI constructor check...')
-    console.log(CoreConfig.enviroment)
-    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
     this.default_auth_token = CoreConfig.enviroment?.DEFAULT_AUTH_TOKEN || '';
     const user = User.instance.data;
 

@@ -108,9 +108,6 @@ export class LiveChat implements BaseLiveChat {
    * Get the main chat room channel
    */
   public getMainChannel(): Channel {
-    console.log('getMainChannel')
-    console.log(Config.enviroment)
-    console.log('=-=-=-=-=-=-=-=-=-=-=-=')
     try {
       if (!this.chatRoom.mainChannel) {
         throw new Error(Status.Invalid);

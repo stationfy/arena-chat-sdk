@@ -7,10 +7,6 @@ export class GraphQLTransport {
 
   public constructor(token: string, siteId: string, apiKey: string) {
 
-    console.log('\n\n\n Core GraphQLTransport constructor check...')
-    console.log(CoreConfig.enviroment)
-    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
-
     this.client = new GraphQLClient(CoreConfig.enviroment?.GRAPHQL_ENDPOINT || '', {
       headers: {
         'content-type': 'application/json',
