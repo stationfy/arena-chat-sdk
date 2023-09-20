@@ -2,9 +2,6 @@
   "private": true,
   "scripts": {
     "build": "run-s clean && lerna run --stream --concurrency 1 --sort build",
-    "build:eu": "lerna run --stream --concurrency 1 --sort build:eu",
-    "build:dev": "lerna run --stream --concurrency 1 --sort build:dev",
-    "build:stg": "lerna run --stream --concurrency 1 --sort build:stg",
     "build:es5": "lerna run --stream --concurrency 1 --sort build:es5",
     "build:esm": "lerna run --stream --concurrency 1 --sort build:esm",
     "build:watch": "lerna run build:watch --stream --no-sort --concurrency 9999",
@@ -14,10 +11,7 @@
     "lint": "lerna run --stream --concurrency 1 lint",
     "lint:json": "lerna run --stream --concurrency 1 lint:tslint:json",
     "publish:all:build": "lerna publish",
-    "publish:all:build:eu": "lerna publish --no-git-reset --canary --preid prd-eu --dist-tag prd-eu",
     "publish:beta": "lerna publish --ignore-prepublish --ignore-scripts --canary --preid beta --dist-tag beta",
-    "publish:dev": "run-s build:dev publish:beta",
-    "publish:stg": "run-s build:stg",
     "size:check": "lerna run --stream --concurrency 1 size:check",
     "test": "lerna run --stream --concurrency 1 --sort test",
     "prepare": "husky install"

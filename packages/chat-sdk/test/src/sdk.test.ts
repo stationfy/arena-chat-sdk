@@ -93,7 +93,7 @@ describe('SDK', () => {
         };
       });
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key', region: 'USA'});
 
       const liveChatI = await sdk.getLiveChat('fake-chat');
 
@@ -118,7 +118,7 @@ describe('SDK', () => {
         };
       });
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       try {
         await sdk.getLiveChat('my-channel');
@@ -184,7 +184,7 @@ describe('SDK', () => {
         isModerator: false,
       };
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const response = await sdk.setUser(sender);
 
@@ -209,7 +209,7 @@ describe('SDK', () => {
 
       RestAPI.getAPIInstance = mockAPIInstance;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const response = await sdk.setUser(null);
 
@@ -244,7 +244,7 @@ describe('SDK', () => {
 
       PrivateChannel.blockPrivateUser = mockBlockPrivateUser;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const result = await sdk.blockPrivateUser('fake-user');
 
@@ -255,7 +255,7 @@ describe('SDK', () => {
       // @ts-ignore
       User.instance.data = null;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       sdk.blockPrivateUser('fake-user').catch((error) => {
         expect(error.message).toBe('Cannot block a user without a current user.');
@@ -291,7 +291,7 @@ describe('SDK', () => {
 
       PrivateChannel.unblockPrivateUser = mockUnblockPrivateUser;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const result = await sdk.unblockPrivateUser('fake-user');
 
@@ -302,7 +302,7 @@ describe('SDK', () => {
       // @ts-ignore
       User.instance.data = null;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       sdk.unblockPrivateUser('fake-user').catch((error) => {
         expect(error.message).toBe('Cannot unblock a user without a current user.');
@@ -338,7 +338,7 @@ describe('SDK', () => {
 
       PrivateChannel.getGroupChannel = mockGetGroupChannel;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const result = await sdk.getPrivateChannel('fake-channel');
 
@@ -349,7 +349,7 @@ describe('SDK', () => {
       // @ts-ignore
       User.instance.data = null;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       sdk.getPrivateChannel('fake-channel').catch((error) => {
         expect(error.message).toBe('Cannot get a private channel without a current user.');
@@ -385,7 +385,7 @@ describe('SDK', () => {
 
       PrivateChannel.getUserChannels = mockGetUserChannels;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const result = await sdk.getUserPrivateChannels();
 
@@ -396,7 +396,7 @@ describe('SDK', () => {
       // @ts-ignore
       User.instance.data = null;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       sdk.getUserPrivateChannels().catch((error) => {
         expect(error.message).toBe('Cannot get the list of private channels without a current user.');
@@ -431,7 +431,7 @@ describe('SDK', () => {
 
       PrivateChannel.createUserChannel = mockCreateUserChannel;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const result = await sdk.createUserPrivateChannel('fake-user');
 
@@ -439,7 +439,7 @@ describe('SDK', () => {
     });
 
     it('should return an error if there is no current user', (done) => {
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       // @ts-ignore
       User.instance.data = null;
@@ -467,7 +467,7 @@ describe('SDK', () => {
       // @ts-ignore
       User.instance.data = null;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       sdk
         .onUnreadPrivateMessagesCountChanged((total: number) => {
@@ -489,7 +489,7 @@ describe('SDK', () => {
 
       PrivateChannel.onUnreadMessagesCountChanged = jest.fn();
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       const spy = jest.spyOn(PrivateChannel, 'onUnreadMessagesCountChanged');
 
@@ -532,7 +532,7 @@ describe('SDK', () => {
 
       PrivateChannel.onUnreadMessagesCountChanged = mockListener;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       sdk
         .onUnreadPrivateMessagesCountChanged((total: number) => {
@@ -555,7 +555,7 @@ describe('SDK', () => {
 
       PrivateChannel.onUnreadMessagesCountChanged = mockListener;
 
-      const sdk = new ArenaChat('my-api-key');
+      const sdk = new ArenaChat({apiKey: 'my-api-key'});
 
       sdk.offUnreadMessagesCountChanged((result) => {
         expect(result).toBe(false);
