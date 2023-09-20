@@ -19,12 +19,16 @@ import {
   DocumentChange,
 } from 'firebase/firestore';
 import { SyncPromise } from '../utils/syncpromise';
-import { FIREBASE_APIKEY, FIREBASE_AUTHDOMAIN, FIREBASE_PROJECT_ID } from '../config';
+import { CoreConfig } from '../config';
+
+const firebase_apikey = CoreConfig.enviroment?.FIREBASE_APIKEY
+const firebase_authdomain = CoreConfig.enviroment?.FIREBASE_AUTHDOMAIN
+const firebase_project_id = CoreConfig.enviroment?.FIREBASE_PROJECT_ID
 
 const config = {
-  apiKey: FIREBASE_APIKEY,
-  authDomain: FIREBASE_AUTHDOMAIN,
-  projectId: FIREBASE_PROJECT_ID,
+  apiKey: firebase_apikey,
+  authDomain: firebase_authdomain,
+  projectId: firebase_project_id,
 };
 
 let app;

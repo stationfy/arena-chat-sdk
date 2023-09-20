@@ -3,16 +3,17 @@ import { ExternalUser, Site, Status } from '@arena-im/chat-types';
 import { GraphQLTransport } from '../transports';
 import { User, UserObservable } from '../auth';
 import { OrganizationSite } from '../organization';
-import { DEFAULT_AUTH_TOKEN } from '../config';
+import { CoreConfig } from '../config';
 
 export class GraphQLAPI {
   private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;
   private transport: GraphQLTransport;
+  private default_auth_token: string = CoreConfig.enviroment?.DEFAULT_AUTH_TOKEN || '';
 
   private constructor(site: Site) {
     const user = User.instance.data;
 
-    this.transport = new GraphQLTransport(user?.token || DEFAULT_AUTH_TOKEN, site._id, site.settings.graphqlPubApiKey);
+    this.transport = new GraphQLTransport(user?.token || this.default_auth_token, site._id, site.settings.graphqlPubApiKey);
 
     UserObservable.instance.onUserChanged(this.handleUserChange.bind(this));
   }
@@ -32,7 +33,7 @@ export class GraphQLAPI {
   }
 
   private handleUserChange(user: ExternalUser | null) {
-    const token = user?.token || DEFAULT_AUTH_TOKEN;
+    const token = user?.token || this.default_auth_token;
 
     this.transport.setToken(token);
   }

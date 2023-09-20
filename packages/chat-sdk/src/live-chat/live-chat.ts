@@ -13,6 +13,7 @@ import { Credentials, PresenceAPI, ArenaHub } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
+import { Config } from '../config';
 
 type Instance = {
   [key: string]: Promise<LiveChat>;
@@ -106,6 +107,9 @@ export class LiveChat implements BaseLiveChat {
    * Get the main chat room channel
    */
   public getMainChannel(): Channel {
+    console.log('getMainChannel')
+    console.log(Config.enviroment)
+    console.log('=-=-=-=-=-=-=-=-=-=-=-=')
     try {
       if (!this.chatRoom.mainChannel) {
         throw new Error(Status.Invalid);

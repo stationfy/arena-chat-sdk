@@ -26,7 +26,7 @@ import {
   fetchCachedAPIData,
 } from '@arena-im/core';
 import { supportsFetch } from '../utils/supports';
-import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
+import { Config } from '../config';
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {
@@ -34,7 +34,7 @@ export class RestAPI implements BaseRest {
   private static cachedInstance: RestAPI;
   private static apiNoauthInstance: RestAPI;
 
-  private baseURL = API_V2_URL;
+  private baseURL: string = Config.enviroment?.API_V2_URL || '';
   private transport!: BaseTransport;
 
   private constructor(options?: BaseRestOptions) {
@@ -62,14 +62,14 @@ export class RestAPI implements BaseRest {
   public static getAPIInstance(): RestAPI {
     if (!RestAPI.apiInstance) {
       const token = User.instance.data?.token;
-      RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: token || DEFAULT_AUTH_TOKEN });
+      RestAPI.apiInstance = new RestAPI({ url: Config.enviroment?.API_V2_URL, authToken: token || Config.enviroment?.DEFAULT_AUTH_TOKEN });
       UserObservable.instance.onUserChanged(RestAPI.apiInstance.handleUserChange.bind(RestAPI.apiInstance));
     }
 
     return RestAPI.apiInstance;
   }
 
-  private setAPIToken(token: string = DEFAULT_AUTH_TOKEN) {
+  private setAPIToken(token: string | undefined = Config.enviroment?.DEFAULT_AUTH_TOKEN) {
     this.setTransport(token);
   }
 
@@ -79,7 +79,7 @@ export class RestAPI implements BaseRest {
    */
   public static getCachedInstance(): RestAPI {
     if (!RestAPI.cachedInstance) {
-      RestAPI.cachedInstance = new RestAPI({ url: CACHED_API });
+      RestAPI.cachedInstance = new RestAPI({ url: Config.enviroment?.CACHED_API });
     }
 
     return RestAPI.cachedInstance;
@@ -91,7 +91,7 @@ export class RestAPI implements BaseRest {
    */
   public static getAPINoauthInstance(): RestAPI {
     if (!RestAPI.apiNoauthInstance) {
-      RestAPI.apiNoauthInstance = new RestAPI({ url: API_V2_URL });
+      RestAPI.apiNoauthInstance = new RestAPI({ url: Config.enviroment?.API_V2_URL });
     }
 
     return RestAPI.apiNoauthInstance;

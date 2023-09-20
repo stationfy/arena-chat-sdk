@@ -1,6 +1,7 @@
 import { Status } from '@arena-im/chat-types';
 import { Credentials } from '@arena-im/core';
 import { Liveblog } from './liveblog/liveblog';
+import { ConfigProperties, LiveConfig } from './config';
 
 /**
  * Liveblog SDK Client
@@ -18,8 +19,9 @@ import { Liveblog } from './liveblog/liveblog';
  *```
  */
 export class ArenaLiveblog {
-  public constructor(apiKey: string) {
+  public constructor(apiKey: string, env: ConfigProperties) {
     Credentials.apiKey = apiKey;
+    new LiveConfig(env)
   }
 
   public async getLiveblog(slug: string): Promise<Liveblog> {

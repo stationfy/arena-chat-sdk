@@ -9,23 +9,26 @@ import {
 import { FetchTransport, XHRTransport } from '../transports';
 import { BaseTransport, BaseRestOptions } from '../interfaces';
 import { supportsFetch } from '../utils/supports';
-import { API_V2_URL, CACHED_API, DEFAULT_AUTH_TOKEN } from '../config';
 import { UserObservable } from '../auth/user-observable';
+import { CoreConfig } from '../config';
 
 /** Base rest class implementation */
 export class RestAPI {
   private static apiInstance: RestAPI;
   private static cachedInstance: RestAPI;
   private static apiNoauthInstance: RestAPI;
+  private static baseURL: string = CoreConfig.enviroment?.API_V2_URL || '';
+  private static cached_api: string = CoreConfig.enviroment?.CACHED_API || '';
+  private static default_auth_token: string = CoreConfig.enviroment?.DEFAULT_AUTH_TOKEN || '';
 
-  private baseURL = API_V2_URL;
   private transport!: BaseTransport;
+
 
   private constructor(options?: BaseRestOptions) {
     const { url, authToken } = options || {};
 
     if (url) {
-      this.baseURL = url;
+      RestAPI.baseURL = url;
     }
 
     this.setTransport(authToken);
@@ -39,9 +42,9 @@ export class RestAPI {
 
   private setTransport(authToken?: string) {
     if (supportsFetch()) {
-      this.transport = new FetchTransport(this.baseURL, authToken);
+      this.transport = new FetchTransport(RestAPI.baseURL, authToken);
     } else {
-      this.transport = new XHRTransport(this.baseURL, authToken);
+      this.transport = new XHRTransport(RestAPI.baseURL, authToken);
     }
   }
 
@@ -51,14 +54,14 @@ export class RestAPI {
    */
   public static getAPIInstance(): RestAPI {
     if (!RestAPI.apiInstance) {
-      RestAPI.apiInstance = new RestAPI({ url: API_V2_URL, authToken: DEFAULT_AUTH_TOKEN });
+      RestAPI.apiInstance = new RestAPI({ url: this.baseURL, authToken: RestAPI.default_auth_token });
       UserObservable.instance.onUserChanged(RestAPI.apiInstance.handleUserChange.bind(RestAPI.apiInstance));
     }
 
     return RestAPI.apiInstance;
   }
 
-  private setAPIToken(token: string = DEFAULT_AUTH_TOKEN) {
+  private setAPIToken(token: string = RestAPI.default_auth_token) {
     this.setTransport(token);
   }
 
@@ -68,7 +71,7 @@ export class RestAPI {
    */
   public static getCachedInstance(): RestAPI {
     if (!RestAPI.cachedInstance) {
-      RestAPI.cachedInstance = new RestAPI({ url: CACHED_API });
+      RestAPI.cachedInstance = new RestAPI({ url: this.cached_api });
     }
 
     return RestAPI.cachedInstance;
@@ -80,7 +83,7 @@ export class RestAPI {
    */
   public static getAPINoauthInstance(): RestAPI {
     if (!RestAPI.apiNoauthInstance) {
-      RestAPI.apiNoauthInstance = new RestAPI({ url: API_V2_URL });
+      RestAPI.apiNoauthInstance = new RestAPI({ url: RestAPI.baseURL });
     }
 
     return RestAPI.apiNoauthInstance;

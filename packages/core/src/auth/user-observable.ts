@@ -8,7 +8,9 @@ export class UserObservable {
   private userChangedListeners = createBehaviorObserver<UserEvent>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private constructor() {}
+  private constructor() {
+    
+  }
 
   public static get instance(): UserObservable {
     if (!UserObservable.userObervableInstance) {

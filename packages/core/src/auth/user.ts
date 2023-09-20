@@ -3,8 +3,8 @@ import { RestAPI } from '../services/rest-api';
 import { Credentials } from './credentials';
 import { UserObservable } from './user-observable';
 import { StorageAPI } from '../services/storage-api';
-import { ARENA_URL } from '../config';
 import { generateUUIDV4, getGlobalObject } from '../utils/misc';
+import { CoreConfig } from '../config';
 
 const userCountryCacheKey = 'arenaUserCountry';
 const anonymousIdCacheKey = 'anonymousUserId';
@@ -18,6 +18,7 @@ export class User {
   private anonymousIdValue = this.generateUserId();
   private localStorage: StorageAPI;
   private global = getGlobalObject<Window>();
+  private arena_url = CoreConfig.enviroment?.ARENA_URL || ''
 
   private constructor() {
     this.localStorage = new StorageAPI();
@@ -137,12 +138,11 @@ export class User {
       return;
     }
 
-    const url = ARENA_URL;
 
     this.global.addEventListener(
       'message',
       (event) => {
-        if (event.origin === url && event.data.type === ARENA_HUB_ANONYMOUS_ID) {
+        if (event.origin === this.arena_url && event.data.type === ARENA_HUB_ANONYMOUS_ID) {
           this.anonymousId = event.data.value;
         }
       },
@@ -157,7 +157,7 @@ export class User {
     const arenaHubFrame = this.global.document.querySelector('[name="arena-hub-frame"]') as HTMLIFrameElement;
 
     if (arenaHubFrame) {
-      arenaHubFrame.contentWindow?.postMessage({ type: ASK_ARENA_HUB_ANONYMOUS_ID }, ARENA_URL);
+      arenaHubFrame.contentWindow?.postMessage({ type: ASK_ARENA_HUB_ANONYMOUS_ID }, this.arena_url);
     } else {
       if (document.readyState === 'complete' || document.readyState === 'interactive') {
         this.createArenaHubIframe();
@@ -170,11 +170,10 @@ export class User {
   }
 
   private createArenaHubIframe() {
-    const url = ARENA_URL;
 
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
-    iframe.src = url + '/arenahubframe';
+    iframe.src = this.arena_url + '/arenahubframe';
     iframe.name = 'arena-hub-frame';
 
     document.body.appendChild(iframe);

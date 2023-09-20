@@ -2,6 +2,22 @@
 # yarn lockfile v1
 
 
+"@arena-im/chat-types@^2.5.33", "@arena-im/chat-types@^2.6.0-beta.2":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@arena-im/chat-types/-/chat-types-2.6.0.tgz#22f12d0508cb817d79b836d5d44616d086f3bc9c"
+  integrity sha512-Dkrd5i8xhRvInQiabVWxL5QQkXOtPfqMwLF4Z7fvrpj0ZwRejMcDP2vMUk10GnJISJxUr5sWp3srlvkr8lh1pA==
+
+"@arena-im/core@^2.5.23":
+  version "2.5.33"
+  resolved "https://registry.yarnpkg.com/@arena-im/core/-/core-2.5.33.tgz#3aaeaa20fab6af988d9b31e4af2b28b1616e431b"
+  integrity sha512-9btCP3zd/PqscY123dA4EEDxWM+AhuX64vFPCb8zRamEqmXjuq28Cj67OHCgLg4YPQgD7XCkVpysz2FkjmRnsw==
+  dependencies:
+    "@arena-im/chat-types" "^2.5.33"
+    firebase "9.0.2"
+    graphql "^15.5.0"
+    graphql-request "^3.4.0"
+    socket.io-client "^4.1.2"
+
 "@babel/code-frame@7.12.11", "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4":
   version "7.12.11"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.12.11.tgz"

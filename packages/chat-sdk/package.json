@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/chat-sdk",
-  "version": "2.6.0-beta.2",
+  "version": "2.5.23",
   "description": "arena-chat-sdk is the official JavaScript client for Arena Chat, a service for building chat applications.",
   "author": "Arena",
   "license": "ISC",
@@ -18,8 +18,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@arena-im/chat-types": "^2.6.0-beta.2",
-    "@arena-im/core": "^2.6.0-beta.2"
+    "@arena-im/chat-types": "^2.5.23",
+    "@arena-im/core": "^2.5.23"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^19.0.0",
@@ -48,30 +48,22 @@
     "typescript": "4.3.4"
   },
   "scripts": {
-    "build": "run-s copy-config:prod build:dist build:bundle",
-    "build:eu": "run-s copy-config:prod-eu build:dist build:bundle",
+    "build": "run-s build:dist build:bundle",
     "build:bundle": "rollup --config",
     "build:bundle:watch": "rollup --config --watch",
-    "build:dev": "run-s copy-config:dev build:dist build:bundle",
     "build:dist": "tsc -p tsconfig.build.json",
     "build:dist:watch": "tsc -p tsconfig.build.json -w --preserveWatchOutput",
-    "build:stg": "run-s copy-config:stg build:dist build:bundle",
-    "build:watch": "run-p copy-config:dev build:dist:watch build:bundle:watch",
+    "build:watch": "run-p build:dist:watch build:bundle:watch",
     "clean": "rimraf dist coverage build",
-    "copy-config:dev": "cp ../../config.dev.ts ./src/config.ts",
-    "copy-config:stg": "cp ../../config.stg.ts ./src/config.ts",
-    "copy-config:prod": "cp ../../config.prod.ts ./src/config.ts",
-    "copy-config:prod-eu": "cp ../../config.prod-eu.ts ./src/config.ts",
     "link:yarn": "yarn link",
     "lint": "eslint . --ext .js,.ts",
     "pre-commit": "yarn lint-staged",
-    "pretest": "run-s copy-config:dev",
     "publish:registry": "yarn publish --access public",
     "size:check": "run-p size:check:bundle",
     "size:check:bundle": "cat build/bundle.min.js | gzip -9 | wc -c | awk '{$1=$1/1024; print \"bundle: \",$1,\"kB\";}'",
     "test": "jest --forceExit",
     "test:jest:watch": "jest --watch",
-    "test:watch": "run-s copy-config:dev test:jest:watch"
+    "test:watch": "run-s test:jest:watch"
   },
   "gitHead": "769b1a9a457e24ac16f0a90ea827b55a1a86f07b"
 }
