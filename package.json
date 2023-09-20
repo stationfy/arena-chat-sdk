@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build": "lerna run --stream --concurrency 1 --sort build",
+    "build": "run-s clean && lerna run --stream --concurrency 1 --sort build",
     "build:eu": "lerna run --stream --concurrency 1 --sort build:eu",
     "build:dev": "lerna run --stream --concurrency 1 --sort build:dev",
     "build:stg": "lerna run --stream --concurrency 1 --sort build:stg",

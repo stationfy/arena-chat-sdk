@@ -13,7 +13,6 @@ import { Credentials, PresenceAPI, ArenaHub } from '@arena-im/core';
 import { GraphQLAPI } from '../services/graphql-api';
 import { Channel } from '../channel/channel';
 import { RestAPI } from '../services/rest-api';
-import Config from '@arena-im/config-sdk';
 
 
 type Instance = {
