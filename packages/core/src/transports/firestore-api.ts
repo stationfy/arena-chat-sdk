@@ -19,7 +19,8 @@ import {
   DocumentChange,
 } from 'firebase/firestore';
 import { SyncPromise } from '../utils/syncpromise';
-import { CoreConfig } from '../config';
+import CoreConfig from '@arena-im/config-sdk';
+
 
 const firebase_apikey = CoreConfig.enviroment?.FIREBASE_APIKEY
 const firebase_authdomain = CoreConfig.enviroment?.FIREBASE_AUTHDOMAIN
@@ -30,6 +31,8 @@ const config = {
   authDomain: firebase_authdomain,
   projectId: firebase_project_id,
 };
+
+//TODO check if CoreConfig is loaded...
 
 let app;
 

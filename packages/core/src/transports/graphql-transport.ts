@@ -1,10 +1,16 @@
 import { GraphQLClient } from 'graphql-request';
-import { CoreConfig } from '../config';
+import CoreConfig from '@arena-im/config-sdk';
+
 
 export class GraphQLTransport {
   public client: GraphQLClient;
 
   public constructor(token: string, siteId: string, apiKey: string) {
+
+    console.log('\n\n\n Core GraphQLTransport constructor check...')
+    console.log(CoreConfig.enviroment)
+    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
+
     this.client = new GraphQLClient(CoreConfig.enviroment?.GRAPHQL_ENDPOINT || '', {
       headers: {
         'content-type': 'application/json',

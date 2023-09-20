@@ -19,7 +19,8 @@
   "types": "dist/index.d.ts",
   "dependencies": {
     "@arena-im/chat-types": "^2.5.23",
-    "@arena-im/core": "^2.5.23"
+    "@arena-im/core": "^2.5.23",
+    "@arena-im/config-sdk": "^1.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^19.0.0",

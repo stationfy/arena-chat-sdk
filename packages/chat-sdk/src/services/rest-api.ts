@@ -26,7 +26,8 @@ import {
   fetchCachedAPIData,
 } from '@arena-im/core';
 import { supportsFetch } from '../utils/supports';
-import { Config } from '../config';
+import Config from '@arena-im/config-sdk';
+
 
 /** Base rest class implementation */
 export class RestAPI implements BaseRest {
@@ -34,10 +35,11 @@ export class RestAPI implements BaseRest {
   private static cachedInstance: RestAPI;
   private static apiNoauthInstance: RestAPI;
 
-  private baseURL: string = Config.enviroment?.API_V2_URL || '';
+  private baseURL: string;
   private transport!: BaseTransport;
 
   private constructor(options?: BaseRestOptions) {
+    this.baseURL = Config.enviroment?.API_V2_URL || '';
     const { url, authToken } = options || {};
 
     if (url) {

@@ -3,14 +3,19 @@ import { ExternalUser, Site, Status } from '@arena-im/chat-types';
 import { GraphQLTransport } from '../transports';
 import { User, UserObservable } from '../auth';
 import { OrganizationSite } from '../organization';
-import { CoreConfig } from '../config';
+import CoreConfig from '@arena-im/config-sdk';
+
 
 export class GraphQLAPI {
   private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;
   private transport: GraphQLTransport;
-  private default_auth_token: string = CoreConfig.enviroment?.DEFAULT_AUTH_TOKEN || '';
+  private default_auth_token: string;
 
   private constructor(site: Site) {
+    console.log('\n\n\n Core GraphQLAPI constructor check...')
+    console.log(CoreConfig.enviroment)
+    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
+    this.default_auth_token = CoreConfig.enviroment?.DEFAULT_AUTH_TOKEN || '';
     const user = User.instance.data;
 
     this.transport = new GraphQLTransport(user?.token || this.default_auth_token, site._id, site.settings.graphqlPubApiKey);

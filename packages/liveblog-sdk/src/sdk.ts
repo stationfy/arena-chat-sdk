@@ -1,7 +1,8 @@
 import { Status } from '@arena-im/chat-types';
 import { Credentials } from '@arena-im/core';
 import { Liveblog } from './liveblog/liveblog';
-import { ConfigProperties, LiveConfig } from './config';
+import LiveConfig, { AreaProperties, EnvType } from '@arena-im/config-sdk';
+
 
 /**
  * Liveblog SDK Client
@@ -19,9 +20,17 @@ import { ConfigProperties, LiveConfig } from './config';
  *```
  */
 export class ArenaLiveblog {
-  public constructor(apiKey: string, env: ConfigProperties) {
+
+  public constructor({apiKey, region = 'USA', envs} : { apiKey: string, region: AreaProperties, envs?: EnvType}) {
+    LiveConfig.instance.region = region
+    if(envs){
+      console.log('Setando custom envs...', envs)
+      LiveConfig.instance.enviroment = envs
+    }
+    console.log('\n\n\n LiveConfig constructor check...')
+    console.log(LiveConfig.enviroment)
+    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
     Credentials.apiKey = apiKey;
-    new LiveConfig(env)
   }
 
   public async getLiveblog(slug: string): Promise<Liveblog> {

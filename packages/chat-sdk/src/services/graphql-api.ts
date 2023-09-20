@@ -18,7 +18,7 @@ import {
   ChatMessageToSend,
 } from '@arena-im/chat-types';
 import { GraphQLTransport, User, UserObservable, OrganizationSite } from '@arena-im/core';
-import { Config } from '../config';
+import Config from '@arena-im/config-sdk';
 
 export class GraphQLAPI {
   private static graphQLAPIInstance: Promise<GraphQLAPI> | undefined;

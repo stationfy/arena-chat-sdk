@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "paths": {
+      "@services/*": ["./src/services/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@channel/*": ["./src/channel/*"],
+      "@qna/*": ["./src/qna/*"],
+      "@models/*": ["./src/models/*"],
+      "@polls/*": ["./src/polls/*"],
+      "@live-chat/*": ["./src/live-chat/*"],
+      "@organization/*": ["./src/organization/*"],
+      "@auth/*": ["./src/auth/*"]
+    }
+  },
+  "include": ["src/**/*", "test/**/*"]
+}

@@ -7,9 +7,9 @@ import {
   PublicUser,
   PublicUserInput,
 } from '@arena-im/chat-types';
-import {CoreConfig, User, Credentials } from '@arena-im/core';
+import {Config as CoreConfig,  User, Credentials } from '@arena-im/core';
 import { LiveChat } from './live-chat/live-chat';
-import { Config, ConfigProperties } from './config';
+import Config, { AreaProperties, EnvType } from '@arena-im/config-sdk';
 /**
  * Chat SDK Client
  *
@@ -32,11 +32,18 @@ export class ArenaChat {
   private unsubscribeOnUnreadMessagesCountChanged: (() => void) | undefined;
   private userProfileI: BaseUserProfile | null = null;
 
-  public constructor(apiKey: string, env: ConfigProperties = 'USA') {
-    console.log(`Criando chat com ======= ${apiKey} | ${env}`)
-    new Config(env)
-    new CoreConfig(env)
+  public constructor({apiKey, region = 'USA', envs} : { apiKey: string, region: AreaProperties, envs?: EnvType}) {
+    Config.instance.region = region
+    CoreConfig.instance.region = region
+    if(envs){
+      console.log('Setando custom envs...', envs)
+      Config.instance.enviroment = envs
+      CoreConfig.instance.enviroment = envs
+    }
+    console.log('\n\n\n ArenaChat constructor check...')
     console.log(Config.enviroment)
+    console.log(CoreConfig.enviroment)
+    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
     Credentials.apiKey = apiKey;
   }
 

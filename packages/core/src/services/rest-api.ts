@@ -10,26 +10,40 @@ import { FetchTransport, XHRTransport } from '../transports';
 import { BaseTransport, BaseRestOptions } from '../interfaces';
 import { supportsFetch } from '../utils/supports';
 import { UserObservable } from '../auth/user-observable';
-import { CoreConfig } from '../config';
+import CoreConfig from '@arena-im/config-sdk';
+
+
 
 /** Base rest class implementation */
 export class RestAPI {
   private static apiInstance: RestAPI;
   private static cachedInstance: RestAPI;
   private static apiNoauthInstance: RestAPI;
-  private static baseURL: string = CoreConfig.enviroment?.API_V2_URL || '';
-  private static cached_api: string = CoreConfig.enviroment?.CACHED_API || '';
-  private static default_auth_token: string = CoreConfig.enviroment?.DEFAULT_AUTH_TOKEN || '';
+  private static baseURL: string;
+  private static cached_api: string;
+  private static default_auth_token: string;
 
   private transport!: BaseTransport;
 
 
   private constructor(options?: BaseRestOptions) {
-    const { url, authToken } = options || {};
+    console.log('\n\n\n Core RestAPI constructor check...')
+    console.log(CoreConfig.enviroment)
 
+    RestAPI.baseURL  = CoreConfig.enviroment?.API_V2_URL || '';
+    RestAPI.cached_api = CoreConfig.enviroment?.CACHED_API || '';
+    RestAPI.default_auth_token = CoreConfig.enviroment?.DEFAULT_AUTH_TOKEN || '';
+    
+    const { url, authToken } = options || {};
+    console.log('url: ', url)
+    console.log('authToken: ', authToken)
+    console.log('RestAPI.baseUR: ', RestAPI.baseURL)
     if (url) {
       RestAPI.baseURL = url;
     }
+    console.log('RestAPI.baseUR: ', RestAPI.baseURL)
+    console.log('=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n\n')
+
 
     this.setTransport(authToken);
   }
@@ -46,6 +60,7 @@ export class RestAPI {
     } else {
       this.transport = new XHRTransport(RestAPI.baseURL, authToken);
     }
+
   }
 
   /**
@@ -53,10 +68,14 @@ export class RestAPI {
    * @returns api v2 with authentication
    */
   public static getAPIInstance(): RestAPI {
+    console.log('\n\n\n Core RestAPI getAPIInstance check...')
     if (!RestAPI.apiInstance) {
-      RestAPI.apiInstance = new RestAPI({ url: this.baseURL, authToken: RestAPI.default_auth_token });
+      
+      RestAPI.apiInstance = new RestAPI({ url: this.baseURL, authToken: this.default_auth_token });
       UserObservable.instance.onUserChanged(RestAPI.apiInstance.handleUserChange.bind(RestAPI.apiInstance));
+
     }
+    console.log('\n\n\n Core RestAPI getAPIInstance check... DONE')
 
     return RestAPI.apiInstance;
   }
