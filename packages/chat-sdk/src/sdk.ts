@@ -24,7 +24,7 @@ import Config, { AreaProperties, EnvType } from '@arena-im/config-sdk';
  *
  * import ArenaChat from '@arenaim/arena-chat-sdk';
  *
- * const arenaChat = new ArenaChat('API_KEY')
+ * const arenaChat = new ArenaChat({apiKey: 'API_KEY'})
  * const channel = await arenaChat.getChannel('sdwe')
  * channel.sendMessage({
  * })

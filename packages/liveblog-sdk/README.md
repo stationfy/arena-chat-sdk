@@ -27,7 +27,11 @@ To initialize the SDK you'll need your site slug and a chat room slug and both c
 ```javascript
 import ArenaChat from '@arena-im/chat-sdk';
 
-const arenaChat = new ArenaChat('my-site-slug');
+//for USA region
+const arenaChat = new ArenaChat({apiKey: 'my-site-slug'});
+
+//for EU region
+const arenaChat = new ArenaChat({apiKey: 'my-site-slug', region: 'EU'});
 ```
 
 ### Get Live Chat

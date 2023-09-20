@@ -28,7 +28,11 @@ or using the Platform API.
 ```javascript
 import ArenaChat from '@arena-im/chat-sdk';
 
-const arenaChat = new ArenaChat('my-site-slug');
+//for USA region
+const arenaChat = new ArenaChat({apiKey: 'my-site-slug'});
+
+//for EU region
+const arenaChat = new ArenaChat({apiKey: 'my-site-slug', region: 'EU'});
 ```
 
 ### Get Live Chat

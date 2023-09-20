@@ -6,7 +6,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    arenaChat: new ArenaChat('testnetlify'),
+    arenaChat: new ArenaChat({apiKey: 'testnetlify'}),
     liveChat: undefined,
     mainChannel: undefined,
     currentChannel: undefined,

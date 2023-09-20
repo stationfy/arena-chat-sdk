@@ -1,5 +1,5 @@
 // create Arena Chat object with the site slug
-var arenaChat = new window.ArenaChat(YOUR_SITE_SLUG);
+var arenaChat = new window.ArenaChat({apiKey: YOUR_SITE_SLUG});
 
 async function initialize() {
   // get a channel with chat slug
