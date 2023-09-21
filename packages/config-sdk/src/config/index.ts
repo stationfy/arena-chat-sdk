@@ -14,10 +14,9 @@ export type EnvType = {
 type EnvDataType = {
     EU: EnvType,
     USA: EnvType,
-    LOCAL?: EnvType
 }
 
-export type AreaProperties =  'EU' | 'USA' | 'LOCAL';
+export type AreaProperties =  'EU' | 'USA' ;
 
 export class Config {
     private static configInstance: Config;
@@ -63,7 +62,10 @@ export class Config {
     }
 
     public set enviroment(envs: EnvType){
-        Config._enviroment = envs;
+        Config._enviroment = {
+            ...Config._enviroment,
+            ...envs,
+        }
     }
 
     public static get enviroment(): EnvType | null {
