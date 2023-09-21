@@ -1,6 +1,6 @@
 {
   "name": "@arena-im/config-sdk",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.10",
   "description": "Arena config-sdk is the official JavaScript config for Arena Chat, a service for building chat applications.",
   "author": "Arena",
   "license": "ISC",
